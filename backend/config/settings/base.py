@@ -1,31 +1,38 @@
-﻿from pathlib import Path
 from datetime import timedelta
+from importlib.util import find_spec
+from pathlib import Path
+
 import environ
 
-env = environ.Env()
-environ.Env.read_env()
-
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+ENV_FILE = BASE_DIR / ".env"
+
+env = environ.Env()
+if ENV_FILE.exists():
+    environ.Env.read_env(ENV_FILE)
 
 SECRET_KEY = env("SECRET_KEY", default="unsafe-dev-key")
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
+API_PREFIX = env("API_PREFIX", default="api")
+
+OPTIONAL_APPS = []
+if find_spec("jazzmin") is not None:
+    OPTIONAL_APPS.append("jazzmin")
 
 INSTALLED_APPS = [
-    "jazzmin",
+    *OPTIONAL_APPS,
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    
     "corsheaders",
     "rest_framework",
     "drf_spectacular",
     "rest_framework_simplejwt.token_blacklist",
-    
-    "apps.common",    
+    "apps.common",
     "apps.users",
     "apps.members",
     "apps.households",
@@ -81,7 +88,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.StandardPageNumberPagination",
-    "EXCEPTION_HANDLER": "apps.common.exception_handler.custom_exception_handler",
+    "EXCEPTION_HANDLER": "apps.common.exception_handlers.custom_exception_handler",
     "PAGE_SIZE": 20,
 }
 
@@ -98,7 +105,7 @@ CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=False)
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = env("TIME_ZONE", default=["UTC"])
+TIME_ZONE = env("TIME_ZONE", default="UTC")
 USE_I18N = True
 USE_TZ = True
 
