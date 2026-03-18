@@ -79,6 +79,8 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
 }
 
+AUTH_USER_MODEL = "users.User"
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "The Haven API",
     "DESCRIPTION": "Church attendance and finance system API",
