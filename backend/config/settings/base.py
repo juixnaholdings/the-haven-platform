@@ -94,7 +94,8 @@ SPECTACULAR_SETTINGS = {
 }
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
-CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=True)
+CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=False)
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = env("TIME_ZONE", default=["UTC"])
@@ -120,4 +121,36 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
+}
+
+JAZZMIN_SETTINGS = {
+    "site_title": "The Haven Admin",
+    "site_header": "The Haven",
+    "site_brand": "The Haven",
+    "welcome_sign": "Welcome to The Haven Admin",
+    "copyright": "The Haven",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "show_ui_builder": False,
+    "changeform_format": "horizontal_tabs",
+    "related_modal_active": True,
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.group": "fas fa-users",
+        "users": "fas fa-user-shield",
+        "users.user": "fas fa-user",
+    },
+    "order_with_respect_to": [
+        "users",
+        "auth",
+    ],
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "flatly",
+    "dark_mode_theme": "darkly",
+    "navbar": "navbar-white navbar-light",
+    "sidebar": "sidebar-dark-primary",
+    "brand_colour": "navbar-primary",
+    "accent": "accent-primary",
 }
