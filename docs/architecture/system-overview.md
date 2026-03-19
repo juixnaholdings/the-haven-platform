@@ -7,6 +7,15 @@ The Haven backend is a Django modular monolith inside the monorepo.
 - `users`: authentication, admin bootstrap, JWT API auth, and baseline RBAC roles.
 - `members`: core member records for people in the church domain.
 - `households`: household records plus the membership relationship between a member and a household.
+- `groups`: business groups and the affiliation relationship between a member and a group.
+
+## Groups Rules
+
+- Business groups in the `groups` app are distinct from Django auth groups used for RBAC roles.
+- A member can have only one active affiliation with the same business group at a time.
+- Ended affiliations remain in history instead of being overwritten.
+- Group detail responses include memberships through the `GroupMembership` relationship model.
+- `GroupMembership.role_name` captures the member's role inside that business group when relevant.
 
 ## Household Rules
 

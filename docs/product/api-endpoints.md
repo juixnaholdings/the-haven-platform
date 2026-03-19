@@ -43,3 +43,18 @@ All API routes are mounted under the configured API prefix, which defaults to `/
   Updates a household.
 - `POST /api/households/{household_id}/members/`
   Adds a member to a household while enforcing household membership rules.
+
+## Groups Admin Endpoints
+
+- `GET /api/groups/`
+  Lists business groups with optional search and active-state filters.
+- `POST /api/groups/`
+  Creates a business group.
+- `GET /api/groups/{group_id}/`
+  Returns group detail including group memberships.
+- `PATCH /api/groups/{group_id}/`
+  Updates a business group.
+- `POST /api/groups/{group_id}/members/`
+  Adds a member affiliation to a business group.
+- `PATCH /api/groups/{group_id}/memberships/{membership_id}/`
+  Updates a group affiliation, including `role_name`, active state, and dates.

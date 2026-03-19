@@ -11,6 +11,7 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
+    path(f"{settings.API_PREFIX}/groups/", include("apps.groups.urls")),
     path(f"{settings.API_PREFIX}/members/", include("apps.members.urls")),
     path(f"{settings.API_PREFIX}/households/", include("apps.households.urls")),
     path(f"{settings.API_PREFIX}/", include("apps.users.urls")),

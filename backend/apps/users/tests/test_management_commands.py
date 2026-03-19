@@ -40,6 +40,12 @@ class SetupRolesCommandTests(TestCase):
                 codename="view_household",
             ).exists()
         )
+        self.assertTrue(
+            church_admin.permissions.filter(
+                content_type__app_label="groups",
+                codename="view_group",
+            ).exists()
+        )
 
         output = stdout.getvalue()
         self.assertIn("Summary:", output)
