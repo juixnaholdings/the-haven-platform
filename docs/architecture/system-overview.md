@@ -8,6 +8,7 @@ The Haven backend is a Django modular monolith inside the monorepo.
 - `members`: core member records for people in the church domain.
 - `households`: household records plus the membership relationship between a member and a household.
 - `groups`: business groups and the affiliation relationship between a member and a group.
+- `attendance`: service/event records, anonymous attendance summaries, and member-level attendance records.
 
 ## Groups Rules
 
@@ -22,6 +23,14 @@ The Haven backend is a Django modular monolith inside the monorepo.
 - A member can have only one active household membership at a time.
 - A household can have only one active head at a time.
 - Household detail responses include household members through the `HouseholdMembership` relationship model.
+
+## Attendance Rules
+
+- `ServiceEvent` is the root record for services and other church events.
+- `AttendanceSummary` is the anonymous aggregate attendance record for an event and is distinct from member-level attendance.
+- Each event can have only one attendance summary.
+- `MemberAttendance` records are per member per event, with one attendance record allowed for the same member and event pair.
+- Summary totals are validated independently from member attendance records; they do not have to match the number of known member attendance rows.
 
 ## API Shape
 

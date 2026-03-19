@@ -1,7 +1,7 @@
-﻿from django.apps import AppConfig
+from django.apps import AppConfig
 
 
-class AuditConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.attendance'
-    label = 'attendance'
+class AttendanceConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.attendance"
+    label = "attendance"

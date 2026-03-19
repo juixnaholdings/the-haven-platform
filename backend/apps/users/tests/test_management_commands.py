@@ -46,10 +46,16 @@ class SetupRolesCommandTests(TestCase):
                 codename="view_group",
             ).exists()
         )
+        self.assertTrue(
+            church_admin.permissions.filter(
+                content_type__app_label="attendance",
+                codename="view_attendancesummary",
+            ).exists()
+        )
 
         output = stdout.getvalue()
         self.assertIn("Summary:", output)
-        self.assertIn("attendance.view_serviceevent", output)
+        self.assertIn("Attendance Officer:", output)
 
     def test_setup_roles_is_idempotent(self):
         call_command("setup_roles")

@@ -58,3 +58,24 @@ All API routes are mounted under the configured API prefix, which defaults to `/
   Adds a member affiliation to a business group.
 - `PATCH /api/groups/{group_id}/memberships/{membership_id}/`
   Updates a group affiliation, including `role_name`, active state, and dates.
+
+## Attendance Admin Endpoints
+
+- `GET /api/attendance/`
+  Lists service and event records with optional search, event type, date range, and active-state filters.
+- `POST /api/attendance/`
+  Creates a service or event record.
+- `GET /api/attendance/{service_event_id}/`
+  Returns service/event detail including the attendance summary and member attendance records.
+- `PATCH /api/attendance/{service_event_id}/`
+  Updates a service or event record.
+- `PUT /api/attendance/{service_event_id}/summary/`
+  Creates or replaces the anonymous attendance summary for the event.
+- `PATCH /api/attendance/{service_event_id}/summary/`
+  Partially updates the anonymous attendance summary for the event.
+- `GET /api/attendance/{service_event_id}/member-attendance/`
+  Lists member attendance records for the event.
+- `POST /api/attendance/{service_event_id}/member-attendance/`
+  Records member attendance for the event.
+- `PATCH /api/attendance/{service_event_id}/member-attendance/{member_attendance_id}/`
+  Updates an existing member attendance record.
