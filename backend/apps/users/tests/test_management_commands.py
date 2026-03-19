@@ -52,6 +52,12 @@ class SetupRolesCommandTests(TestCase):
                 codename="view_attendancesummary",
             ).exists()
         )
+        self.assertTrue(
+            church_admin.permissions.filter(
+                content_type__app_label="finance",
+                codename="view_fundaccount",
+            ).exists()
+        )
 
         output = stdout.getvalue()
         self.assertIn("Summary:", output)

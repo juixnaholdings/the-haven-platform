@@ -1,2 +1,0 @@
-﻿# API serializers for finance.
-
