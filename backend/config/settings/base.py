@@ -1,5 +1,4 @@
-from datetime import timedelta
-from importlib.util import find_spec
+﻿from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -16,12 +15,13 @@ DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 API_PREFIX = env("API_PREFIX", default="api")
 
-OPTIONAL_APPS = []
-if find_spec("jazzmin") is not None:
-    OPTIONAL_APPS.append("jazzmin")
+JWT_ACCESS_TOKEN_LIFETIME_MINUTES = env.int("JWT_ACCESS_TOKEN_LIFETIME_MINUTES", default=15)
+JWT_REFRESH_TOKEN_LIFETIME_DAYS = env.int("JWT_REFRESH_TOKEN_LIFETIME_DAYS", default=7)
+JWT_ROTATE_REFRESH_TOKENS = env.bool("JWT_ROTATE_REFRESH_TOKENS", default=True)
+JWT_BLACKLIST_AFTER_ROTATION = env.bool("JWT_BLACKLIST_AFTER_ROTATION", default=True)
 
 INSTALLED_APPS = [
-    *OPTIONAL_APPS,
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -102,10 +102,11 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=False)
+CORS_ALLOW_CREDENTIALS = env.bool("CORS_ALLOW_CREDENTIALS", default=False)
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = env("TIME_ZONE", default="UTC")
+TIME_ZONE = env("TIME_ZONE")
 USE_I18N = True
 USE_TZ = True
 
@@ -117,10 +118,10 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=JWT_ACCESS_TOKEN_LIFETIME_MINUTES),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=JWT_REFRESH_TOKEN_LIFETIME_DAYS),
+    "ROTATE_REFRESH_TOKENS": JWT_ROTATE_REFRESH_TOKENS,
+    "BLACKLIST_AFTER_ROTATION": JWT_BLACKLIST_AFTER_ROTATION,
     "UPDATE_LAST_LOGIN": True,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": env("JWT_SIGNING_KEY", default=SECRET_KEY),
@@ -136,6 +137,7 @@ JAZZMIN_SETTINGS = {
     "site_brand": "The Haven",
     "welcome_sign": "Welcome to The Haven Admin",
     "copyright": "The Haven",
+    "search_model": ["users.User", "auth.Group"],
     "show_sidebar": True,
     "navigation_expanded": True,
     "show_ui_builder": False,

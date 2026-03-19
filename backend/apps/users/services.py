@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.models import Group, Permission
 from django.db import transaction
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.constants import ALL_AVAILABLE_PERMISSIONS
 
@@ -29,6 +31,24 @@ def login_user(request, user):
 
 def logout_user(request):
     logout(request)
+
+
+def build_jwt_tokens_for_user(*, user) -> dict[str, str]:
+    refresh = RefreshToken.for_user(user)
+    return {
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
+    }
+
+
+def blacklist_refresh_token(*, refresh_token: str) -> None:
+    try:
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+    except TokenError as exc:
+        if "blacklisted" in str(exc).lower():
+            return
+        raise ValueError("Invalid or expired refresh token.") from exc
 
 
 def _permission_label(permission: Permission) -> str:

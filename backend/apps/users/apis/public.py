@@ -1,11 +1,8 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status, views
-from rest_framework.exceptions import ValidationError
-from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.common.responses import CustomResponse
-from apps.users import selectors
+from apps.users import selectors, services
 from apps.users.serializers import (
     JwtLoginSerializer,
     JwtLogoutSerializer,
@@ -54,13 +51,7 @@ class PublicLogoutJwtApi(views.APIView):
         serializer = JwtLogoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        refresh_token = serializer.validated_data["refresh"]
-
-        try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-        except TokenError:
-            raise ValidationError({"refresh": ["Invalid or expired refresh token."]})
+        services.blacklist_refresh_token(refresh_token=serializer.validated_data["refresh"])
 
         return CustomResponse(
             data={},
