@@ -1,2 +1,0 @@
-﻿# API views for members.
-
