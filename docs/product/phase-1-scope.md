@@ -8,10 +8,10 @@ Phase 1 currently includes the foundation for:
 - Members domain
 - Households domain
 - Groups and member affiliations domain
+- Attendance domain
 
 Phase 1 does not yet include:
 
-- Attendance workflows
 - Finance workflows
 - Public endpoints
 - Import/export tooling
