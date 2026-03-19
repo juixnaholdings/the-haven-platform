@@ -79,3 +79,26 @@ All API routes are mounted under the configured API prefix, which defaults to `/
   Records member attendance for the event.
 - `PATCH /api/attendance/{service_event_id}/member-attendance/{member_attendance_id}/`
   Updates an existing member attendance record.
+
+## Finance Admin Endpoints
+
+- `GET /api/finance/fund-accounts/`
+  Lists fund accounts with optional search and active-state filters, including computed balances.
+- `POST /api/finance/fund-accounts/`
+  Creates a fund account.
+- `GET /api/finance/fund-accounts/{fund_account_id}/`
+  Returns fund account detail including the computed current balance.
+- `PATCH /api/finance/fund-accounts/{fund_account_id}/`
+  Updates a fund account.
+- `GET /api/finance/transactions/`
+  Lists finance transactions with optional search and filter support.
+- `GET /api/finance/transactions/{transaction_id}/`
+  Returns transaction detail including ledger lines.
+- `PATCH /api/finance/transactions/{transaction_id}/`
+  Updates safe transaction metadata only.
+- `POST /api/finance/transactions/income/`
+  Records a posted income transaction.
+- `POST /api/finance/transactions/expense/`
+  Records a posted expense transaction.
+- `POST /api/finance/transactions/transfer/`
+  Records a posted transfer with one `OUT` line and one `IN` line.

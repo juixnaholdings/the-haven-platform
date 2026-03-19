@@ -9,6 +9,7 @@ The Haven backend is a Django modular monolith inside the monorepo.
 - `households`: household records plus the membership relationship between a member and a household.
 - `groups`: business groups and the affiliation relationship between a member and a group.
 - `attendance`: service/event records, anonymous attendance summaries, and member-level attendance records.
+- `finance`: fund accounts plus posted ledger transactions and transaction lines.
 
 ## Groups Rules
 
@@ -31,6 +32,14 @@ The Haven backend is a Django modular monolith inside the monorepo.
 - Each event can have only one attendance summary.
 - `MemberAttendance` records are per member per event, with one attendance record allowed for the same member and event pair.
 - Summary totals are validated independently from member attendance records; they do not have to match the number of known member attendance rows.
+
+## Finance Rules
+
+- `FundAccount` represents an internal church fund bucket, not a bank account.
+- `Transaction` is the posted finance event header and can optionally link to a `ServiceEvent`.
+- `TransactionLine` is the ledger source of truth for balances.
+- Income creates one `IN` line, expense creates one `OUT` line, and transfer creates one `OUT` plus one `IN` line under the same transaction.
+- Fund balances are computed from posted transaction lines; no manual balance field is the source of truth.
 
 ## API Shape
 
