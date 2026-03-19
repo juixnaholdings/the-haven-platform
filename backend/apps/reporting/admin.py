@@ -1,2 +1,1 @@
-﻿# Register admin models for reporting.
-
+"""Reporting has no persistent models to register in Django admin."""
