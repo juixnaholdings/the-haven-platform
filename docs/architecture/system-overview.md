@@ -10,6 +10,7 @@ The Haven backend is a Django modular monolith inside the monorepo.
 - `groups`: business groups and the affiliation relationship between a member and a group.
 - `attendance`: service/event records, anonymous attendance summaries, and member-level attendance records.
 - `finance`: fund accounts plus posted ledger transactions and transaction lines.
+- `reporting`: selector-driven dashboard and summary reporting over the existing domain models.
 
 ## Groups Rules
 
@@ -40,6 +41,13 @@ The Haven backend is a Django modular monolith inside the monorepo.
 - `TransactionLine` is the ledger source of truth for balances.
 - Income creates one `IN` line, expense creates one `OUT` line, and transfer creates one `OUT` plus one `IN` line under the same transaction.
 - Fund balances are computed from posted transaction lines; no manual balance field is the source of truth.
+
+## Reporting Rules
+
+- Reporting is query-only at MVP and does not introduce reporting tables.
+- Dashboard and report endpoints aggregate directly from members, households, groups, attendance, and finance source-of-truth records.
+- Optional `start_date` and `end_date` filters apply to attendance, finance, and dashboard summaries.
+- Finance balances are computed from posted ledger lines, using `end_date` as the balance cutoff when a range is supplied.
 
 ## API Shape
 

@@ -10,9 +10,11 @@ Phase 1 currently includes the foundation for:
 - Groups and member affiliations domain
 - Attendance domain
 - Finance ledger domain
+- Reporting and dashboard domain
 
 Phase 1 does not yet include:
 
 - Public endpoints
 - Import/export tooling
+- Export/report delivery workflows
 - Advanced ministry or group hierarchies

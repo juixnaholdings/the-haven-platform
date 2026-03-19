@@ -102,3 +102,24 @@ All API routes are mounted under the configured API prefix, which defaults to `/
   Records a posted expense transaction.
 - `POST /api/finance/transactions/transfer/`
   Records a posted transfer with one `OUT` line and one `IN` line.
+
+## Reporting Admin Endpoints
+
+- `GET /api/reports/dashboard/`
+  Returns the consolidated dashboard payload across membership, households, groups, attendance, and finance.
+- `GET /api/reports/members/`
+  Returns member summary metrics.
+- `GET /api/reports/households/`
+  Returns household summary metrics.
+- `GET /api/reports/groups/`
+  Returns group and affiliation summary metrics.
+- `GET /api/reports/attendance/`
+  Returns attendance summary metrics, with optional `start_date` and `end_date`.
+- `GET /api/reports/finance/`
+  Returns finance summary metrics, with optional `start_date` and `end_date`.
+
+## Reporting Date Filters
+
+- `start_date` and `end_date` are optional query params on the dashboard, attendance, and finance report endpoints.
+- If both are omitted, the reports use all-time behavior.
+- If `end_date` is supplied for finance reporting, balances are computed as of that cutoff date.
