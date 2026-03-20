@@ -1,17 +1,9 @@
 ﻿from django.urls import path
 
-from apps.users.apis.public import (
-    PublicLoginJwtApi,
-    PublicLogoutJwtApi,
-    PublicMeApi,
-    PublicTokenRefreshApi,
-    PublicTokenVerifyApi,
-)
+from apps.users.api.views import LoginView, LogoutView, MeView
 
 urlpatterns = [
-    path("auth/login/", PublicLoginJwtApi.as_view(), name="auth-login"),
-    path("auth/logout/", PublicLogoutJwtApi.as_view(), name="auth-logout"),
-    path("auth/me/", PublicMeApi.as_view(), name="auth-me"),
-    path("auth/token/refresh/", PublicTokenRefreshApi.as_view(), name="auth-token-refresh"),
-    path("auth/token/verify/", PublicTokenVerifyApi.as_view(), name="auth-token-verify"),
+    path("login/", LoginView.as_view(), name="login"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+    path("me/", MeView.as_view(), name="me"),
 ]
