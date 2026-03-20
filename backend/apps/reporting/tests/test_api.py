@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -12,6 +13,7 @@ from apps.groups import services as group_services
 from apps.households import services as household_services
 from apps.households.models import HouseholdRelationship
 from apps.members.models import Member
+from apps.users.constants import FINANCE_SECRETARY_ROLE, MEMBERSHIP_SECRETARY_ROLE
 
 User = get_user_model()
 
@@ -229,6 +231,56 @@ class ReportingAdminApiTests(APITestCase):
             password="StrongPass123",
         )
         self.client.force_authenticate(basic_user)
+
+        response = self.client.get("/api/reports/dashboard/")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_membership_secretary_can_access_members_report_but_not_dashboard_or_finance(self):
+        membership_secretary = User.objects.create_user(
+            username="membership-secretary",
+            email="membership-secretary@example.com",
+            password="StrongPass123",
+        )
+        membership_secretary.groups.add(Group.objects.create(name=MEMBERSHIP_SECRETARY_ROLE))
+        self.client.force_authenticate(membership_secretary)
+
+        members_response = self.client.get("/api/reports/members/")
+        dashboard_response = self.client.get("/api/reports/dashboard/")
+        finance_response = self.client.get("/api/reports/finance/")
+
+        self.assertEqual(members_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(dashboard_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(finance_response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_finance_secretary_can_access_finance_report_but_not_members_report(self):
+        finance_secretary = User.objects.create_user(
+            username="finance-secretary",
+            email="finance-secretary@example.com",
+            password="StrongPass123",
+        )
+        finance_secretary.groups.add(Group.objects.create(name=FINANCE_SECRETARY_ROLE))
+        self.client.force_authenticate(finance_secretary)
+
+        finance_response = self.client.get("/api/reports/finance/")
+        members_response = self.client.get("/api/reports/members/")
+
+        self.assertEqual(finance_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(members_response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_staff_user_with_single_unrelated_permission_cannot_access_dashboard(self):
+        staff_user = User.objects.create_user(
+            username="reporting-staff",
+            email="reporting-staff@example.com",
+            password="StrongPass123",
+            is_staff=True,
+        )
+        finance_view_permission = Permission.objects.get(
+            content_type__app_label="finance",
+            codename="view_transaction",
+        )
+        staff_user.user_permissions.add(finance_view_permission)
+        self.client.force_authenticate(staff_user)
 
         response = self.client.get("/api/reports/dashboard/")
 

@@ -23,3 +23,9 @@ def user_has_any_role(*, user, role_names: Iterable[str]) -> bool:
     if not user or not user.is_authenticated:
         return False
     return user.groups.filter(name__in=tuple(role_names)).exists()
+
+
+def user_has_all_permissions(*, user, permissions: Iterable[str]) -> bool:
+    if not user or not user.is_authenticated:
+        return False
+    return all(user.has_perm(permission) for permission in permissions)
