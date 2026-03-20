@@ -19,6 +19,7 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
     filter_horizontal = ("groups", "user_permissions")
     ordering = ("username",)
+    readonly_fields = ("last_login", "date_joined")
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("groups")

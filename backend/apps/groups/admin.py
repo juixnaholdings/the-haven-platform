@@ -7,6 +7,7 @@ class GroupMembershipInline(admin.TabularInline):
     model = GroupMembership
     extra = 0
     autocomplete_fields = ("member",)
+    show_change_link = True
 
 
 @admin.register(Group)
@@ -15,6 +16,8 @@ class GroupAdmin(admin.ModelAdmin):
     search_fields = ("name", "description")
     list_filter = ("is_active",)
     inlines = (GroupMembershipInline,)
+    ordering = ("name", "id")
+    readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")
 
 
 @admin.register(GroupMembership)
@@ -23,3 +26,6 @@ class GroupMembershipAdmin(admin.ModelAdmin):
     list_filter = ("is_active",)
     search_fields = ("group__name", "member__first_name", "member__last_name", "role_name")
     autocomplete_fields = ("group", "member")
+    list_select_related = ("group", "member")
+    ordering = ("group__name", "-is_active", "member__last_name", "member__first_name", "id")
+    readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")
