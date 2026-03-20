@@ -1,15 +1,23 @@
-﻿from django.contrib import admin
+from django.conf import settings
+from django.contrib import admin
 from django.urls import include, path
-from apps.common.api.views import HealthCheckApi
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
+    path("health/", include("apps.common.urls")),
     path("admin/", admin.site.urls),
-    path("health/", HealthCheckApi.as_view(), name="health"),
-    path("api/v1/users/", include("apps.users.urls")),
-    path("api/v1/members/", include("apps.members.urls")),
-    path("api/v1/households/", include("apps.households.urls")),
-    path("api/v1/groups/", include("apps.groups.urls")),
-    path("api/v1/attendance/", include("apps.attendance.urls")),
-    path("api/v1/finance/", include("apps.finance.urls")),
-    path("api/v1/reports/", include("apps.reporting.urls")),
+    path(f"{settings.API_PREFIX}/schema", SpectacularAPIView.as_view(), name="schema"),
+    path(f"{settings.API_PREFIX}/schema/", SpectacularAPIView.as_view(), name="schema-slash"),
+    path(
+        f"{settings.API_PREFIX}/docs/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path(f"{settings.API_PREFIX}/reports/", include("apps.reporting.urls")),
+    path(f"{settings.API_PREFIX}/finance/", include("apps.finance.urls")),
+    path(f"{settings.API_PREFIX}/attendance/", include("apps.attendance.urls")),
+    path(f"{settings.API_PREFIX}/groups/", include("apps.groups.urls")),
+    path(f"{settings.API_PREFIX}/members/", include("apps.members.urls")),
+    path(f"{settings.API_PREFIX}/households/", include("apps.households.urls")),
+    path(f"{settings.API_PREFIX}/", include("apps.users.urls")),
 ]

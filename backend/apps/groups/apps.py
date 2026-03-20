@@ -1,5 +1,7 @@
-﻿from django.apps import AppConfig
+from django.apps import AppConfig
 
 
 class GroupsConfig(AppConfig):
-    default_auto_field = \
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.groups"
+    label = "groups"

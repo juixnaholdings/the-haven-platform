@@ -1,1 +1,49 @@
-﻿
+name: Backend CI
+
+on:
+  pull_request:
+    branches:
+      - develop
+  push:
+    branches:
+      - develop
+      - "feat/**"
+      - "fix/**"
+      - "chore/**"
+
+jobs:
+  backend-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements/base.txt
+            backend/requirements/dev.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements/dev.txt
+
+      - name: Check code style
+        run: python -m ruff check backend
+
+      - name: Validate Django configuration
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.test
+        run: |
+          python backend/manage.py check
+          python backend/manage.py makemigrations --check --dry-run
+
+      - name: Run backend test suite
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.test
+        run: pytest
