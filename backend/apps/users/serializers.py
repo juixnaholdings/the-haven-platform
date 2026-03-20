@@ -35,6 +35,10 @@ class JwtVerifyRequestSerializer(TokenVerifySerializer):
     pass
 
 
+class EmptyPayloadSerializer(serializers.Serializer):
+    pass
+
+
 class UserMeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -48,3 +52,18 @@ class UserMeSerializer(serializers.ModelSerializer):
             "is_staff",
             "is_superuser",
         ]
+
+
+class JwtTokenPairSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField(required=False)
+
+
+class JwtLoginResponseSerializer(serializers.Serializer):
+    user = UserMeSerializer()
+    tokens = JwtTokenPairSerializer()
+
+
+class JwtRefreshResponseSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField(required=False)

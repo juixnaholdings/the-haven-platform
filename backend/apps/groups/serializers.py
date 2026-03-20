@@ -3,6 +3,11 @@ from rest_framework import serializers
 from apps.groups.models import Group, GroupMembership
 
 
+class GroupListFilterSerializer(serializers.Serializer):
+    search = serializers.CharField(required=False, allow_blank=True)
+    is_active = serializers.BooleanField(required=False)
+
+
 class GroupListSerializer(serializers.ModelSerializer):
     active_member_count = serializers.IntegerField(read_only=True)
 

@@ -6,6 +6,36 @@ from apps.attendance.models import ServiceEvent
 from apps.finance.models import FundAccount, Transaction, TransactionLine
 
 
+class FundAccountListFilterSerializer(serializers.Serializer):
+    search = serializers.CharField(required=False, allow_blank=True)
+    is_active = serializers.BooleanField(required=False)
+
+
+class TransactionListFilterSerializer(serializers.Serializer):
+    search = serializers.CharField(required=False, allow_blank=True)
+    transaction_type = serializers.ChoiceField(
+        choices=Transaction._meta.get_field("transaction_type").choices,
+        required=False,
+    )
+    fund_account_id = serializers.IntegerField(required=False, min_value=1)
+    service_event_id = serializers.IntegerField(required=False, min_value=1, allow_null=True)
+    transaction_date_from = serializers.DateField(required=False)
+    transaction_date_to = serializers.DateField(required=False)
+
+    def validate(self, attrs):
+        transaction_date_from = attrs.get("transaction_date_from")
+        transaction_date_to = attrs.get("transaction_date_to")
+        if transaction_date_from and transaction_date_to and transaction_date_from > transaction_date_to:
+            raise serializers.ValidationError(
+                {
+                    "transaction_date_to": [
+                        "Transaction date end cannot be earlier than the start date."
+                    ]
+                }
+            )
+        return attrs
+
+
 class ServiceEventReferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceEvent

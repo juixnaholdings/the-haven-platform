@@ -2,8 +2,8 @@ from rest_framework import serializers
 
 
 class ReportingDateRangeSerializer(serializers.Serializer):
-    start_date = serializers.DateField(required=False)
-    end_date = serializers.DateField(required=False)
+    start_date = serializers.DateField(required=False, help_text="Inclusive report start date.")
+    end_date = serializers.DateField(required=False, help_text="Inclusive report end date.")
 
     def validate(self, attrs):
         start_date = attrs.get("start_date")

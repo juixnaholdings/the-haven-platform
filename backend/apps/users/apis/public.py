@@ -4,8 +4,11 @@ from rest_framework import permissions, status, views
 from apps.common.responses import CustomResponse
 from apps.users import selectors, services
 from apps.users.serializers import (
+    EmptyPayloadSerializer,
     JwtLoginSerializer,
+    JwtLoginResponseSerializer,
     JwtLogoutSerializer,
+    JwtRefreshResponseSerializer,
     JwtRefreshRequestSerializer,
     JwtVerifyRequestSerializer,
     UserMeSerializer,
@@ -19,7 +22,7 @@ class PublicLoginJwtApi(views.APIView):
         tags=["Public - Auth"],
         summary="Login with JWT",
         request=JwtLoginSerializer,
-        responses=None,
+        responses=JwtLoginResponseSerializer,
     )
     def post(self, request):
         serializer = JwtLoginSerializer(data=request.data)
@@ -45,7 +48,7 @@ class PublicLogoutJwtApi(views.APIView):
         tags=["Public - Auth"],
         summary="Logout and blacklist refresh token",
         request=JwtLogoutSerializer,
-        responses=None,
+        responses=EmptyPayloadSerializer,
     )
     def post(self, request):
         serializer = JwtLogoutSerializer(data=request.data)
@@ -67,7 +70,7 @@ class PublicTokenRefreshApi(views.APIView):
         tags=["Public - Auth"],
         summary="Refresh access token",
         request=JwtRefreshRequestSerializer,
-        responses=None,
+        responses=JwtRefreshResponseSerializer,
     )
     def post(self, request):
         serializer = JwtRefreshRequestSerializer(data=request.data)
@@ -87,7 +90,7 @@ class PublicTokenVerifyApi(views.APIView):
         tags=["Public - Auth"],
         summary="Verify token",
         request=JwtVerifyRequestSerializer,
-        responses=None,
+        responses=EmptyPayloadSerializer,
     )
     def post(self, request):
         serializer = JwtVerifyRequestSerializer(data=request.data)
