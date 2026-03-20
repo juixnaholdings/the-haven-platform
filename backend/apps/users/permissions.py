@@ -1,15 +1,6 @@
-from rest_framework.permissions import BasePermission
-
-from apps.users.constants import CHURCH_ADMIN_ROLE
-from apps.users.selectors import user_has_any_role
+﻿from rest_framework.permissions import BasePermission
 
 
-class HasAnyRole(BasePermission):
-    required_roles: tuple[str, ...] = ()
-
+class IsChurchAdmin(BasePermission):
     def has_permission(self, request, view):
-        return user_has_any_role(user=request.user, role_names=self.required_roles)
-
-
-class IsChurchAdmin(HasAnyRole):
-    required_roles = (CHURCH_ADMIN_ROLE,)
+        return bool(request.user and request.user.is_authenticated and request.user.groups.filter(name="CHURCH_ADMIN").exists())
