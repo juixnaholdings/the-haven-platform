@@ -7,6 +7,7 @@ urlpatterns = [
     path("health/", include("apps.common.urls")),
     path("admin/", admin.site.urls),
     path(f"{settings.API_PREFIX}/schema", SpectacularAPIView.as_view(), name="schema"),
+    path(f"{settings.API_PREFIX}/schema/", SpectacularAPIView.as_view(), name="schema-slash"),
     path(
         f"{settings.API_PREFIX}/docs/",
         SpectacularSwaggerView.as_view(url_name="schema"),
