@@ -8,6 +8,7 @@ This runbook documents the practical staging deployment path for The Haven on a 
 - `backend` service running Django through Gunicorn
 - `nginx` service reverse proxying requests to the backend container
 - `db` service running PostgreSQL inside the private Compose network
+- Only `nginx` publishes a host port in staging. `backend` and `db` stay internal-only.
 - Named Docker volumes for PostgreSQL data, collected static files, and media files
 
 ## First-Time Server Bootstrap
@@ -23,6 +24,7 @@ This runbook documents the practical staging deployment path for The Haven on a 
 ## Required Staging Env File
 
 `infra/.env.staging` is the source-of-truth env file for Compose and the backend container.
+Do not create or rely on `backend/.env` on the staging server. That file remains a local-development convenience only.
 
 Required values include:
 
@@ -85,6 +87,11 @@ The smoke script verifies:
 - `/api/schema`
 - `/api/docs/`
 - `/api/auth/login/` returns the expected validation response shape
+
+Runtime notes:
+
+- `/health/` stays reachable for container and origin health checks even when `SECURE_SSL_REDIRECT` is enabled.
+- Both `/api/schema` and `/api/schema/` serve the OpenAPI schema so trailing-slash mismatches do not break staging verification.
 
 ## Rollback Basics
 

@@ -59,9 +59,9 @@ The Haven backend is a Django modular monolith inside the monorepo.
 
 ## Release-Readiness Notes
 
-- The API schema is exposed at `/api/schema` and `/api/docs/`.
-- A public `/health/` endpoint is available for container and staging smoke checks.
+- The API schema is exposed at `/api/schema`, `/api/schema/`, and `/api/docs/`.
+- A public `/health/` endpoint is available for container and staging smoke checks and remains exempt from forced SSL redirect.
 - Reporting access is intentionally scoped by role and domain instead of allowing any single unrelated model permission to unlock all reports.
 - Bootstrap commands cover roles, superuser creation, and optional baseline fund accounts.
 - Production settings expect explicit `SECRET_KEY`, `ALLOWED_HOSTS`, JWT signing, and secure cookie/TLS configuration.
-- Staging uses a single-VPS Docker Compose topology with backend, nginx, and PostgreSQL.
+- Staging uses a single-VPS Docker Compose topology with backend, nginx, and PostgreSQL, with only nginx published publicly.
