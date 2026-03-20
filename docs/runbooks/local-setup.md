@@ -1,6 +1,7 @@
 # Local Backend Setup
 
 Use `backend/.env.example` as the source-of-truth environment template for local backend work.
+Use `infra/.env.staging.example` only for VPS staging deployments.
 
 ## 1. Install and Configure
 
@@ -45,3 +46,9 @@ Run these commands from the repo root:
 - `python backend/manage.py check`
 - `python backend/manage.py makemigrations --check --dry-run`
 - `pytest`
+
+## 6. Staging Artifacts
+
+- Local development does not use the staging compose stack.
+- The staging deployment path lives under `infra/compose.staging.yaml`.
+- The staging smoke verification script lives at `infra/scripts/staging_smoke_check.sh`.

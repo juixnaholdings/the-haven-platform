@@ -3,26 +3,33 @@
 ## Backend Validation
 
 - `python backend/manage.py check` passes.
+- `python backend/manage.py check --deploy --settings=config.settings.production` passes with staging or production env values.
 - `python backend/manage.py makemigrations --check --dry-run` reports no changes.
 - `pytest` passes from the repo root.
-- `/api/docs/` renders the schema for core auth and admin endpoints.
 
-## Bootstrap Readiness
+## Staging Deployment Readiness
 
-- `setup_roles` is idempotent and aligned with the current model permissions.
-- `seed_superuser` has documented environment variables.
-- `seed_fund_accounts` is available if the finance module needs baseline accounts.
+- `infra/compose.staging.yaml` is the approved staging stack.
+- `infra/.env.staging` has been created from `infra/.env.staging.example`.
+- `SECRET_KEY` and `JWT_SIGNING_KEY` are strong and not committed.
+- `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`, and `CSRF_TRUSTED_ORIGINS` match the staging domain.
+- PostgreSQL is not publicly exposed from the VPS.
 
-## Production Readiness
+## Deployment Workflow
 
-- Production secrets are stored outside the repository.
-- `SECRET_KEY`, `JWT_SIGNING_KEY`, and `ALLOWED_HOSTS` are set explicitly.
-- CORS and `CSRF_TRUSTED_ORIGINS` match the deployed frontend/admin origins.
-- A backup has been taken before deploy.
-- Migration and rollback steps are documented.
+- `infra/scripts/deploy_staging.sh` has been reviewed for the target server.
+- `.github/workflows/deploy-staging.yml` has the required staging environment secrets.
+- `infra/scripts/staging_smoke_check.sh` is ready to run after deploy.
 
-## Operational Review
+## Smoke Verification
 
-- Admin registrations are usable under Jazzmin.
-- Reporting access is limited to the intended Phase 1 roles.
-- Empty placeholder workflows and stale placeholder files have been removed.
+- `/health/` returns success.
+- `/admin/login/` is reachable.
+- `/api/schema` and `/api/docs/` are reachable.
+- `/api/auth/login/` responds with the expected validation failure shape when called with an empty payload.
+
+## Rollback Readiness
+
+- A database backup has been taken before deploy.
+- The previous known-good ref is documented.
+- The rollback steps in `docs/runbooks/deployment.md` have been reviewed.

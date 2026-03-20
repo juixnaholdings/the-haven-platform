@@ -4,6 +4,8 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 
 ## Schema and Docs
 
+- `GET /health/`
+  Returns a lightweight health payload and verifies database connectivity.
 - `GET /api/schema`
   Returns the OpenAPI schema document.
 - `GET /api/docs/`
