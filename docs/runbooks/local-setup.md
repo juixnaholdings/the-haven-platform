@@ -51,4 +51,5 @@ Run these commands from the repo root:
 
 - Local development does not use the staging compose stack.
 - The staging deployment path lives under `infra/compose.staging.yaml`.
+- `infra/.env.staging` is the only intended staging env file. Do not mirror those values into `backend/.env` on the VPS.
 - The staging smoke verification script lives at `infra/scripts/staging_smoke_check.sh`.

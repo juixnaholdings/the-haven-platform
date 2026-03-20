@@ -5,8 +5,10 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 ## Schema and Docs
 
 - `GET /health/`
-  Returns a lightweight health payload and verifies database connectivity.
+  Returns a lightweight health payload, verifies database connectivity, and remains available for staging health checks even when SSL redirect is enabled.
 - `GET /api/schema`
+  Returns the OpenAPI schema document.
+- `GET /api/schema/`
   Returns the OpenAPI schema document.
 - `GET /api/docs/`
   Returns the interactive Swagger UI for the backend API.
