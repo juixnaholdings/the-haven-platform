@@ -1,29 +1,29 @@
 # Backup and Restore
 
-Phase 1 relies on the primary relational database as the source of truth for members, attendance, finance, and reporting inputs.
+Staging should be treated as a real database-backed environment even though it is not production.
 
-## Backup Expectations
+## Staging Backup Expectations
 
-- Take a database backup before every production deployment that includes migrations.
-- Keep at least one daily backup and one pre-release backup during the Phase 1 rollout period.
-- Store backups outside the application host.
-- Verify restoreability periodically, not just backup creation.
+- Take a PostgreSQL backup before every staging deployment that includes migrations.
+- Keep at least one recent rollback-ready snapshot during active testing.
+- Store backups outside the VPS filesystem when possible.
+- Verify restoreability periodically with a test restore.
 
-## SQLite Development Backups
+## Recommended Staging Backup Command
 
-- Stop local write activity before copying the SQLite file.
-- Copy `backend/db.sqlite3` to a dated backup location.
+From the staging VPS:
 
-## PostgreSQL Production Backups
-
-- Use `pg_dump` for logical backups of the production database.
-- Include role, extension, and restore instructions in infrastructure operations documentation.
-- Encrypt backups at rest in the destination storage system.
+- `docker compose --env-file infra/.env.staging -f infra/compose.staging.yaml exec -T db pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > staging-backup.sql`
 
 ## Restore Order
 
-1. Put the application into maintenance mode or stop write traffic.
-2. Restore the database backup.
-3. Re-apply the same application release that matches the restored schema.
-4. Run `python backend/manage.py check`.
-5. Verify admin login, API auth, and dashboard/reporting reads before reopening traffic.
+1. Put staging into maintenance mode or stop the backend and nginx services.
+2. Restore the PostgreSQL dump into the `db` container or replacement database.
+3. Re-check out the matching application ref if the database schema is being rolled back with the release.
+4. Re-run `sh infra/scripts/deploy_staging.sh`.
+5. Run `sh infra/scripts/staging_smoke_check.sh https://staging.example.com` before reopening access.
+
+## Notes
+
+- Do not rely on the application container filesystem as the only copy of uploaded media.
+- Finance data should be treated as operationally sensitive even in staging because ledger behavior is part of release verification.
