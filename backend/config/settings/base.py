@@ -78,6 +78,14 @@ DATABASES = {
         default="sqlite:///" + str(BASE_DIR / "db.sqlite3"),
     )
 }
+DATABASES["default"]["CONN_MAX_AGE"] = env.int(
+    "DATABASE_CONN_MAX_AGE",
+    default=0 if DEBUG else 60,
+)
+DATABASES["default"]["CONN_HEALTH_CHECKS"] = env.bool(
+    "DATABASE_CONN_HEALTH_CHECKS",
+    default=not DEBUG,
+)
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
@@ -108,6 +116,7 @@ SPECTACULAR_SETTINGS = {
     },
     "TAGS": [
         {"name": "Public - Auth", "description": "JWT authentication endpoints for API clients."},
+        {"name": "Public - Ops", "description": "Unauthenticated operational endpoints."},
         {"name": "Admin - Members", "description": "Administrative member management APIs."},
         {"name": "Admin - Households", "description": "Administrative household management APIs."},
         {"name": "Admin - Groups", "description": "Administrative business-group management APIs."},
