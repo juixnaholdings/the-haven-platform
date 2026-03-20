@@ -12,19 +12,26 @@ from apps.attendance.serializers import (
     AttendanceSummaryWriteSerializer,
     MemberAttendanceCreateSerializer,
     MemberAttendanceDetailSerializer,
+    MemberAttendanceListFilterSerializer,
     MemberAttendanceUpdateSerializer,
     ServiceEventDetailSerializer,
+    ServiceEventListFilterSerializer,
     ServiceEventListSerializer,
     ServiceEventWriteSerializer,
 )
 from apps.common.responses import CustomResponse
 from apps.members import selectors as member_selectors
 
+def _get_service_event_filters(query_params):
+    serializer = ServiceEventListFilterSerializer(data=query_params.dict())
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
 
-def _parse_bool(value: str | None):
-    if value is None:
-        return None
-    return value.lower() in {"1", "true", "yes", "on"}
+
+def _get_member_attendance_filters(query_params):
+    serializer = MemberAttendanceListFilterSerializer(data=query_params.dict())
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
 
 
 class ServiceEventListCreateAdminApi(views.APIView):
@@ -33,17 +40,12 @@ class ServiceEventListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Attendance"],
         summary="List service events",
+        parameters=[ServiceEventListFilterSerializer],
         responses=ServiceEventListSerializer(many=True),
     )
     def get(self, request):
         service_events = selectors.list_service_events(
-            filters={
-                "search": request.query_params.get("search"),
-                "event_type": request.query_params.get("event_type"),
-                "is_active": _parse_bool(request.query_params.get("is_active")),
-                "service_date_from": request.query_params.get("service_date_from"),
-                "service_date_to": request.query_params.get("service_date_to"),
-            }
+            filters=_get_service_event_filters(request.query_params)
         )
         serializer = ServiceEventListSerializer(service_events, many=True)
         return CustomResponse(
@@ -167,6 +169,7 @@ class MemberAttendanceListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Attendance"],
         summary="List member attendance records for an event",
+        parameters=[MemberAttendanceListFilterSerializer],
         responses=MemberAttendanceDetailSerializer(many=True),
     )
     def get(self, request, service_event_id: int):
@@ -176,10 +179,7 @@ class MemberAttendanceListCreateAdminApi(views.APIView):
 
         member_attendances = selectors.list_member_attendance_for_event(
             service_event_id=service_event_id,
-            filters={
-                "search": request.query_params.get("search"),
-                "status": request.query_params.get("status"),
-            },
+            filters=_get_member_attendance_filters(request.query_params),
         )
         serializer = MemberAttendanceDetailSerializer(member_attendances, many=True)
         return CustomResponse(

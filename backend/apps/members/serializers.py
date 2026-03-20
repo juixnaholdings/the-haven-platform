@@ -3,6 +3,12 @@ from rest_framework import serializers
 from apps.members.models import Member
 
 
+class MemberListFilterSerializer(serializers.Serializer):
+    search = serializers.CharField(required=False, allow_blank=True)
+    is_active = serializers.BooleanField(required=False)
+    household_id = serializers.IntegerField(required=False, min_value=1)
+
+
 class MemberListSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
 

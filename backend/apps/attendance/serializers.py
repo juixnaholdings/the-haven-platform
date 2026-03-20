@@ -7,6 +7,34 @@ from apps.attendance.models import (
 )
 
 
+class ServiceEventListFilterSerializer(serializers.Serializer):
+    search = serializers.CharField(required=False, allow_blank=True)
+    event_type = serializers.ChoiceField(
+        choices=ServiceEvent._meta.get_field("event_type").choices,
+        required=False,
+    )
+    is_active = serializers.BooleanField(required=False)
+    service_date_from = serializers.DateField(required=False)
+    service_date_to = serializers.DateField(required=False)
+
+    def validate(self, attrs):
+        service_date_from = attrs.get("service_date_from")
+        service_date_to = attrs.get("service_date_to")
+        if service_date_from and service_date_to and service_date_from > service_date_to:
+            raise serializers.ValidationError(
+                {"service_date_to": ["Service date end cannot be earlier than the start date."]}
+            )
+        return attrs
+
+
+class MemberAttendanceListFilterSerializer(serializers.Serializer):
+    search = serializers.CharField(required=False, allow_blank=True)
+    status = serializers.ChoiceField(
+        choices=MemberAttendance._meta.get_field("status").choices,
+        required=False,
+    )
+
+
 class ServiceEventListSerializer(serializers.ModelSerializer):
     member_attendance_count = serializers.IntegerField(read_only=True)
     has_attendance_summary = serializers.BooleanField(read_only=True)

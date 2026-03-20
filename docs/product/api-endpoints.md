@@ -2,6 +2,13 @@
 
 All API routes are mounted under the configured API prefix, which defaults to `/api/`.
 
+## Schema and Docs
+
+- `GET /api/schema`
+  Returns the OpenAPI schema document.
+- `GET /api/docs/`
+  Returns the interactive Swagger UI for the backend API.
+
 ## Public Auth Endpoints
 
 - `POST /api/auth/login/`
@@ -107,6 +114,7 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 
 - `GET /api/reports/dashboard/`
   Returns the consolidated dashboard payload across membership, households, groups, attendance, and finance.
+  Read access is intentionally limited to overarching leadership-style roles.
 - `GET /api/reports/members/`
   Returns member summary metrics.
 - `GET /api/reports/households/`
@@ -123,3 +131,4 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 - `start_date` and `end_date` are optional query params on the dashboard, attendance, and finance report endpoints.
 - If both are omitted, the reports use all-time behavior.
 - If `end_date` is supplied for finance reporting, balances are computed as of that cutoff date.
+- Member, household, group, attendance, and finance list endpoints also expose typed filter parameters in the schema for frontend consumers.

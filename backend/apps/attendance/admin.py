@@ -9,6 +9,8 @@ class ServiceEventAdmin(admin.ModelAdmin):
     list_filter = ("event_type", "service_date", "is_active")
     search_fields = ("title", "location", "notes")
     ordering = ("-service_date", "start_time", "title")
+    date_hierarchy = "service_date"
+    readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")
 
 
 @admin.register(AttendanceSummary)
@@ -16,6 +18,8 @@ class AttendanceSummaryAdmin(admin.ModelAdmin):
     list_display = ("service_event", "total_count", "visitor_count", "updated_at")
     search_fields = ("service_event__title", "service_event__location", "notes")
     autocomplete_fields = ("service_event",)
+    list_select_related = ("service_event",)
+    readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")
 
 
 @admin.register(MemberAttendance)
@@ -31,3 +35,5 @@ class MemberAttendanceAdmin(admin.ModelAdmin):
         "notes",
     )
     autocomplete_fields = ("service_event", "member")
+    list_select_related = ("service_event", "member")
+    readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")

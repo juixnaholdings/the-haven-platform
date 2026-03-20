@@ -11,16 +11,16 @@ from apps.households.permissions import (
 from apps.households.serializers import (
     HouseholdDetailSerializer,
     HouseholdListSerializer,
+    HouseholdListFilterSerializer,
     HouseholdMembershipCreateSerializer,
     HouseholdWriteSerializer,
 )
 from apps.members import selectors as member_selectors
 
-
-def _parse_bool(value: str | None):
-    if value is None:
-        return None
-    return value.lower() in {"1", "true", "yes", "on"}
+def _get_validated_filters(query_params):
+    serializer = HouseholdListFilterSerializer(data=query_params.dict())
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
 
 
 class HouseholdListCreateAdminApi(views.APIView):
@@ -29,15 +29,11 @@ class HouseholdListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Households"],
         summary="List households",
+        parameters=[HouseholdListFilterSerializer],
         responses=HouseholdListSerializer(many=True),
     )
     def get(self, request):
-        households = selectors.list_households(
-            filters={
-                "search": request.query_params.get("search"),
-                "is_active": _parse_bool(request.query_params.get("is_active")),
-            }
-        )
+        households = selectors.list_households(filters=_get_validated_filters(request.query_params))
         serializer = HouseholdListSerializer(households, many=True)
         return CustomResponse(data=serializer.data, message="Households fetched successfully.")
 

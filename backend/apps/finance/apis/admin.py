@@ -9,20 +9,27 @@ from apps.finance.permissions import FundAccountAdminPermission, TransactionAdmi
 from apps.finance.serializers import (
     ExpenseTransactionCreateSerializer,
     FundAccountDetailSerializer,
+    FundAccountListFilterSerializer,
     FundAccountListSerializer,
     FundAccountWriteSerializer,
     IncomeTransactionCreateSerializer,
     TransactionDetailSerializer,
+    TransactionListFilterSerializer,
     TransactionListSerializer,
     TransactionUpdateSerializer,
     TransferTransactionCreateSerializer,
 )
 
+def _get_fund_account_filters(query_params):
+    serializer = FundAccountListFilterSerializer(data=query_params.dict())
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
 
-def _parse_bool(value: str | None):
-    if value is None:
-        return None
-    return value.lower() in {"1", "true", "yes", "on"}
+
+def _get_transaction_filters(query_params):
+    serializer = TransactionListFilterSerializer(data=query_params.dict())
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
 
 
 def _get_service_event_or_none(service_event_id):
@@ -50,14 +57,12 @@ class FundAccountListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Finance"],
         summary="List fund accounts",
+        parameters=[FundAccountListFilterSerializer],
         responses=FundAccountListSerializer(many=True),
     )
     def get(self, request):
         fund_accounts = selectors.list_fund_accounts(
-            filters={
-                "search": request.query_params.get("search"),
-                "is_active": _parse_bool(request.query_params.get("is_active")),
-            }
+            filters=_get_fund_account_filters(request.query_params)
         )
         serializer = FundAccountListSerializer(fund_accounts, many=True)
         return CustomResponse(
@@ -140,18 +145,12 @@ class TransactionListAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Finance"],
         summary="List transactions",
+        parameters=[TransactionListFilterSerializer],
         responses=TransactionListSerializer(many=True),
     )
     def get(self, request):
         transactions = selectors.list_transactions(
-            filters={
-                "search": request.query_params.get("search"),
-                "transaction_type": request.query_params.get("transaction_type"),
-                "fund_account_id": request.query_params.get("fund_account_id"),
-                "service_event_id": request.query_params.get("service_event_id"),
-                "transaction_date_from": request.query_params.get("transaction_date_from"),
-                "transaction_date_to": request.query_params.get("transaction_date_to"),
-            }
+            filters=_get_transaction_filters(request.query_params)
         )
         serializer = TransactionListSerializer(transactions, many=True)
         return CustomResponse(

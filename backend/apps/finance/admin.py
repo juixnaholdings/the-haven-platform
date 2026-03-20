@@ -19,6 +19,8 @@ class FundAccountAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "is_active", "updated_at")
     search_fields = ("name", "code", "description")
     list_filter = ("is_active",)
+    ordering = ("name", "id")
+    readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")
 
 
 @admin.register(Transaction)
@@ -28,6 +30,8 @@ class TransactionAdmin(admin.ModelAdmin):
     search_fields = ("reference_no", "description", "service_event__title")
     autocomplete_fields = ("service_event",)
     inlines = (TransactionLineInline,)
+    date_hierarchy = "transaction_date"
+    list_select_related = ("service_event",)
     readonly_fields = (
         "reference_no",
         "transaction_type",
@@ -60,6 +64,7 @@ class TransactionLineAdmin(admin.ModelAdmin):
         "notes",
     )
     autocomplete_fields = ("transaction", "fund_account")
+    list_select_related = ("transaction", "fund_account")
     readonly_fields = (
         "transaction",
         "fund_account",

@@ -7,6 +7,7 @@ from apps.groups import selectors, services
 from apps.groups.permissions import GroupMembershipAdminPermission, GroupsAdminPermission
 from apps.groups.serializers import (
     GroupDetailSerializer,
+    GroupListFilterSerializer,
     GroupListSerializer,
     GroupMembershipCreateSerializer,
     GroupMembershipDetailSerializer,
@@ -15,11 +16,10 @@ from apps.groups.serializers import (
 )
 from apps.members import selectors as member_selectors
 
-
-def _parse_bool(value: str | None):
-    if value is None:
-        return None
-    return value.lower() in {"1", "true", "yes", "on"}
+def _get_validated_filters(query_params):
+    serializer = GroupListFilterSerializer(data=query_params.dict())
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
 
 
 class GroupListCreateAdminApi(views.APIView):
@@ -28,15 +28,11 @@ class GroupListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Groups"],
         summary="List groups",
+        parameters=[GroupListFilterSerializer],
         responses=GroupListSerializer(many=True),
     )
     def get(self, request):
-        groups = selectors.list_groups(
-            filters={
-                "search": request.query_params.get("search"),
-                "is_active": _parse_bool(request.query_params.get("is_active")),
-            }
-        )
+        groups = selectors.list_groups(filters=_get_validated_filters(request.query_params))
         serializer = GroupListSerializer(groups, many=True)
         return CustomResponse(data=serializer.data, message="Groups fetched successfully.")
 

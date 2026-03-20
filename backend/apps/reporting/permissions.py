@@ -1,40 +1,25 @@
 from rest_framework.permissions import BasePermission
 
 from apps.users.constants import (
-    ATTENDANCE_OFFICER_ROLE,
-    CHURCH_ADMIN_ROLE,
-    FINANCE_SECRETARY_ROLE,
-    LEADERSHIP_VIEWER_ROLE,
-    MEMBERSHIP_SECRETARY_ROLE,
-    SUPER_ADMIN_ROLE,
+    DASHBOARD_REPORT_READ_ROLES,
 )
-from apps.users.selectors import user_has_any_role
+from apps.users.selectors import user_has_all_permissions, user_has_any_role
 
 
 class ReportingAdminPermission(BasePermission):
-    read_roles = (
-        SUPER_ADMIN_ROLE,
-        CHURCH_ADMIN_ROLE,
-        MEMBERSHIP_SECRETARY_ROLE,
-        ATTENDANCE_OFFICER_ROLE,
-        FINANCE_SECRETARY_ROLE,
-        LEADERSHIP_VIEWER_ROLE,
-    )
-    fallback_permissions = (
-        "users.view_user",
-        "members.view_member",
-        "households.view_household",
-        "groups.view_group",
-        "attendance.view_serviceevent",
-        "finance.view_transaction",
-    )
+    default_read_roles = DASHBOARD_REPORT_READ_ROLES
 
     def has_permission(self, request, view):
         user = request.user
         if not user or not user.is_authenticated:
             return False
 
-        if user_has_any_role(user=user, role_names=self.read_roles):
+        read_roles = getattr(view, "read_roles", self.default_read_roles)
+        if user_has_any_role(user=user, role_names=read_roles):
             return True
 
-        return user.is_staff and any(user.has_perm(permission) for permission in self.fallback_permissions)
+        required_permissions = getattr(view, "required_permissions", ())
+        return bool(required_permissions) and user.is_staff and user_has_all_permissions(
+            user=user,
+            permissions=required_permissions,
+        )

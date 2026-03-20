@@ -11,6 +11,8 @@ Phase 1 currently includes the foundation for:
 - Attendance domain
 - Finance ledger domain
 - Reporting and dashboard domain
+- Bootstrap commands for roles, superuser creation, and baseline fund accounts
+- Release-ready local setup, deployment, backup, and checklist runbooks
 
 Phase 1 does not yet include:
 
@@ -18,3 +20,4 @@ Phase 1 does not yet include:
 - Import/export tooling
 - Export/report delivery workflows
 - Advanced ministry or group hierarchies
+- Background jobs, caching layers, and deployment orchestration

@@ -3,6 +3,11 @@ from rest_framework import serializers
 from apps.households.models import Household, HouseholdMembership
 
 
+class HouseholdListFilterSerializer(serializers.Serializer):
+    search = serializers.CharField(required=False, allow_blank=True)
+    is_active = serializers.BooleanField(required=False)
+
+
 class HouseholdListSerializer(serializers.ModelSerializer):
     active_member_count = serializers.IntegerField(read_only=True)
 

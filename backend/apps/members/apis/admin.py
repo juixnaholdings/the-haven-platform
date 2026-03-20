@@ -7,15 +7,15 @@ from apps.members import selectors, services
 from apps.members.permissions import MembersAdminPermission
 from apps.members.serializers import (
     MemberDetailSerializer,
+    MemberListFilterSerializer,
     MemberListSerializer,
     MemberWriteSerializer,
 )
 
-
-def _parse_bool(value: str | None):
-    if value is None:
-        return None
-    return value.lower() in {"1", "true", "yes", "on"}
+def _get_validated_filters(query_params):
+    serializer = MemberListFilterSerializer(data=query_params.dict())
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
 
 
 class MemberListCreateAdminApi(views.APIView):
@@ -24,16 +24,11 @@ class MemberListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Members"],
         summary="List members",
+        parameters=[MemberListFilterSerializer],
         responses=MemberListSerializer(many=True),
     )
     def get(self, request):
-        members = selectors.list_members(
-            filters={
-                "search": request.query_params.get("search"),
-                "is_active": _parse_bool(request.query_params.get("is_active")),
-                "household_id": request.query_params.get("household_id"),
-            }
-        )
+        members = selectors.list_members(filters=_get_validated_filters(request.query_params))
         serializer = MemberListSerializer(members, many=True)
         return CustomResponse(data=serializer.data, message="Members fetched successfully.")
 

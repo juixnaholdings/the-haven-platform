@@ -13,16 +13,34 @@ from apps.reporting.serializers import (
     MembershipSummarySerializer,
     ReportingDateRangeSerializer,
 )
+from apps.users.constants import (
+    ATTENDANCE_REPORT_READ_ROLES,
+    DASHBOARD_REPORT_READ_ROLES,
+    FINANCE_REPORT_READ_ROLES,
+    GROUP_REPORT_READ_ROLES,
+    HOUSEHOLD_REPORT_READ_ROLES,
+    MEMBERSHIP_REPORT_READ_ROLES,
+)
 
 
 def _get_validated_filters(query_params):
-    serializer = ReportingDateRangeSerializer(data=query_params)
+    serializer = ReportingDateRangeSerializer(data=query_params.dict())
     serializer.is_valid(raise_exception=True)
     return serializer.validated_data
 
 
 class DashboardOverviewAdminApi(views.APIView):
     permission_classes = [ReportingAdminPermission]
+    read_roles = DASHBOARD_REPORT_READ_ROLES
+    required_permissions = (
+        "members.view_member",
+        "households.view_household",
+        "groups.view_group",
+        "attendance.view_serviceevent",
+        "attendance.view_attendancesummary",
+        "finance.view_fundaccount",
+        "finance.view_transaction",
+    )
 
     @extend_schema(
         tags=["Admin - Reporting"],
@@ -42,6 +60,8 @@ class DashboardOverviewAdminApi(views.APIView):
 
 class MembershipSummaryAdminApi(views.APIView):
     permission_classes = [ReportingAdminPermission]
+    read_roles = MEMBERSHIP_REPORT_READ_ROLES
+    required_permissions = ("members.view_member",)
 
     @extend_schema(
         tags=["Admin - Reporting"],
@@ -59,6 +79,11 @@ class MembershipSummaryAdminApi(views.APIView):
 
 class HouseholdSummaryAdminApi(views.APIView):
     permission_classes = [ReportingAdminPermission]
+    read_roles = HOUSEHOLD_REPORT_READ_ROLES
+    required_permissions = (
+        "households.view_household",
+        "households.view_householdmembership",
+    )
 
     @extend_schema(
         tags=["Admin - Reporting"],
@@ -76,6 +101,11 @@ class HouseholdSummaryAdminApi(views.APIView):
 
 class GroupSummaryAdminApi(views.APIView):
     permission_classes = [ReportingAdminPermission]
+    read_roles = GROUP_REPORT_READ_ROLES
+    required_permissions = (
+        "groups.view_group",
+        "groups.view_groupmembership",
+    )
 
     @extend_schema(
         tags=["Admin - Reporting"],
@@ -93,6 +123,12 @@ class GroupSummaryAdminApi(views.APIView):
 
 class AttendanceSummaryAdminApi(views.APIView):
     permission_classes = [ReportingAdminPermission]
+    read_roles = ATTENDANCE_REPORT_READ_ROLES
+    required_permissions = (
+        "attendance.view_serviceevent",
+        "attendance.view_attendancesummary",
+        "attendance.view_memberattendance",
+    )
 
     @extend_schema(
         tags=["Admin - Reporting"],
@@ -112,6 +148,12 @@ class AttendanceSummaryAdminApi(views.APIView):
 
 class FinanceSummaryAdminApi(views.APIView):
     permission_classes = [ReportingAdminPermission]
+    read_roles = FINANCE_REPORT_READ_ROLES
+    required_permissions = (
+        "finance.view_fundaccount",
+        "finance.view_transaction",
+        "finance.view_transactionline",
+    )
 
     @extend_schema(
         tags=["Admin - Reporting"],
