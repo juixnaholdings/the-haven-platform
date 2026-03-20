@@ -12,7 +12,7 @@ if ENV_FILE.exists():
 
 SECRET_KEY = env("SECRET_KEY", default="unsafe-dev-key")
 DEBUG = env.bool("DEBUG", default=False)
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 API_PREFIX = env("API_PREFIX", default="api")
 
 JWT_ACCESS_TOKEN_LIFETIME_MINUTES = env.int("JWT_ACCESS_TOKEN_LIFETIME_MINUTES", default=15)
@@ -96,8 +96,25 @@ AUTH_USER_MODEL = "users.User"
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "The Haven API",
-    "DESCRIPTION": "Church attendance and finance system API",
+    "DESCRIPTION": "Operational API for The Haven Phase 1 church management backend.",
     "VERSION": "1.0.0",
+    "SCHEMA_PATH_PREFIX": rf"/{API_PREFIX}",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SWAGGER_UI_SETTINGS": {
+        "persistAuthorization": True,
+        "displayRequestDuration": True,
+        "docExpansion": "list",
+    },
+    "TAGS": [
+        {"name": "Public - Auth", "description": "JWT authentication endpoints for API clients."},
+        {"name": "Admin - Members", "description": "Administrative member management APIs."},
+        {"name": "Admin - Households", "description": "Administrative household management APIs."},
+        {"name": "Admin - Groups", "description": "Administrative business-group management APIs."},
+        {"name": "Admin - Attendance", "description": "Administrative attendance management APIs."},
+        {"name": "Admin - Finance", "description": "Administrative finance ledger APIs."},
+        {"name": "Admin - Reporting", "description": "Administrative reporting and dashboard APIs."},
+    ],
 }
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
@@ -106,7 +123,7 @@ CORS_ALLOW_CREDENTIALS = env.bool("CORS_ALLOW_CREDENTIALS", default=False)
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = env("TIME_ZONE")
+TIME_ZONE = env("TIME_ZONE", default="UTC")
 USE_I18N = True
 USE_TZ = True
 
@@ -137,7 +154,16 @@ JAZZMIN_SETTINGS = {
     "site_brand": "The Haven",
     "welcome_sign": "Welcome to The Haven Admin",
     "copyright": "The Haven",
-    "search_model": ["users.User", "auth.Group"],
+    "search_model": [
+        "users.User",
+        "auth.Group",
+        "members.Member",
+        "households.Household",
+        "groups.Group",
+        "attendance.ServiceEvent",
+        "finance.FundAccount",
+        "finance.Transaction",
+    ],
     "show_sidebar": True,
     "navigation_expanded": True,
     "show_ui_builder": False,
@@ -148,9 +174,30 @@ JAZZMIN_SETTINGS = {
         "auth.group": "fas fa-users",
         "users": "fas fa-user-shield",
         "users.user": "fas fa-user",
+        "members": "fas fa-id-card",
+        "members.member": "fas fa-address-card",
+        "households": "fas fa-house-user",
+        "households.household": "fas fa-house-user",
+        "households.householdmembership": "fas fa-people-roof",
+        "groups": "fas fa-layer-group",
+        "groups.group": "fas fa-layer-group",
+        "groups.groupmembership": "fas fa-user-tag",
+        "attendance": "fas fa-calendar-check",
+        "attendance.serviceevent": "fas fa-calendar-day",
+        "attendance.attendancesummary": "fas fa-clipboard-list",
+        "attendance.memberattendance": "fas fa-user-check",
+        "finance": "fas fa-wallet",
+        "finance.fundaccount": "fas fa-piggy-bank",
+        "finance.transaction": "fas fa-receipt",
+        "finance.transactionline": "fas fa-list-ol",
     },
     "order_with_respect_to": [
         "users",
+        "members",
+        "households",
+        "groups",
+        "attendance",
+        "finance",
         "auth",
     ],
 }
