@@ -57,6 +57,13 @@ The Haven backend is a Django modular monolith inside the monorepo.
 - Writes and domain rules live in `services.py`.
 - Responses use the project-wide response envelope and exception handler.
 
+## Frontend Integration Foundation
+
+- The frontend uses a shared API client that understands the backend success and error envelopes.
+- JWT access tokens are attached automatically, with a single refresh attempt on `401` responses.
+- Domain-specific frontend API modules mirror the backend domains: `auth`, `members`, `households`, `groups`, `attendance`, `finance`, and `reporting`.
+- Protected frontend surfaces currently prove the integration through login, dashboard reporting, and members list retrieval.
+
 ## Release-Readiness Notes
 
 - The API schema is exposed at `/api/schema`, `/api/schema/`, and `/api/docs/`.
