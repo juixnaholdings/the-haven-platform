@@ -7,6 +7,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 ENV_FILE = BASE_DIR / ".env"
 
 env = environ.Env()
+# Local CLI usage reads backend/.env by default. Containerized staging and production
+# should inject environment variables directly through Compose or the process manager.
 if ENV_FILE.exists():
     environ.Env.read_env(ENV_FILE)
 
