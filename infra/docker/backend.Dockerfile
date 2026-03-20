@@ -5,8 +5,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY backend/requirements/production.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+COPY backend/requirements /tmp/requirements
+RUN pip install --no-cache-dir -r /tmp/requirements/production.txt
 
 COPY backend /app
 
