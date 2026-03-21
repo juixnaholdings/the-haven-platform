@@ -1,5 +1,4 @@
-import { clearStoredTokens, getStoredTokens, saveStoredTokens } from "../auth/storage";
-import type { AuthTokens } from "../domains/types";
+import { clearAccessToken, getAccessToken, setAccessToken } from "../auth/storage";
 import { getApiBaseUrl, getApiTimeoutMs } from "./config";
 import { ApiError } from "./errors";
 import type { ApiEnvelope, QueryParamValue } from "./types";
@@ -18,7 +17,7 @@ interface RequestOptions<TBody> {
 }
 
 let unauthorizedHandler: (() => void) | null = null;
-let refreshPromise: Promise<AuthTokens | null> | null = null;
+let refreshPromise: Promise<string | null> | null = null;
 
 function buildUrl(path: string, params?: object): string {
   const url = new URL(path.startsWith("http") ? path : `${getApiBaseUrl()}${path}`);
@@ -64,7 +63,7 @@ function toApiError(payload: unknown, statusCode: number): ApiError {
 }
 
 function notifyUnauthorized() {
-  clearStoredTokens();
+  clearAccessToken();
   unauthorizedHandler?.();
 }
 
@@ -84,36 +83,24 @@ async function parsePayload(response: Response): Promise<unknown> {
   }
 }
 
-async function refreshAccessToken(): Promise<AuthTokens | null> {
+async function refreshAccessToken(): Promise<string | null> {
   if (refreshPromise) {
     return refreshPromise;
   }
 
-  const currentTokens = getStoredTokens();
-  if (!currentTokens?.refresh) {
-    notifyUnauthorized();
-    return null;
-  }
-
   refreshPromise = (async () => {
     try {
-      const payload = await request<{ access: string; refresh?: string }, { refresh: string }>(
+      const payload = await request<{ access: string }>(
         "/api/auth/token/refresh/",
         {
           method: "POST",
-          body: { refresh: currentTokens.refresh },
           auth: false,
           retryOnUnauthorized: false,
         },
       );
 
-      const nextTokens: AuthTokens = {
-        access: payload.access,
-        refresh: payload.refresh ?? currentTokens.refresh,
-      };
-
-      saveStoredTokens(nextTokens);
-      return nextTokens;
+      setAccessToken(payload.access);
+      return payload.access;
     } catch {
       notifyUnauthorized();
       return null;
@@ -152,14 +139,14 @@ export async function request<TResponse, TBody = unknown>(
   }
 
   const requestHeaders = new Headers(headers);
-  const tokens = auth ? getStoredTokens() : null;
+  const accessToken = auth ? getAccessToken() : null;
 
   if (body !== undefined) {
     requestHeaders.set("Content-Type", "application/json");
   }
 
-  if (tokens?.access) {
-    requestHeaders.set("Authorization", `Bearer ${tokens.access}`);
+  if (accessToken) {
+    requestHeaders.set("Authorization", `Bearer ${accessToken}`);
   }
 
   try {
@@ -168,6 +155,7 @@ export async function request<TResponse, TBody = unknown>(
       headers: requestHeaders,
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
+      credentials: "include",
     });
 
     const payload = await parsePayload(response);
@@ -184,9 +172,9 @@ export async function request<TResponse, TBody = unknown>(
       });
     }
 
-    if (response.status === 401 && auth && retryOnUnauthorized && getStoredTokens()?.refresh) {
-      const refreshedTokens = await refreshAccessToken();
-      if (refreshedTokens?.access) {
+    if (response.status === 401 && auth && retryOnUnauthorized) {
+      const refreshedAccessToken = await refreshAccessToken();
+      if (refreshedAccessToken) {
         return request<TResponse, TBody>(path, {
           ...options,
           retryOnUnauthorized: false,
@@ -223,27 +211,43 @@ export const apiClient = {
       method: "GET",
     });
   },
-  post<TResponse, TBody = unknown>(path: string, body?: TBody, options?: Omit<RequestOptions<TBody>, "method" | "body">) {
+
+  post<TResponse, TBody = unknown>(
+    path: string,
+    body?: TBody,
+    options?: Omit<RequestOptions<TBody>, "method" | "body">,
+  ) {
     return request<TResponse, TBody>(path, {
       ...options,
       method: "POST",
       body,
     });
   },
-  put<TResponse, TBody = unknown>(path: string, body?: TBody, options?: Omit<RequestOptions<TBody>, "method" | "body">) {
+
+  put<TResponse, TBody = unknown>(
+    path: string,
+    body?: TBody,
+    options?: Omit<RequestOptions<TBody>, "method" | "body">,
+  ) {
     return request<TResponse, TBody>(path, {
       ...options,
       method: "PUT",
       body,
     });
   },
-  patch<TResponse, TBody = unknown>(path: string, body?: TBody, options?: Omit<RequestOptions<TBody>, "method" | "body">) {
+
+  patch<TResponse, TBody = unknown>(
+    path: string,
+    body?: TBody,
+    options?: Omit<RequestOptions<TBody>, "method" | "body">,
+  ) {
     return request<TResponse, TBody>(path, {
       ...options,
       method: "PATCH",
       body,
     });
   },
+
   delete<TResponse>(path: string, options?: Omit<RequestOptions<never>, "method" | "body">) {
     return request<TResponse>(path, {
       ...options,
