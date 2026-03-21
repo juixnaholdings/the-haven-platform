@@ -32,8 +32,8 @@ export function LoginPage() {
         <p className="app-eyebrow">The Haven</p>
         <h1>Sign in to continue</h1>
         <p className="muted-text">
-          Use your backend credentials. The frontend stores the JWT token pair centrally and
-          restores your session on app boot.
+          Use your backend credentials. The app keeps the access token in memory
+          and restores your session from a secure refresh cookie when possible.
         </p>
 
         <form
@@ -64,12 +64,19 @@ export function LoginPage() {
             />
           </label>
 
-          <button className="button button-primary" type="submit" disabled={loginMutation.isPending}>
+          <button
+            className="button button-primary"
+            type="submit"
+            disabled={loginMutation.isPending}
+          >
             {loginMutation.isPending ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
-        <ErrorAlert error={loginMutation.error} fallbackMessage="Unable to sign in." />
+        <ErrorAlert
+          error={loginMutation.error}
+          fallbackMessage="Unable to sign in."
+        />
       </div>
     </div>
   );

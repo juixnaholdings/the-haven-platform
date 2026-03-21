@@ -1,12 +1,5 @@
 import { apiClient } from "../../api/client";
-import type {
-  LoginPayload,
-  LoginResponse,
-  LogoutPayload,
-  RefreshTokenPayload,
-  User,
-  VerifyTokenPayload,
-} from "../types";
+import type { LoginPayload, LoginResponse, User, VerifyTokenPayload } from "../types";
 
 export const authApi = {
   login(payload: LoginPayload) {
@@ -15,22 +8,25 @@ export const authApi = {
       retryOnUnauthorized: false,
     });
   },
-  logout(payload: LogoutPayload) {
-    return apiClient.post<Record<string, never>, LogoutPayload>("/api/auth/logout/", payload);
+
+  logout() {
+    return apiClient.post<Record<string, never>>("/api/auth/logout/", undefined, {
+      auth: false,
+      retryOnUnauthorized: false,
+    });
   },
+
   getCurrentUser() {
     return apiClient.get<User>("/api/auth/me/");
   },
-  refreshToken(payload: RefreshTokenPayload) {
-    return apiClient.post<{ access: string; refresh?: string }, RefreshTokenPayload>(
-      "/api/auth/token/refresh/",
-      payload,
-      {
-        auth: false,
-        retryOnUnauthorized: false,
-      },
-    );
+
+  refreshToken() {
+    return apiClient.post<{ access: string }>("/api/auth/token/refresh/", undefined, {
+      auth: false,
+      retryOnUnauthorized: false,
+    });
   },
+
   verifyToken(payload: VerifyTokenPayload) {
     return apiClient.post<Record<string, never>, VerifyTokenPayload>(
       "/api/auth/token/verify/",

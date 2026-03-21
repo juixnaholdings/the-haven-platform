@@ -97,26 +97,30 @@ JWT_BLACKLIST_AFTER_ROTATION = env.bool("JWT_BLACKLIST_AFTER_ROTATION", default=
 
 AUTH_REFRESH_COOKIE_NAME = env(
     "AUTH_REFRESH_COOKIE_NAME",
-    default="__Host-refresh",
+    default="refresh" if DEBUG else "__Host-refresh",
 )
+
 AUTH_REFRESH_COOKIE_SECURE = env.bool(
     "AUTH_REFRESH_COOKIE_SECURE",
     default=not DEBUG,
 )
+
 AUTH_REFRESH_COOKIE_HTTPONLY = True
+
 AUTH_REFRESH_COOKIE_SAMESITE = env(
     "AUTH_REFRESH_COOKIE_SAMESITE",
     default="Lax",
 )
+
 AUTH_REFRESH_COOKIE_PATH = env(
     "AUTH_REFRESH_COOKIE_PATH",
     default="/",
 )
+
 AUTH_REFRESH_COOKIE_DOMAIN = env(
     "AUTH_REFRESH_COOKIE_DOMAIN",
     default=None,
 )
-
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
