@@ -129,6 +129,8 @@ REST_FRAMEWORK = {
         "auth_refresh": "20/min",
         "auth_logout": "20/min",
     },
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "EXCEPTION_HANDLER": "apps.common.exception_handlers.custom_exception_handler",
 }
 
 AUTH_USER_MODEL = "users.User"
