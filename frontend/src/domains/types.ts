@@ -1,6 +1,5 @@
 export interface AuthTokens {
   access: string;
-  refresh: string;
 }
 
 export interface User {
@@ -24,16 +23,13 @@ export interface LoginResponse {
   tokens: AuthTokens;
 }
 
-export interface LogoutPayload {
-  refresh: string;
+export interface VerifyTokenPayload {
+  token: string;
 }
+
 
 export interface RefreshTokenPayload {
   refresh: string;
-}
-
-export interface VerifyTokenPayload {
-  token: string;
 }
 
 export interface MemberListItem {
