@@ -1,8 +1,7 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenRefreshSerializer, TokenVerifySerializer
+from rest_framework_simplejwt.serializers import TokenVerifySerializer
 
-from apps.users import services
 from apps.users.models import User
 
 
@@ -18,24 +17,18 @@ class JwtLoginSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError({"detail": ["Invalid credentials."]})
 
+        if not user.is_active:
+            raise serializers.ValidationError({"detail": ["User account is inactive."]})
+
         attrs["user"] = user
-        attrs["tokens"] = services.build_jwt_tokens_for_user(user=user)
         return attrs
 
 
-class JwtLogoutSerializer(serializers.Serializer):
-    refresh = serializers.CharField()
-
-
-class JwtRefreshRequestSerializer(TokenRefreshSerializer):
+class EmptyPayloadSerializer(serializers.Serializer):
     pass
 
 
 class JwtVerifyRequestSerializer(TokenVerifySerializer):
-    pass
-
-
-class EmptyPayloadSerializer(serializers.Serializer):
     pass
 
 
@@ -54,16 +47,14 @@ class UserMeSerializer(serializers.ModelSerializer):
         ]
 
 
-class JwtTokenPairSerializer(serializers.Serializer):
+class JwtLoginTokenSerializer(serializers.Serializer):
     access = serializers.CharField()
-    refresh = serializers.CharField(required=False)
 
 
 class JwtLoginResponseSerializer(serializers.Serializer):
     user = UserMeSerializer()
-    tokens = JwtTokenPairSerializer()
+    tokens = JwtLoginTokenSerializer()
 
 
 class JwtRefreshResponseSerializer(serializers.Serializer):
     access = serializers.CharField()
-    refresh = serializers.CharField(required=False)

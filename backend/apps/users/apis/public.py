@@ -1,15 +1,14 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status, views
+from rest_framework_simplejwt.serializers import TokenVerifySerializer
 
 from apps.common.responses import CustomResponse
 from apps.users import selectors, services
 from apps.users.serializers import (
     EmptyPayloadSerializer,
-    JwtLoginSerializer,
     JwtLoginResponseSerializer,
-    JwtLogoutSerializer,
+    JwtLoginSerializer,
     JwtRefreshResponseSerializer,
-    JwtRefreshRequestSerializer,
     JwtVerifyRequestSerializer,
     UserMeSerializer,
 )
@@ -17,6 +16,7 @@ from apps.users.serializers import (
 
 class PublicLoginJwtApi(views.APIView):
     permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_login"
 
     @extend_schema(
         tags=["Public - Auth"],
@@ -29,58 +29,91 @@ class PublicLoginJwtApi(views.APIView):
         serializer.is_valid(raise_exception=True)
 
         user = serializer.validated_data["user"]
-        tokens = serializer.validated_data["tokens"]
+        tokens = services.build_jwt_tokens_for_user(user=user)
 
-        return CustomResponse(
+        response = CustomResponse(
             data={
                 "user": UserMeSerializer(user).data,
-                "tokens": tokens,
+                "tokens": {
+                    "access": tokens["access"],
+                },
             },
             message="Login successful.",
             status_code=status.HTTP_200_OK,
         )
 
+        services.set_refresh_cookie(
+            response=response,
+            refresh_token=tokens["refresh"],
+        )
+
+        return response
+
 
 class PublicLogoutJwtApi(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_logout"
 
     @extend_schema(
         tags=["Public - Auth"],
         summary="Logout and blacklist refresh token",
-        request=JwtLogoutSerializer,
+        request=None,
         responses=EmptyPayloadSerializer,
     )
     def post(self, request):
-        serializer = JwtLogoutSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        raw_refresh = services.get_refresh_cookie_from_request(request=request)
 
-        services.blacklist_refresh_token(refresh_token=serializer.validated_data["refresh"])
+        if raw_refresh:
+            services.blacklist_refresh_token(refresh_token=raw_refresh)
 
-        return CustomResponse(
+        response = CustomResponse(
             data={},
             message="Logout successful.",
             status_code=status.HTTP_200_OK,
         )
 
+        services.clear_refresh_cookie(response=response)
+        return response
+
 
 class PublicTokenRefreshApi(views.APIView):
     permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_refresh"
 
     @extend_schema(
         tags=["Public - Auth"],
-        summary="Refresh access token",
-        request=JwtRefreshRequestSerializer,
+        summary="Refresh access token from secure cookie",
+        request=None,
         responses=JwtRefreshResponseSerializer,
     )
     def post(self, request):
-        serializer = JwtRefreshRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        raw_refresh = services.get_refresh_cookie_from_request(request=request)
+        if not raw_refresh:
+            return CustomResponse(
+                code=0,
+                data={},
+                message="Refresh token cookie is missing.",
+                status_code=status.HTTP_401_UNAUTHORIZED,
+            )
 
-        return CustomResponse(
-            data=serializer.validated_data,
+        token_data = services.refresh_access_from_cookie(raw_refresh_token=raw_refresh)
+
+        response = CustomResponse(
+            data={
+                "access": token_data["access"],
+            },
             message="Token refreshed successfully.",
             status_code=status.HTTP_200_OK,
         )
+
+        rotated_refresh = token_data.get("refresh")
+        if rotated_refresh:
+            services.set_refresh_cookie(
+                response=response,
+                refresh_token=rotated_refresh,
+            )
+
+        return response
 
 
 class PublicTokenVerifyApi(views.APIView):

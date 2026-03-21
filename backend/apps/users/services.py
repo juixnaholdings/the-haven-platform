@@ -1,10 +1,13 @@
 from collections.abc import Iterable
 from dataclasses import dataclass
 
+from django.conf import settings
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.models import Group, Permission
 from django.db import transaction
+from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.constants import ALL_AVAILABLE_PERMISSIONS
@@ -41,14 +44,61 @@ def build_jwt_tokens_for_user(*, user) -> dict[str, str]:
     }
 
 
+def refresh_access_from_cookie(*, raw_refresh_token: str) -> dict[str, str]:
+    serializer = TokenRefreshSerializer(data={"refresh": raw_refresh_token})
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
+
+
 def blacklist_refresh_token(*, refresh_token: str) -> None:
+    if not refresh_token:
+        return
+
     try:
         token = RefreshToken(refresh_token)
         token.blacklist()
     except TokenError as exc:
         if "blacklisted" in str(exc).lower():
             return
+        if "token is invalid or expired" in str(exc).lower():
+            return
         raise ValueError("Invalid or expired refresh token.") from exc
+
+
+def get_refresh_cookie_from_request(*, request) -> str:
+    return request.COOKIES.get(settings.AUTH_REFRESH_COOKIE_NAME, "")
+
+
+def set_refresh_cookie(*, response: Response, refresh_token: str) -> None:
+    max_age = int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds())
+
+    cookie_kwargs = {
+        "key": settings.AUTH_REFRESH_COOKIE_NAME,
+        "value": refresh_token,
+        "max_age": max_age,
+        "httponly": settings.AUTH_REFRESH_COOKIE_HTTPONLY,
+        "secure": settings.AUTH_REFRESH_COOKIE_SECURE,
+        "samesite": settings.AUTH_REFRESH_COOKIE_SAMESITE,
+        "path": settings.AUTH_REFRESH_COOKIE_PATH,
+    }
+
+    if settings.AUTH_REFRESH_COOKIE_DOMAIN:
+        cookie_kwargs["domain"] = settings.AUTH_REFRESH_COOKIE_DOMAIN
+
+    response.set_cookie(**cookie_kwargs)
+
+
+def clear_refresh_cookie(*, response: Response) -> None:
+    cookie_kwargs = {
+        "key": settings.AUTH_REFRESH_COOKIE_NAME,
+        "path": settings.AUTH_REFRESH_COOKIE_PATH,
+        "samesite": settings.AUTH_REFRESH_COOKIE_SAMESITE,
+    }
+
+    if settings.AUTH_REFRESH_COOKIE_DOMAIN:
+        cookie_kwargs["domain"] = settings.AUTH_REFRESH_COOKIE_DOMAIN
+
+    response.delete_cookie(**cookie_kwargs)
 
 
 def _permission_label(permission: Permission) -> str:
@@ -67,7 +117,9 @@ def _normalize_permission_labels(permission_labels: Iterable[str]) -> tuple[str,
     return tuple(dict.fromkeys(permission_labels))
 
 
-def resolve_permissions(*, permission_labels: Iterable[str] | str) -> tuple[list[Permission], tuple[str, ...]]:
+def resolve_permissions(
+    *, permission_labels: Iterable[str] | str
+) -> tuple[list[Permission], tuple[str, ...]]:
     lookup = _permission_lookup()
 
     if permission_labels == ALL_AVAILABLE_PERMISSIONS:
@@ -96,7 +148,9 @@ def setup_role_group(*, role_name: str, permission_labels: Iterable[str] | str) 
 
     existing_permission_ids = set(group.permissions.values_list("id", flat=True))
     added_permissions = [
-        permission for permission in resolved_permissions if permission.id not in existing_permission_ids
+        permission
+        for permission in resolved_permissions
+        if permission.id not in existing_permission_ids
     ]
     if added_permissions:
         group.permissions.add(*added_permissions)
