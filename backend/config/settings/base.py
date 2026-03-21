@@ -1,5 +1,6 @@
 ﻿from datetime import timedelta
 from pathlib import Path
+import os
 
 import environ
 
@@ -89,17 +90,47 @@ DATABASES["default"]["CONN_HEALTH_CHECKS"] = env.bool(
     default=not DEBUG,
 )
 
+JWT_ACCESS_TOKEN_LIFETIME_MINUTES = env.int("JWT_ACCESS_TOKEN_LIFETIME_MINUTES", default=5)
+JWT_REFRESH_TOKEN_LIFETIME_DAYS = env.int("JWT_REFRESH_TOKEN_LIFETIME_DAYS", default=7)
+JWT_ROTATE_REFRESH_TOKENS = env.bool("JWT_ROTATE_REFRESH_TOKENS", default=True)
+JWT_BLACKLIST_AFTER_ROTATION = env.bool("JWT_BLACKLIST_AFTER_ROTATION", default=True)
+
+AUTH_REFRESH_COOKIE_NAME = env(
+    "AUTH_REFRESH_COOKIE_NAME",
+    default="__Host-refresh",
+)
+AUTH_REFRESH_COOKIE_SECURE = env.bool(
+    "AUTH_REFRESH_COOKIE_SECURE",
+    default=not DEBUG,
+)
+AUTH_REFRESH_COOKIE_HTTPONLY = True
+AUTH_REFRESH_COOKIE_SAMESITE = env(
+    "AUTH_REFRESH_COOKIE_SAMESITE",
+    default="Lax",
+)
+AUTH_REFRESH_COOKIE_PATH = env(
+    "AUTH_REFRESH_COOKIE_PATH",
+    default="/",
+)
+AUTH_REFRESH_COOKIE_DOMAIN = env(
+    "AUTH_REFRESH_COOKIE_DOMAIN",
+    default=None,
+)
+
+
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
-    "DEFAULT_AUTHENTICATION_CLASSES": [
+    "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ],
+    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_THROTTLE_CLASSES": ("rest_framework.throttling.ScopedRateThrottle",),
+    "DEFAULT_THROTTLE_RATES": {
+        "auth_login": "5/min",
+        "auth_refresh": "20/min",
+        "auth_logout": "20/min",
+    },
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.StandardPageNumberPagination",
     "EXCEPTION_HANDLER": "apps.common.exception_handlers.custom_exception_handler",
-    "PAGE_SIZE": 20,
 }
 
 AUTH_USER_MODEL = "users.User"
@@ -150,14 +181,13 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=JWT_REFRESH_TOKEN_LIFETIME_DAYS),
     "ROTATE_REFRESH_TOKENS": JWT_ROTATE_REFRESH_TOKENS,
     "BLACKLIST_AFTER_ROTATION": JWT_BLACKLIST_AFTER_ROTATION,
-    "UPDATE_LAST_LOGIN": True,
+    "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": env("JWT_SIGNING_KEY", default=SECRET_KEY),
+    "SIGNING_KEY": SECRET_KEY,
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
 }
+
 
 JAZZMIN_SETTINGS = {
     "site_title": "The Haven Admin",
