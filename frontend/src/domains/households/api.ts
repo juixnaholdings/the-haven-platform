@@ -1,0 +1,32 @@
+import { apiClient } from "../../api/client";
+import type {
+  HouseholdDetail,
+  HouseholdListFilters,
+  HouseholdListItem,
+  HouseholdMembershipCreatePayload,
+  HouseholdWritePayload,
+} from "../types";
+
+export const householdsApi = {
+  listHouseholds(filters: HouseholdListFilters = {}) {
+    return apiClient.get<HouseholdListItem[]>("/api/households/", { params: filters });
+  },
+  getHousehold(householdId: number) {
+    return apiClient.get<HouseholdDetail>(`/api/households/${householdId}/`);
+  },
+  createHousehold(payload: HouseholdWritePayload) {
+    return apiClient.post<HouseholdDetail, HouseholdWritePayload>("/api/households/", payload);
+  },
+  updateHousehold(householdId: number, payload: Partial<HouseholdWritePayload>) {
+    return apiClient.patch<HouseholdDetail, Partial<HouseholdWritePayload>>(
+      `/api/households/${householdId}/`,
+      payload,
+    );
+  },
+  addMember(householdId: number, payload: HouseholdMembershipCreatePayload) {
+    return apiClient.post<HouseholdDetail, HouseholdMembershipCreatePayload>(
+      `/api/households/${householdId}/members/`,
+      payload,
+    );
+  },
+};

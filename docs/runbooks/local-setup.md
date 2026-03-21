@@ -47,7 +47,27 @@ Run these commands from the repo root:
 - `python backend/manage.py makemigrations --check --dry-run`
 - `pytest`
 
-## 6. Staging Artifacts
+## 6. Frontend Local Setup
+
+- Install frontend dependencies with `npm install` inside `frontend/`.
+- Copy `frontend/.env.example` to `frontend/.env`.
+- Point `VITE_API_BASE_URL` to the backend you want to use.
+- Run `npm run dev` from `frontend/`.
+- The local backend `.env.example` already allows the default Vite origin at `http://localhost:5173`.
+
+## 7. Frontend Validation Commands
+
+- `npm run typecheck`
+- `npm run build`
+- `npm run verify:backend`
+
+`npm run verify:backend` requires:
+
+- `FRONTEND_VERIFY_USERNAME`
+- `FRONTEND_VERIFY_PASSWORD`
+- optional: `VITE_API_BASE_URL`
+
+## 8. Staging Artifacts
 
 - Local development does not use the staging compose stack.
 - The staging deployment path lives under `infra/compose.staging.yaml`.
