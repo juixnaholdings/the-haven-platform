@@ -4,7 +4,7 @@ import { setUnauthorizedHandler } from "../api/client";
 import { queryClient } from "../api/queryClient";
 import { authApi } from "../domains/auth/api";
 import type { AuthTokens, LoginPayload, User } from "../domains/types";
-import { clearStoredTokens, getStoredTokens, saveStoredTokens } from "./storage";
+import { clearAccessToken, getAccessToken, setAccessToken } from "./storage";
 
 type AuthStatus = "bootstrapping" | "authenticated" | "unauthenticated";
 
@@ -28,11 +28,13 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [status, setStatus] = useState<AuthStatus>("bootstrapping");
   const [user, setUser] = useState<User | null>(null);
-  const [tokens, setTokens] = useState<AuthTokens | null>(getStoredTokens());
+  const [tokens, setTokens] = useState<AuthTokens | null>(
+    getAccessToken() ? { access: getAccessToken() as string } : null,
+  );
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
-      clearStoredTokens();
+      clearAccessToken();
       setTokens(null);
       setUser(null);
       setStatus("unauthenticated");
@@ -48,27 +50,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     let mounted = true;
 
     async function bootstrapSession() {
-      const existingTokens = getStoredTokens();
-      if (!existingTokens) {
-        if (mounted) {
-          setTokens(null);
-          setUser(null);
-          setStatus("unauthenticated");
-        }
-        return;
-      }
-
       if (mounted) {
         setStatus("bootstrapping");
       }
 
       try {
+        let access = getAccessToken();
+
+        if (!access) {
+          const refreshed = await authApi.refreshToken();
+          access = refreshed.access;
+          setAccessToken(access);
+        }
+
         const currentUser = await authApi.getCurrentUser();
+
         if (!mounted) {
           return;
         }
 
-        setTokens(getStoredTokens());
+        setTokens({ access });
         setUser(currentUser);
         setStatus("authenticated");
       } catch {
@@ -76,7 +77,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return;
         }
 
-        clearStoredTokens();
+        clearAccessToken();
         setTokens(null);
         setUser(null);
         setStatus("unauthenticated");
@@ -92,26 +93,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   async function login(credentials: LoginPayload): Promise<User> {
     const response = await authApi.login(credentials);
-    saveStoredTokens(response.tokens);
-    setTokens(response.tokens);
+
+    setAccessToken(response.tokens.access);
+    setTokens({ access: response.tokens.access });
     setUser(response.user);
     setStatus("authenticated");
+
     await queryClient.invalidateQueries();
+
     return response.user;
   }
 
   async function logout() {
-    const currentTokens = getStoredTokens();
-
     try {
-      if (currentTokens?.refresh) {
-        await authApi.logout({ refresh: currentTokens.refresh });
-      }
+      await authApi.logout();
     } catch {
-      // Local session state should still be cleared if the backend logout request fails.
+      // Even if logout fails remotely, local memory state must be cleared.
     }
 
-    clearStoredTokens();
+    clearAccessToken();
     setTokens(null);
     setUser(null);
     setStatus("unauthenticated");
@@ -119,7 +119,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   function clearSession() {
-    clearStoredTokens();
+    clearAccessToken();
     setTokens(null);
     setUser(null);
     setStatus("unauthenticated");
