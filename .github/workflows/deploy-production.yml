@@ -1,17 +1,14 @@
-name: deploy-staging
+name: deploy-production
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - develop
 
 jobs:
   deploy:
-    name: Deploy to staging
+    name: Deploy to production
     runs-on: ubuntu-latest
     environment:
-      name: staging
+      name: production
 
     steps:
       - name: Checkout
@@ -33,8 +30,8 @@ jobs:
           set -eu
           cd "${{ secrets.APP_DIR }}"
           git fetch origin
-          git checkout develop
-          git pull --ff-only origin develop
-          docker compose --env-file "${{ secrets.ENV_FILE_PATH }}" -f infra/compose.staging.yaml up --build -d
-          docker compose --env-file "${{ secrets.ENV_FILE_PATH }}" -f infra/compose.staging.yaml ps
+          git checkout main
+          git pull --ff-only origin main
+          docker compose --env-file "${{ secrets.ENV_FILE_PATH }}" -f infra/compose.production.yaml up --build -d
+          docker compose --env-file "${{ secrets.ENV_FILE_PATH }}" -f infra/compose.production.yaml ps
           EOF
