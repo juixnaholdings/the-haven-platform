@@ -20,7 +20,20 @@ let unauthorizedHandler: (() => void) | null = null;
 let refreshPromise: Promise<string | null> | null = null;
 
 function buildUrl(path: string, params?: object): string {
-  const url = new URL(path.startsWith("http") ? path : `${getApiBaseUrl()}${path}`);
+  const baseUrl = getApiBaseUrl();
+
+  const rawUrl = path.startsWith("http")
+    ? path
+    : baseUrl
+      ? `${baseUrl}${path}`
+      : path;
+
+  const runtimeBase =
+    typeof window !== "undefined" && window.location?.origin
+      ? window.location.origin
+      : "http://localhost:8000";
+
+  const url = new URL(rawUrl, runtimeBase);
 
   if (params) {
     Object.entries(params as Record<string, QueryParamValue>).forEach(([key, value]) => {
@@ -34,6 +47,7 @@ function buildUrl(path: string, params?: object): string {
 
   return url.toString();
 }
+
 
 function toApiError(payload: unknown, statusCode: number): ApiError {
   if (

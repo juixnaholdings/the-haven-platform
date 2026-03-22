@@ -25,13 +25,7 @@ services:
     working_dir: /app
     env_file:
       - ./.env.staging
-    command: >
-      gunicorn config.wsgi:application
-      --bind 0.0.0.0:8000
-      --workers ${GUNICORN_WORKERS:-3}
-      --timeout ${GUNICORN_TIMEOUT:-60}
-      --access-logfile -
-      --error-logfile -
+    command: ["/app/infra/scripts/backend-entrypoint.sh"]
     depends_on:
       db:
         condition: service_healthy
