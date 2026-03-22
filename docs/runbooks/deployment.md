@@ -1,107 +1,62 @@
 # Deployment Runbook
 
-This runbook documents the practical staging deployment path for The Haven on a single VPS.
+## Branch model
+- `develop` deploys to staging
+- `main` deploys to production
 
-## Staging Topology
+## Server directories
+- Staging: `/srv/the-haven-staging`
+- Production: `/srv/the-haven`
 
-- Docker Compose stack at `infra/compose.staging.yaml`
-- `backend` service running Django through Gunicorn
-- `nginx` service reverse proxying requests to the backend container
-- `db` service running PostgreSQL inside the private Compose network
-- Only `nginx` publishes a host port in staging. `backend` and `db` stay internal-only.
-- Named Docker volumes for PostgreSQL data, collected static files, and media files
+## Environment files
+- Staging env file stays on server and is not committed
+- Production env file stays on server and is not committed
 
-## First-Time Server Bootstrap
+## Staging deployment
+1. SSH into server
+2. `cd /srv/the-haven-staging`
+3. `git fetch origin`
+4. `git checkout develop`
+5. `git pull --ff-only origin develop`
+6. `docker compose --env-file infra/.env.staging -f infra/compose.staging.yaml up --build -d`
 
-1. Install Docker Engine and the Docker Compose plugin on the VPS.
-2. Create a deploy directory such as `/srv/the-haven`.
-3. Clone the repository into that directory.
-4. Copy `infra/.env.staging.example` to `infra/.env.staging`.
-5. Replace every placeholder secret and domain value in `infra/.env.staging`.
-6. Confirm the staging domain points to the VPS and that port 80 is reachable.
-7. Keep PostgreSQL private to the Compose network. Do not expose port `5432` publicly.
+## Production deployment
+1. SSH into server
+2. `cd /srv/the-haven`
+3. `git fetch origin`
+4. `git checkout main`
+5. `git pull --ff-only origin main`
+6. `docker compose --env-file infra/.env.production -f infra/compose.production.yaml up --build -d`
 
-## Required Staging Env File
+## Rollback
+- checkout previous known-good tag or commit
+- rerun compose up --build -d
 
-`infra/.env.staging` is the source-of-truth env file for Compose and the backend container.
-Do not create or rely on `backend/.env` on the staging server. That file remains a local-development convenience only.
+## Post-deploy verification
 
-Required values include:
+### Staging
+- open the staging URL
+- verify login works
+- verify reload works
+- verify `/admin/` loads
+- verify one protected API page loads
+- verify backend health endpoint returns 200
 
-- `DJANGO_SETTINGS_MODULE=config.settings.production`
-- `DEBUG=False`
-- `SECRET_KEY`
-- `JWT_SIGNING_KEY`
-- `ALLOWED_HOSTS`
-- `CORS_ALLOWED_ORIGINS`
-- `CSRF_TRUSTED_ORIGINS`
-- `DATABASE_URL`
-- `POSTGRES_DB`
-- `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
-- `STAGING_BASE_URL`
+### Production
+- verify HTTP redirects to HTTPS
+- verify login works
+- verify reload works
+- verify refresh works
+- verify logout works
+- verify `/admin/` loads
+- verify static files load
+- verify no browser requests point to the wrong origin
 
-## Deploy Flow
+## Rollback protocol
 
-The repo now includes `infra/scripts/deploy_staging.sh` for the server-side deploy path.
-
-Run from the repo root on the server:
-
-- `cp infra/.env.staging.example infra/.env.staging`
-- `sh infra/scripts/deploy_staging.sh`
-
-The deploy script will:
-
-1. Build the backend and nginx images.
-2. Start PostgreSQL.
-3. Run migrations with `config.settings.production`.
-4. Collect static assets into the shared Docker volume.
-5. Run `manage.py check --deploy`.
-6. Re-seed baseline roles and fund accounts idempotently.
-7. Start or refresh the backend and nginx services.
-
-## GitHub Actions Staging Deploy
-
-The repo also includes `.github/workflows/deploy-staging.yml`.
-
-Expected staging environment secrets:
-
-- `STAGING_SSH_HOST`
-- `STAGING_SSH_USER`
-- `STAGING_SSH_PRIVATE_KEY`
-- `STAGING_DEPLOY_PATH`
-- `STAGING_BASE_URL`
-
-The workflow is manual by design. It SSHes to the staging server, runs `infra/scripts/deploy_staging.sh`, and can optionally run the smoke checks afterward.
-
-## Smoke Verification
-
-Run locally or in CI:
-
-- `sh infra/scripts/staging_smoke_check.sh https://staging.example.com`
-
-The smoke script verifies:
-
-- `/health/`
-- `/admin/login/`
-- `/api/schema`
-- `/api/docs/`
-- `/api/auth/login/` returns the expected validation response shape
-
-Runtime notes:
-
-- `/health/` stays reachable for container and origin health checks even when `SECURE_SSL_REDIRECT` is enabled.
-- Both `/api/schema` and `/api/schema/` serve the OpenAPI schema so trailing-slash mismatches do not break staging verification.
-
-## Rollback Basics
-
-1. Take a fresh database backup before attempting rollback.
-2. Check out the previous known-good ref on the server.
-3. Re-run `sh infra/scripts/deploy_staging.sh`.
-4. If the failed release included irreversible migrations, restore the database backup before reopening traffic.
-
-## TLS Expectations
-
-- The nginx config is HTTP and reverse-proxy ready.
-- For real HTTPS on staging, terminate TLS either in nginx with mounted certificates or in an upstream load balancer.
-- Keep `SECURE_SSL_REDIRECT`, secure cookies, and `CSRF_TRUSTED_ORIGINS` aligned with the actual staging URL.
+1. Identify the previous known-good release tag.
+2. SSH into the server.
+3. `git fetch --tags`
+4. `git checkout <tag>`
+5. run the same docker compose up --build -d command for that environment
+6. confirm health endpoint and application login work

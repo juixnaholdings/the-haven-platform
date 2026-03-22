@@ -1,25 +1,22 @@
-name: deploy-staging
+name: deploy-production
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - develop
 
 permissions:
   contents: read
 
 concurrency:
-  group: deploy-staging-${{ github.ref }}
-  cancel-in-progress: true
+  group: deploy-production
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy to staging
+    name: Deploy to production
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
-      name: staging
+      name: production
 
     steps:
       - name: Start SSH agent
@@ -49,14 +46,14 @@ jobs:
 
           cd "$APP_DIR"
 
-          COMPOSE="docker compose --env-file \"$ENV_FILE_PATH\" -f infra/compose.staging.yaml"
+          COMPOSE="docker compose --env-file \"$ENV_FILE_PATH\" -f infra/compose.production.yaml"
 
-          echo "Fetching latest develop..."
+          echo "Fetching latest main..."
           git fetch origin
-          git checkout develop
-          git pull --ff-only origin develop
+          git checkout main
+          git pull --ff-only origin main
 
-          echo "Rebuilding and starting staging stack..."
+          echo "Rebuilding and starting production stack..."
           eval "$COMPOSE up --build -d"
 
           echo "Current container status:"
@@ -64,11 +61,11 @@ jobs:
 
           echo "Waiting for backend health endpoint..."
           attempts=0
-          until eval "$COMPOSE exec -T backend python -c \"import sys, urllib.request; resp = urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=5); sys.exit(0 if resp.status == 200 else 1)\""
+          until eval "$COMPOSE exec -T backend python -c \"import sys, urllib.request; req = urllib.request.Request('http://127.0.0.1:8000/health/', headers={'Host': 'localhost'}); resp = urllib.request.urlopen(req, timeout=5); sys.exit(0 if resp.status == 200 else 1)\""
           do
             attempts=$((attempts + 1))
             if [ "$attempts" -ge 12 ]; then
-              echo "Backend health check failed."
+              echo "Production backend health check failed."
               echo "Container status:"
               eval "$COMPOSE ps"
               echo "Recent backend logs:"
@@ -80,6 +77,6 @@ jobs:
             sleep 5
           done
 
-          echo "Staging deploy succeeded."
+          echo "Production deploy succeeded."
           eval "$COMPOSE ps"
           EOF
