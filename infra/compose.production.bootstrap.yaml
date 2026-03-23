@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - ./.env.production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: ..
+      dockerfile: infra/docker/backend.Dockerfile
+    restart: unless-stopped
+    working_dir: /app
+    env_file:
+      - ./.env.production
+    command: ["/app/infra/scripts/backend-entrypoint.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - static_data:/app/staticfiles
+      - media_data:/app/media
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; req = urllib.request.Request('http://127.0.0.1:8000/health/', headers={'Host': 'localhost'}); urllib.request.urlopen(req).read()",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: infra/docker/nginx.Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./.env.production
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    volumes:
+      - static_data:/srv/static:ro
+      - media_data:/srv/media:ro
+      - ${CERTBOT_WEBROOT:-/var/www/certbot}:/var/www/certbot
+      - ./nginx/production.bootstrap.conf.template:/etc/nginx/templates/default.conf.template:ro
+
+volumes:
+  postgres_data:
+  static_data:
+  media_data:
