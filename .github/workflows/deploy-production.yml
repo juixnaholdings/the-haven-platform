@@ -1,0 +1,82 @@
+name: deploy-production
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+
+    steps:
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add host key
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          ssh-keyscan -H -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy on server
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ssh \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -p "${{ secrets.SSH_PORT }}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "APP_DIR='${{ secrets.APP_DIR }}' ENV_FILE_PATH='${{ secrets.ENV_FILE_PATH }}' bash -s" <<'EOF'
+          set -euo pipefail
+
+          cd "$APP_DIR"
+
+          COMPOSE="docker compose --env-file \"$ENV_FILE_PATH\" -f infra/compose.production.yaml"
+
+          echo "Fetching latest main..."
+          git fetch origin
+          git checkout main
+          git pull --ff-only origin main
+
+          echo "Rebuilding and starting production stack..."
+          eval "$COMPOSE up --build -d"
+
+          echo "Current container status:"
+          eval "$COMPOSE ps"
+
+          echo "Waiting for backend health endpoint..."
+          attempts=0
+          until eval "$COMPOSE exec -T backend python -c \"import sys, urllib.request; req = urllib.request.Request('http://127.0.0.1:8000/health/', headers={'Host': 'localhost'}); resp = urllib.request.urlopen(req, timeout=5); sys.exit(0 if resp.status == 200 else 1)\""
+          do
+            attempts=$((attempts + 1))
+            if [ "$attempts" -ge 12 ]; then
+              echo "Production backend health check failed."
+              echo "Container status:"
+              eval "$COMPOSE ps"
+              echo "Recent backend logs:"
+              eval "$COMPOSE logs --tail=200 backend"
+              echo "Recent nginx logs:"
+              eval "$COMPOSE logs --tail=200 nginx"
+              exit 1
+            fi
+            sleep 5
+          done
+
+          echo "Production deploy succeeded."
+          eval "$COMPOSE ps"
+          EOF
