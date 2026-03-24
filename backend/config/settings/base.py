@@ -1,25 +1,28 @@
+<<<<<<< HEAD
+﻿from pathlib import Path
+=======
 ﻿from datetime import timedelta
 from pathlib import Path
 import os
 
+>>>>>>> develop
 import environ
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-ENV_FILE = BASE_DIR / ".env"
-
 env = environ.Env()
-# Local CLI usage reads backend/.env by default. Containerized staging and production
-# should inject environment variables directly through Compose or the process manager.
-if ENV_FILE.exists():
-    environ.Env.read_env(ENV_FILE)
+environ.Env.read_env()
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = env("SECRET_KEY", default="unsafe-dev-key")
 DEBUG = env.bool("DEBUG", default=False)
+<<<<<<< HEAD
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
+=======
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 API_PREFIX = env("API_PREFIX", default="api")
+>>>>>>> develop
 
 INSTALLED_APPS = [
-    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -29,7 +32,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "drf_spectacular",
-    "rest_framework_simplejwt.token_blacklist",
     "apps.common",
     "apps.users",
     "apps.members",
@@ -55,35 +57,27 @@ ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
-        },
-    }
-]
+TEMPLATES = [{
+    "BACKEND": "django.template.backends.django.DjangoTemplates",
+    "DIRS": [BASE_DIR / "templates"],
+    "APP_DIRS": True,
+    "OPTIONS": {
+        "context_processors": [
+            "django.template.context_processors.request",
+            "django.contrib.auth.context_processors.auth",
+            "django.contrib.messages.context_processors.messages",
+        ],
+    },
+}]
 
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
-        default="sqlite:///" + str(BASE_DIR / "db.sqlite3"),
+        default="postgres://the_haven:the_haven@db:5432/the_haven"
     )
 }
-DATABASES["default"]["CONN_MAX_AGE"] = env.int(
-    "DATABASE_CONN_MAX_AGE",
-    default=0 if DEBUG else 60,
-)
-DATABASES["default"]["CONN_HEALTH_CHECKS"] = env.bool(
-    "DATABASE_CONN_HEALTH_CHECKS",
-    default=not DEBUG,
-)
+
+AUTH_USER_MODEL = "users.User"
 
 JWT_ACCESS_TOKEN_LIFETIME_MINUTES = env.int("JWT_ACCESS_TOKEN_LIFETIME_MINUTES", default=5)
 JWT_REFRESH_TOKEN_LIFETIME_DAYS = env.int("JWT_REFRESH_TOKEN_LIFETIME_DAYS", default=7)
@@ -122,6 +116,18 @@ SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=True)
 CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=True)
 
 REST_FRAMEWORK = {
+<<<<<<< HEAD
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
+=======
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -134,38 +140,17 @@ REST_FRAMEWORK = {
     },
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "apps.common.exception_handlers.custom_exception_handler",
+>>>>>>> develop
 }
-
-AUTH_USER_MODEL = "users.User"
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "The Haven API",
-    "DESCRIPTION": "Operational API for The Haven Phase 1 church management backend.",
+    "DESCRIPTION": "Church attendance and finance system API",
     "VERSION": "1.0.0",
-    "SCHEMA_PATH_PREFIX": rf"/{API_PREFIX}",
-    "SERVE_INCLUDE_SCHEMA": False,
-    "COMPONENT_SPLIT_REQUEST": True,
-    "SWAGGER_UI_SETTINGS": {
-        "persistAuthorization": True,
-        "displayRequestDuration": True,
-        "docExpansion": "list",
-    },
-    "TAGS": [
-        {"name": "Public - Auth", "description": "JWT authentication endpoints for API clients."},
-        {"name": "Public - Ops", "description": "Unauthenticated operational endpoints."},
-        {"name": "Admin - Members", "description": "Administrative member management APIs."},
-        {"name": "Admin - Households", "description": "Administrative household management APIs."},
-        {"name": "Admin - Groups", "description": "Administrative business-group management APIs."},
-        {"name": "Admin - Attendance", "description": "Administrative attendance management APIs."},
-        {"name": "Admin - Finance", "description": "Administrative finance ledger APIs."},
-        {"name": "Admin - Reporting", "description": "Administrative reporting and dashboard APIs."},
-    ],
 }
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
-CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=False)
-CORS_ALLOW_CREDENTIALS = env.bool("CORS_ALLOW_CREDENTIALS", default=False)
-CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=True)
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = env("TIME_ZONE", default="UTC")
@@ -176,8 +161,9 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+<<<<<<< HEAD
+=======
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=JWT_ACCESS_TOKEN_LIFETIME_MINUTES),
@@ -254,3 +240,4 @@ JAZZMIN_UI_TWEAKS = {
     "brand_colour": "navbar-primary",
     "accent": "accent-primary",
 }
+>>>>>>> develop

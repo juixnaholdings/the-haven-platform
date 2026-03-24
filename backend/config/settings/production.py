@@ -1,8 +1,12 @@
+<<<<<<< HEAD
+﻿from .base import *  # noqa
+=======
 # ruff: noqa: F403,F405
 
 from django.core.exceptions import ImproperlyConfigured
 
 from .base import *
+>>>>>>> develop
 from .base import env
 
 DEBUG = False
@@ -10,6 +14,15 @@ DEBUG = False
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+<<<<<<< HEAD
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=60)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True)
+SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD", default=True)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+=======
 USE_X_FORWARDED_HOST = env.bool("USE_X_FORWARDED_HOST", default=True)
 
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
@@ -35,3 +48,4 @@ if SECRET_KEY == "unsafe-dev-key":
 
 if not ALLOWED_HOSTS:
     raise ImproperlyConfigured("ALLOWED_HOSTS must be configured for production.")
+>>>>>>> develop

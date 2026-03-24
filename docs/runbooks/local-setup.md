@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+﻿
+=======
 # Local Backend Setup
 
 Use `backend/.env.example` as the source-of-truth environment template for local backend work.
@@ -73,3 +76,4 @@ Run these commands from the repo root:
 - The staging deployment path lives under `infra/compose.staging.yaml`.
 - `infra/.env.staging` is the only intended staging env file. Do not mirror those values into `backend/.env` on the VPS.
 - The staging smoke verification script lives at `infra/scripts/staging_smoke_check.sh`.
+>>>>>>> develop

@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+﻿
+=======
 # Deployment Runbook
 
 ## Branch model
@@ -60,3 +63,4 @@
 4. `git checkout <tag>`
 5. run the same docker compose up --build -d command for that environment
 6. confirm health endpoint and application login work
+>>>>>>> develop

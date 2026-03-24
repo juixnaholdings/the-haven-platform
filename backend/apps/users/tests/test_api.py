@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+﻿
+=======
 from django.conf import settings
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -119,3 +122,4 @@ class AuthApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["code"], 1)
         self.assertTrue(BlacklistedToken.objects.filter(token__token=refresh).exists())
+>>>>>>> develop

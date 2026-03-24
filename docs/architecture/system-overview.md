@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+﻿
+=======
 # System Overview
 
 The Haven backend is a Django modular monolith inside the monorepo.
@@ -72,3 +75,4 @@ The Haven backend is a Django modular monolith inside the monorepo.
 - Bootstrap commands cover roles, superuser creation, and optional baseline fund accounts.
 - Production settings expect explicit `SECRET_KEY`, `ALLOWED_HOSTS`, JWT signing, and secure cookie/TLS configuration.
 - Staging uses a single-VPS Docker Compose topology with backend, nginx, and PostgreSQL, with only nginx published publicly.
+>>>>>>> develop

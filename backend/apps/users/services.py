@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+﻿from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from django.db import transaction
+=======
 from collections.abc import Iterable
 from dataclasses import dataclass
 
@@ -9,27 +14,29 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+>>>>>>> develop
 
-from apps.users.constants import ALL_AVAILABLE_PERMISSIONS
-
-
-@dataclass(frozen=True)
-class RoleSetupResult:
-    role_name: str
-    created: bool
-    added_permissions: tuple[str, ...]
-    missing_permissions: tuple[str, ...]
+User = get_user_model()
 
 
-@dataclass(frozen=True)
-class SuperuserSeedResult:
-    username: str
-    created: bool
+@transaction.atomic
+def create_user(*, email: str, password: str, first_name: str = "", last_name: str = ""):
+    return User.objects.create_user(
+        email=email,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+        is_active=True,
+    )
 
 
-def login_user(request, user):
-    login(request, user)
+@transaction.atomic
+def assign_role(*, user, role_name: str):
+    group, _ = Group.objects.get_or_create(name=role_name)
+    user.groups.add(group)
     return user
+<<<<<<< HEAD
+=======
 
 
 def logout_user(request):
@@ -182,3 +189,4 @@ def seed_superuser(*, username: str, email: str, password: str) -> SuperuserSeed
 
     User.objects.create_superuser(username=username, email=email, password=password)
     return SuperuserSeedResult(username=username, created=True)
+>>>>>>> develop
