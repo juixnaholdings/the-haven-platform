@@ -11,6 +11,7 @@ export interface User {
   is_active: boolean;
   is_staff: boolean;
   is_superuser: boolean;
+  role_names: string[];
 }
 
 export interface LoginPayload {
@@ -125,6 +126,15 @@ export interface HouseholdMembershipCreatePayload {
   member_id: number;
   relationship_to_head?: string;
   is_head?: boolean;
+  joined_on?: string | null;
+  left_on?: string | null;
+  notes?: string;
+}
+
+export interface HouseholdMembershipUpdatePayload {
+  relationship_to_head?: string;
+  is_head?: boolean;
+  is_active?: boolean;
   joined_on?: string | null;
   left_on?: string | null;
   notes?: string;

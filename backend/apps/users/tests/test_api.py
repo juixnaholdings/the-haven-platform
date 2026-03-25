@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Group
 from django.conf import settings
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -13,6 +14,7 @@ class AuthApiTests(APITestCase):
             email="admin1@example.com",
             password="StrongPass123",
         )
+        self.user.groups.add(Group.objects.create(name="Church Admin"))
 
     def test_login_success_sets_refresh_cookie_and_returns_access_only(self):
         response = self.client.post(
@@ -28,6 +30,7 @@ class AuthApiTests(APITestCase):
         self.assertIn("access", response.data["data"]["tokens"])
         self.assertNotIn("refresh", response.data["data"]["tokens"])
         self.assertEqual(response.data["data"]["user"]["username"], "admin1")
+        self.assertEqual(response.data["data"]["user"]["role_names"], ["Church Admin"])
 
         refresh_cookie = response.cookies.get(settings.AUTH_REFRESH_COOKIE_NAME)
         self.assertIsNotNone(refresh_cookie)
@@ -57,6 +60,7 @@ class AuthApiTests(APITestCase):
         response = self.client.get("/api/auth/me/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["data"]["username"], "admin1")
+        self.assertEqual(response.data["data"]["role_names"], ["Church Admin"])
 
     def test_refresh_token_uses_cookie(self):
         login_response = self.client.post(

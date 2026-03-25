@@ -4,6 +4,7 @@ import type {
   HouseholdListFilters,
   HouseholdListItem,
   HouseholdMembershipCreatePayload,
+  HouseholdMembershipUpdatePayload,
   HouseholdWritePayload,
 } from "../types";
 
@@ -26,6 +27,16 @@ export const householdsApi = {
   addMember(householdId: number, payload: HouseholdMembershipCreatePayload) {
     return apiClient.post<HouseholdDetail, HouseholdMembershipCreatePayload>(
       `/api/households/${householdId}/members/`,
+      payload,
+    );
+  },
+  updateMembership(
+    householdId: number,
+    membershipId: number,
+    payload: HouseholdMembershipUpdatePayload,
+  ) {
+    return apiClient.patch<HouseholdDetail["members"][number], HouseholdMembershipUpdatePayload>(
+      `/api/households/${householdId}/memberships/${membershipId}/`,
       payload,
     );
   },

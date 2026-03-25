@@ -24,7 +24,7 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 - `POST /api/auth/token/verify/`
   Verifies an access token and returns the standard success envelope.
 - `GET /api/auth/me/`
-  Returns the current authenticated user for the supplied bearer token.
+  Returns the current authenticated user for the supplied bearer token, including `role_names` for RBAC-aware frontend routing.
 
 ## Admin
 
@@ -54,6 +54,8 @@ All API routes are mounted under the configured API prefix, which defaults to `/
   Updates a household.
 - `POST /api/households/{household_id}/members/`
   Adds a member to a household while enforcing household membership rules.
+- `PATCH /api/households/{household_id}/memberships/{membership_id}/`
+  Updates household membership state, relationship, dates, and head-of-household assignment.
 
 ## Groups Admin Endpoints
 
