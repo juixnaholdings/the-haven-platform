@@ -1,4 +1,4 @@
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -10,6 +10,7 @@ import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { PaginationControls } from "../components/PaginationControls";
 import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { householdsApi } from "../domains/households/api";
@@ -53,17 +54,25 @@ export function HouseholdsPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<HouseholdStatusFilter>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formState, setFormState] = useState<HouseholdFormState>(emptyHouseholdForm);
   const deferredSearch = useDeferredValue(search);
 
+  useEffect(() => {
+    setPage(1);
+  }, [deferredSearch, statusFilter]);
+
   const householdsQuery = useQuery({
-    queryKey: ["households", { search: deferredSearch, statusFilter }],
+    queryKey: ["households", { search: deferredSearch, statusFilter, page, pageSize }],
     queryFn: () =>
-      householdsApi.listHouseholds({
+      householdsApi.listHouseholdsPage({
         search: deferredSearch || undefined,
         is_active:
           statusFilter === "all" ? undefined : statusFilter === "active",
+        page,
+        page_size: pageSize,
       }),
   });
 
@@ -77,7 +86,9 @@ export function HouseholdsPage() {
     },
   });
 
-  const households = householdsQuery.data ?? [];
+  const households = householdsQuery.data?.items ?? [];
+  const pagination = householdsQuery.data?.pagination ?? null;
+  const totalHouseholds = pagination?.count ?? households.length;
   const hasFilters = Boolean(search.trim()) || statusFilter !== "all";
   const activeHouseholds = households.filter((household) => household.is_active).length;
   const inactiveHouseholds = households.length - activeHouseholds;
@@ -105,17 +116,17 @@ export function HouseholdsPage() {
         }
         meta={
           <StatusBadge
-            label={`${households.length} household${households.length === 1 ? "" : "s"}`}
+            label={`${totalHouseholds} household${totalHouseholds === 1 ? "" : "s"}`}
             tone="info"
           />
         }
       />
 
       <section className="metrics-grid">
-        <StatCard label="Households" value={households.length} tone="accent" />
-        <StatCard label="Active households" value={activeHouseholds} />
-        <StatCard label="Inactive households" value={inactiveHouseholds} />
-        <StatCard label="Linked members" value={linkedMembers} />
+        <StatCard label="Households" value={totalHouseholds} tone="accent" />
+        <StatCard label="Active in view" value={activeHouseholds} />
+        <StatCard label="Inactive in view" value={inactiveHouseholds} />
+        <StatCard label="Linked members in view" value={linkedMembers} />
       </section>
 
       <section className="panel">
@@ -317,6 +328,7 @@ export function HouseholdsPage() {
                 onClick={() => {
                   setSearch("");
                   setStatusFilter("all");
+                  setPage(1);
                 }}
                 type="button"
               >
@@ -390,6 +402,14 @@ export function HouseholdsPage() {
             ]}
             getRowKey={(household) => household.id}
             rows={households}
+          />
+          <PaginationControls
+            pagination={pagination}
+            onPageChange={(nextPage) => setPage(nextPage)}
+            onPageSizeChange={(nextPageSize) => {
+              setPageSize(nextPageSize);
+              setPage(1);
+            }}
           />
         </section>
       ) : null}

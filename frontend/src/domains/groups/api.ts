@@ -1,8 +1,11 @@
 import { apiClient } from "../../api/client";
+import { normalizeListResponse } from "../list";
 import type {
   GroupDetail,
   GroupListFilters,
   GroupListItem,
+  ListResponse,
+  ListResult,
   GroupMembership,
   GroupMembershipCreatePayload,
   GroupMembershipUpdatePayload,
@@ -12,6 +15,12 @@ import type {
 export const groupsApi = {
   listGroups(filters: GroupListFilters = {}) {
     return apiClient.get<GroupListItem[]>("/api/groups/", { params: filters });
+  },
+  async listGroupsPage(filters: GroupListFilters = {}): Promise<ListResult<GroupListItem>> {
+    const response = await apiClient.get<ListResponse<GroupListItem>>("/api/groups/", {
+      params: filters,
+    });
+    return normalizeListResponse(response);
   },
   getGroup(groupId: number) {
     return apiClient.get<GroupDetail>(`/api/groups/${groupId}/`);

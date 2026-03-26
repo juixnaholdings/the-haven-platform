@@ -1,4 +1,4 @@
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
@@ -7,6 +7,7 @@ import { EntityTable } from "../components/EntityTable";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { PaginationControls } from "../components/PaginationControls";
 import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { membersApi } from "../domains/members/api";
@@ -16,20 +17,30 @@ type MemberStatusFilter = "all" | "active" | "inactive";
 export function MembersPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const deferredSearch = useDeferredValue(search);
 
+  useEffect(() => {
+    setPage(1);
+  }, [deferredSearch, statusFilter]);
+
   const membersQuery = useQuery({
-    queryKey: ["members", { search: deferredSearch, statusFilter }],
+    queryKey: ["members", { search: deferredSearch, statusFilter, page, pageSize }],
     queryFn: () =>
-      membersApi.listMembers({
+      membersApi.listMembersPage({
         search: deferredSearch || undefined,
         is_active:
           statusFilter === "all" ? undefined : statusFilter === "active",
+        page,
+        page_size: pageSize,
       }),
   });
 
-  const members = membersQuery.data ?? [];
+  const members = membersQuery.data?.items ?? [];
+  const pagination = membersQuery.data?.pagination ?? null;
   const hasFilters = Boolean(search.trim()) || statusFilter !== "all";
+  const totalRecords = pagination?.count ?? members.length;
   const activeMembers = members.filter((member) => member.is_active).length;
   const inactiveMembers = members.length - activeMembers;
   const contactReadyMembers = members.filter(
@@ -49,17 +60,17 @@ export function MembersPage() {
         }
         meta={
           <StatusBadge
-            label={`${members.length} record${members.length === 1 ? "" : "s"}`}
+            label={`${totalRecords} record${totalRecords === 1 ? "" : "s"}`}
             tone="info"
           />
         }
       />
 
       <section className="metrics-grid">
-        <StatCard label="Directory records" value={members.length} tone="accent" />
-        <StatCard label="Active members" value={activeMembers} />
-        <StatCard label="Inactive members" value={inactiveMembers} />
-        <StatCard label="Contact ready" value={contactReadyMembers} />
+        <StatCard label="Directory records" value={totalRecords} tone="accent" />
+        <StatCard label="Active in view" value={activeMembers} />
+        <StatCard label="Inactive in view" value={inactiveMembers} />
+        <StatCard label="Contact ready in view" value={contactReadyMembers} />
       </section>
 
       <section className="panel">
@@ -116,6 +127,7 @@ export function MembersPage() {
                 onClick={() => {
                   setSearch("");
                   setStatusFilter("all");
+                  setPage(1);
                 }}
                 type="button"
               >
@@ -181,6 +193,14 @@ export function MembersPage() {
             ]}
             getRowKey={(member) => member.id}
             rows={members}
+          />
+          <PaginationControls
+            pagination={pagination}
+            onPageChange={(nextPage) => setPage(nextPage)}
+            onPageSizeChange={(nextPageSize) => {
+              setPageSize(nextPageSize);
+              setPage(1);
+            }}
           />
         </section>
       ) : null}

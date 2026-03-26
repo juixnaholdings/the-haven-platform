@@ -1,7 +1,10 @@
 import { apiClient } from "../../api/client";
+import { normalizeListResponse } from "../list";
 import type {
   AttendanceSummary,
   AttendanceSummaryWritePayload,
+  ListResponse,
+  ListResult,
   MemberAttendance,
   MemberAttendanceCreatePayload,
   MemberAttendanceListFilters,
@@ -15,6 +18,14 @@ import type {
 export const attendanceApi = {
   listServiceEvents(filters: ServiceEventListFilters = {}) {
     return apiClient.get<ServiceEventListItem[]>("/api/attendance/", { params: filters });
+  },
+  async listServiceEventsPage(
+    filters: ServiceEventListFilters = {},
+  ): Promise<ListResult<ServiceEventListItem>> {
+    const response = await apiClient.get<ListResponse<ServiceEventListItem>>("/api/attendance/", {
+      params: filters,
+    });
+    return normalizeListResponse(response);
   },
   getServiceEvent(serviceEventId: number) {
     return apiClient.get<ServiceEventDetail>(`/api/attendance/${serviceEventId}/`);

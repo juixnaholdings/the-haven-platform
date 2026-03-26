@@ -1,4 +1,4 @@
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -10,6 +10,7 @@ import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { PaginationControls } from "../components/PaginationControls";
 import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { groupsApi } from "../domains/groups/api";
@@ -41,16 +42,24 @@ export function GroupsPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<GroupStatusFilter>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formState, setFormState] = useState<GroupFormState>(emptyGroupForm);
   const deferredSearch = useDeferredValue(search);
 
+  useEffect(() => {
+    setPage(1);
+  }, [deferredSearch, statusFilter]);
+
   const groupsQuery = useQuery({
-    queryKey: ["groups", { search: deferredSearch, statusFilter }],
+    queryKey: ["groups", { search: deferredSearch, statusFilter, page, pageSize }],
     queryFn: () =>
-      groupsApi.listGroups({
+      groupsApi.listGroupsPage({
         search: deferredSearch || undefined,
         is_active: statusFilter === "all" ? undefined : statusFilter === "active",
+        page,
+        page_size: pageSize,
       }),
   });
 
@@ -64,7 +73,9 @@ export function GroupsPage() {
     },
   });
 
-  const groups = groupsQuery.data ?? [];
+  const groups = groupsQuery.data?.items ?? [];
+  const pagination = groupsQuery.data?.pagination ?? null;
+  const totalGroups = pagination?.count ?? groups.length;
   const hasFilters = Boolean(search.trim()) || statusFilter !== "all";
   const activeGroups = groups.filter((group) => group.is_active).length;
   const inactiveGroups = groups.length - activeGroups;
@@ -90,17 +101,17 @@ export function GroupsPage() {
         }
         meta={
           <StatusBadge
-            label={`${groups.length} ministry${groups.length === 1 ? "" : "ies"}`}
+            label={`${totalGroups} ministry${totalGroups === 1 ? "" : "ies"}`}
             tone="info"
           />
         }
       />
 
       <section className="metrics-grid">
-        <StatCard label="Ministries" value={groups.length} tone="accent" />
-        <StatCard label="Active ministries" value={activeGroups} />
-        <StatCard label="Inactive ministries" value={inactiveGroups} />
-        <StatCard label="Active memberships" value={activeGroupMembers} />
+        <StatCard label="Ministries" value={totalGroups} tone="accent" />
+        <StatCard label="Active in view" value={activeGroups} />
+        <StatCard label="Inactive in view" value={inactiveGroups} />
+        <StatCard label="Memberships in view" value={activeGroupMembers} />
       </section>
 
       <section className="panel">
@@ -248,6 +259,7 @@ export function GroupsPage() {
                 onClick={() => {
                   setSearch("");
                   setStatusFilter("all");
+                  setPage(1);
                 }}
                 type="button"
               >
@@ -310,6 +322,14 @@ export function GroupsPage() {
             ]}
             getRowKey={(group) => group.id}
             rows={groups}
+          />
+          <PaginationControls
+            pagination={pagination}
+            onPageChange={(nextPage) => setPage(nextPage)}
+            onPageSizeChange={(nextPageSize) => {
+              setPageSize(nextPageSize);
+              setPage(1);
+            }}
           />
         </section>
       ) : null}

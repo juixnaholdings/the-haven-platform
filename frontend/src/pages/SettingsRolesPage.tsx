@@ -63,13 +63,18 @@ export function SettingsRolesPage() {
       <PageHeader
         eyebrow="Settings / roles"
         title="Roles"
-        description="This is a safe read-only summary of the backend role foundation. Role assignment and permission changes still live in bootstrap commands and Django admin."
+        description="API-backed read-only role and permission visibility. Role assignment and permission mutations still live in bootstrap commands and Django admin."
         actions={
           <Link className="button button-secondary" to="/settings/staff">
             View staff users
           </Link>
         }
-        meta={<StatusBadge label="Read-only settings surface" tone="info" />}
+        meta={
+          <>
+            <StatusBadge label="Read-only settings surface" tone="info" />
+            <StatusBadge label="API-backed" tone="success" />
+          </>
+        }
       />
 
       <section className="metrics-grid">
@@ -80,9 +85,9 @@ export function SettingsRolesPage() {
       </section>
 
       <BlockedFeatureCard
-        title="System preferences and governance log"
-        description="The Stitch settings screen includes system preferences and governance audit management, but those APIs are not available in the current backend."
-        reason="This settings route intentionally exposes only read-only role and permission summaries."
+        title="Role mutation workflows"
+        description="Role assignment, permission edits, and governance/audit workflows are intentionally not exposed in this release."
+        reason="Use Django admin and existing bootstrap commands until dedicated settings mutation APIs are introduced."
       />
 
       {roles.length === 0 ? (
