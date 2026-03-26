@@ -14,6 +14,27 @@ export interface User {
   role_names: string[];
 }
 
+export interface StaffUserListItem extends User {
+  full_name: string;
+  last_login: string | null;
+  date_joined: string;
+}
+
+export interface RolePermissionSummary {
+  id: number;
+  app_label: string;
+  codename: string;
+  name: string;
+  permission_code: string;
+}
+
+export interface RoleSummary {
+  id: number;
+  name: string;
+  user_count: number;
+  permissions: RolePermissionSummary[];
+}
+
 export interface LoginPayload {
   username: string;
   password: string;

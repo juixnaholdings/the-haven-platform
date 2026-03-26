@@ -1,4 +1,4 @@
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.conf import settings
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -123,3 +123,75 @@ class AuthApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["code"], 1)
         self.assertTrue(BlacklistedToken.objects.filter(token__token=refresh).exists())
+
+
+class SettingsApiTests(APITestCase):
+    def setUp(self):
+        self.church_admin_group = Group.objects.create(name="Church Admin")
+        self.finance_secretary_group = Group.objects.create(name="Finance Secretary")
+        self.church_admin_group.permissions.add(
+            Permission.objects.get(codename="view_user", content_type__app_label="users")
+        )
+
+        self.admin_user = User.objects.create_user(
+            username="churchadmin",
+            email="churchadmin@example.com",
+            password="StrongPass123",
+        )
+        self.admin_user.groups.add(self.church_admin_group)
+
+        self.staff_user = User.objects.create_user(
+            username="staffuser",
+            email="staffuser@example.com",
+            password="StrongPass123",
+            first_name="Grace",
+            last_name="Adewale",
+            is_staff=True,
+        )
+        self.staff_user.groups.add(self.finance_secretary_group)
+
+        self.regular_user = User.objects.create_user(
+            username="member1",
+            email="member1@example.com",
+            password="StrongPass123",
+        )
+
+    def test_staff_users_requires_admin_settings_access(self):
+        self.client.force_authenticate(user=self.regular_user)
+
+        response = self.client.get("/api/settings/staff-users/")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["status"], "error")
+
+    def test_staff_users_returns_role_aware_staff_directory(self):
+        self.client.force_authenticate(user=self.admin_user)
+
+        response = self.client.get("/api/settings/staff-users/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(len(response.data["data"]), 1)
+        self.assertEqual(response.data["data"][0]["username"], "staffuser")
+        self.assertEqual(response.data["data"][0]["full_name"], "Grace Adewale")
+        self.assertEqual(response.data["data"][0]["role_names"], ["Finance Secretary"])
+
+    def test_roles_returns_role_permissions_and_user_counts(self):
+        self.client.force_authenticate(user=self.admin_user)
+
+        response = self.client.get("/api/settings/roles/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], "success")
+        role_names = [role["name"] for role in response.data["data"]]
+        self.assertIn("Church Admin", role_names)
+        self.assertIn("Finance Secretary", role_names)
+
+        church_admin_role = next(
+            role for role in response.data["data"] if role["name"] == "Church Admin"
+        )
+        self.assertEqual(church_admin_role["user_count"], 1)
+        self.assertIn(
+            "users.view_user",
+            [permission["permission_code"] for permission in church_admin_role["permissions"]],
+        )

@@ -1,6 +1,6 @@
 # Frontend Implementation Map
 
-Date: 2026-03-25
+Date: 2026-03-26
 
 This map ties the current frontend architecture to the real backend readiness state and the Stitch screen inventory supplied for The Haven.
 
@@ -31,6 +31,14 @@ Current implemented routes:
 - `/events/:serviceEventId`
 - `/events/:serviceEventId/attendance`
 - `/attendance`
+- `/finance`
+- `/finance/entries/income`
+- `/finance/entries/expense`
+- `/finance/transfers/new`
+- `/finance/transactions/:transactionId`
+- `/reports`
+- `/settings/roles`
+- `/settings/staff`
 
 ## Design Coverage Status
 
@@ -77,14 +85,14 @@ Design source of truth for this map:
 | `/events/:serviceEventId` | Event detail | Ready | Implemented | Wave 2 complete |
 | `/events/:serviceEventId/attendance` | Event attendance recording | Ready | Implemented | Wave 2 complete |
 | `/attendance` | Attendance overview | Ready | Implemented | Wave 2 complete |
-| `/finance` | Finance / Ledger | Ready with caveats | Not started | Wave 2 |
-| `/finance/entries/income` | Finance entry form | Ready | Not started | Wave 2 |
-| `/finance/entries/expense` | Finance entry form | Ready | Not started | Wave 2 |
-| `/finance/transfers/new` | Fund transfer | Ready | Not started | Wave 2 |
-| `/finance/transactions/:transactionId` | Transaction detail / audit | Ready with caveats | Not started | Wave 2 |
-| `/reports` | Reports dashboard | Ready | Not started | Wave 3 |
-| `/settings/roles` | Settings / Roles | Not ready | Not started | Blocked |
-| `/settings/staff` | Staff user management | Not ready | Not started | Blocked |
+| `/finance` | Finance / Ledger | Ready with caveats | Implemented | Wave 3 complete |
+| `/finance/entries/income` | Finance entry form | Ready | Implemented | Wave 3 complete |
+| `/finance/entries/expense` | Finance entry form | Ready | Implemented | Wave 3 complete |
+| `/finance/transfers/new` | Fund transfer | Ready | Implemented | Wave 3 complete |
+| `/finance/transactions/:transactionId` | Transaction detail / audit | Ready with caveats | Implemented | Wave 3 complete |
+| `/reports` | Reports dashboard | Ready | Implemented | Wave 3 complete |
+| `/settings/roles` | Settings / Roles | Ready with caveats | Implemented (read-only) | Wave 3 complete |
+| `/settings/staff` | Staff user management | Ready with caveats | Implemented (read-only) | Wave 3 complete |
 | `/audit` | Audit trail | Not ready | Not started | Blocked |
 | `/ui/states` | Functional states gallery | No backend dependency | Not started | Wave 0.5 |
 
@@ -109,8 +117,8 @@ Design source of truth for this map:
 | Fund transfer | `POST /api/finance/transactions/transfer/` | `GET /api/finance/fund-accounts/` | Validates source/destination separation server-side. |
 | Transaction detail / audit | `GET /api/finance/transactions/{transaction_id}/`, `PATCH /api/finance/transactions/{transaction_id}/` | none | Record detail exists, but no dedicated audit timeline endpoint exists. |
 | Reports dashboard | `GET /api/reports/members/`, `GET /api/reports/households/`, `GET /api/reports/groups/`, `GET /api/reports/attendance/`, `GET /api/reports/finance/` | `GET /api/reports/dashboard/` | Reports are backend-ready. |
-| Settings / Roles | none | existing role commands/admin only | Requires backend API work. |
-| Staff user management | none | `GET /api/auth/me/` only | Requires backend API work. |
+| Settings / Roles | `GET /api/settings/roles/` | existing role commands/admin | Read-only role and permission summary only. |
+| Staff user management | `GET /api/settings/staff-users/` | `GET /api/settings/roles/` | Read-only staff directory only. |
 | Audit trail | none | model audit fields only | Requires backend API work. |
 
 ## Shared Component Map
@@ -188,32 +196,37 @@ Status:
 - Attendance overview and event attendance recording are now implemented.
 - Finance remains the major unfinished Wave 2 domain.
 
-### Wave 3: reporting expansion and polish
+### Wave 3: finance, reporting, and read-only settings
 
+- Finance ledger, entry, transfer, and transaction detail
 - Reports dashboard
-- Deeper reporting breakdowns and date-filter UX
-- Functional states gallery for consistent empty/loading/error coverage
+- Read-only settings roles and staff-user surfaces
 
-### Blocked wave: settings and audit
+Status:
 
-- Settings / Roles
-- Staff user management
+- Completed in this implementation wave.
+- Settings is intentionally limited to read-only role and staff-user summaries, which keeps the frontend honest to current backend readiness.
+
+### Blocked wave: settings mutations and audit
+
+- Staff user create/update flows
+- Role assignment and permission management flows
 - Audit trail
 
 Blocked by:
 
-- missing backend user/role management APIs
+- missing backend mutation APIs for users/roles
 - missing audit-log query surface
 
 ## Immediate Build Recommendation
 
 The next coding wave should be:
 
-1. implement the finance ledger list, entry, transfer, and transaction detail workflows
-2. add a routed reports surface that reuses the current dashboard and reporting patterns
-3. consider small shared refinements that finance/reporting surfaces genuinely need, but do not reopen the page-foundation work
+1. decide whether settings needs a dedicated mutation slice beyond the new read-only summaries
+2. implement any remaining audit-trail backend and frontend surfaces
+3. add pagination or richer aggregation endpoints where real dataset size starts to pressure the current Phase 1 screens
 
 Backend blockers that still remain outside those waves:
 
-- settings / roles / staff-user product APIs are still missing
+- staff-user and role mutation APIs are still missing
 - audit trail remains blocked on missing backend query surfaces

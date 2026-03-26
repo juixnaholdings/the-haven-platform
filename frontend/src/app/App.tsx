@@ -6,6 +6,9 @@ import { DashboardPage } from "../pages/DashboardPage";
 import { EventAttendancePage } from "../pages/EventAttendancePage";
 import { EventDetailPage } from "../pages/EventDetailPage";
 import { EventsPage } from "../pages/EventsPage";
+import { FinanceEntryPage } from "../pages/FinanceEntryPage";
+import { FinancePage } from "../pages/FinancePage";
+import { FinanceTransferPage } from "../pages/FinanceTransferPage";
 import { GroupDetailPage } from "../pages/GroupDetailPage";
 import { GroupsPage } from "../pages/GroupsPage";
 import { HouseholdDetailPage } from "../pages/HouseholdDetailPage";
@@ -14,6 +17,10 @@ import { LoginPage } from "../pages/LoginPage";
 import { MemberDetailPage } from "../pages/MemberDetailPage";
 import { MemberFormPage } from "../pages/MemberFormPage";
 import { MembersPage } from "../pages/MembersPage";
+import { ReportsPage } from "../pages/ReportsPage";
+import { SettingsRolesPage } from "../pages/SettingsRolesPage";
+import { SettingsStaffPage } from "../pages/SettingsStaffPage";
+import { TransactionDetailPage } from "../pages/TransactionDetailPage";
 import { AppShell } from "./AppShell";
 
 export function App() {
@@ -37,6 +44,14 @@ export function App() {
             <Route path="/events/:serviceEventId" element={<EventDetailPage />} />
             <Route path="/events/:serviceEventId/attendance" element={<EventAttendancePage />} />
             <Route path="/attendance" element={<AttendancePage />} />
+            <Route path="/finance" element={<FinancePage />} />
+            <Route path="/finance/entries/income" element={<FinanceEntryPage entryType="income" />} />
+            <Route path="/finance/entries/expense" element={<FinanceEntryPage entryType="expense" />} />
+            <Route path="/finance/transfers/new" element={<FinanceTransferPage />} />
+            <Route path="/finance/transactions/:transactionId" element={<TransactionDetailPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/settings/roles" element={<SettingsRolesPage />} />
+            <Route path="/settings/staff" element={<SettingsStaffPage />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
