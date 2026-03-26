@@ -71,7 +71,8 @@ Current alignment status:
 
 - the authenticated shell, login page, dashboard, members, households, groups, events, and attendance screens have now received a Stitch-aligned polish pass
 - shared UI primitives have been visually unified around the same spacing, card, badge, table, and state language
-- finance, reports, and read-only settings remain implemented but are outside this particular refinement wave
+- finance, reports, and read-only settings now also follow the same Stitch-aligned visual system and route composition
+- settings remains intentionally read-only on `/settings/roles` and `/settings/staff` because mutation APIs are still not available
 
 ## Route Map
 

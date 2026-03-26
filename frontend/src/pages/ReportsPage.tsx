@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
+import { BlockedFeatureCard } from "../components/BlockedFeatureCard";
 import { EmptyState } from "../components/EmptyState";
+import { EntityTable } from "../components/EntityTable";
 import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
@@ -127,6 +129,9 @@ export function ReportsPage() {
             <Link className="button button-ghost" to="/finance">
               Open ledger
             </Link>
+            <button className="button button-ghost" type="button" disabled>
+              Export CSV
+            </button>
           </div>
         }
         meta={
@@ -175,7 +180,15 @@ export function ReportsPage() {
         <StatCard label="Active groups" value={groups.active_groups} />
         <StatCard label="Events in range" value={attendance.total_events} />
         <StatCard label="Net flow" value={formatAmount(finance.net_flow)} />
+        <StatCard label="Active affiliations" value={groups.total_active_affiliations} />
       </section>
+
+      <BlockedFeatureCard
+        title="Report exports"
+        description="CSV and PDF export actions are visible in design references, but export endpoints are not part of the current backend contract."
+        reason="This release-ready reports surface stays read-only and on-screen to avoid fake export flows."
+        tone="info"
+      />
 
       <div className="panel-grid">
         <section className="panel">
@@ -346,23 +359,44 @@ export function ReportsPage() {
           </div>
         </dl>
 
+        <p className="muted-text">
+          Detailed fund balances are shown in the dedicated table below.
+        </p>
+      </section>
+
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <h3>Balances by fund</h3>
+            <p className="muted-text">Current fund balance table for quick financial posture checks.</p>
+          </div>
+        </div>
+
         {finance.balances_by_fund.length === 0 ? (
           <EmptyState
             title="No fund balances are available"
-            description="Create or seed fund accounts and post finance transactions to populate balance reporting."
+            description="Create or seed fund accounts and post finance transactions to populate this section."
           />
         ) : (
-          <ul className="item-list">
-            {finance.balances_by_fund.map((fund) => (
-              <li className="item-row" key={fund.id}>
-                <div>
-                  <strong>{fund.name}</strong>
-                  <span>{fund.code}</span>
-                </div>
-                <strong>{formatAmount(fund.current_balance)}</strong>
-              </li>
-            ))}
-          </ul>
+          <EntityTable
+            columns={[
+              {
+                header: "Fund",
+                cell: (fund) => (
+                  <div className="cell-stack">
+                    <strong>{fund.name}</strong>
+                    <span className="table-subtext">{fund.code}</span>
+                  </div>
+                ),
+              },
+              {
+                header: "Current balance",
+                cell: (fund) => formatAmount(fund.current_balance),
+              },
+            ]}
+            getRowKey={(fund) => fund.id}
+            rows={finance.balances_by_fund}
+          />
         )}
       </section>
     </div>
