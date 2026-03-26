@@ -10,6 +10,7 @@ import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { groupsApi } from "../domains/groups/api";
 import type { GroupWritePayload } from "../domains/types";
@@ -65,6 +66,12 @@ export function GroupsPage() {
 
   const groups = groupsQuery.data ?? [];
   const hasFilters = Boolean(search.trim()) || statusFilter !== "all";
+  const activeGroups = groups.filter((group) => group.is_active).length;
+  const inactiveGroups = groups.length - activeGroups;
+  const activeGroupMembers = groups.reduce(
+    (count, group) => count + group.active_member_count,
+    0,
+  );
 
   return (
     <div className="page-stack">
@@ -88,6 +95,13 @@ export function GroupsPage() {
           />
         }
       />
+
+      <section className="metrics-grid">
+        <StatCard label="Ministries" value={groups.length} tone="accent" />
+        <StatCard label="Active ministries" value={activeGroups} />
+        <StatCard label="Inactive ministries" value={inactiveGroups} />
+        <StatCard label="Active memberships" value={activeGroupMembers} />
+      </section>
 
       <section className="panel">
         <div className="filters-grid filters-grid-2">

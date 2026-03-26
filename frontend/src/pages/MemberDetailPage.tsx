@@ -9,6 +9,15 @@ import { StatusBadge } from "../components/StatusBadge";
 import { membersApi } from "../domains/members/api";
 import { formatDate, formatDateTime } from "../utils/formatters";
 
+function getMemberInitials(fullName: string) {
+  return fullName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
 export function MemberDetailPage() {
   const { memberId } = useParams();
   const numericMemberId = Number(memberId);
@@ -46,6 +55,7 @@ export function MemberDetailPage() {
   }
 
   const member = memberQuery.data;
+  const memberInitials = getMemberInitials(member.full_name);
 
   return (
     <div className="page-stack">
@@ -70,6 +80,38 @@ export function MemberDetailPage() {
           />
         }
       />
+
+      <section className="entity-hero-card">
+        <div className="entity-avatar" aria-hidden="true">
+          {memberInitials}
+        </div>
+        <div className="entity-hero-copy">
+          <div className="entity-hero-header">
+            <div>
+              <p className="app-eyebrow">Profile summary</p>
+              <h3>{member.full_name}</h3>
+            </div>
+            <StatusBadge
+              label={member.is_active ? "Active member" : "Inactive member"}
+              tone={member.is_active ? "success" : "muted"}
+            />
+          </div>
+          <div className="entity-hero-metadata">
+            <div className="detail-item">
+              <dt>Email</dt>
+              <dd>{member.email || "Not set"}</dd>
+            </div>
+            <div className="detail-item">
+              <dt>Phone</dt>
+              <dd>{member.phone_number || "Not set"}</dd>
+            </div>
+            <div className="detail-item">
+              <dt>Date of birth</dt>
+              <dd>{formatDate(member.date_of_birth)}</dd>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="content-grid">
         <DetailPanel
@@ -102,15 +144,40 @@ export function MemberDetailPage() {
         />
       </div>
 
-      <section className="panel">
-        <div className="panel-header">
-          <div>
-            <h3>Notes</h3>
-            <p className="muted-text">Notes are profile-level only at the current backend scope.</p>
+      <div className="panel-grid">
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <h3>Notes</h3>
+              <p className="muted-text">Notes are profile-level only at the current backend scope.</p>
+            </div>
           </div>
-        </div>
-        <p className="panel-copy">{member.notes || "No notes recorded for this member."}</p>
-      </section>
+          <p className="panel-copy">{member.notes || "No notes recorded for this member."}</p>
+        </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <h3>Current backend scope</h3>
+              <p className="muted-text">This page stays honest to the profile payload the backend currently exposes.</p>
+            </div>
+          </div>
+          <ul className="item-list">
+            <li className="item-row">
+              <div>
+                <strong>Included now</strong>
+                <span>Core identity, contact details, notes, and audit timestamps.</span>
+              </div>
+            </li>
+            <li className="item-row">
+              <div>
+                <strong>Not aggregated yet</strong>
+                <span>Household history, group history, attendance history, and finance history.</span>
+              </div>
+            </li>
+          </ul>
+        </section>
+      </div>
     </div>
   );
 }

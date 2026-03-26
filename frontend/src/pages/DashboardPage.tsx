@@ -39,7 +39,7 @@ export function DashboardPage() {
       <PageHeader
         eyebrow="Protected reporting surface"
         title="Operational dashboard"
-        description="This dashboard proves the current frontend session bootstrap and protected API flow against the existing reporting backend."
+        description="A calm operational snapshot across members, households, ministries, attendance, and finance using the protected reporting backend."
       />
 
       <section className="metrics-grid">
@@ -83,6 +83,24 @@ export function DashboardPage() {
               </li>
             ))}
           </ul>
+        </article>
+
+        <article className="panel">
+          <h3>People and ministry snapshot</h3>
+          <dl className="definition-list">
+            <div>
+              <dt>Active members</dt>
+              <dd>{dashboard.members.active_members}</dd>
+            </div>
+            <div>
+              <dt>Households</dt>
+              <dd>{dashboard.households.total_households}</dd>
+            </div>
+            <div>
+              <dt>Active group memberships</dt>
+              <dd>{dashboard.groups.total_active_affiliations}</dd>
+            </div>
+          </dl>
         </article>
       </section>
     </div>

@@ -42,7 +42,7 @@ Current implemented routes:
 
 ## Design Coverage Status
 
-The prompt references Stitch-generated screen packs and a refined clerical-minimalism direction. No Stitch assets are currently tracked in the repo, so the screen inventory supplied in the prompt is treated as the design source of truth for implementation planning.
+The Stitch design bundle is now tracked in-repo under `docs/design/stitch/`. That bundle is the visual source of truth for frontend refinement, with the refined clerical-minimalism variants preferred whenever multiple directions exist.
 
 Design source of truth for this map:
 
@@ -66,6 +66,12 @@ Design source of truth for this map:
 - Staff user management
 - System login
 - Functional states gallery
+
+Current alignment status:
+
+- the authenticated shell, login page, dashboard, members, households, groups, events, and attendance screens have now received a Stitch-aligned polish pass
+- shared UI primitives have been visually unified around the same spacing, card, badge, table, and state language
+- finance, reports, and read-only settings remain implemented but are outside this particular refinement wave
 
 ## Route Map
 
@@ -156,6 +162,12 @@ Design source of truth for this map:
 | `ErrorState` | Handles page-level failures consistently | dashboard and all implemented operational pages |
 | `LoadingState` | Handles page-level loading consistently | dashboard and all implemented operational pages |
 | `StatCard` | Reuses metric-card presentation for overview and detail summaries | dashboard, event detail, attendance overview, attendance recording |
+
+### Stitch alignment refinement wave
+
+- the shell now uses the calmer sidebar-and-stage composition from the Stitch clerical-minimalism direction
+- login, dashboard, members, households, groups, events, and attendance share one warmed visual system instead of route-by-route styling
+- empty, loading, and error states are now visually consistent with the functional states gallery
 
 ## Implementation Waves
 

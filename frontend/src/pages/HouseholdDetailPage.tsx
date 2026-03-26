@@ -10,6 +10,7 @@ import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { householdsApi } from "../domains/households/api";
 import { HOUSEHOLD_RELATIONSHIP_OPTIONS } from "../domains/households/options";
@@ -265,6 +266,7 @@ export function HouseholdDetailPage() {
 
   const household = householdQuery.data;
   const activeMembershipCount = household.members.filter((membership) => membership.is_active).length;
+  const headCount = household.members.filter((membership) => membership.is_head && membership.is_active).length;
 
   return (
     <div className="page-stack">
@@ -292,6 +294,13 @@ export function HouseholdDetailPage() {
           </>
         }
       />
+
+      <section className="metrics-grid">
+        <StatCard label="Active members" value={activeMembershipCount} tone="accent" />
+        <StatCard label="Household heads" value={headCount} />
+        <StatCard label="City" value={household.city || "Not set"} />
+        <StatCard label="Created" value={formatDate(household.created_at)} />
+      </section>
 
       <div className="content-grid">
         <section className="page-stack">

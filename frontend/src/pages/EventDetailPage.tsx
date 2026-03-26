@@ -156,6 +156,7 @@ export function EventDetailPage() {
         <StatCard label="Service date" value={formatDate(serviceEvent.service_date)} tone="accent" />
         <StatCard label="Member records" value={serviceEvent.member_attendances.length} />
         <StatCard label="Summary total" value={summaryTotal} />
+        <StatCard label="Updated" value={formatDate(serviceEvent.updated_at)} />
       </section>
 
       <div className="content-grid">

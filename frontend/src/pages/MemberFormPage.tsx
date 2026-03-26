@@ -8,6 +8,7 @@ import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { StatusBadge } from "../components/StatusBadge";
 import { membersApi } from "../domains/members/api";
 import type { MemberWritePayload } from "../domains/types";
 
@@ -143,118 +144,153 @@ export function MemberFormPage() {
           saveMemberMutation.mutate(toMemberPayload(formState));
         }}
       >
-        <FormSection
-          title="Core profile"
-          description="These fields map directly to the current member profile payload exposed by the backend."
-        >
-          <div className="form-grid form-grid-2">
-            <label className="field">
-              <span>First name</span>
-              <input
-                required
-                value={formState.first_name}
-                onChange={(event) =>
-                  setFormState((current) => ({ ...current, first_name: event.target.value }))
-                }
-              />
-            </label>
+        <div className="content-grid content-grid-form">
+          <div className="page-stack">
+            <FormSection
+              title="Core profile"
+              description="These fields map directly to the current member profile payload exposed by the backend."
+            >
+              <div className="form-grid form-grid-2">
+                <label className="field">
+                  <span>First name</span>
+                  <input
+                    required
+                    value={formState.first_name}
+                    onChange={(event) =>
+                      setFormState((current) => ({ ...current, first_name: event.target.value }))
+                    }
+                  />
+                </label>
 
-            <label className="field">
-              <span>Middle name</span>
-              <input
-                value={formState.middle_name}
-                onChange={(event) =>
-                  setFormState((current) => ({ ...current, middle_name: event.target.value }))
-                }
-              />
-            </label>
+                <label className="field">
+                  <span>Middle name</span>
+                  <input
+                    value={formState.middle_name}
+                    onChange={(event) =>
+                      setFormState((current) => ({ ...current, middle_name: event.target.value }))
+                    }
+                  />
+                </label>
 
-            <label className="field">
-              <span>Last name</span>
-              <input
-                required
-                value={formState.last_name}
-                onChange={(event) =>
-                  setFormState((current) => ({ ...current, last_name: event.target.value }))
-                }
-              />
-            </label>
+                <label className="field">
+                  <span>Last name</span>
+                  <input
+                    required
+                    value={formState.last_name}
+                    onChange={(event) =>
+                      setFormState((current) => ({ ...current, last_name: event.target.value }))
+                    }
+                  />
+                </label>
 
-            <label className="field">
-              <span>Email</span>
-              <input
-                type="email"
-                value={formState.email}
-                onChange={(event) =>
-                  setFormState((current) => ({ ...current, email: event.target.value }))
-                }
-              />
-            </label>
+                <label className="field">
+                  <span>Email</span>
+                  <input
+                    type="email"
+                    value={formState.email}
+                    onChange={(event) =>
+                      setFormState((current) => ({ ...current, email: event.target.value }))
+                    }
+                  />
+                </label>
 
-            <label className="field">
-              <span>Phone number</span>
-              <input
-                value={formState.phone_number}
-                onChange={(event) =>
-                  setFormState((current) => ({ ...current, phone_number: event.target.value }))
-                }
-              />
-            </label>
+                <label className="field">
+                  <span>Phone number</span>
+                  <input
+                    value={formState.phone_number}
+                    onChange={(event) =>
+                      setFormState((current) => ({ ...current, phone_number: event.target.value }))
+                    }
+                  />
+                </label>
 
-            <label className="field">
-              <span>Date of birth</span>
-              <input
-                type="date"
-                value={formState.date_of_birth}
-                onChange={(event) =>
-                  setFormState((current) => ({ ...current, date_of_birth: event.target.value }))
-                }
-              />
-            </label>
+                <label className="field">
+                  <span>Date of birth</span>
+                  <input
+                    type="date"
+                    value={formState.date_of_birth}
+                    onChange={(event) =>
+                      setFormState((current) => ({ ...current, date_of_birth: event.target.value }))
+                    }
+                  />
+                </label>
+              </div>
+            </FormSection>
+
+            <FormSection
+              title="Operational notes"
+              description="The backend currently stores profile notes and active state, but not related household or attendance history on this form."
+            >
+              <div className="form-grid">
+                <label className="field">
+                  <span>Notes</span>
+                  <textarea
+                    rows={5}
+                    value={formState.notes}
+                    onChange={(event) =>
+                      setFormState((current) => ({ ...current, notes: event.target.value }))
+                    }
+                  />
+                </label>
+
+                <label className="checkbox-field">
+                  <input
+                    checked={formState.is_active}
+                    onChange={(event) =>
+                      setFormState((current) => ({ ...current, is_active: event.target.checked }))
+                    }
+                    type="checkbox"
+                  />
+                  <span>Member is active</span>
+                </label>
+              </div>
+            </FormSection>
+
+            <ErrorAlert
+              error={saveMemberMutation.error}
+              fallbackMessage="The member record could not be saved."
+            />
+
+            <div className="inline-actions">
+              <button className="button button-primary" disabled={saveMemberMutation.isPending} type="submit">
+                {saveMemberMutation.isPending ? "Saving..." : isEdit ? "Save changes" : "Create member"}
+              </button>
+              <Link className="button button-secondary" to={isEdit ? `/members/${numericMemberId}` : "/members"}>
+                Cancel
+              </Link>
+            </div>
           </div>
-        </FormSection>
 
-        <FormSection
-          title="Operational notes"
-          description="The backend currently stores profile notes and active state, but not related household or attendance history on this form."
-        >
-          <div className="form-grid">
-            <label className="field">
-              <span>Notes</span>
-              <textarea
-                rows={5}
-                value={formState.notes}
-                onChange={(event) =>
-                  setFormState((current) => ({ ...current, notes: event.target.value }))
-                }
-              />
-            </label>
-
-            <label className="checkbox-field">
-              <input
-                checked={formState.is_active}
-                onChange={(event) =>
-                  setFormState((current) => ({ ...current, is_active: event.target.checked }))
-                }
-                type="checkbox"
-              />
-              <span>Member is active</span>
-            </label>
-          </div>
-        </FormSection>
-
-        <ErrorAlert
-          error={saveMemberMutation.error}
-          fallbackMessage="The member record could not be saved."
-        />
-
-        <div className="inline-actions">
-          <button className="button button-primary" disabled={saveMemberMutation.isPending} type="submit">
-            {saveMemberMutation.isPending ? "Saving..." : isEdit ? "Save changes" : "Create member"}
-          </button>
-          <Link className="button button-secondary" to={isEdit ? `/members/${numericMemberId}` : "/members"}>
-            Cancel
-          </Link>
+          <aside className="page-stack">
+            <section className="panel sticky-panel">
+              <div className="panel-header">
+                <div>
+                  <h3>Record status</h3>
+                  <p className="muted-text">A quick summary of what this form controls today.</p>
+                </div>
+              </div>
+              <div className="page-stack">
+                <StatusBadge
+                  label={formState.is_active ? "Active member" : "Inactive member"}
+                  tone={formState.is_active ? "success" : "muted"}
+                />
+                <ul className="item-list">
+                  <li className="item-row">
+                    <div>
+                      <strong>Included on this form</strong>
+                      <span>Identity, contact fields, birth date, notes, and active state.</span>
+                    </div>
+                  </li>
+                  <li className="item-row">
+                    <div>
+                      <strong>Not included here</strong>
+                      <span>Household links, ministry affiliations, attendance history, and finance history.</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </section>
+          </aside>
         </div>
       </form>
     </div>

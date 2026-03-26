@@ -10,6 +10,7 @@ import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { householdsApi } from "../domains/households/api";
 import type { HouseholdWritePayload } from "../domains/types";
@@ -78,6 +79,12 @@ export function HouseholdsPage() {
 
   const households = householdsQuery.data ?? [];
   const hasFilters = Boolean(search.trim()) || statusFilter !== "all";
+  const activeHouseholds = households.filter((household) => household.is_active).length;
+  const inactiveHouseholds = households.length - activeHouseholds;
+  const linkedMembers = households.reduce(
+    (count, household) => count + household.active_member_count,
+    0,
+  );
 
   return (
     <div className="page-stack">
@@ -103,6 +110,13 @@ export function HouseholdsPage() {
           />
         }
       />
+
+      <section className="metrics-grid">
+        <StatCard label="Households" value={households.length} tone="accent" />
+        <StatCard label="Active households" value={activeHouseholds} />
+        <StatCard label="Inactive households" value={inactiveHouseholds} />
+        <StatCard label="Linked members" value={linkedMembers} />
+      </section>
 
       <section className="panel">
         <div className="filters-grid filters-grid-2">

@@ -10,6 +10,7 @@ import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { attendanceApi } from "../domains/attendance/api";
 import {
@@ -88,6 +89,13 @@ export function EventsPage() {
   const serviceEvents = serviceEventsQuery.data ?? [];
   const hasFilters =
     Boolean(search.trim()) || eventTypeFilter !== "all" || statusFilter !== "all";
+  const activeEvents = serviceEvents.filter((serviceEvent) => serviceEvent.is_active).length;
+  const eventsWithSummary = serviceEvents.filter(
+    (serviceEvent) => serviceEvent.has_attendance_summary,
+  ).length;
+  const nextEvent = [...serviceEvents]
+    .filter((serviceEvent) => Boolean(serviceEvent.service_date))
+    .sort((left, right) => left.service_date.localeCompare(right.service_date))[0];
 
   return (
     <div className="page-stack">
@@ -111,6 +119,16 @@ export function EventsPage() {
           />
         }
       />
+
+      <section className="metrics-grid">
+        <StatCard label="Events" value={serviceEvents.length} tone="accent" />
+        <StatCard label="Active events" value={activeEvents} />
+        <StatCard label="Summary recorded" value={eventsWithSummary} />
+        <StatCard
+          label="Next service date"
+          value={nextEvent ? formatDate(nextEvent.service_date) : "Not scheduled"}
+        />
+      </section>
 
       <section className="panel">
         <div className="filters-grid filters-grid-3">
