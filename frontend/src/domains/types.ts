@@ -14,10 +14,34 @@ export interface User {
   role_names: string[];
 }
 
+export interface UserRoleRef {
+  id: number;
+  name: string;
+}
+
 export interface StaffUserListItem extends User {
   full_name: string;
+  roles: UserRoleRef[];
   last_login: string | null;
   date_joined: string;
+}
+
+export interface StaffUserCreatePayload {
+  username: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  password: string;
+  is_active?: boolean;
+  role_ids?: number[];
+}
+
+export interface StaffUserUpdatePayload {
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  is_active?: boolean;
+  role_ids?: number[];
 }
 
 export interface RolePermissionSummary {
