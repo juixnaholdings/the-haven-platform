@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#1e3b8a",
+                "background-light": "#f8fafc",
+                "background-dark": "#0f172a",
+              },
+              fontFamily: {
+                "display": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+    </script>
+<title>Financial Ledger - Clerical Portal</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<div class="relative flex min-h-screen w-full flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 lg:px-40 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="p-1.5 bg-primary rounded text-white flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">account_balance</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight">Restricted Ledger</h2>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center justify-center rounded h-10 w-10 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded h-10 w-10 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<main class="flex-1 flex flex-col max-w-5xl mx-auto w-full px-6 py-12 gap-10">
+<!-- Page Header -->
+<div class="flex flex-col gap-1">
+<h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Clerical Entry Portal</h1>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Official record-keeping for restricted fund allocations.</p>
+</div>
+<!-- Tab Navigation & Form Section -->
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+<div class="flex border-b border-slate-200 dark:border-slate-800 px-6 gap-8">
+<button class="flex items-center gap-2 px-2 py-5 border-b-2 border-primary text-primary font-semibold text-sm">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+                    Record Income
+                </button>
+<button class="flex items-center gap-2 px-2 py-5 border-b-2 border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-medium text-sm transition-colors">
+<span class="material-symbols-outlined text-lg">remove_circle</span>
+                    Record Expense
+                </button>
+<button class="flex items-center gap-2 px-2 py-5 border-b-2 border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-medium text-sm transition-colors">
+<span class="material-symbols-outlined text-lg">sync_alt</span>
+                    Transfer Funds
+                </button>
+</div>
+<!-- Form Section -->
+<div class="p-10">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+<div class="flex flex-col gap-2.5">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Transaction Amount</label>
+<div class="relative group">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-lg">attach_money</span>
+<input class="w-full pl-11 pr-4 py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-slate-900 dark:text-slate-100 transition-all placeholder:text-slate-300" placeholder="0.00" type="number"/>
+</div>
+</div>
+<div class="flex flex-col gap-2.5">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Entry Date</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-lg">calendar_today</span>
+<input class="w-full pl-11 pr-4 py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-slate-900 dark:text-slate-100 transition-all" type="date"/>
+</div>
+</div>
+<div class="flex flex-col gap-2.5">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Classification Category</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-lg">category</span>
+<select class="w-full pl-11 pr-4 py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-slate-900 dark:text-slate-100 appearance-none transition-all">
+<option value="">Select Category</option>
+<option value="grants">Institutional Grant</option>
+<option value="donations">Private Donation</option>
+<option value="interest">Accrued Interest</option>
+<option value="endowment">Endowment Yield</option>
+</select>
+</div>
+</div>
+<div class="flex flex-col gap-2.5">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Destination Fund</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-lg">account_balance_wallet</span>
+<select class="w-full pl-11 pr-4 py-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-slate-900 dark:text-slate-100 appearance-none transition-all">
+<option value="">Select Ledger Account</option>
+<option value="general">01 - General Operating</option>
+<option value="restricted">02 - Restricted Reserve</option>
+<option value="capital">03 - Capital Improvement</option>
+<option value="scholarship">04 - Scholarship Trust</option>
+</select>
+</div>
+</div>
+<div class="md:col-span-2 flex flex-col gap-2.5">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Transaction Remarks</label>
+<textarea class="w-full px-5 py-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-slate-900 dark:text-slate-100 transition-all placeholder:text-slate-300" placeholder="Enter detailed justification for ledger entry..." rows="4"></textarea>
+</div>
+</div>
+<div class="mt-12 flex justify-end">
+<button class="flex items-center gap-2 bg-primary hover:bg-[#172e6d] text-white font-bold px-10 py-4 rounded shadow-md transition-all active:scale-[0.98] uppercase tracking-widest text-sm">
+<span class="material-symbols-outlined text-xl">send</span>
+                        Submit for Posting
+                    </button>
+</div>
+</div>
+</div>
+<!-- Recent Transactions Table -->
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Recent Transactions</h3>
+<button class="text-sm text-primary font-bold hover:text-primary/80 transition-colors flex items-center gap-1">
+                    View All Records
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+<th class="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500">Date</th>
+<th class="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500">Category</th>
+<th class="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500">Ledger Account</th>
+<th class="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500 text-right">Amount</th>
+<th class="px-8 py-5 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800/50">
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-8 py-6 text-sm text-slate-500 dark:text-slate-400">Oct 24, 2023</td>
+<td class="px-8 py-6 text-sm text-slate-900 dark:text-slate-100 font-semibold">Federal Grant A-112</td>
+<td class="px-8 py-6 text-sm text-slate-500 dark:text-slate-400">Restricted Reserve</td>
+<td class="px-8 py-6 text-sm text-right font-bold text-green-600 dark:text-green-500">+$25,000.00</td>
+<td class="px-8 py-6">
+<span class="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">Posted</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-8 py-6 text-sm text-slate-500 dark:text-slate-400">Oct 23, 2023</td>
+<td class="px-8 py-6 text-sm text-slate-900 dark:text-slate-100 font-semibold">Equipment Lease</td>
+<td class="px-8 py-6 text-sm text-slate-500 dark:text-slate-400">General Operating</td>
+<td class="px-8 py-6 text-sm text-right font-bold text-slate-900 dark:text-slate-100">-$1,240.00</td>
+<td class="px-8 py-6">
+<span class="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">Pending Review</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-8 py-6 text-sm text-slate-500 dark:text-slate-400">Oct 22, 2023</td>
+<td class="px-8 py-6 text-sm text-slate-900 dark:text-slate-100 font-semibold">Endowment Payout</td>
+<td class="px-8 py-6 text-sm text-slate-500 dark:text-slate-400">Scholarship Trust</td>
+<td class="px-8 py-6 text-sm text-right font-bold text-green-600 dark:text-green-500">+$4,500.00</td>
+<td class="px-8 py-6">
+<span class="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">Posted</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="mt-auto border-t border-slate-200 dark:border-slate-800 py-10 text-center">
+<p class="text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-[0.2em] font-medium">© 2023 Institutional Finance Systems • Clerical Portal v2.4.0 • Restricted Access Only</p>
+</footer>
+</div>
+</body></html>

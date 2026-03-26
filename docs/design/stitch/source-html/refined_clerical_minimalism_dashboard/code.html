@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Church Management - Global Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3b8a",
+                        "navy-blue": "#1e3b8a",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .chart-bar-transition {
+            transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display antialiased">
+<div class="relative flex min-h-screen flex-col overflow-x-hidden">
+<div class="flex h-full grow">
+<!-- Sidebar Navigation -->
+<aside class="w-72 border-r border-slate-200 bg-white dark:bg-background-dark/50 p-8 flex flex-col gap-10 hidden md:flex">
+<div class="flex items-center gap-3 px-2">
+<div class="bg-primary text-white p-2 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-2xl">church</span>
+</div>
+<h2 class="text-primary text-xl font-extrabold tracking-tight">Ekklesia</h2>
+</div>
+<nav class="flex flex-col gap-1.5">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white font-semibold shadow-md shadow-primary/10 transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-sm">Finance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-sm">Events</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-8 border-t border-slate-100 flex items-center gap-4 px-2">
+<div class="size-11 rounded-full bg-slate-200 bg-cover bg-center border-2 border-white shadow-sm" data-alt="Profile photo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDEskgqpJ7yoAymU9U8ONpVCnFWTJq9UBIp_tve6sQUy2u2vcUyhLB7I_nT2uDQtLPp8udiMZrf4OImqSSZSEnl_ylE8Z3nnh14UZU0oxyYk3cbGTYSl09iM9UsygCa_QJdDYQmuO3WhiABsf0Yd5jlMnIOfriRIQtVwz5h5FA6VeChpuQIss5Xl2vMgcMkIU_KUec5926eT0fqlJT03Icjv-sCMU7Vq0qiGbjsJTO_K4Qtv4r-5xnKEknqQKwT6frd7p-OFCSZtpM')"></div>
+<div class="overflow-hidden">
+<p class="text-xs font-bold text-slate-900 truncate">Grace Community</p>
+<p class="text-[10px] text-slate-400 font-medium">Admin Portal</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- Top Nav Bar -->
+<header class="flex items-center justify-between px-10 py-5 bg-white/80 dark:bg-background-dark/80 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-10">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-lg group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-slate-50 border-transparent rounded-xl py-2.5 pl-12 pr-4 text-sm focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/20 placeholder:text-slate-400 transition-all" placeholder="Search records, members, or funds..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-5">
+<button class="size-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-primary transition-all relative">
+<span class="material-symbols-outlined text-xl">notifications</span>
+<span class="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border-2 border-white"></span>
+</button>
+<div class="h-6 w-[1px] bg-slate-200"></div>
+<button class="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">add</span>
+<span>New Entry</span>
+</button>
+</div>
+</header>
+<div class="p-10 max-w-7xl mx-auto w-full flex flex-col gap-12">
+<!-- Page Title & Quick Actions -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+<div class="space-y-2">
+<h1 class="text-4xl font-black tracking-tight text-slate-900">Dashboard</h1>
+<p class="text-slate-500 text-lg">Welcome back. Here is the overview for Grace Community.</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-3 px-6 py-3.5 rounded-xl bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm font-bold">
+<span class="material-symbols-outlined text-xl">fact_check</span>
+                            Record Attendance
+                        </button>
+<button class="flex items-center gap-3 px-6 py-3.5 rounded-xl border-2 border-primary text-primary bg-white hover:bg-primary/5 active:scale-[0.98] transition-all text-sm font-bold">
+<span class="material-symbols-outlined text-xl">add_card</span>
+                            Post Income
+                        </button>
+</div>
+</div>
+<!-- Metric Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<div class="size-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">group</span>
+</div>
+<span class="text-[11px] font-extrabold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full uppercase tracking-wider">+12 new</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Active Members</p>
+<p class="text-4xl font-black text-slate-900 tracking-tight">1,240</p>
+</div>
+</div>
+<div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30_rgb(0,0,0,0.08)] transition-all flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<div class="size-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">how_to_reg</span>
+</div>
+<span class="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full uppercase tracking-wider">92% capacity</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Sunday Headcount</p>
+<p class="text-4xl font-black text-slate-900 tracking-tight">856</p>
+</div>
+</div>
+<div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30_rgb(0,0,0,0.08)] transition-all flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<div class="size-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+</div>
+<span class="text-[11px] font-extrabold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full uppercase tracking-wider">Real-time</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Fund Balance</p>
+<p class="text-4xl font-black text-slate-900 tracking-tight">$42,500.20</p>
+</div>
+</div>
+</div>
+<!-- Main Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+<!-- Attendance Chart Section -->
+<div class="lg:col-span-2 bg-white p-10 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+<div class="flex items-center justify-between mb-12">
+<div>
+<h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Attendance Trends</h3>
+<p class="text-sm text-slate-500 font-medium">Weekly engagement over time</p>
+</div>
+<select class="text-xs font-bold border-slate-200 rounded-lg px-3 py-2 focus:ring-primary/20 focus:border-primary bg-slate-50 text-slate-600 uppercase tracking-wider">
+<option>Last 4 Weeks</option>
+<option>Last 3 Months</option>
+</select>
+</div>
+<!-- Refined Chart Area -->
+<div class="relative h-72 w-full mt-4 flex items-end justify-between px-4">
+<!-- Background Grid -->
+<div class="absolute inset-x-0 inset-y-0 flex flex-col justify-between pointer-events-none pb-8">
+<div class="border-t border-slate-100 w-full"></div>
+<div class="border-t border-slate-100 w-full"></div>
+<div class="border-t border-slate-100 w-full"></div>
+<div class="border-t border-slate-100 w-full"></div>
+</div>
+<!-- Chart Bars -->
+<div class="flex-1 flex flex-col items-center group h-full justify-end relative z-0">
+<div class="w-16 bg-slate-100 rounded-t-xl h-[65%] group-hover:bg-primary/10 transition-all chart-bar-transition flex flex-col justify-end items-center pb-4">
+<div class="size-2 rounded-full bg-slate-300 group-hover:bg-primary transition-colors"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400 mt-4 uppercase">Oct 01</span>
+</div>
+<div class="flex-1 flex flex-col items-center group h-full justify-end relative z-0">
+<div class="w-16 bg-slate-100 rounded-t-xl h-[75%] group-hover:bg-primary/10 transition-all chart-bar-transition flex flex-col justify-end items-center pb-4">
+<div class="size-2 rounded-full bg-slate-300 group-hover:bg-primary transition-colors"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400 mt-4 uppercase">Oct 08</span>
+</div>
+<div class="flex-1 flex flex-col items-center group h-full justify-end relative z-0">
+<div class="w-16 bg-slate-100 rounded-t-xl h-[70%] group-hover:bg-primary/10 transition-all chart-bar-transition flex flex-col justify-end items-center pb-4">
+<div class="size-2 rounded-full bg-slate-300 group-hover:bg-primary transition-colors"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400 mt-4 uppercase">Oct 15</span>
+</div>
+<div class="flex-1 flex flex-col items-center group h-full justify-end relative z-0">
+<div class="w-16 bg-primary rounded-t-xl h-[90%] shadow-lg shadow-primary/20 transition-all chart-bar-transition flex flex-col justify-end items-center pb-4">
+<div class="size-2 rounded-full bg-white/80"></div>
+</div>
+<span class="text-[10px] font-black text-primary mt-4 uppercase">Oct 22</span>
+</div>
+</div>
+</div>
+<!-- Upcoming Events -->
+<div class="bg-white p-10 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col">
+<h3 class="text-xl font-extrabold text-slate-900 tracking-tight mb-8">Upcoming</h3>
+<div class="space-y-8 flex-1">
+<div class="flex gap-5 items-start">
+<div class="flex flex-col items-center bg-primary/5 px-3 py-2 rounded-xl border border-primary/10 min-w-[56px] shadow-sm">
+<span class="text-[10px] uppercase font-black text-primary/60">Oct</span>
+<span class="text-xl font-black text-primary">27</span>
+</div>
+<div>
+<h4 class="text-[15px] font-bold text-slate-800 leading-tight">Youth Night: Fall Kickoff</h4>
+<p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 7:00 PM • Sanctuary
+                                    </p>
+</div>
+</div>
+<div class="flex gap-5 items-start">
+<div class="flex flex-col items-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100 min-w-[56px] shadow-sm">
+<span class="text-[10px] uppercase font-black text-slate-400">Oct</span>
+<span class="text-xl font-black text-slate-700">29</span>
+</div>
+<div>
+<h4 class="text-[15px] font-bold text-slate-800 leading-tight">Community Meal</h4>
+<p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 5:30 PM • Hall
+                                    </p>
+</div>
+</div>
+<div class="flex gap-5 items-start">
+<div class="flex flex-col items-center bg-slate-50 px-3 py-2 rounded-xl border border-slate-100 min-w-[56px] shadow-sm">
+<span class="text-[10px] uppercase font-black text-slate-400">Nov</span>
+<span class="text-xl font-black text-slate-700">02</span>
+</div>
+<div>
+<h4 class="text-[15px] font-bold text-slate-800 leading-tight">Leadership Briefing</h4>
+<p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs">schedule</span> 8:00 AM • Conf Room
+                                    </p>
+</div>
+</div>
+</div>
+<button class="mt-10 py-3 rounded-xl border border-slate-100 text-slate-500 text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
+                            Full Calendar
+                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Recent Transactions Table -->
+<div class="bg-white rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+<div class="px-10 py-7 border-b border-slate-50 flex items-center justify-between">
+<div>
+<h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Recent Transactions</h3>
+</div>
+<button class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary px-4 py-2 rounded-lg hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-sm">download</span>
+                            Export
+                        </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50/50">
+<tr>
+<th class="px-10 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">Member</th>
+<th class="px-10 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">Fund Category</th>
+<th class="px-10 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">Date Received</th>
+<th class="px-10 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] text-right">Amount</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-10 py-5 whitespace-nowrap">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-700 font-black text-xs">JS</div>
+<p class="text-sm font-bold text-slate-800">John Simons</p>
+</div>
+</td>
+<td class="px-10 py-5 whitespace-nowrap">
+<span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-wider">General Offering</span>
+</td>
+<td class="px-10 py-5 whitespace-nowrap text-sm font-medium text-slate-400">Oct 22, 2023</td>
+<td class="px-10 py-5 whitespace-nowrap text-sm font-black text-slate-900 text-right">$250.00</td>
+</tr>
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-10 py-5 whitespace-nowrap">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 font-black text-xs">MA</div>
+<p class="text-sm font-bold text-slate-800">Maria Alvers</p>
+</div>
+</td>
+<td class="px-10 py-5 whitespace-nowrap">
+<span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-wider">Building Fund</span>
+</td>
+<td class="px-10 py-5 whitespace-nowrap text-sm font-medium text-slate-400">Oct 21, 2023</td>
+<td class="px-10 py-5 whitespace-nowrap text-sm font-black text-slate-900 text-right">$1,000.00</td>
+</tr>
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="px-10 py-5 whitespace-nowrap">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-700 font-black text-xs">RW</div>
+<p class="text-sm font-bold text-slate-800">Robert White</p>
+</div>
+</td>
+<td class="px-10 py-5 whitespace-nowrap">
+<span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-wider">Missions</span>
+</td>
+<td class="px-10 py-5 whitespace-nowrap text-sm font-medium text-slate-400">Oct 20, 2023</td>
+<td class="px-10 py-5 whitespace-nowrap text-sm font-black text-slate-900 text-right">$75.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

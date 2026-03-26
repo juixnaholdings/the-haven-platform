@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed": "#001b3c",
+            "on-primary-fixed-variant": "#2d476f",
+            "outline-variant": "#c4c6cf",
+            "on-secondary-fixed": "#121c2b",
+            "on-tertiary-fixed": "#2b1700",
+            "surface-variant": "#e5e2dc",
+            "primary-fixed": "#d6e3ff",
+            "outline": "#74777f",
+            "inverse-on-surface": "#f3f0ea",
+            "surface-container-low": "#f6f3ed",
+            "inverse-surface": "#31312d",
+            "error-container": "#ffdad6",
+            "on-tertiary-fixed-variant": "#633f0f",
+            "on-secondary": "#ffffff",
+            "error": "#ba1a1a",
+            "tertiary-fixed-dim": "#f2bc82",
+            "primary-container": "#1a365d",
+            "on-tertiary-container": "#c6955e",
+            "surface-bright": "#fcf9f3",
+            "on-surface": "#1c1c18",
+            "on-error-container": "#93000a",
+            "secondary-fixed": "#d9e3f8",
+            "on-secondary-container": "#5b6577",
+            "on-primary": "#ffffff",
+            "on-secondary-fixed-variant": "#3e4758",
+            "tertiary-container": "#4f2e00",
+            "surface-container": "#f0eee8",
+            "tertiary": "#321b00",
+            "secondary-container": "#d9e3f8",
+            "secondary": "#555f70",
+            "on-tertiary": "#ffffff",
+            "on-background": "#1c1c18",
+            "surface": "#fcf9f3",
+            "on-error": "#ffffff",
+            "surface-tint": "#455f88",
+            "on-primary-container": "#86a0cd",
+            "background": "#fcf9f3",
+            "surface-container-highest": "#e5e2dc",
+            "secondary-fixed-dim": "#bdc7db",
+            "primary": "#002045",
+            "surface-container-lowest": "#ffffff",
+            "on-surface-variant": "#43474e",
+            "primary-fixed-dim": "#adc7f7",
+            "surface-container-high": "#ebe8e2",
+            "tertiary-fixed": "#ffddba",
+            "surface-dim": "#dcdad4",
+            "inverse-primary": "#adc7f7"
+          },
+          fontFamily: {
+            "headline": ["Inter"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    body { font-family: 'Inter', sans-serif; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .clerical-gradient {
+      background: linear-gradient(135deg, #002045 0%, #1a365d 100%);
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #ebe8e2; border-radius: 10px; }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-6 z-40 bg-[#f6f3ed] dark:bg-slate-900 w-64 text-sm font-medium font-inter">
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 rounded-lg clerical-gradient flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">church</span>
+</div>
+<div>
+<h1 class="font-bold text-[#1A365D] text-lg leading-tight">The Vestry</h1>
+<p class="text-xs text-on-surface-variant/70">Administrative Portal</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active Item: Households -->
+<a class="flex items-center gap-3 px-4 py-3 bg-[#ebe8e2] dark:bg-slate-800 text-[#1A365D] dark:text-blue-400 font-bold rounded-lg transition-all duration-150 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Households</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-150 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="church">church</span>
+<span>Ministries</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-150 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Transactions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-150 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="manage_accounts">manage_accounts</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-150 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-150 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span>Logs</span>
+</a>
+</nav>
+<div class="mt-auto space-y-1 border-t border-outline-variant/20 pt-6">
+<button class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-primary text-on-primary rounded-full font-bold shadow-sm hover:opacity-90 transition-opacity mb-6">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>New Record</span>
+</button>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Stage -->
+<main class="ml-64 min-h-screen">
+<!-- Top Bar Navigation -->
+<header class="flex justify-between items-center px-12 h-16 w-full z-30 sticky top-0 bg-[#fcf9f3] dark:bg-slate-950 font-inter antialiased tracking-tight">
+<div class="flex items-center gap-8">
+<span class="text-xl font-semibold text-[#1A365D] dark:text-blue-500 tracking-tighter">Ekklesia</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-[#1A365D] transition-colors" href="#">Dashboard</a>
+<a class="text-[#1A365D] dark:text-blue-400 border-b-2 border-[#1A365D] pb-1 font-bold" href="#">Directory</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-[#1A365D] transition-colors" href="#">Finances</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-[#1A365D] transition-colors" href="#">Events</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors" data-icon="help_outline">help_outline</span>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant/30">
+<img alt="User profile" data-alt="Close-up portrait of a professional man with a kind expression in a bright modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2GJ-2Zdvdy1JY36XLtFkmzCejdsI3vfOQbIwVH71PdtgXygDIZ_wty-_C0CyfNBAALjo-nbOntGz36bjaPQzj33OyXtmCg8g8IukJMRvSYDBkQeIN74Y8EFSbSq3hLYm13Sxo2zvnb-fF_crM2bXYRA0CdIBzY-9gMGHfbKc5XsZQp5E1onGmaXrx434qIQG4PS5GCbzH-dkoJHlvERzr66RXufELVSdHCAPPkBcdGw571WjR8uIiwIxDxvn6L4Rvz_8GHKqhF6o"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="px-12 py-10 max-w-7xl mx-auto space-y-8">
+<!-- Breadcrumb & Actions -->
+<div class="flex justify-between items-end">
+<div>
+<nav class="flex items-center gap-2 text-xs text-on-surface-variant mb-2 uppercase tracking-widest font-semibold">
+<span>Directory</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span class="text-primary">The Thorne Family</span>
+</nav>
+<h2 class="text-4xl font-extrabold text-primary tracking-tight">The Thorne Family</h2>
+</div>
+<div class="flex gap-3">
+<button class="px-5 py-2.5 rounded-full text-primary font-bold bg-surface-container-high hover:bg-surface-container-highest transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">edit</span>
+            Edit Family
+          </button>
+<button class="px-6 py-2.5 rounded-full clerical-gradient text-on-primary font-bold hover:opacity-90 transition-opacity flex items-center gap-2 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-lg">share</span>
+            Export Profile
+          </button>
+</div>
+</div>
+<!-- Bento Header Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- Main Household Card -->
+<div class="md:col-span-2 bg-surface-container-lowest p-8 rounded-[2rem] flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-8 text-surface-container-high/50 group-hover:text-primary/10 transition-colors">
+<span class="material-symbols-outlined text-8xl" style="font-variation-settings: 'FILL' 1;">house</span>
+</div>
+<div class="relative z-10">
+<p class="text-on-surface-variant font-semibold tracking-wide text-sm mb-1">Total Stewardship (YTD)</p>
+<h3 class="text-5xl font-extrabold text-primary">$12,450.00</h3>
+<div class="mt-4 flex items-center gap-2 text-emerald-600 font-bold bg-emerald-50 w-fit px-3 py-1 rounded-full text-xs">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+              +14% from last year
+            </div>
+</div>
+<div class="mt-8 flex gap-4 relative z-10">
+<div class="flex -space-x-3">
+<img alt="Julian" class="w-10 h-10 rounded-full border-4 border-white" data-alt="Portrait of Julian Thorne, a mature man with a gentle smile wearing a classic linen shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCysRf9npG_OkhMtMmS3hBT9L3NkdOHfyOwY7ECDo22MI7YSz4C-yEIB5Y3xNGLHHoTIuIch1FpNNFgUghUUOMGrzbfNoJUikXkgiUW4otrndNuniiKbLk1rSGs7fNxGTBU4x6ecckCcq0n89e7eH8XgmSNLTqovyRqYAtw_P8qCYhfm-3aSkemqF9LgAylQnamdHXqjxywiq8mPeIAxh0_jJqwQ8bUNkTN11hAuW2qYcXLStmtwBkPbWFxidZbngHdSo59PjnalA"/>
+<img alt="Sarah" class="w-10 h-10 rounded-full border-4 border-white" data-alt="Portrait of Sarah Thorne, a woman with warm eyes and artistic glasses in soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkRhRPEOGqq-oI5kH6wp9fHtIGwzMuHYnK-xZvAzGa84txPdHg5GaZ0tfii2BEbAt096zuoFVLV7CWOMbJYbIJipj3eZJuti_NNHj08LGjVrHJsKhCcZ_TQNLxf0TfHGh7gSvrhEnU6R_erXBzo_9bXfEHhTGrfIvn95dyktjp4-urJrqnlxw14SJoGvO8b99AgGD8IVRBttiEuPuNnqUphgUjXHR9m4pZ7B8WLw0Rqw-OJHhB_skn2A2nnw44ag6LPoJurtIivlc"/>
+<div class="w-10 h-10 rounded-full border-4 border-white bg-primary-fixed flex items-center justify-center text-on-primary-fixed text-xs font-bold">+2</div>
+</div>
+<div class="text-sm">
+<p class="font-bold text-primary">4 Members</p>
+<p class="text-on-surface-variant">Active since 2018</p>
+</div>
+</div>
+</div>
+<!-- Consistency Card -->
+<div class="bg-surface-container-low p-8 rounded-[2rem] flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-primary mb-4" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<p class="text-on-surface-variant font-semibold text-sm">Attendance Consistency</p>
+<h3 class="text-4xl font-extrabold text-primary">92%</h3>
+</div>
+<div class="space-y-2">
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[92%] rounded-full"></div>
+</div>
+<p class="text-xs text-on-surface-variant italic">Top 5% of congregation</p>
+</div>
+</div>
+<!-- Ministry Engagement -->
+<div class="bg-secondary-fixed p-8 rounded-[2rem] flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-on-secondary-fixed mb-4" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+<p class="text-on-secondary-fixed-variant font-semibold text-sm">Active Ministries</p>
+<h3 class="text-4xl font-extrabold text-on-secondary-fixed">3</h3>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="bg-on-secondary-fixed/10 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-on-secondary-fixed">Worship</span>
+<span class="bg-on-secondary-fixed/10 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-on-secondary-fixed">Youth</span>
+<span class="bg-on-secondary-fixed/10 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-on-secondary-fixed">Vestry</span>
+</div>
+</div>
+</div>
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column: Household Members -->
+<div class="lg:col-span-2 space-y-6">
+<div class="flex items-center justify-between">
+<h4 class="text-xl font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">family_history</span>
+              Household Members
+            </h4>
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Sort by Hierarchy</span>
+</div>
+<div class="space-y-4">
+<!-- Julian -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex items-center justify-between group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<div class="flex items-center gap-5">
+<img alt="Julian" class="w-16 h-16 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Portrait of Julian Thorne, a mature man with a gentle smile wearing a classic linen shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCR1q6MCtluBmYcYxey_znNuL06-le77Iu3AL5ktOXxiQkcl-DUdGI-inNn9d7BvTC4SMGU_RXtd8S14QJm_qqL7ASj9U7pdfweFMj5gikL-b_zSGmsXqYln-EF30EjO_0L9yriCAJ6dKE4s9NHs2EgyK_tmX1WSKhAGP4vO_F2F3FGzsaimo78SUGw-b0jNl-TSYX1YuDScdhuNk8aPDwI5Z91bTNJv5cOta4qiLEkbuM8dkCan34675sz21ffd_n5oDAfSiJqIzk"/>
+<div>
+<h5 class="text-lg font-bold text-primary leading-tight">Julian Thorne</h5>
+<p class="text-sm text-on-surface-variant font-medium">Head of Household</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed text-[10px] font-bold uppercase tracking-tighter">Vestry Member</span>
+<span class="text-[10px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">mail</span>
+                      julian@thorne.com
+                    </span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold mb-2">Member</span>
+<p class="text-xs text-on-surface-variant">Last check-in: 2d ago</p>
+</div>
+</div>
+<!-- Sarah -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex items-center justify-between group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<div class="flex items-center gap-5">
+<img alt="Sarah" class="w-16 h-16 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Portrait of Sarah Thorne, a woman with warm eyes and artistic glasses in soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcKbGv6HE5aMiuh60klbgN5kz6FJMt2_Okzhsl1QW5PyzVqGrZPvrTP-TyiqtY5TQeV9DZtpUnC3ea3japi7j5ifS_DoVfIKluLJuGrt9zgjcTvjEi3aNFUrWGarKbXnLhHgqNAgO9Rnc2bUnqs60SeLD--BQP7gT1ysAm0RZ9qz7uCIfb4sQ53kogDq3JqASzAzYU-nPjEZOfuzGtodwcAsTDD33eolYzUh57IPvrunNNvbRcVgN2m5I-mxfov-Cm-483hqPw5u8"/>
+<div>
+<h5 class="text-lg font-bold text-primary leading-tight">Sarah Thorne</h5>
+<p class="text-sm text-on-surface-variant font-medium">Spouse</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-tighter">Choir Director</span>
+<span class="text-[10px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">phone</span>
+                      (555) 123-4567
+                    </span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold mb-2">Member</span>
+<p class="text-xs text-on-surface-variant">Last check-in: Today</p>
+</div>
+</div>
+<!-- Leo -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex items-center justify-between group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<div class="flex items-center gap-5">
+<img alt="Leo" class="w-16 h-16 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Portrait of Leo Thorne, a teenager with curly hair and a friendly, thoughtful expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ttVZW5YbS1RlGZpSwGMGsx3ksFaJV2n41iQd5PK5y97G2AEdoAlM_e8L1VeN2yRc3Yt1YAXfqMXJeDB_Xuqnveo17rGU1BpviZzVjCnnQZTh_9B3WLVik67TmFPsWt0CCGZm0n3hgynLvkwZ3X5gQw3PKwQiCj8M8himKMxYo3Nzp_J55x4BTe75h1Gk1ixubHH37ARPpWrasyZrDKiVRqgw_8Cn2fyYTXKEtVLPW-NB78Xk-GVWLzKB4DN2zpdu1jyUAQHgr-w"/>
+<div>
+<h5 class="text-lg font-bold text-primary leading-tight">Leo Thorne</h5>
+<p class="text-sm text-on-surface-variant font-medium">Dependent (16)</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="px-2 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold uppercase tracking-tighter">Youth Council</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold mb-2">Member</span>
+<p class="text-xs text-on-surface-variant">Last check-in: 4d ago</p>
+</div>
+</div>
+<!-- Emma -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl flex items-center justify-between group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<div class="flex items-center gap-5">
+<img alt="Emma" class="w-16 h-16 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Portrait of Emma Thorne, a young girl with bright eyes and a happy, energetic appearance" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnahBmbsHgOIWGvbqZUQ4ih-4iq7NhFRg_1zBtYJjTj6gcpi1SDN9nZmJZuW7VaTZszpQy17V9tYqYinGOEet5JgK27uya-sk-wFSNABOoztja45HGPRFQZdxWImforDxRf-9aXNtv9LZZVsw4KZiroC2jBVuETIIHdbh9ijtbDC1OzseBWzqnSlHDzw6hIizwEUGeLhHy_cW7UGpVNmPs9xOap8lwxf4htfWcUaDW-Mppuwj-n2D9SjWQaSjevGw77pzOnto22Gg"/>
+<div>
+<h5 class="text-lg font-bold text-primary leading-tight">Emma Thorne</h5>
+<p class="text-sm text-on-surface-variant font-medium">Dependent (8)</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px] font-bold uppercase tracking-tighter">Sunday School</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold mb-2">Attender</span>
+<p class="text-xs text-on-surface-variant">Last check-in: Today</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Timeline & Engagement -->
+<div class="space-y-6">
+<h4 class="text-xl font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">analytics</span>
+            Activity Timeline
+          </h4>
+<div class="bg-surface-container-low rounded-3xl p-8 relative">
+<!-- Timeline Line -->
+<div class="absolute left-10 top-20 bottom-20 w-[1px] bg-outline-variant/30"></div>
+<div class="space-y-8 relative">
+<!-- Item 1 -->
+<div class="flex gap-6">
+<div class="w-4 h-4 rounded-full bg-primary mt-1 relative z-10 border-4 border-surface-container-low"></div>
+<div>
+<p class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest mb-1">Oct 24, 2023</p>
+<h6 class="font-bold text-primary text-sm">Sunday Eucharist Attendance</h6>
+<p class="text-xs text-on-surface-variant mt-1">Full household present at 10:30 AM Service.</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex gap-6">
+<div class="w-4 h-4 rounded-full bg-tertiary-fixed-dim mt-1 relative z-10 border-4 border-surface-container-low"></div>
+<div>
+<p class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest mb-1">Oct 20, 2023</p>
+<h6 class="font-bold text-primary text-sm">Monthly Tithe Received</h6>
+<p class="text-xs text-on-surface-variant mt-1">Contribution of $850.00 via online portal.</p>
+<span class="inline-block mt-2 text-[10px] px-2 py-0.5 bg-surface-container-highest rounded font-semibold text-primary">Ref: #TXN-8821</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex gap-6">
+<div class="w-4 h-4 rounded-full bg-secondary mt-1 relative z-10 border-4 border-surface-container-low"></div>
+<div>
+<p class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest mb-1">Oct 18, 2023</p>
+<h6 class="font-bold text-primary text-sm">Ministry Volunteer</h6>
+<p class="text-xs text-on-surface-variant mt-1">Sarah Thorne completed 3 hours at Soup Kitchen.</p>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="flex gap-6">
+<div class="w-4 h-4 rounded-full bg-outline-variant mt-1 relative z-10 border-4 border-surface-container-low"></div>
+<div>
+<p class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest mb-1">Oct 15, 2023</p>
+<h6 class="font-bold text-primary text-sm">Address Updated</h6>
+<p class="text-xs text-on-surface-variant mt-1">Change from 422 Birch St to 18 Crestview Dr.</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-10 py-3 text-xs font-bold text-primary border border-primary/20 rounded-xl hover:bg-primary/5 transition-colors">
+              View Full History
+            </button>
+</div>
+<!-- Quick Actions/Notes -->
+<div class="bg-on-tertiary-container/10 p-6 rounded-3xl border border-on-tertiary-container/5">
+<h5 class="text-sm font-bold text-on-tertiary-container uppercase tracking-widest mb-4">Pastoral Notes</h5>
+<div class="bg-surface-container-lowest/60 p-4 rounded-xl border border-white/50 shadow-inner">
+<p class="text-xs text-on-tertiary-container leading-relaxed italic">
+                "The Thorne family expressed interest in the upcoming mission trip to Guatemala. Julian mentioned Leo would be a great candidate for the youth leadership track."
+              </p>
+</div>
+<p class="text-[10px] text-on-tertiary-container/60 mt-3 text-right">— Father Michael, Sept 12</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Nav Filter (Invisible on Desktop) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant/30 flex justify-around items-center h-16 z-50">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="text-[10px] font-bold">Directory</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-[10px] font-medium">Giving</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="text-[10px] font-medium">Activity</span>
+</a>
+</nav>
+</body></html>

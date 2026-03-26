@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ekklesia | Services &amp; Events Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed-variant": "#633f0f",
+              "on-surface-variant": "#43474e",
+              "on-secondary-container": "#5b6577",
+              "surface": "#fcf9f3",
+              "on-tertiary-fixed": "#2b1700",
+              "on-error": "#ffffff",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#f6f3ed",
+              "background": "#fcf9f3",
+              "surface-container-high": "#ebe8e2",
+              "surface-dim": "#dcdad4",
+              "primary-fixed-dim": "#adc7f7",
+              "on-primary-fixed": "#001b3c",
+              "on-secondary": "#ffffff",
+              "tertiary": "#321b00",
+              "on-primary-fixed-variant": "#2d476f",
+              "surface-container-highest": "#e5e2dc",
+              "secondary-fixed": "#d9e3f8",
+              "inverse-on-surface": "#f3f0ea",
+              "on-tertiary": "#ffffff",
+              "surface-tint": "#455f88",
+              "error-container": "#ffdad6",
+              "primary": "#002045",
+              "primary-container": "#1a365d",
+              "surface-container-lowest": "#ffffff",
+              "surface-bright": "#fcf9f3",
+              "inverse-surface": "#31312d",
+              "surface-container": "#f0eee8",
+              "inverse-primary": "#adc7f7",
+              "outline": "#74777f",
+              "on-secondary-fixed": "#121c2b",
+              "error": "#ba1a1a",
+              "tertiary-fixed-dim": "#f2bc82",
+              "outline-variant": "#c4c6cf",
+              "on-surface": "#1c1c18",
+              "tertiary-fixed": "#ffddba",
+              "surface-variant": "#e5e2dc",
+              "on-error-container": "#93000a",
+              "on-tertiary-container": "#c6955e",
+              "on-secondary-fixed-variant": "#3e4758",
+              "primary-fixed": "#d6e3ff",
+              "secondary-container": "#d9e3f8",
+              "secondary": "#555f70",
+              "on-primary-container": "#86a0cd",
+              "tertiary-container": "#4f2e00",
+              "on-background": "#1c1c18",
+              "secondary-fixed-dim": "#bdc7db"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #fcf9f3;
+      }
+      .clerical-gradient {
+        background: linear-gradient(135deg, #002045 0%, #1a365d 100%);
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+</head>
+<body class="text-on-surface antialiased">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-50 dark:bg-slate-900 z-50 overflow-y-auto no-scrollbar">
+<div class="flex flex-col h-full p-4 gap-2">
+<div class="mb-8 px-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl clerical-gradient flex items-center justify-center text-white shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">church</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-blue-900 dark:text-blue-500 tracking-tighter">Ekklesia Admin</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">St. Jude's Parish</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">home_work</span>
+<span class="text-sm font-medium">Households</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">church</span>
+<span class="text-sm font-medium">Ministries</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-400 rounded-lg shadow-sm font-semibold transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event_upcoming</span>
+<span class="text-sm">Services</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-sm font-medium">Finances</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1 border-t border-slate-100 dark:border-slate-800 pt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-medium">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="pl-64 min-h-screen">
+<!-- TopAppBar -->
+<header class="w-full h-16 sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm dark:shadow-none">
+<div class="flex items-center justify-between px-8 w-full h-full">
+<div class="flex items-center gap-8">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-slate-400">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm focus:ring-2 focus:ring-primary/20 w-64 transition-all" placeholder="Search services or events..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
+<div class="flex items-center gap-3 pl-2">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-bold text-blue-900 dark:text-blue-400 leading-none">Admin User</p>
+<p class="text-[10px] text-slate-500">Service Coordinator</p>
+</div>
+<img alt="User Profile Avatar" class="w-10 h-10 rounded-full border-2 border-white shadow-sm" data-alt="close-up portrait of a professional man with a friendly expression in a modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBA2DEKRNaMDovwbdRbhLFaNNum9lVmJ_TR87UbZtoUEe3OWEKaZyLBog43yiNNRbHxL7PP8ULeOvCmfuJ_FH9g9f-P5EOMhFkUFm6PQC4-j3FURGnAOefAlHPDwffrsBdjTOOEuvbftzNKf97nDGTbgzicRURVUijKsHMDf-ezyDSqKK-6mzmdWxBbL4cigSeX9nUetZXQ7Kh_UMDE91-TGCnSr_CYgS_GWn7aEvb5lE9lt9NH7a2lY6sxzXBZ3yDgN2An3Eu7pMs"/>
+</div>
+</div>
+</div>
+<div class="bg-slate-100/50 dark:bg-slate-900/50 h-[1px] w-full"></div>
+</header>
+<!-- Canvas -->
+<div class="p-10 max-w-7xl mx-auto space-y-10">
+<!-- Page Header Section -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-1">
+<span class="text-xs font-bold tracking-widest text-primary/60 uppercase">Operational Management</span>
+<h2 class="text-3xl font-extrabold text-blue-900 dark:text-blue-400 tracking-tight">Services &amp; Events</h2>
+<p class="text-on-surface-variant max-w-md">Manage liturgical schedules, track sacramental attendance, and coordinate ministry offerings.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-5 py-2.5 rounded-xl border border-outline-variant hover:bg-surface-container-high transition-colors text-sm font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">calendar_month</span>
+                        Export Schedule
+                    </button>
+<button class="clerical-gradient text-white px-6 py-2.5 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-95 transition-all text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">add</span>
+                        Create New Event
+                    </button>
+</div>
+</section>
+<!-- Status Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="md:col-span-2 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden flex flex-col justify-between h-40">
+<div class="relative z-10">
+<p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Next Major Service</p>
+<h3 class="text-2xl font-bold mt-1">Sunday High Mass</h3>
+<p class="text-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                            In 2 days • 09:00 AM
+                        </p>
+</div>
+<div class="relative z-10 flex items-center gap-2">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold">LITURGICAL</span>
+<span class="text-xs text-slate-400 italic">Expected: 450+ Attendees</span>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-[0.03]">
+<span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">church</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm flex flex-col justify-between h-40">
+<div>
+<p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Attendance Rate</p>
+<h3 class="text-3xl font-black mt-2 text-primary">88.4%</h3>
+<p class="text-xs text-emerald-600 font-bold flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+                            +2.1% from last month
+                        </p>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[88%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm flex flex-col justify-between h-40">
+<div>
+<p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Offerings (MTD)</p>
+<h3 class="text-3xl font-black mt-2 text-primary">$12,450</h3>
+<p class="text-xs text-slate-400 mt-1 italic">Target: $15,000</p>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-white" data-alt="man in professional headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDEbUSFUU5j55Ok3GTqAEQ04qR1VC8kWO9YktGbI1JqJ7TYialbptdxeY5gpGNSUgiIevEQ7RJqrYsrZu-pK0JN5TYgEWycPn4AB7O8VcHr62uepOsZwdUk9465VYZx6AsMMbYVXEFk3uZZ9oap4c0CV8z0Qt1wSKnVTJE4ymbTR3-NsobOj75W9TPnGXoo4Xno_nbm5hreaxNTDd6AVq9qll-RDAuCKOkj3TNLvMu0-EYCAE9r9iTMX4iRQ95oMfJx1MjOBDlm_Q"/>
+<img class="w-6 h-6 rounded-full border-2 border-white" data-alt="woman in professional headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIikjJ3tNXyRJQY-OhUlqZwUxYjmvZEMyDNLpnBMoCUCbDu5Cfeoux9xRx2iAMCacs9lKEeJ9-uGcAAhgMk2dUFonrYs-KhnRoZiqdhXH4qp6LhAZrmpDEf7CqXIw5yowCX8G2ij8x37T7XQIcSskHv6zHEQoL85DNzPYonY_pJS_OPZe0lXRoq2AYlAaRUcAzrN6zi7m-EXyx0ONCCHtKwi4NPOVHybnt-5lM3fI4hVe38nkvxcMPFkKvGqVRWHcwhPo7x8GWULQ"/>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[8px] font-bold">+12</div>
+</div>
+<span class="text-[10px] font-bold text-slate-500 uppercase">Top Givers</span>
+</div>
+</div>
+</section>
+<!-- Table Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+<div class="p-6 flex items-center justify-between border-b border-slate-50">
+<h3 class="font-bold text-blue-900 dark:text-blue-400">Upcoming Services Schedule</h3>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-slate-50 rounded-lg text-slate-400"><span class="material-symbols-outlined">filter_list</span></button>
+<button class="p-2 hover:bg-slate-50 rounded-lg text-slate-400"><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date &amp; Time</th>
+<th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Service Type</th>
+<th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Attendance Status</th>
+<th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Linked Offering</th>
+<th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-surface-container-low rounded-lg text-primary">
+<span class="text-[10px] font-bold uppercase">Oct</span>
+<span class="text-xl font-black leading-none">27</span>
+</div>
+<div>
+<p class="font-bold text-sm">Sunday High Mass</p>
+<p class="text-xs text-slate-400">09:00 AM • Sanctuary</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-bold uppercase tracking-tight">Eucharistic</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-slate-300"></span>
+<span class="text-sm text-slate-500 italic">Not Recorded</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm font-medium text-slate-400">—</p>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1.5 text-[11px] font-bold text-primary bg-primary-fixed rounded-lg hover:bg-primary-fixed-dim transition-colors">Record Attendance</button>
+<button class="p-1.5 hover:bg-slate-200 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-container-low/20 hover:bg-slate-50/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-surface-container-low rounded-lg text-slate-400">
+<span class="text-[10px] font-bold uppercase">Oct</span>
+<span class="text-xl font-black leading-none">24</span>
+</div>
+<div>
+<p class="font-bold text-sm">Weekday Vespers</p>
+<p class="text-xs text-slate-400">06:30 PM • Lady Chapel</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-tight">Prayer Service</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-sm font-bold">42 Present</span>
+</div>
+<span class="text-[10px] text-slate-400 ml-4">12% growth vs LW</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<p class="text-sm font-bold text-blue-900">$840.00</p>
+<p class="text-[10px] text-slate-400">Vespers Fund</p>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1.5 text-[11px] font-bold text-slate-500 bg-slate-100 rounded-lg">View Details</button>
+<button class="p-1.5 hover:bg-slate-200 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-surface-container-low rounded-lg text-slate-400">
+<span class="text-[10px] font-bold uppercase">Oct</span>
+<span class="text-xl font-black leading-none">20</span>
+</div>
+<div>
+<p class="font-bold text-sm">Sunday Morning Service</p>
+<p class="text-xs text-slate-400">11:00 AM • Main Sanctuary</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-bold uppercase tracking-tight">Eucharistic</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-sm font-bold">382 Present</span>
+</div>
+<span class="text-[10px] text-slate-400 ml-4">Capacity: 85%</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<p class="text-sm font-bold text-blue-900">$4,120.50</p>
+<p class="text-[10px] text-slate-400">General Offering</p>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1.5 text-[11px] font-bold text-slate-500 bg-slate-100 rounded-lg">View Details</button>
+<button class="p-1.5 hover:bg-slate-200 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-surface-container-low/20 hover:bg-slate-50/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-surface-container-low rounded-lg text-tertiary-container">
+<span class="text-[10px] font-bold uppercase">Oct</span>
+<span class="text-xl font-black leading-none">19</span>
+</div>
+<div>
+<p class="font-bold text-sm">Sacramental Wedding</p>
+<p class="text-xs text-slate-400">02:00 PM • Main Sanctuary</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-lg text-[10px] font-bold uppercase tracking-tight">Sacramental</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-sm font-bold">120 Guests</span>
+</div>
+<span class="text-[10px] text-slate-400 ml-4">Private Event</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<p class="text-sm font-bold text-blue-900">$2,500.00</p>
+<p class="text-[10px] text-slate-400">Sacramental Stipend</p>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1.5 text-[11px] font-bold text-slate-500 bg-slate-100 rounded-lg">View Details</button>
+<button class="p-1.5 hover:bg-slate-200 rounded-lg transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-slate-50/50 flex items-center justify-between">
+<p class="text-xs text-slate-400 font-medium tracking-tight">Showing 4 of 28 scheduled events</p>
+<div class="flex items-center gap-1">
+<button class="p-1 text-slate-400 hover:text-primary"><span class="material-symbols-outlined">chevron_left</span></button>
+<span class="px-2 text-xs font-bold text-primary">1</span>
+<button class="p-1 text-slate-400 hover:text-primary"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</section>
+<!-- Lower Layout: Calendar & Special Initiatives -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Calendar Preview -->
+<div class="lg:col-span-2 bg-surface-container-low/50 p-6 rounded-xl space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-bold text-blue-900">Liturgical Year Overview</h3>
+<div class="flex gap-1">
+<button class="text-[10px] font-bold px-3 py-1 bg-white rounded-full shadow-sm text-primary uppercase tracking-wider">Liturgical</button>
+<button class="text-[10px] font-bold px-3 py-1 text-slate-400 uppercase tracking-wider">Social</button>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-2 text-center text-[10px] font-black text-slate-400 uppercase mb-2">
+<span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+</div>
+<div class="grid grid-cols-7 gap-2">
+<!-- Simplified Calendar Visualization -->
+<div class="h-20 bg-white/60 rounded-lg p-2 flex flex-col items-center justify-between group cursor-pointer hover:bg-white transition-all border border-transparent hover:border-primary/20">
+<span class="text-xs font-bold text-slate-800">20</span>
+<div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+</div>
+<div class="h-20 bg-white/40 rounded-lg p-2 flex flex-col items-center justify-between text-slate-300">
+<span class="text-xs font-bold">21</span>
+</div>
+<div class="h-20 bg-white/40 rounded-lg p-2 flex flex-col items-center justify-between text-slate-300">
+<span class="text-xs font-bold">22</span>
+</div>
+<div class="h-20 bg-white/60 rounded-lg p-2 flex flex-col items-center justify-between group cursor-pointer hover:bg-white transition-all border border-transparent hover:border-primary/20">
+<span class="text-xs font-bold text-slate-800">23</span>
+<div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+</div>
+<div class="h-20 bg-white/60 rounded-lg p-2 flex flex-col items-center justify-between group cursor-pointer hover:bg-white transition-all border border-transparent hover:border-primary/20">
+<span class="text-xs font-bold text-slate-800">24</span>
+<div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+</div>
+<div class="h-20 bg-white/40 rounded-lg p-2 flex flex-col items-center justify-between text-slate-300">
+<span class="text-xs font-bold">25</span>
+</div>
+<div class="h-20 bg-white/40 rounded-lg p-2 flex flex-col items-center justify-between text-slate-300">
+<span class="text-xs font-bold">26</span>
+</div>
+<div class="h-20 bg-primary rounded-lg p-2 flex flex-col items-center justify-between shadow-lg shadow-primary/30">
+<span class="text-xs font-bold text-white">27</span>
+<div class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
+</div>
+<div class="h-20 bg-white/40 rounded-lg p-2 flex flex-col items-center justify-between text-slate-300">
+<span class="text-xs font-bold">28</span>
+</div>
+<div class="h-20 bg-white/40 rounded-lg p-2 flex flex-col items-center justify-between text-slate-300">
+<span class="text-xs font-bold">29</span>
+</div>
+<div class="h-20 bg-white/40 rounded-lg p-2 flex flex-col items-center justify-between text-slate-300">
+<span class="text-xs font-bold">30</span>
+</div>
+<div class="h-20 bg-white/40 rounded-lg p-2 flex flex-col items-center justify-between text-slate-300">
+<span class="text-xs font-bold">31</span>
+</div>
+<div class="h-20 bg-white/40 rounded-lg p-2 flex flex-col items-center justify-between text-slate-200 border border-dashed border-slate-200">
+<span class="text-xs font-bold italic">01</span>
+</div>
+<div class="h-20 bg-white/40 rounded-lg p-2 flex flex-col items-center justify-between text-slate-200 border border-dashed border-slate-200">
+<span class="text-xs font-bold italic">02</span>
+</div>
+</div>
+</div>
+<!-- Recent Activities Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 flex flex-col space-y-6">
+<h3 class="font-bold text-slate-800 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">history</span>
+                        Recent Updates
+                    </h3>
+<div class="space-y-4">
+<div class="flex gap-3 relative pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:bottom-0 before:w-[2px] before:bg-slate-100">
+<div class="absolute left-[-5px] top-1 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-white"></div>
+<div class="flex-1">
+<p class="text-xs font-bold">Mass Attendance Recorded</p>
+<p class="text-[10px] text-slate-400 mt-1">Oct 20 Morning Service (382 souls)</p>
+</div>
+<span class="text-[10px] text-slate-400 font-medium">2h ago</span>
+</div>
+<div class="flex gap-3 relative pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:bottom-0 before:w-[2px] before:bg-slate-100">
+<div class="absolute left-[-5px] top-1 w-2.5 h-2.5 rounded-full bg-slate-300 ring-4 ring-white"></div>
+<div class="flex-1">
+<p class="text-xs font-bold">Schedule Updated</p>
+<p class="text-[10px] text-slate-400 mt-1">Advent Season series added</p>
+</div>
+<span class="text-[10px] text-slate-400 font-medium">5h ago</span>
+</div>
+<div class="flex gap-3 relative pl-4">
+<div class="absolute left-[-5px] top-1 w-2.5 h-2.5 rounded-full bg-slate-300 ring-4 ring-white"></div>
+<div class="flex-1">
+<p class="text-xs font-bold">Offerings Reconciled</p>
+<p class="text-[10px] text-slate-400 mt-1">Last week's tithes uploaded</p>
+</div>
+<span class="text-[10px] text-slate-400 font-medium">1d ago</span>
+</div>
+</div>
+<button class="w-full py-2 bg-surface-container-low hover:bg-surface-container-high text-xs font-bold text-primary rounded-lg transition-colors mt-auto">
+                        View Audit Log
+                    </button>
+</div>
+</section>
+</div>
+</main>
+<!-- Floating Action Button for Mobile Context -->
+<button class="md:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full clerical-gradient text-white shadow-2xl flex items-center justify-center z-50">
+<span class="material-symbols-outlined">add</span>
+</button>
+</body></html>

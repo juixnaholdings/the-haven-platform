@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3b8a",
+                        "primary-dark": "#162a63",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.375rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>Attendance Interface</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- TopNavBar Component -->
+<header class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 md:px-10 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="text-primary">
+<span class="material-symbols-outlined text-3xl">task_alt</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold tracking-tight">Attendance Ledger</h2>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-xl">history</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-xl">account_circle</span>
+</button>
+</div>
+</header>
+<main class="flex-1 max-w-5xl mx-auto w-full p-6 md:p-10 space-y-12">
+<!-- Event Selection Section -->
+<section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
+<div class="flex-1 space-y-4">
+<label class="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">Date Selection</label>
+<div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
+<button class="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow">
+<span class="material-symbols-outlined text-slate-500">chevron_left</span>
+</button>
+<div class="flex-1 text-center font-semibold text-slate-700 dark:text-slate-200">Sunday, October 15, 2023</div>
+<button class="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all shadow-sm hover:shadow">
+<span class="material-symbols-outlined text-slate-500">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="flex-1 space-y-4">
+<label class="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">Service Type</label>
+<div class="flex gap-2 p-1.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+<button class="flex-1 py-2 px-3 rounded-lg text-sm font-semibold bg-white dark:bg-slate-700 text-primary shadow-sm ring-1 ring-slate-200 dark:ring-slate-600">Morning</button>
+<button class="flex-1 py-2 px-3 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700/50 transition-colors">Evening</button>
+<button class="flex-1 py-2 px-3 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700/50 transition-colors">Special</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section A: Anonymous Headcount -->
+<section class="space-y-6">
+<div class="flex items-baseline justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+<h3 class="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">Section A: Anonymous Headcount</h3>
+<div class="text-slate-900 dark:text-slate-100 font-bold text-2xl">Total: <span class="text-primary" id="total-count">142</span></div>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Headcount Card -->
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md">
+<span class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Men</span>
+<div class="flex items-center gap-6">
+<button class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 transition-all border border-slate-100 dark:border-slate-700">
+<span class="material-symbols-outlined text-xl">remove</span>
+</button>
+<span class="text-3xl font-bold w-8 text-slate-800 dark:text-slate-200">42</span>
+<button class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 transition-all border border-slate-100 dark:border-slate-700">
+<span class="material-symbols-outlined text-xl">add</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md">
+<span class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Women</span>
+<div class="flex items-center gap-6">
+<button class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 transition-all border border-slate-100 dark:border-slate-700">
+<span class="material-symbols-outlined text-xl">remove</span>
+</button>
+<span class="text-3xl font-bold w-8 text-slate-800 dark:text-slate-200">56</span>
+<button class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 transition-all border border-slate-100 dark:border-slate-700">
+<span class="material-symbols-outlined text-xl">add</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md">
+<span class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Children</span>
+<div class="flex items-center gap-6">
+<button class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 transition-all border border-slate-100 dark:border-slate-700">
+<span class="material-symbols-outlined text-xl">remove</span>
+</button>
+<span class="text-3xl font-bold w-8 text-slate-800 dark:text-slate-200">32</span>
+<button class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 transition-all border border-slate-100 dark:border-slate-700">
+<span class="material-symbols-outlined text-xl">add</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center transition-all hover:shadow-md ring-1 ring-primary/10">
+<span class="text-xs font-bold uppercase tracking-widest text-primary mb-4">Visitors</span>
+<div class="flex items-center gap-6">
+<button class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 transition-all border border-slate-100 dark:border-slate-700">
+<span class="material-symbols-outlined text-xl">remove</span>
+</button>
+<span class="text-3xl font-bold w-8 text-primary">12</span>
+<button class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 transition-all border border-slate-100 dark:border-slate-700">
+<span class="material-symbols-outlined text-xl">add</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section B: Member Roll Call -->
+<section class="space-y-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+<h3 class="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">Section B: Member Roll Call</h3>
+<div class="relative w-full md:w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all" placeholder="Search members by name..." type="text"/>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<div class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Roll Call Item 1 -->
+<div class="p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center font-bold text-base border border-primary/10">AJ</div>
+<div>
+<p class="font-bold text-slate-900 dark:text-slate-100">Alexander Jamison</p>
+<p class="text-xs font-medium text-slate-400">Member since 2018</p>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl w-fit">
+<button class="px-5 py-2 text-xs font-bold rounded-lg bg-green-500 text-white shadow-sm transition-all">Present</button>
+<button class="px-5 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Absent</button>
+<button class="px-5 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Excused</button>
+</div>
+</div>
+<!-- Roll Call Item 2 -->
+<div class="p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center font-bold text-base border border-primary/10">BW</div>
+<div>
+<p class="font-bold text-slate-900 dark:text-slate-100">Beatrice Wright</p>
+<p class="text-xs font-medium text-slate-400">Member since 2021</p>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl w-fit">
+<button class="px-5 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Present</button>
+<button class="px-5 py-2 text-xs font-bold rounded-lg bg-red-500 text-white shadow-sm transition-all">Absent</button>
+<button class="px-5 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Excused</button>
+</div>
+</div>
+<!-- Roll Call Item 3 -->
+<div class="p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center font-bold text-base border border-primary/10">CK</div>
+<div>
+<div class="flex items-center gap-2">
+<p class="font-bold text-slate-900 dark:text-slate-100">Calvin Kleinert</p>
+<span class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Elder</span>
+</div>
+<p class="text-xs font-medium text-slate-400">Member since 2012</p>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl w-fit">
+<button class="px-5 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Present</button>
+<button class="px-5 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Absent</button>
+<button class="px-5 py-2 text-xs font-bold rounded-lg bg-amber-500 text-white shadow-sm transition-all">Excused</button>
+</div>
+</div>
+<!-- Roll Call Item 4 -->
+<div class="p-5 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-xl bg-primary/5 text-primary flex items-center justify-center font-bold text-base border border-primary/10">DP</div>
+<div>
+<p class="font-bold text-slate-900 dark:text-slate-100">Dorothy Parker</p>
+<p class="text-xs font-medium text-slate-400">Member since 2022</p>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl w-fit">
+<button class="px-5 py-2 text-xs font-bold rounded-lg bg-green-500 text-white shadow-sm transition-all">Present</button>
+<button class="px-5 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Absent</button>
+<button class="px-5 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Excused</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer Action -->
+<footer class="pt-12 pb-16 flex flex-col items-center gap-6">
+<button class="w-full md:w-auto min-w-[340px] py-4.5 px-10 bg-primary hover:bg-primary-dark text-white font-bold rounded-2xl shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">send</span>
+                        Submit Attendance Records
+                    </button>
+<div class="flex flex-col items-center gap-1.5">
+<div class="flex items-center gap-2 text-xs font-semibold text-emerald-500 dark:text-emerald-400">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                            Changes saved automatically
+                        </div>
+<p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 italic">Last sync: 2 minutes ago</p>
+</div>
+</footer>
+</main>
+</div>
+</div>
+</body></html>

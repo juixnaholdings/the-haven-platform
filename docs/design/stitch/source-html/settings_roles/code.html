@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings &amp; Permissions | Ekklesia</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed-variant": "#633f0f",
+              "on-surface-variant": "#43474e",
+              "on-secondary-container": "#5b6577",
+              "surface": "#fcf9f3",
+              "on-tertiary-fixed": "#2b1700",
+              "on-error": "#ffffff",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#f6f3ed",
+              "background": "#fcf9f3",
+              "surface-container-high": "#ebe8e2",
+              "surface-dim": "#dcdad4",
+              "primary-fixed-dim": "#adc7f7",
+              "on-primary-fixed": "#001b3c",
+              "on-secondary": "#ffffff",
+              "tertiary": "#321b00",
+              "on-primary-fixed-variant": "#2d476f",
+              "surface-container-highest": "#e5e2dc",
+              "secondary-fixed": "#d9e3f8",
+              "inverse-on-surface": "#f3f0ea",
+              "on-tertiary": "#ffffff",
+              "surface-tint": "#455f88",
+              "error-container": "#ffdad6",
+              "primary": "#002045",
+              "primary-container": "#1a365d",
+              "surface-container-lowest": "#ffffff",
+              "surface-bright": "#fcf9f3",
+              "inverse-surface": "#31312d",
+              "surface-container": "#f0eee8",
+              "inverse-primary": "#adc7f7",
+              "outline": "#74777f",
+              "on-secondary-fixed": "#121c2b",
+              "error": "#ba1a1a",
+              "tertiary-fixed-dim": "#f2bc82",
+              "outline-variant": "#c4c6cf",
+              "on-surface": "#1c1c18",
+              "tertiary-fixed": "#ffddba",
+              "surface-variant": "#e5e2dc",
+              "on-error-container": "#93000a",
+              "on-tertiary-container": "#c6955e",
+              "on-secondary-fixed-variant": "#3e4758",
+              "primary-fixed": "#d6e3ff",
+              "secondary-container": "#d9e3f8",
+              "secondary": "#555f70",
+              "on-primary-container": "#86a0cd",
+              "tertiary-container": "#4f2e00",
+              "on-background": "#1c1c18",
+              "secondary-fixed-dim": "#bdc7db"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #fcf9f3;
+        color: #1c1c18;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .tonal-shift {
+        transition: background-color 0.2s ease;
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-50 dark:bg-slate-900 z-50">
+<div class="flex flex-col h-full p-4 gap-2">
+<div class="mb-8 px-4 py-2">
+<h1 class="text-lg font-black text-blue-900 dark:text-blue-500 tracking-tighter">Ekklesia Admin</h1>
+<p class="text-xs text-slate-500 font-medium">St. Jude's Parish</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium font-inter">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium font-inter">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">home_work</span>
+<span class="text-sm font-medium font-inter">Households</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">church</span>
+<span class="text-sm font-medium font-inter">Ministries</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">event_upcoming</span>
+<span class="text-sm font-medium font-inter">Services</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-sm font-medium font-inter">Finances</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm font-medium font-inter">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-400 rounded-lg shadow-sm font-semibold transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="text-sm font-medium font-inter">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="text-sm font-medium font-inter">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-medium font-inter">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Stage -->
+<main class="ml-64 min-h-screen bg-surface">
+<!-- TopAppBar -->
+<header class="w-full h-16 sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm dark:shadow-none flex items-center justify-between px-8">
+<div class="flex items-center gap-4">
+<h2 class="text-xl font-bold tracking-tighter text-blue-900 dark:text-blue-500 font-inter antialiased">Settings &amp; Governance</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-slate-200"></div>
+<button class="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full hover:bg-slate-50 transition-colors">
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full bg-primary-fixed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAf4SLoy-P1TmgN1ThqUPVRbKr6viOC9fH63Cf0rURyt6CjTG55BMn4ThZLNxPV99WuJJ5qrLfNLWofF1kTTYXgja3TZfx2NYPrscPeH37ksizn2KU_76GcdNccIlOPrw4xSqmsZMHxpyu78FlBegE8sSjLsqYR1DImt_BkIRa4Iil633mIn6NnQ4p15qL49eh4fTl9Y_59I2LpTvgn_oaPYYypSt6GHaYy9Boz5BimjUKpENMylLDKe1jiOuWNmjNQNqxC5xHfd1c"/>
+<span class="material-symbols-outlined text-slate-400">expand_more</span>
+</button>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-10 max-w-7xl mx-auto space-y-12">
+<!-- Section 1: System Preferences (Bento Layout) -->
+<section>
+<div class="flex items-end justify-between mb-6">
+<div>
+<h3 class="text-2xl font-bold tracking-tight text-primary">System Preferences</h3>
+<p class="text-on-surface-variant text-sm mt-1">Global settings for your church's digital identity.</p>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-6">
+<!-- Church Branding Card -->
+<div class="col-span-12 lg:col-span-7 bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<div class="flex items-start gap-6">
+<div class="relative group">
+<div class="w-24 h-24 rounded-xl bg-surface-container flex items-center justify-center overflow-hidden border-2 border-dashed border-outline-variant group-hover:border-primary transition-colors">
+<img class="w-16 h-16 object-contain opacity-80" data-alt="minimalist modern church logo icon with geometric shapes in deep blue" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOLpUU-bf2OdXYbRMKj6SXLZchT0mIYsSdyM7KF5VTP86SrcbAJ-UmrHNs_io0Mekia1bwtcI-_Kz0jiqQuIEoiUSn9g_mn-tGSSUwq9hjhVtfGSnK6hyWyMaGB3bacwIqxmrFsjAYfip57k4T9N1JUCWTSaqDyXR1vrHtvO8lKRgpOyeTbiNl8EBeEM7LtHT9DvVEtz5Lt25LmpYQieurJzt7QS0w_QpHfmhGKCUXz8sCg46BV5NnXNxiJHVEZpoSN4t5tbeO9ZM"/>
+</div>
+<button class="absolute -bottom-2 -right-2 bg-primary text-on-primary p-2 rounded-full shadow-lg">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+<div class="flex-1 space-y-4">
+<div class="grid grid-cols-1 gap-4">
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">Church Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2.5 text-on-surface focus:ring-2 focus:ring-primary/20" type="text" value="St. Jude's Parish &amp; Community Center"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">Short Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2.5 text-on-surface focus:ring-2 focus:ring-primary/20" type="text" value="St. Jude's"/>
+</div>
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">Primary Language</label>
+<select class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2.5 text-on-surface focus:ring-2 focus:ring-primary/20">
+<option>English (US)</option>
+<option>Spanish</option>
+<option>French</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Localization & Time Card -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container-lowest p-8 rounded-xl shadow-sm flex flex-col justify-between">
+<div class="space-y-4">
+<h4 class="font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">public</span>
+                                Localization
+                            </h4>
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">Timezone</label>
+<div class="flex items-center gap-2 text-sm text-on-surface bg-surface-container-low px-4 py-2 rounded-lg">
+<span>UTC-05:00 (Eastern Standard Time)</span>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">Currency Format</label>
+<div class="flex items-center justify-between bg-surface-container-low px-4 py-2 rounded-lg">
+<span class="text-sm">USD ($) - 1,234.56</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">sync</span>
+</div>
+</div>
+</div>
+</div>
+<button class="mt-6 w-full py-2.5 bg-primary text-on-primary rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                            Update Preferences
+                        </button>
+</div>
+</div>
+</section>
+<!-- Section 2: User Roles & Permission Groups -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+<!-- User Roles -->
+<div>
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xl font-bold tracking-tight text-primary">User Roles</h3>
+<button class="text-sm font-semibold text-primary px-3 py-1.5 rounded-full bg-primary-fixed hover:bg-primary-fixed-dim transition-colors">
+                            + Define Role
+                        </button>
+</div>
+<div class="space-y-3">
+<!-- Admin -->
+<div class="group bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<div>
+<h5 class="font-bold text-on-surface">Administrator</h5>
+<p class="text-xs text-on-surface-variant">Full system access, billing, and user management.</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase rounded tracking-widest">3 Users</span>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">chevron_right</span>
+</div>
+</div>
+<!-- Editor -->
+<div class="group bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">edit_square</span>
+</div>
+<div>
+<h5 class="font-bold text-on-surface">Editor</h5>
+<p class="text-xs text-on-surface-variant">Can manage members, services, and reports.</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase rounded tracking-widest">12 Users</span>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">chevron_right</span>
+</div>
+</div>
+<!-- Viewer -->
+<div class="group bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">visibility</span>
+</div>
+<div>
+<h5 class="font-bold text-on-surface">Viewer</h5>
+<p class="text-xs text-on-surface-variant">Read-only access to directories and calendars.</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase rounded tracking-widest">45 Users</span>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Permission Groups -->
+<div>
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xl font-bold tracking-tight text-primary">Permission Groups</h3>
+<button class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">
+                            Manage Groups
+                        </button>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-6">
+<div class="space-y-6">
+<div class="flex items-start gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(0,32,69,0.4)]"></div>
+<div class="flex-1">
+<div class="flex justify-between items-center mb-2">
+<span class="text-sm font-bold text-on-surface">Financial Records</span>
+<span class="text-[10px] text-error font-black tracking-tighter uppercase px-2 py-0.5 border border-error/20 rounded">Restricted</span>
+</div>
+<p class="text-xs text-on-surface-variant mb-3">Controls access to donation tracking, tax receipts, and parish payroll.</p>
+<div class="flex -space-x-2">
+<img alt="Avatar" class="w-6 h-6 rounded-full border-2 border-surface-container-low" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh5QrcixNba3WVERqbwW6DAhWTwXqTFAFEmdS4l-Tr4KXTLV-pI1WODjbCbkHBNtRKz7XLCkRJJw6UBdNMIor4zCBoR-a8cd-P-k23ZGwejC5Sc8ErZ4trtorSQFiAK5q43YIFzXqSqHrYZkfa6j2au1AzvIiKMGJSZ6txFBzdIhATpq4Ni9hj6KBRij58-yvApV8ZqU3BQKLGxEmSzlDUSNB5arEx22e-1G-0A-J8xygiDOhWwLeCgmV5INGElc1d675gYqAuhNM"/>
+<img alt="Avatar" class="w-6 h-6 rounded-full border-2 border-surface-container-low" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7A65Sly25ZuxVT0qXhshBi8fabgguyWSSWeKl_OciPGzfv44b0bZ86CYhCloobxx5jhJ-21LpNExL1qbtWGhB34YiG1T9VYBhNsfhoUIchtFnsHekv-DxNEpqs5iEaAhHeYRvvwsW2fKfZhGww8tUXR6wJLSX6ei8fcmgvCa6TMp8VsEIQCucSgqqYbjuio78410lRwbHPisXIEIoXCR821yz-Q_HmCZ1PGig0SwtG9jD8rVm2TLRhsVFc42yuZD52B0315wgzYU"/>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-2 border-surface-container-low flex items-center justify-center text-[8px] font-bold">+1</div>
+</div>
+</div>
+</div>
+<div class="h-[1px] bg-outline-variant/10"></div>
+<div class="flex items-start gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-on-tertiary-container shadow-[0_0_8px_rgba(198,149,94,0.4)]"></div>
+<div class="flex-1">
+<div class="flex justify-between items-center mb-2">
+<span class="text-sm font-bold text-on-surface">Membership &amp; Census</span>
+<span class="text-[10px] text-on-tertiary-fixed-variant font-black tracking-tighter uppercase px-2 py-0.5 border border-on-tertiary-container/20 rounded">Confidential</span>
+</div>
+<p class="text-xs text-on-surface-variant mb-3">Private member details, household history, and sacraments.</p>
+<div class="flex -space-x-2">
+<img alt="Avatar" class="w-6 h-6 rounded-full border-2 border-surface-container-low" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuTSrLKjGbfGx5chF601wvA716HhgCuVhrIF50g2wPaq2KOY9veYnhi27JLUThdHdZ0fssnIpKXnJrZMtrRsviQy0W9mPzElo_GqxaurgDJS7n3FJKwZYf9fXOazIITXWXfjxxf2zGWyemXSaL5cwiIog0e2H9rOb4UkLvdUxSs7lYNRXodit4bbrF7TZPKJg2po3d9PwnqVbdjjg0Xa20B63GIsgTpnhvaEtq22v4cdNxCfSq_eaXx3xwLIw9hveRciX62lfuFIg"/>
+<img alt="Avatar" class="w-6 h-6 rounded-full border-2 border-surface-container-low" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABBZNSatioyS1SpvA3OlkrhVWntddhTQCLVw0LL8Fq2uXarruVu2kMY0TEIW14wOHtZlG1GiqPytcI10zxK8am7CflxIGxDxaGk388utOAJYxhcYsAyDKNzmvqKgmuy-rpZhfuZXSogja1ak5JVp2b2fTcn50fkaP5t7chWJcR08LqQElCgs0dY87ZUNBEeFXsN_K5pTZPEs7ZceCwJcqm9xZxI64klJQBIn4KeuE3OgJcM0spJc-m5_JufR487o7io7HGTBLHu6Q"/>
+<img alt="Avatar" class="w-6 h-6 rounded-full border-2 border-surface-container-low" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSE9ck4eoY_l353JHfQqn3SvD7aQ2GxFVX9p6HUEavRBivD7z_a6bCWO3tsd3N1Aw83jCxc7thyIeLEUbSp8JuUpsBel2tKDx30dWDLgAl1aVLh80qU3fP84SgomzeiBg9seSWHV1oisNZFJnyzDQsf-kEr7XXykoIKGv_Os1cQyLIMvWKx-P8iAJNJrUBdoLDdP6WA6pty3tROMyIB5d7wYYftqL-zcro_s4y6eWCq0z9cLa0ARFdk_BjuHgZ25NgPFKUMvq3M5k"/>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-2 border-surface-container-low flex items-center justify-center text-[8px] font-bold">+8</div>
+</div>
+</div>
+</div>
+<div class="h-[1px] bg-outline-variant/10"></div>
+<div class="flex items-start gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-secondary"></div>
+<div class="flex-1">
+<div class="flex justify-between items-center mb-2">
+<span class="text-sm font-bold text-on-surface">Services &amp; Liturgy</span>
+<span class="text-[10px] text-on-secondary-container font-black tracking-tighter uppercase px-2 py-0.5 border border-secondary-container/20 rounded">Operational</span>
+</div>
+<p class="text-xs text-on-surface-variant mb-3">Service planning, volunteer rosters, and facility booking.</p>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-2 border-surface-container-low flex items-center justify-center text-[8px] font-bold">25+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Audit Log Summary -->
+<section>
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden">
+<div class="px-8 py-6 flex items-center justify-between border-b border-surface-container">
+<div>
+<h3 class="text-lg font-bold text-primary">Governance Audit Log</h3>
+<p class="text-sm text-on-surface-variant">Review recent administrative changes and security events.</p>
+</div>
+<button class="px-4 py-2 text-sm font-semibold border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors">
+                            View Full Report
+                        </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-8 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Admin User</th>
+<th class="px-8 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Action Performed</th>
+<th class="px-8 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Target Resource</th>
+<th class="px-8 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">Date &amp; Time</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<tr class="hover:bg-surface-container/30 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-[10px] font-bold text-primary">JR</div>
+<span class="text-sm font-medium text-on-surface">Julian Rossi</span>
+</div>
+</td>
+<td class="px-8 py-5">
+<span class="text-sm text-on-surface">Updated Permission Group</span>
+</td>
+<td class="px-8 py-5">
+<span class="text-xs font-semibold px-2 py-1 bg-surface-container-high rounded text-on-surface-variant">Financial Records</span>
+</td>
+<td class="px-8 py-5 text-right">
+<span class="text-xs text-on-surface-variant">Oct 24, 2:45 PM</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container/30 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center text-[10px] font-bold text-secondary">AM</div>
+<span class="text-sm font-medium text-on-surface">Alice Miller</span>
+</div>
+</td>
+<td class="px-8 py-5">
+<span class="text-sm text-on-surface">Exported Member Directory</span>
+</td>
+<td class="px-8 py-5">
+<span class="text-xs font-semibold px-2 py-1 bg-surface-container-high rounded text-on-surface-variant">Membership</span>
+</td>
+<td class="px-8 py-5 text-right">
+<span class="text-xs text-on-surface-variant">Oct 24, 11:12 AM</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container/30 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed flex items-center justify-center text-[10px] font-bold text-tertiary">ST</div>
+<span class="text-sm font-medium text-on-surface">System Task</span>
+</div>
+</td>
+<td class="px-8 py-5">
+<span class="text-sm text-on-surface">Automated Backup Completed</span>
+</td>
+<td class="px-8 py-5">
+<span class="text-xs font-semibold px-2 py-1 bg-surface-container-high rounded text-on-surface-variant">Global Core</span>
+</td>
+<td class="px-8 py-5 text-right">
+<span class="text-xs text-on-surface-variant">Oct 24, 02:00 AM</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer / Signature -->
+<footer class="mt-auto px-10 py-12 flex flex-col items-center gap-4 text-center">
+<div class="w-12 h-1 bg-primary-container rounded-full mb-2"></div>
+<p class="text-xs text-on-surface-variant max-w-md font-medium leading-relaxed">
+                Ekklesia Governance Suite v4.2.1 • All actions within this panel are cryptographically logged and subject to the parish security protocol.
+            </p>
+</footer>
+</main>
+</body></html>
