@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed": "#001b3c",
+              "on-primary-fixed-variant": "#2d476f",
+              "outline-variant": "#c4c6cf",
+              "on-secondary-fixed": "#121c2b",
+              "on-tertiary-fixed": "#2b1700",
+              "surface-variant": "#e5e2dc",
+              "primary-fixed": "#d6e3ff",
+              "outline": "#74777f",
+              "inverse-on-surface": "#f3f0ea",
+              "surface-container-low": "#f6f3ed",
+              "inverse-surface": "#31312d",
+              "error-container": "#ffdad6",
+              "on-tertiary-fixed-variant": "#633f0f",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "tertiary-fixed-dim": "#f2bc82",
+              "primary-container": "#1a365d",
+              "on-tertiary-container": "#c6955e",
+              "surface-bright": "#fcf9f3",
+              "on-surface": "#1c1c18",
+              "on-error-container": "#93000a",
+              "secondary-fixed": "#d9e3f8",
+              "on-secondary-container": "#5b6577",
+              "on-primary": "#ffffff",
+              "on-secondary-fixed-variant": "#3e4758",
+              "tertiary-container": "#4f2e00",
+              "surface-container": "#f0eee8",
+              "tertiary": "#321b00",
+              "secondary-container": "#d9e3f8",
+              "secondary": "#555f70",
+              "on-tertiary": "#ffffff",
+              "on-background": "#1c1c18",
+              "surface": "#fcf9f3",
+              "on-error": "#ffffff",
+              "surface-tint": "#455f88",
+              "on-primary-container": "#86a0cd",
+              "background": "#fcf9f3",
+              "surface-container-highest": "#e5e2dc",
+              "secondary-fixed-dim": "#bdc7db",
+              "primary": "#002045",
+              "surface-container-lowest": "#ffffff",
+              "on-surface-variant": "#43474e",
+              "primary-fixed-dim": "#adc7f7",
+              "surface-container-high": "#ebe8e2",
+              "tertiary-fixed": "#ffddba",
+              "surface-dim": "#dcdad4",
+              "inverse-primary": "#adc7f7"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased selection:bg-primary-fixed">
+<aside class="fixed left-0 top-0 h-full flex flex-col p-6 z-40 bg-[#f6f3ed] dark:bg-slate-900 text-sm font-medium font-inter docked left-0 h-full w-64 no-border tonal-shift">
+<div class="flex items-center gap-3 mb-10">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="church">church</span>
+</div>
+<div>
+<h1 class="font-bold text-[#1A365D] text-base leading-none">The Vestry</h1>
+<p class="text-[10px] text-on-surface-variant tracking-wider uppercase mt-1">Administrative Portal</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 hover:translate-x-1 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Households</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 hover:translate-x-1 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="church">church</span>
+<span>Ministries</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 hover:translate-x-1 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Transactions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 hover:translate-x-1 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="manage_accounts">manage_accounts</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#ebe8e2] dark:bg-slate-800 text-[#1A365D] dark:text-blue-400 font-bold rounded-lg hover:translate-x-1 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span>Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 hover:translate-x-1 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-1">
+<button class="w-full bg-primary text-on-primary py-3 rounded-full font-semibold text-xs tracking-wide mb-6 hover:opacity-90 transition-opacity">
+                New Record
+            </button>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Sign Out</span>
+</a>
+</div>
+</aside>
+<header class="fixed top-0 right-0 left-64 h-16 bg-[#fcf9f3] dark:bg-slate-950 flex justify-between items-center px-12 z-50 transition-opacity font-inter antialiased tracking-tight">
+<div class="flex items-center gap-8">
+<span class="text-xl font-semibold text-[#1A365D] dark:text-blue-500">Ekklesia</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-[#1A365D] dark:hover:text-blue-300 transition-colors duration-200" href="#">Dashboard</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-[#1A365D] dark:hover:text-blue-300 transition-colors duration-200" href="#">Directory</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-[#1A365D] dark:hover:text-blue-300 transition-colors duration-200" href="#">Finances</a>
+<a class="text-[#1A365D] dark:text-blue-400 border-b-2 border-[#1A365D] pb-1 font-bold hover:text-[#1A365D] dark:hover:text-blue-300 transition-colors duration-200" href="#">Events</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<img alt="User profile" class="w-8 h-8 rounded-full ml-2 border border-outline-variant/30" data-alt="close-up portrait of a professional man in a dark suit with a calm expression against a neutral studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIichzI4HH7-kpH6qczhuktO0TiT20VAALdzNCESvl7yyptg1zmkYrojZ0UhZnjAqGR6O-K_dpvx7DHaJ5SlgFyZkJ1LPU2D_dxiOpPK3Z-aRJeLo8wp32KJMEjDE19_GwJD651oDgeGWtJ3Iuo3a7jDuNoiyKa-bgIuf1uYaLXQgY4WSGJi3zY3mLDdt7tbuDk3zC8wpEa2F9mNIj9Q0clroZ4bKDP-MVWecKM-hK-bsq1Yu5CN7nt97q7rQ2epw1VdMuppyiBW8"/>
+</div>
+</header>
+<main class="ml-64 pt-24 px-12 pb-12 min-h-screen">
+<div class="max-w-7xl mx-auto">
+<div class="flex justify-between items-end mb-12">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-widest uppercase rounded">Liturgical</span>
+<span class="text-on-surface-variant text-sm font-medium">• Sunday Service</span>
+</div>
+<h2 class="text-4xl font-extrabold text-primary tracking-tighter mb-1">Sunday High Mass</h2>
+<p class="text-on-surface-variant text-lg font-light italic">Eleventh Sunday after Pentecost — October 22, 2023</p>
+</div>
+<div class="flex flex-col items-end gap-2 text-right">
+<div class="flex items-center gap-2 text-primary font-semibold">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span>09:00 AM — 10:30 AM</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span>
+<span>Main Sanctuary</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<div class="col-span-8">
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-xl font-bold text-primary">Member Roll</h3>
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full pl-10 text-sm focus:ring-1 focus:ring-primary-container" placeholder="Search members..." type="text"/>
+</div>
+</div>
+<div class="w-full overflow-hidden">
+<table class="w-full text-left">
+<thead>
+<tr class="text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.15em]">
+<th class="pb-6 pl-2">Member</th>
+<th class="pb-6">Household</th>
+<th class="pb-6 text-center">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="py-4 pl-2">
+<div class="flex items-center gap-3">
+<img alt="Member Avatar" class="w-10 h-10 rounded-full" data-alt="portrait of a middle-aged man with short dark hair and a kind smile wearing a white linen shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHEqWYixNIuVpa7Brrz1vRZZcrp7XB3SZdM8ZXaDh2aqR3-F7RIQk5trF7rtYcCQQru5J8YRPkwplUS6SOBknZjQOazyiEby65dgptZVu2ulHp6GlZFSmC-zZzqICO4nb1JSeIxNoIwFnJJA343A-tw-t298TJZqxsag12SuHL5J2j3zileaHv8lVIp_Nma1yBkPrrwMUrQy5F7dB8mESQwy_DMOSYcken9j59nNPmEDmsApGGF3r1UI9XI2nFKbYXjeJcEJhv_js"/>
+<div>
+<p class="font-bold text-on-surface leading-tight">Julian Beaumont</p>
+<p class="text-[11px] text-on-surface-variant">Communicant</p>
+</div>
+</div>
+</td>
+<td class="py-4">
+<p class="text-sm font-medium text-on-surface-variant">Beaumont, J. &amp; E.</p>
+</td>
+<td class="py-4">
+<div class="flex justify-center gap-1">
+<button class="px-4 py-1.5 rounded-full text-xs font-bold bg-primary-container text-on-primary-container">Present</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-medium text-on-surface-variant hover:bg-surface-container-high">Absent</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-medium text-on-surface-variant hover:bg-surface-container-high">Excused</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="py-4 pl-2">
+<div class="flex items-center gap-3">
+<img alt="Member Avatar" class="w-10 h-10 rounded-full" data-alt="professional woman with glasses and shoulder-length hair looking directly at camera with a slight smile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxug0HNB4IkTTKlwIxZRi_Mj-eyJaTxTRGGGF8gxB9CuG0rUKaQwoqLEfaVWTRrZ6OS0fP65rJg3xZEVmQfQE2vByEcHpYEdIp2IbgyqC5y3OG9Z1GG7jgFuW1sE28m0O4Blqm3YWL3BC9MYPYla_sUQtwm8EYGGrjpxE_QkqYmmaEgIoA73BHty4ujxXVjqi3w8D_LWlwghYGA95gTy39MhjHLylwbkKLeQnaWMxxmRYrGsFS5pPbspcsWRHk6fU5BnmVoPOpO88"/>
+<div>
+<p class="font-bold text-on-surface leading-tight">Elena Beaumont</p>
+<p class="text-[11px] text-on-surface-variant">Communicant</p>
+</div>
+</div>
+</td>
+<td class="py-4">
+<p class="text-sm font-medium text-on-surface-variant">Beaumont, J. &amp; E.</p>
+</td>
+<td class="py-4">
+<div class="flex justify-center gap-1">
+<button class="px-4 py-1.5 rounded-full text-xs font-medium text-on-surface-variant hover:bg-surface-container-high">Present</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-bold bg-error-container text-on-error-container">Absent</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-medium text-on-surface-variant hover:bg-surface-container-high">Excused</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="py-4 pl-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed font-bold text-xs">SV</div>
+<div>
+<p class="font-bold text-on-surface leading-tight">Sarah Vance</p>
+<p class="text-[11px] text-on-surface-variant">Postulant</p>
+</div>
+</div>
+</td>
+<td class="py-4">
+<p class="text-sm font-medium text-on-surface-variant">Vance Family</p>
+</td>
+<td class="py-4">
+<div class="flex justify-center gap-1">
+<button class="px-4 py-1.5 rounded-full text-xs font-medium text-on-surface-variant hover:bg-surface-container-high">Present</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-medium text-on-surface-variant hover:bg-surface-container-high">Absent</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed">Excused</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="py-4 pl-2">
+<div class="flex items-center gap-3">
+<img alt="Member Avatar" class="w-10 h-10 rounded-full" data-alt="man with beard and glasses wearing a textured wool sweater looking thoughtful" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoJoQUz4VHRv1xgpvRcvRCFx60qr_tAlIszj3nTVO6CTP-6OoH8V-bZQ4x9gnjQvCR2K1ZAZMf3YRxaBDnBAt7iLSBxE_UpvMMRXobFTs2LlF1QLRZrmItLmcLAQGJI7OgkLcYWVHuabZIdBF3cxJVsYglzqYEgUvZXxDW9p-YTKgvgL1D1tQ1yAtx1XPWGOd7r9ndhrx6A8ynSUY2SqEDFaZ3_5CyLRIIyHE7yRq0JhBILjP0Yx9qh2z0ef6Q0vBnYiLWwIXpkD0"/>
+<div>
+<p class="font-bold text-on-surface leading-tight">Marcus Thorne</p>
+<p class="text-[11px] text-on-surface-variant">Choir Member</p>
+</div>
+</div>
+</td>
+<td class="py-4">
+<p class="text-sm font-medium text-on-surface-variant">Thorne, M.</p>
+</td>
+<td class="py-4">
+<div class="flex justify-center gap-1">
+<button class="px-4 py-1.5 rounded-full text-xs font-bold bg-primary-container text-on-primary-container">Present</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-medium text-on-surface-variant hover:bg-surface-container-high">Absent</button>
+<button class="px-4 py-1.5 rounded-full text-xs font-medium text-on-surface-variant hover:bg-surface-container-high">Excused</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="col-span-4 space-y-8">
+<div class="bg-surface-container-low rounded-xl p-8 border border-outline-variant/10 shadow-sm">
+<h3 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-xl" data-icon="calculate">calculate</span>
+                            Anonymous Headcount
+                        </h3>
+<div class="space-y-6">
+<div class="flex justify-between items-center">
+<label class="text-sm font-medium text-on-surface-variant">Men</label>
+<div class="flex items-center gap-4 bg-surface-container-lowest rounded-full px-4 py-2">
+<button class="material-symbols-outlined text-primary text-sm font-bold" data-icon="remove">remove</button>
+<span class="w-8 text-center font-bold">42</span>
+<button class="material-symbols-outlined text-primary text-sm font-bold" data-icon="add">add</button>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<label class="text-sm font-medium text-on-surface-variant">Women</label>
+<div class="flex items-center gap-4 bg-surface-container-lowest rounded-full px-4 py-2">
+<button class="material-symbols-outlined text-primary text-sm font-bold" data-icon="remove">remove</button>
+<span class="w-8 text-center font-bold">58</span>
+<button class="material-symbols-outlined text-primary text-sm font-bold" data-icon="add">add</button>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<label class="text-sm font-medium text-on-surface-variant">Children</label>
+<div class="flex items-center gap-4 bg-surface-container-lowest rounded-full px-4 py-2">
+<button class="material-symbols-outlined text-primary text-sm font-bold" data-icon="remove">remove</button>
+<span class="w-8 text-center font-bold">15</span>
+<button class="material-symbols-outlined text-primary text-sm font-bold" data-icon="add">add</button>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<label class="text-sm font-medium text-on-surface-variant">Visitors</label>
+<div class="flex items-center gap-4 bg-surface-container-lowest rounded-full px-4 py-2">
+<button class="material-symbols-outlined text-primary text-sm font-bold" data-icon="remove">remove</button>
+<span class="w-8 text-center font-bold">7</span>
+<button class="material-symbols-outlined text-primary text-sm font-bold" data-icon="add">add</button>
+</div>
+</div>
+<div class="pt-6 mt-6 border-t border-outline-variant/30">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-1">Total Attendance</p>
+<h4 class="text-3xl font-extrabold text-primary">122</h4>
+</div>
+<div class="text-right">
+<p class="text-xs font-medium text-on-surface-variant">Quorum Status</p>
+<p class="text-xs font-bold text-on-primary-fixed-variant">84% Participation</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-8 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-xl">
+<h4 class="text-lg font-bold mb-3">Finalize Records</h4>
+<p class="text-xs text-on-primary-container mb-8 leading-relaxed">Ensure all headcounts and member statuses are accurate. Finalizing will archive this service's ledger and update individual attendance metrics.</p>
+<button class="w-full bg-surface-container-lowest text-primary py-4 rounded-full font-extrabold text-sm tracking-widest uppercase shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all">
+                            Finalize Attendance
+                        </button>
+<button class="w-full mt-4 text-xs font-medium text-on-primary-container/80 hover:text-on-primary transition-colors">
+                            Save as Draft
+                        </button>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6">
+<p class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant mb-4">Liturgical Notes</p>
+<textarea class="w-full h-32 bg-transparent border-dashed border-2 border-outline-variant/50 rounded-lg p-3 text-sm focus:ring-0 focus:border-primary-container" placeholder="Add specific notes about the service, music, or sermon theme..."></textarea>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

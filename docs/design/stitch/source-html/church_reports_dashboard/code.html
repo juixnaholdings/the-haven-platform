@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ekklesia Admin - Reports</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed-variant": "#633f0f",
+                        "on-surface-variant": "#43474e",
+                        "on-secondary-container": "#5b6577",
+                        "surface": "#fcf9f3",
+                        "on-tertiary-fixed": "#2b1700",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f6f3ed",
+                        "background": "#fcf9f3",
+                        "surface-container-high": "#ebe8e2",
+                        "surface-dim": "#dcdad4",
+                        "primary-fixed-dim": "#adc7f7",
+                        "on-primary-fixed": "#001b3c",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#321b00",
+                        "on-primary-fixed-variant": "#2d476f",
+                        "surface-container-highest": "#e5e2dc",
+                        "secondary-fixed": "#d9e3f8",
+                        "inverse-on-surface": "#f3f0ea",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#455f88",
+                        "error-container": "#ffdad6",
+                        "primary": "#002045",
+                        "primary-container": "#1a365d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fcf9f3",
+                        "inverse-surface": "#31312d",
+                        "surface-container": "#f0eee8",
+                        "inverse-primary": "#adc7f7",
+                        "outline": "#74777f",
+                        "on-secondary-fixed": "#121c2b",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#f2bc82",
+                        "outline-variant": "#c4c6cf",
+                        "on-surface": "#1c1c18",
+                        "tertiary-fixed": "#ffddba",
+                        "surface-variant": "#e5e2dc",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#c6955e",
+                        "on-secondary-fixed-variant": "#3e4758",
+                        "primary-fixed": "#d6e3ff",
+                        "secondary-container": "#d9e3f8",
+                        "secondary": "#555f70",
+                        "on-primary-container": "#86a0cd",
+                        "tertiary-container": "#4f2e00",
+                        "on-background": "#1c1c18",
+                        "secondary-fixed-dim": "#bdc7db"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-50 dark:bg-slate-900 z-50">
+<div class="flex flex-col h-full p-4 gap-2">
+<!-- Brand Header -->
+<div class="flex items-center gap-3 px-4 py-6 mb-4">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined" data-icon="church">church</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-blue-900 dark:text-blue-500 leading-none">Ekklesia Admin</h1>
+<p class="text-xs text-slate-500 font-medium">St. Jude's Parish</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-sm font-medium">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home_work">home_work</span>
+<span class="text-sm font-medium">Households</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="church">church</span>
+<span class="text-sm font-medium">Ministries</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="event_upcoming">event_upcoming</span>
+<span class="text-sm font-medium">Services</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-sm font-medium">Finances</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-400 rounded-lg shadow-sm font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<!-- Footer Tabs -->
+<div class="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-error hover:bg-error-container/20 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="text-sm font-medium">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Stage -->
+<main class="ml-64 min-h-screen">
+<!-- Top App Bar -->
+<header class="w-full h-16 sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm dark:shadow-none flex items-center justify-between px-8">
+<div class="flex items-center gap-4">
+<h2 class="text-xl font-bold tracking-tighter text-blue-900 dark:text-blue-500 font-inter antialiased">Reports</h2>
+<div class="h-6 w-[1px] bg-slate-200 mx-2"></div>
+<div class="flex items-center gap-2 bg-surface-container-low px-4 py-1.5 rounded-full text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="calendar_month">calendar_month</span>
+<span class="font-medium">Oct 1, 2023 - Oct 31, 2023</span>
+<span class="material-symbols-outlined text-sm cursor-pointer ml-1" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 mr-4">
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-xl font-medium active:scale-95 duration-200 hover:opacity-90">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+<span>Add Member</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="professional portrait of a church administrator in a clean office setting, soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5_L7akcqtH8Q9-aUeKGywuTxknW-sTLfGemO2WDvu0uA8tMUQH3ZXFITJ6r4lgvEaFrD6-apqVJzOg0HfYg-TzyQiTTm18zWfBwrnv3eAVL_lI6BB5ol48v2Kri0-ObVHjZBzVgsiO9qt2wOtbULD9bNi_QHQk540ERs7UqF8E50T60BAKcf6MKjiTe2Dt_we81TjRVXSuJ1B5Oc-9-SqpfdWMn-3qrVjwOl-JZrYYysNo5XIa7cFY8esFi02K-B9UKRpko0FOwQ"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-10 space-y-10">
+<!-- Header & Export Section -->
+<div class="flex justify-between items-end">
+<div>
+<h3 class="text-3xl font-bold tracking-tight text-primary">Monthly Analytics</h3>
+<p class="text-on-surface-variant body-md mt-1">Detailed performance summary for the current reporting period.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-highest text-on-surface font-semibold rounded-xl active:scale-95 duration-200 transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="description">description</span>
+<span>Export CSV</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-primary text-on-primary font-semibold rounded-xl active:scale-95 duration-200 shadow-sm transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="picture_as_pdf">picture_as_pdf</span>
+<span>Export PDF</span>
+</button>
+</div>
+</div>
+<!-- Bento Grid: Key Stats & Finance -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Finance Card - Total Income -->
+<div class="col-span-12 md:col-span-4 p-8 bg-surface-container-lowest rounded-xl shadow-[0px_4px_24px_rgba(28,28,24,0.04)] relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl" data-icon="payments">payments</span>
+</div>
+<p class="label-md font-semibold text-on-secondary-container tracking-wider uppercase">Total Income</p>
+<div class="mt-4 flex items-baseline gap-2">
+<span class="text-4xl font-extrabold text-primary tracking-tighter">$42,580</span>
+<span class="text-green-600 text-sm font-bold flex items-center">
+<span class="material-symbols-outlined text-sm" data-icon="arrow_upward">arrow_upward</span> 12%
+                        </span>
+</div>
+<div class="mt-6 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4 rounded-full"></div>
+</div>
+<p class="text-xs text-on-surface-variant mt-2 font-medium">75% of monthly goal reached</p>
+</div>
+<!-- Finance Card - Total Expense -->
+<div class="col-span-12 md:col-span-4 p-8 bg-surface-container-lowest rounded-xl shadow-[0px_4px_24px_rgba(28,28,24,0.04)] relative overflow-hidden group border-l-4 border-on-tertiary-container">
+<p class="label-md font-semibold text-on-secondary-container tracking-wider uppercase">Total Expenses</p>
+<div class="mt-4 flex items-baseline gap-2">
+<span class="text-4xl font-extrabold text-primary tracking-tighter">$28,150</span>
+<span class="text-slate-400 text-sm font-bold flex items-center">
+<span class="material-symbols-outlined text-sm" data-icon="horizontal_rule">horizontal_rule</span> stable
+                        </span>
+</div>
+<div class="mt-8 flex gap-4">
+<div class="text-xs">
+<span class="block text-on-surface-variant">Operations</span>
+<span class="font-bold text-primary">$12,400</span>
+</div>
+<div class="text-xs">
+<span class="block text-on-surface-variant">Mission</span>
+<span class="font-bold text-primary">$15,750</span>
+</div>
+</div>
+</div>
+<!-- Member Stats - New vs Inactive -->
+<div class="col-span-12 md:col-span-4 p-8 bg-surface-container-lowest rounded-xl shadow-[0px_4px_24px_rgba(28,28,24,0.04)]">
+<h4 class="text-lg font-bold text-primary mb-6">Membership Pulse</h4>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+</div>
+<div>
+<span class="block font-bold text-primary text-xl">24</span>
+<span class="text-xs font-medium text-on-surface-variant">New Members</span>
+</div>
+</div>
+<div class="w-16 h-8 bg-green-50 rounded flex items-center justify-center">
+<span class="text-[10px] font-black text-green-700 tracking-tighter">+8.2%</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="person_off">person_off</span>
+</div>
+<div>
+<span class="block font-bold text-primary text-xl">08</span>
+<span class="text-xs font-medium text-on-surface-variant">Inactive/Moved</span>
+</div>
+</div>
+<div class="w-16 h-8 bg-slate-50 rounded flex items-center justify-center">
+<span class="text-[10px] font-black text-slate-500 tracking-tighter">-2.1%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Attendance Trends - Large Bar Chart Area -->
+<div class="col-span-12 lg:col-span-8 p-8 bg-surface-container-lowest rounded-xl shadow-[0px_4px_24px_rgba(28,28,24,0.04)]">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h4 class="text-xl font-bold text-primary">Attendance Trends</h4>
+<p class="text-sm text-on-surface-variant">Weekly physical and virtual attendance distribution</p>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="text-xs font-medium text-on-surface-variant">In-Person</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary-fixed-dim"></div>
+<span class="text-xs font-medium text-on-surface-variant">Online</span>
+</div>
+</div>
+</div>
+<!-- Simplified Visual Bar Chart Representation -->
+<div class="flex items-end justify-between h-64 px-4">
+<!-- Sunday 1 -->
+<div class="flex flex-col items-center gap-3 w-12">
+<div class="w-full flex flex-col justify-end gap-1 h-full">
+<div class="bg-primary-fixed-dim w-full rounded-t-sm" style="height: 30%;"></div>
+<div class="bg-primary w-full rounded-b-sm" style="height: 55%;"></div>
+</div>
+<span class="text-xs font-bold text-slate-500">Oct 01</span>
+</div>
+<!-- Sunday 2 -->
+<div class="flex flex-col items-center gap-3 w-12">
+<div class="w-full flex flex-col justify-end gap-1 h-full">
+<div class="bg-primary-fixed-dim w-full rounded-t-sm" style="height: 35%;"></div>
+<div class="bg-primary w-full rounded-b-sm" style="height: 60%;"></div>
+</div>
+<span class="text-xs font-bold text-slate-500">Oct 08</span>
+</div>
+<!-- Sunday 3 -->
+<div class="flex flex-col items-center gap-3 w-12">
+<div class="w-full flex flex-col justify-end gap-1 h-full">
+<div class="bg-primary-fixed-dim w-full rounded-t-sm" style="height: 25%;"></div>
+<div class="bg-primary w-full rounded-b-sm" style="height: 65%;"></div>
+</div>
+<span class="text-xs font-bold text-slate-500">Oct 15</span>
+</div>
+<!-- Sunday 4 -->
+<div class="flex flex-col items-center gap-3 w-12">
+<div class="w-full flex flex-col justify-end gap-1 h-full">
+<div class="bg-primary-fixed-dim w-full rounded-t-sm" style="height: 40%;"></div>
+<div class="bg-primary w-full rounded-b-sm" style="height: 50%;"></div>
+</div>
+<span class="text-xs font-bold text-slate-500">Oct 22</span>
+</div>
+<!-- Sunday 5 -->
+<div class="flex flex-col items-center gap-3 w-12">
+<div class="w-full flex flex-col justify-end gap-1 h-full">
+<div class="bg-primary-fixed-dim w-full rounded-t-sm" style="height: 30%;"></div>
+<div class="bg-primary w-full rounded-b-sm" style="height: 58%;"></div>
+</div>
+<span class="text-xs font-bold text-slate-500">Oct 29</span>
+</div>
+</div>
+</div>
+<!-- Recent Activity / Highlights -->
+<div class="col-span-12 lg:col-span-4 p-8 bg-surface-container-low rounded-xl">
+<h4 class="text-lg font-bold text-primary mb-6">Service Highlights</h4>
+<div class="space-y-6">
+<div class="p-4 bg-white rounded-lg shadow-sm">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-black text-on-tertiary-container uppercase tracking-widest">Top Event</span>
+<span class="text-xs text-slate-400">Oct 15</span>
+</div>
+<p class="text-sm font-bold text-primary mt-2">Harvest Thanksgiving</p>
+<p class="text-xs text-on-surface-variant mt-1">Record attendance: 842 total</p>
+</div>
+<div class="p-4 bg-white rounded-lg shadow-sm">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-black text-on-tertiary-container uppercase tracking-widest">Giving Peak</span>
+<span class="text-xs text-slate-400">Oct 08</span>
+</div>
+<p class="text-sm font-bold text-primary mt-2">Youth Ministry Appeal</p>
+<p class="text-xs text-on-surface-variant mt-1">$12,400 raised in one day</p>
+</div>
+<div class="p-4 bg-white rounded-lg shadow-sm opacity-60">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-black text-on-tertiary-container uppercase tracking-widest">Volunteer Milestone</span>
+<span class="text-xs text-slate-400">Oct 28</span>
+</div>
+<p class="text-sm font-bold text-primary mt-2">Stewardship Training</p>
+<p class="text-xs text-on-surface-variant mt-1">15 new leaders certified</p>
+</div>
+</div>
+<button class="w-full mt-6 py-3 text-sm font-bold text-primary-container hover:underline transition-all">
+                        View Detailed Log
+                    </button>
+</div>
+</div>
+<!-- Detailed Table Section (Zebra Striping, No Borders) -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_24px_rgba(28,28,24,0.04)]">
+<div class="p-6 flex justify-between items-center border-b border-slate-50">
+<h4 class="text-lg font-bold text-primary">Ministry Budget Allocation</h4>
+<div class="flex gap-2">
+<input class="bg-surface-container-low border-none rounded-lg text-sm px-4 py-2 focus:ring-1 focus:ring-primary w-64" placeholder="Search ministries..." type="text"/>
+</div>
+</div>
+<table class="w-full text-left">
+<thead class="bg-surface-container-low/50">
+<tr>
+<th class="px-8 py-4 text-xs font-bold text-on-secondary-container uppercase tracking-wider">Ministry Name</th>
+<th class="px-8 py-4 text-xs font-bold text-on-secondary-container uppercase tracking-wider">Projected</th>
+<th class="px-8 py-4 text-xs font-bold text-on-secondary-container uppercase tracking-wider">Actual Spent</th>
+<th class="px-8 py-4 text-xs font-bold text-on-secondary-container uppercase tracking-wider">Variance</th>
+<th class="px-8 py-4 text-xs font-bold text-on-secondary-container uppercase tracking-wider text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm" data-icon="music_note">music_note</span>
+</div>
+<span class="text-sm font-bold text-primary">Worship &amp; Media</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm font-medium">$4,500.00</td>
+<td class="px-8 py-5 text-sm font-medium">$4,210.50</td>
+<td class="px-8 py-5 text-sm font-bold text-green-600">-$289.50</td>
+<td class="px-8 py-5 text-right">
+<span class="px-3 py-1 bg-green-100 text-green-800 text-[10px] font-black uppercase rounded-full">On Track</span>
+</td>
+</tr>
+<tr class="bg-surface-container-low/20 hover:bg-surface-container-high transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm" data-icon="school">school</span>
+</div>
+<span class="text-sm font-bold text-primary">Children's Education</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm font-medium">$3,200.00</td>
+<td class="px-8 py-5 text-sm font-medium">$3,850.00</td>
+<td class="px-8 py-5 text-sm font-bold text-error">+$650.00</td>
+<td class="px-8 py-5 text-right">
+<span class="px-3 py-1 bg-error-container text-on-error-container text-[10px] font-black uppercase rounded-full">Over Budget</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm" data-icon="volunteer_activism">volunteer_activism</span>
+</div>
+<span class="text-sm font-bold text-primary">Community Outreach</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm font-medium">$12,000.00</td>
+<td class="px-8 py-5 text-sm font-medium">$9,400.00</td>
+<td class="px-8 py-5 text-sm font-bold text-green-600">-$2,600.00</td>
+<td class="px-8 py-5 text-right">
+<span class="px-3 py-1 bg-green-100 text-green-800 text-[10px] font-black uppercase rounded-full">On Track</span>
+</td>
+</tr>
+<tr class="bg-surface-container-low/20 hover:bg-surface-container-high transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm" data-icon="construction">construction</span>
+</div>
+<span class="text-sm font-bold text-primary">Building Maintenance</span>
+</div>
+</td>
+<td class="px-8 py-5 text-sm font-medium">$8,000.00</td>
+<td class="px-8 py-5 text-sm font-medium">$8,000.00</td>
+<td class="px-8 py-5 text-sm font-bold text-slate-400">$0.00</td>
+<td class="px-8 py-5 text-right">
+<span class="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase rounded-full">Balanced</span>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="p-6 bg-surface-container-low/50 text-center">
+<button class="text-sm font-bold text-primary hover:text-on-primary-container transition-all">Download Full Financial Breakdown</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Hidden for Reports/Details as per mandate, but logic included for completeness) -->
+<!-- Suppression applied: No FAB on Reports page -->
+</body></html>

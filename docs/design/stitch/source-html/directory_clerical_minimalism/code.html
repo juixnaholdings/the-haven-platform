@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Member &amp; Household Directory</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3b8a",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121620",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Navigation Sidebar -->
+<aside class="w-64 border-r border-primary/10 bg-white dark:bg-slate-900 flex flex-col shrink-0">
+<div class="p-6 border-b border-primary/10 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">church</span>
+<h1 class="font-display font-bold text-lg tracking-tight">ParishOS</h1>
+</div>
+<nav class="flex-1 overflow-y-auto p-4 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-primary/5 hover:text-primary rounded transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium bg-primary/10 text-primary rounded transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">group</span>
+                    Members
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-primary/5 hover:text-primary rounded transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">house</span>
+                    Households
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-primary/5 hover:text-primary rounded transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">volunteer_activism</span>
+                    Ministries
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-primary/5 hover:text-primary rounded transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">description</span>
+                    Reports
+                </a>
+</nav>
+<div class="p-4 border-t border-primary/10">
+<div class="flex items-center gap-3 px-3 py-2">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs" data-alt="User profile avatar placeholder">
+                        JD
+                    </div>
+<div class="flex flex-col">
+<span class="text-xs font-semibold">John Doe</span>
+<span class="text-[10px] text-slate-500 uppercase tracking-wider">Administrator</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0 bg-background-light dark:bg-background-dark overflow-hidden relative">
+<!-- Header -->
+<header class="h-16 border-b border-primary/10 bg-white dark:bg-slate-900 flex items-center justify-between px-8 shrink-0">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full pl-10 pr-4 py-1.5 text-sm bg-slate-50 dark:bg-slate-800 border-primary/10 focus:ring-primary focus:border-primary rounded" placeholder="Search members or households..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-1.5 bg-primary text-white text-sm font-medium rounded hover:bg-primary/90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-lg">add</span>
+                        New Member
+                    </button>
+<button class="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Filters Sidebar (Internal) -->
+<div class="w-64 bg-slate-50 dark:bg-slate-900/50 border-r border-primary/10 p-6 overflow-y-auto shrink-0">
+<h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Directory Filters</h2>
+<div class="space-y-6">
+<div>
+<label class="block text-sm font-semibold mb-3">Ministry</label>
+<div class="space-y-2">
+<label class="flex items-center gap-2 text-sm cursor-pointer group">
+<input checked="" class="rounded border-primary/20 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Worship Team</span>
+</label>
+<label class="flex items-center gap-2 text-sm cursor-pointer group">
+<input class="rounded border-primary/20 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Hospitality</span>
+</label>
+<label class="flex items-center gap-2 text-sm cursor-pointer group">
+<input checked="" class="rounded border-primary/20 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Youth Ministry</span>
+</label>
+<label class="flex items-center gap-2 text-sm cursor-pointer group">
+<input class="rounded border-primary/20 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Finance Council</span>
+</label>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold mb-3">Status</label>
+<div class="space-y-2">
+<label class="flex items-center gap-2 text-sm cursor-pointer group">
+<input checked="" class="border-primary/20 text-primary focus:ring-primary" name="status" type="radio"/>
+<span class="text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Active</span>
+</label>
+<label class="flex items-center gap-2 text-sm cursor-pointer group">
+<input class="border-primary/20 text-primary focus:ring-primary" name="status" type="radio"/>
+<span class="text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Inactive</span>
+</label>
+<label class="flex items-center gap-2 text-sm cursor-pointer group">
+<input class="border-primary/20 text-primary focus:ring-primary" name="status" type="radio"/>
+<span class="text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Archive</span>
+</label>
+</div>
+</div>
+<div class="pt-4 border-t border-primary/10">
+<button class="text-xs font-bold text-primary hover:underline">Reset all filters</button>
+</div>
+</div>
+</div>
+<!-- Table Content -->
+<div class="flex-1 overflow-y-auto p-8">
+<div class="mb-6 flex items-center justify-between">
+<div>
+<h2 class="text-2xl font-display font-bold">Members Directory</h2>
+<p class="text-slate-500 text-sm">Showing 1,248 active members across 412 households.</p>
+</div>
+<div class="flex gap-2">
+<button class="p-2 border border-primary/10 bg-white dark:bg-slate-900 rounded hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-lg">download</span>
+</button>
+<button class="p-2 border border-primary/10 bg-white dark:bg-slate-900 rounded hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-lg">print</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 border border-primary/10 rounded shadow-sm overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-primary/10 bg-slate-50/50 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+<th class="px-6 py-4">Name</th>
+<th class="px-6 py-4">Phone</th>
+<th class="px-6 py-4">Role</th>
+<th class="px-6 py-4">Ministry</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-primary/5">
+<tr class="hover:bg-primary/5 transition-colors group cursor-pointer">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold" data-alt="Profile icon for Sarah Jenkins">SJ</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold">Sarah Jenkins</span>
+<span class="text-xs text-slate-500">sarah.j@example.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">(555) 123-4567</td>
+<td class="px-6 py-4 text-xs font-medium uppercase tracking-wider text-slate-500">Youth Director</td>
+<td class="px-6 py-4">
+<span class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded font-bold uppercase">Youth</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+<span class="text-xs font-medium">Active</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group cursor-pointer bg-primary/5 ring-1 ring-inset ring-primary/20">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold" data-alt="Profile icon for Michael Thorne">MT</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold">Michael Thorne</span>
+<span class="text-xs text-slate-500">m.thorne@example.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">(555) 987-6543</td>
+<td class="px-6 py-4 text-xs font-medium uppercase tracking-wider text-slate-500">Volunteer</td>
+<td class="px-6 py-4">
+<span class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded font-bold uppercase">Hospitality</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+<span class="text-xs font-medium">Active</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group cursor-pointer">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold" data-alt="Profile icon for Emily Chen">EC</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold">Emily Chen</span>
+<span class="text-xs text-slate-500">echen@church.org</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">(555) 234-5678</td>
+<td class="px-6 py-4 text-xs font-medium uppercase tracking-wider text-slate-500">Coordinator</td>
+<td class="px-6 py-4">
+<span class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded font-bold uppercase">Worship</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+<span class="text-xs font-medium">Active</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group cursor-pointer">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold" data-alt="Profile icon for David Miller">DM</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold">David Miller</span>
+<span class="text-xs text-slate-500">david.m@example.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">(555) 876-5432</td>
+<td class="px-6 py-4 text-xs font-medium uppercase tracking-wider text-slate-500">Member</td>
+<td class="px-6 py-4">
+<span class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-500 px-2 py-1 rounded font-bold uppercase">None</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5 text-slate-400">
+<div class="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+<span class="text-xs font-medium">Inactive</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="p-4 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between border-t border-primary/10">
+<span class="text-xs text-slate-500">Showing 1-10 of 1,248</span>
+<div class="flex gap-1">
+<button class="p-1 text-slate-400 hover:text-primary disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="px-2 py-1 text-xs font-bold bg-primary text-white rounded">1</button>
+<button class="px-2 py-1 text-xs font-bold text-slate-500 hover:bg-primary/10 rounded">2</button>
+<button class="px-2 py-1 text-xs font-bold text-slate-500 hover:bg-primary/10 rounded">3</button>
+<button class="p-1 text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Slide-over Detail View -->
+<div class="fixed inset-y-0 right-0 w-full max-w-md bg-white dark:bg-slate-900 shadow-2xl border-l border-primary/10 flex flex-col z-50">
+<div class="p-6 border-b border-primary/10 flex items-center justify-between">
+<h3 class="font-display font-bold">Profile Details</h3>
+<button class="text-slate-400 hover:text-slate-600">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-8">
+<div class="flex flex-col items-center mb-8">
+<div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-bold mb-4 border-2 border-primary/5" data-alt="Detailed avatar for Michael Thorne">MT</div>
+<h2 class="text-xl font-display font-bold">Michael Thorne</h2>
+<p class="text-primary text-sm font-semibold">Volunteer</p>
+<div class="mt-4 flex gap-2">
+<button class="px-4 py-1.5 text-xs font-bold border border-primary/10 rounded hover:bg-slate-50 transition-colors">Edit Profile</button>
+<button class="px-4 py-1.5 text-xs font-bold bg-primary text-white rounded shadow-sm">Send Email</button>
+</div>
+</div>
+<div class="space-y-8">
+<!-- Contact Info -->
+<section>
+<h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Contact Information</h4>
+<div class="grid grid-cols-1 gap-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 text-lg">mail</span>
+<span class="text-sm font-medium">m.thorne@example.com</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 text-lg">call</span>
+<span class="text-sm font-medium">(555) 987-6543</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400 text-lg">location_on</span>
+<span class="text-sm font-medium">4522 Oak Drive, Apt 4C, Portland, OR</span>
+</div>
+</div>
+</section>
+<!-- Linked Household -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Household Members</h4>
+<span class="text-[10px] font-bold text-primary uppercase bg-primary/5 px-2 py-0.5 rounded">Thorne Residence</span>
+</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 rounded bg-slate-50 dark:bg-slate-800/50 border border-primary/5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary text-xs font-bold" data-alt="Avatar for Rebecca Thorne">RT</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold">Rebecca Thorne</span>
+<span class="text-[10px] text-slate-500 uppercase">Spouse</span>
+</div>
+</div>
+<button class="text-primary"><span class="material-symbols-outlined text-lg">open_in_new</span></button>
+</div>
+<div class="flex items-center justify-between p-3 rounded bg-slate-50 dark:bg-slate-800/50 border border-primary/5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary text-xs font-bold" data-alt="Avatar for Lucas Thorne">LT</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold">Lucas Thorne</span>
+<span class="text-[10px] text-slate-500 uppercase">Dependent</span>
+</div>
+</div>
+<button class="text-primary"><span class="material-symbols-outlined text-lg">open_in_new</span></button>
+</div>
+<div class="flex items-center justify-between p-3 rounded bg-slate-50 dark:bg-slate-800/50 border border-primary/5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary text-xs font-bold" data-alt="Avatar for Sophie Thorne">ST</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold">Sophie Thorne</span>
+<span class="text-[10px] text-slate-500 uppercase">Dependent</span>
+</div>
+</div>
+<button class="text-primary"><span class="material-symbols-outlined text-lg">open_in_new</span></button>
+</div>
+</div>
+</section>
+<!-- Ministry Involvement -->
+<section>
+<h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Ministry Involvement</h4>
+<div class="flex flex-wrap gap-2">
+<div class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                        HOSPITALITY
+                                    </div>
+<div class="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">event_available</span>
+                                        GREETERS GUILD
+                                    </div>
+</div>
+</section>
+</div>
+</div>
+<div class="p-6 border-t border-primary/10 bg-slate-50/50 dark:bg-slate-800/50 flex gap-3">
+<button class="flex-1 px-4 py-2 text-sm font-bold bg-white dark:bg-slate-900 border border-primary/10 rounded hover:bg-slate-100 transition-colors">Archive</button>
+<button class="flex-1 px-4 py-2 text-sm font-bold bg-primary text-white rounded">Update Profile</button>
+</div>
+</div>
+<!-- Overlay for slide-over -->
+<div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-opacity"></div>
+</div>
+</main>
+</div>
+</body></html>

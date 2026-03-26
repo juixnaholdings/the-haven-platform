@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed-variant": "#633f0f",
+              "on-surface-variant": "#43474e",
+              "on-secondary-container": "#5b6577",
+              "surface": "#fcf9f3",
+              "on-tertiary-fixed": "#2b1700",
+              "on-error": "#ffffff",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#f6f3ed",
+              "background": "#fcf9f3",
+              "surface-container-high": "#ebe8e2",
+              "surface-dim": "#dcdad4",
+              "primary-fixed-dim": "#adc7f7",
+              "on-primary-fixed": "#001b3c",
+              "on-secondary": "#ffffff",
+              "tertiary": "#321b00",
+              "on-primary-fixed-variant": "#2d476f",
+              "surface-container-highest": "#e5e2dc",
+              "secondary-fixed": "#d9e3f8",
+              "inverse-on-surface": "#f3f0ea",
+              "on-tertiary": "#ffffff",
+              "surface-tint": "#455f88",
+              "error-container": "#ffdad6",
+              "primary": "#002045",
+              "primary-container": "#1a365d",
+              "surface-container-lowest": "#ffffff",
+              "surface-bright": "#fcf9f3",
+              "inverse-surface": "#31312d",
+              "surface-container": "#f0eee8",
+              "inverse-primary": "#adc7f7",
+              "outline": "#74777f",
+              "on-secondary-fixed": "#121c2b",
+              "error": "#ba1a1a",
+              "tertiary-fixed-dim": "#f2bc82",
+              "outline-variant": "#c4c6cf",
+              "on-surface": "#1c1c18",
+              "tertiary-fixed": "#ffddba",
+              "surface-variant": "#e5e2dc",
+              "on-error-container": "#93000a",
+              "on-tertiary-container": "#c6955e",
+              "on-secondary-fixed-variant": "#3e4758",
+              "primary-fixed": "#d6e3ff",
+              "secondary-container": "#d9e3f8",
+              "secondary": "#555f70",
+              "on-primary-container": "#86a0cd",
+              "tertiary-container": "#4f2e00",
+              "on-background": "#1c1c18",
+              "secondary-fixed-dim": "#bdc7db"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-50 dark:bg-slate-900 z-50 overflow-y-auto">
+<div class="flex flex-col h-full p-4 gap-2">
+<div class="flex items-center gap-3 px-4 py-6 mb-4">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm">
+<span class="material-symbols-outlined">church</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-blue-900 dark:text-blue-500 tracking-tighter">Ekklesia Admin</h1>
+<p class="text-xs text-slate-500 font-medium">St. Jude's Parish</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-400 rounded-lg shadow-sm font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-sm font-medium">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home_work">home_work</span>
+<span class="text-sm font-medium">Households</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="church">church</span>
+<span class="text-sm font-medium">Ministries</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="event_upcoming">event_upcoming</span>
+<span class="text-sm font-medium">Services</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-sm font-medium">Finances</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-slate-200/50 pt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="text-sm font-medium">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- Top App Bar -->
+<header class="w-full h-16 sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm flex items-center justify-between px-8">
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-full transition-colors">
+<span class="material-symbols-outlined text-slate-500">arrow_back</span>
+</button>
+<h2 class="font-inter tracking-tight antialiased text-xl font-bold text-blue-900 dark:text-blue-500">Member Profile</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center bg-slate-100/50 dark:bg-slate-900/50 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-slate-400 text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-slate-600" placeholder="Search members..." type="text"/>
+</div>
+<button class="p-2 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-full transition-colors">
+<span class="material-symbols-outlined text-slate-500">notifications</span>
+</button>
+<div class="flex items-center gap-2 pl-4 border-l border-slate-200">
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full border border-slate-200" data-alt="Close up portrait of a professional male administrator in a brightly lit modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzn5AUoBpFp3ZeH8Eloor4E8O_EBizg_F46KSUF3GkwRT95PXImgmy8YB_g_1UOVkaWrewYUbYoTizphqkCnA74euMI0p55d6veyGwEAeDmGUq4CfXVY_DUyVjbXZwfC1SkD0B-LIe1J_9OEakT7L675AGg9vswGW76h9kxc6xOH0vkmglyCnSS15CV1mOWNKH9L-SlH1ZvcuZ3E25oZYE_rKo7LTM8LIuz8BXKTPnHXmXN7YaZQL9gTpBha0uTEZeOkOeutdOOKI"/>
+</div>
+</div>
+</header>
+<div class="p-10 max-w-7xl mx-auto space-y-8">
+<!-- Profile Header Card (Asymmetric Layout) -->
+<section class="bg-surface-container-lowest rounded-xl p-8 shadow-sm flex flex-col md:flex-row gap-8 items-start relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+<div class="relative z-10">
+<div class="w-32 h-32 rounded-2xl overflow-hidden shadow-lg border-4 border-white">
+<img alt="Member Photo" class="w-full h-full object-cover" data-alt="Professional studio portrait of a middle-aged man with a warm smile, wearing a casual linen shirt against a soft neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRh4ScjBBaRa6rxpNssaCzZxhb5JYzSf3WBdo97D_XfuVCCVN4feBysi4NzLbJ_B8Wf0w9O2Ma-U1XIDYxtwcGzNHNFjDnMrGiNbaj4GLs18u8iYFLKy2iNm8bxIb9eNZZO1xkLl3bXI7p42Hwr9zdS4751_xSsJsFRZRIAQUiQW-gR4jFThxl_6_nzV3mFqe2R6iQtxniZdMNB33n4zp7qABKBKAWsv6o_JWK8FZ1tbEE03_IW6LSBK1xAAWg5oSEDUs8DvdAOAE"/>
+</div>
+</div>
+<div class="flex-1 space-y-4 relative z-10">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-3xl font-bold tracking-tight text-primary">Julian Thorne</h3>
+<p class="text-on-surface-variant flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-sm">badge</span>
+                                Lead Liturgist &amp; Youth Mentor
+                            </p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-2.5 bg-primary text-on-primary rounded-xl font-semibold shadow-md hover:bg-primary-container transition-all active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">edit</span>
+                                Edit Profile
+                            </button>
+<button class="p-2.5 rounded-xl border border-outline-variant hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Email</p>
+<p class="text-sm font-medium">j.thorne@example.com</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">call</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Phone</p>
+<p class="text-sm font-medium">+1 (555) 012-3456</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">calendar_today</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Member Since</p>
+<p class="text-sm font-medium">October 12, 2018</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Household Info (Span 4) -->
+<section class="col-span-12 lg:col-span-4 bg-surface-container-lowest rounded-xl p-6 shadow-sm space-y-6">
+<div class="flex items-center justify-between">
+<h4 class="text-lg font-bold text-primary">Household</h4>
+<span class="text-xs font-bold text-on-tertiary-container bg-tertiary-fixed px-3 py-1 rounded-full">Head of House</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a woman with curly hair smiling gently in soft natural morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzbh5SecUnVFNr6yeIzzQsmVsN3Eah8utKW3O5OqlLeIfGNp_DJ4NGNVVuavjXqoVX20_cVYa0XOZr8b3AH6EjoEmNWF0fGpyII2Jh7qtwZaLS3daPcYa0M-anRkejgKJnhEjeyGU779StoHCtqPnGGCeCpCx2Gw363w4Nk1f0_9YHe9AEnEhs6I7xqc_rTBzzEKugJaekzqn8BoIr80DoklrObJuzw615if7ObaHeqblXXFL3KSEN3U5FjtR_h_SILz7NqRbFqLs"/>
+<div>
+<p class="text-sm font-bold">Sarah Thorne</p>
+<p class="text-xs text-slate-500">Spouse</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Young boy laughing outdoors in a park with sunlight filtering through trees" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ_Psiw8U9ZafXhAS-1ICzoFahMfXP-DFFGMeFo3J1KwDUM0mss5Yz73BuNpSDgRH19LzWgIiNHdlLMctN7c-SGT9bvNQ7czrybW69KHZGEPS7j_xcxpcmn31fXz6SNZVlQSBhwLWigJh5s0WF-oh0PoH2MSGHOdRf0EUXsncHfQ55xLhugzkTj3diiYT2PnD5JsmPkkXngCl6eHR2ZJIM_Tx6cHMjd2PdYxGr4xgm-j2e5DSPkp45bzOcyEWw87brQR3QhvCRyaU"/>
+<div>
+<p class="text-sm font-bold">Leo Thorne</p>
+<p class="text-xs text-slate-500">Son (12)</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Young girl with braided hair looking at a book with focused expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWyzJEJGKqczRmLHK87UbcMBMfL1fK-DKDmY2d0jO8UmVPsNWMGBGWYCLaHnKEEEtW96S15QGAZrB9Tue1EnDeX6XF38SGRkoFHBNvoaLH_-bpwQ3ktDNPbr1wn45izX0mpAOcsaRnns_OLI90HaUZMSRXaWs4d6d5eeZA2U2GxVvplRCJqpPbI6XHrmghUoxdmZNceXHBQKa1NwP9iXoM6kZX6Or5fOVtJDn2UYpQkgiMJ76o29cAsCxydsll_h2R02M4ppkMJh8"/>
+<div>
+<p class="text-sm font-bold">Emma Thorne</p>
+<p class="text-xs text-slate-500">Daughter (9)</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300">chevron_right</span>
+</div>
+</div>
+<button class="w-full py-2 border-2 border-dashed border-outline-variant text-slate-400 rounded-lg text-sm font-medium hover:border-primary hover:text-primary transition-all">
+                        + Add Family Member
+                    </button>
+</section>
+<!-- Activity & Stats (Span 8) -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<div class="grid grid-cols-2 gap-6">
+<!-- Giving Summary -->
+<div class="bg-surface-container-low rounded-xl p-6 shadow-sm">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary" data-weight="fill">volunteer_activism</span>
+<h4 class="font-bold text-primary">Annual Giving</h4>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-black text-primary tracking-tight">$8,450.00</span>
+<span class="text-xs font-bold text-green-600 flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+                                    12% vs LY
+                                </span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">Regular Tithing &amp; Mission Fund</p>
+<!-- Mini Sparkline Placeholder -->
+<div class="mt-4 h-12 w-full flex items-end gap-1">
+<div class="h-1/2 w-full bg-primary/10 rounded-t-sm"></div>
+<div class="h-2/3 w-full bg-primary/10 rounded-t-sm"></div>
+<div class="h-3/4 w-full bg-primary/10 rounded-t-sm"></div>
+<div class="h-1/2 w-full bg-primary/10 rounded-t-sm"></div>
+<div class="h-full w-full bg-primary rounded-t-sm"></div>
+<div class="h-4/5 w-full bg-primary/10 rounded-t-sm"></div>
+</div>
+</div>
+<!-- Attendance -->
+<div class="bg-surface-container-low rounded-xl p-6 shadow-sm">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary" data-weight="fill">event_available</span>
+<h4 class="font-bold text-primary">Attendance</h4>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative w-16 h-16 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-slate-200" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-primary" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-dasharray="176" stroke-dashoffset="26" stroke-width="6"></circle>
+</svg>
+<span class="absolute text-sm font-black">85%</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">Excellent Consistency</p>
+<p class="text-xs text-on-surface-variant">42 services attended in last 12 months</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Activity Timeline -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h4 class="text-lg font-bold text-primary">Recent Activity</h4>
+<button class="text-sm font-semibold text-primary-container hover:underline">View All</button>
+</div>
+<div class="space-y-8 relative before:absolute before:inset-0 before:ml-[19px] before:w-0.5 before:bg-slate-100 before:z-0">
+<!-- Activity Item 1 -->
+<div class="relative flex items-start gap-6 z-10">
+<div class="w-10 h-10 rounded-full bg-white border-2 border-primary flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-xl">payments</span>
+</div>
+<div class="pt-1">
+<p class="text-sm font-bold text-primary">Online Tithe Received</p>
+<p class="text-xs text-on-surface-variant mb-2">Processed via Member Portal</p>
+<span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">$250.00 • 2h ago</span>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="relative flex items-start gap-6 z-10">
+<div class="w-10 h-10 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+<span class="material-symbols-outlined text-xl">event</span>
+</div>
+<div class="pt-1">
+<p class="text-sm font-bold text-primary">Service Check-in</p>
+<p class="text-xs text-on-surface-variant mb-2">Sunday Morning Service - 9:00 AM</p>
+<span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">St. Jude's Main Hall • Oct 22</span>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="relative flex items-start gap-6 z-10">
+<div class="w-10 h-10 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+<span class="material-symbols-outlined text-xl">groups</span>
+</div>
+<div class="pt-1">
+<p class="text-sm font-bold text-primary">Ministry Meeting</p>
+<p class="text-xs text-on-surface-variant mb-2">Youth Leadership Sync</p>
+<span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">Virtual Call • Oct 19</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Ministry Affiliations (Span 12 - Bottom Row) -->
+<section class="col-span-12 bg-primary-container text-white rounded-xl p-8 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-between">
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">church</span>
+</div>
+<div>
+<h4 class="text-xl font-bold">Ministry Affiliations</h4>
+<p class="text-primary-fixed text-sm">Active roles and volunteering groups</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="px-5 py-2 bg-white/10 hover:bg-white/20 transition-colors rounded-full flex items-center gap-2 border border-white/10">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">music_note</span>
+<span class="text-sm font-semibold">Worship Ministry</span>
+</div>
+<div class="px-5 py-2 bg-white/10 hover:bg-white/20 transition-colors rounded-full flex items-center gap-2 border border-white/10">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="text-sm font-semibold">Youth Mentor</span>
+</div>
+<div class="px-5 py-2 bg-white/10 hover:bg-white/20 transition-colors rounded-full flex items-center gap-2 border border-white/10">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">local_dining</span>
+<span class="text-sm font-semibold">Hospitality</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</section>
+</div>
+</div>
+<!-- Footer Actions -->
+<footer class="mt-12 px-10 pb-10 flex justify-between items-center text-on-surface-variant">
+<p class="text-xs font-medium">Last updated by Admin (Sarah K.) on Oct 24, 2023</p>
+<div class="flex gap-4">
+<button class="px-4 py-2 text-sm font-bold text-error bg-error-container/30 rounded-lg hover:bg-error-container transition-colors">Archive Member</button>
+<button class="px-4 py-2 text-sm font-bold border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors">Generate Statement</button>
+</div>
+</footer>
+</main>
+</body></html>
