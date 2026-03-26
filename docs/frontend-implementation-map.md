@@ -20,6 +20,11 @@ Current implemented routes:
 - `/login`
 - `/dashboard`
 - `/members`
+- `/members/new`
+- `/members/:memberId`
+- `/members/:memberId/edit`
+- `/households`
+- `/households/:householdId`
 
 ## Design Coverage Status
 
@@ -54,12 +59,12 @@ Design source of truth for this map:
 | --- | --- | --- | --- | --- |
 | `/login` | System login | Ready | Implemented | Wave 0 complete |
 | `/dashboard` | Dashboard | Ready | Implemented | Wave 0 complete |
-| `/members` | Members / Directory | Ready with caveats | Implemented | Wave 1 |
-| `/members/new` | Create member | Ready | Not started | Wave 1 |
-| `/members/:memberId` | Member profile detail | Ready with caveats | Not started | Wave 1 |
-| `/members/:memberId/edit` | Edit member | Ready | Not started | Wave 1 |
-| `/households` | Household management | Ready | Not started | Wave 1 |
-| `/households/:householdId` | Household detail | Ready | Not started | Wave 1 |
+| `/members` | Members / Directory | Ready with caveats | Implemented | Wave 1 complete |
+| `/members/new` | Create member | Ready | Implemented | Wave 1 complete |
+| `/members/:memberId` | Member profile detail | Ready with caveats | Implemented | Wave 1 complete |
+| `/members/:memberId/edit` | Edit member | Ready | Implemented | Wave 1 complete |
+| `/households` | Household management | Ready | Implemented | Wave 1 complete |
+| `/households/:householdId` | Household detail | Ready | Implemented | Wave 1 complete |
 | `/groups` | Ministries / Groups | Ready with caveats | Not started | Wave 2 |
 | `/groups/:groupId` | Ministry detail | Ready with caveats | Not started | Wave 2 |
 | `/events` | Services / Events | Ready | Not started | Wave 2 |
@@ -112,18 +117,27 @@ Design source of truth for this map:
 | `frontend/src/app/AppShell.tsx` | Implemented | Authenticated shell/navigation |
 | `frontend/src/components/ErrorAlert.tsx` | Implemented | Validation/network/server errors |
 | `frontend/src/components/LoadingScreen.tsx` | Implemented | Loading/bootstrapping states |
+| `frontend/src/components/PageHeader.tsx` | Implemented | Data-page titles, meta badges, actions |
+| `frontend/src/components/StatusBadge.tsx` | Implemented | Active/inactive and state labels |
+| `frontend/src/components/EmptyState.tsx` | Implemented | Empty and no-results states |
+| `frontend/src/components/ErrorState.tsx` | Implemented | Page-level error states |
+| `frontend/src/components/LoadingState.tsx` | Implemented | Page-level loading states |
+| `frontend/src/components/EntityTable.tsx` | Implemented | Directory and management tables |
+| `frontend/src/components/DetailPanel.tsx` | Implemented | Read-only entity detail sections |
+| `frontend/src/components/FormSection.tsx` | Implemented | Grouped create/edit forms |
 
-### Next shared UI primitives to extract during screen work
+### Shared primitives extracted during Wave 1
 
-| Planned primitive | Why it should exist | First screens |
+| Primitive | Why it exists | Current screens |
 | --- | --- | --- |
-| `PageHeader` | Standardize title, eyebrow, actions, helper copy | members, households, groups, events, finance |
-| `MetricCardGrid` | Reuse dashboard/report summary card layout | dashboard, reports, finance |
-| `EntityTable` | Shared searchable table layout | members, households, groups, finance transactions |
-| `DetailPanel` | Consistent detail/read-only sections | member, household, group, event, transaction |
-| `FormSection` | Shared create/edit form layout | member form, finance entry, transfer, event form |
-| `StatusBadge` | Consistent `is_active` / attendance / ledger state rendering | all operational screens |
-| `EmptyState` | Replace ad hoc no-data placeholders | all list screens |
+| `PageHeader` | Standardizes eyebrow, title, helper copy, badges, and actions | dashboard, members, member form/detail, households, household detail |
+| `StatusBadge` | Normalizes active/inactive and contextual state rendering | dashboard, members, households |
+| `EntityTable` | Provides the reusable searchable-table pattern for operational pages | members, households, household memberships |
+| `DetailPanel` | Provides a reusable read-only profile layout | member detail |
+| `FormSection` | Groups create/edit fields into reusable panel sections | member create/edit, household create/update, membership management |
+| `EmptyState` | Covers empty and no-results states without fake data | members, households, household detail |
+| `ErrorState` | Handles page-level failures consistently | dashboard, members, member detail/form, households, household detail |
+| `LoadingState` | Handles page-level loading consistently | dashboard, members, member detail/form, households, household detail |
 
 ## Implementation Waves
 
@@ -140,6 +154,11 @@ Why first:
 - People/household flows are the shortest path to broad product coverage.
 - Household management is now feasible with the membership update endpoint added in this audit pass.
 
+Status:
+
+- Completed in this implementation wave.
+- The shared data-page primitives extracted here should now be reused instead of re-creating page-specific list/detail/form patterns.
+
 ### Wave 2: complete group, event, attendance, and finance operations
 
 - Groups / Ministries list and detail
@@ -150,7 +169,7 @@ Why first:
 Why second:
 
 - These screens are backend-ready and map well onto the existing domain API modules.
-- They share reusable table/detail/form primitives that can be extracted once Wave 1 patterns settle.
+- The shared table/detail/form/state primitives are now in place, so these screens can be implemented with less UI duplication.
 
 ### Wave 3: reporting expansion and polish
 
@@ -173,8 +192,12 @@ Blocked by:
 
 The next coding wave should be:
 
-1. finish member detail/create/edit
-2. implement households list/detail/manage
-3. extract shared table/detail/form primitives while doing that work
+1. implement groups / ministries list and detail using the new shared data-page primitives
+2. implement services / events list/detail plus attendance recording flows
+3. implement finance ledger list, entry, transfer, and transaction detail flows
+4. add a routed reports surface that reuses the current dashboard/reporting patterns
 
-That wave reuses the current frontend architecture, consumes already-ready backend surfaces, and avoids getting blocked by missing settings/audit APIs.
+Backend blockers that still remain outside those waves:
+
+- settings / roles / staff-user product APIs are still missing
+- audit trail remains blocked on missing backend query surfaces
