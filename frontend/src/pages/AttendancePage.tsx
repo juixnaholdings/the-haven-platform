@@ -81,37 +81,62 @@ export function AttendancePage() {
         }
       />
 
-      <form className="page-stack">
-        <FormSection
-          title="Date range"
-          description="Use a reporting range for attendance summary cards and the event list below."
-        >
-          <div className="form-grid form-grid-3">
-            <label className="field">
-              <span>Start date</span>
-              <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
-            </label>
+      <div className="panel-grid">
+        <form className="page-stack">
+          <FormSection
+            title="Date range"
+            description="Use a reporting range for attendance summary cards and the event list below."
+          >
+            <div className="form-grid form-grid-3">
+              <label className="field">
+                <span>Start date</span>
+                <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
+              </label>
 
-            <label className="field">
-              <span>End date</span>
-              <input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
-            </label>
+              <label className="field">
+                <span>End date</span>
+                <input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
+              </label>
 
-            <div className="inline-actions inline-actions-bottom">
-              <button
-                className="button button-secondary"
-                onClick={() => {
-                  setStartDate("");
-                  setEndDate("");
-                }}
-                type="button"
-              >
-                Reset range
-              </button>
+              <div className="inline-actions inline-actions-bottom">
+                <button
+                  className="button button-secondary"
+                  onClick={() => {
+                    setStartDate("");
+                    setEndDate("");
+                  }}
+                  type="button"
+                >
+                  Reset range
+                </button>
+              </div>
+            </div>
+          </FormSection>
+        </form>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <h3>How to read this page</h3>
+              <p className="muted-text">The backend intentionally keeps the two attendance surfaces separate.</p>
             </div>
           </div>
-        </FormSection>
-      </form>
+          <ul className="item-list">
+            <li className="item-row">
+              <div>
+                <strong>Anonymous summary</strong>
+                <span>Aggregate headcounts across men, women, children, and visitors.</span>
+              </div>
+            </li>
+            <li className="item-row">
+              <div>
+                <strong>Member attendance rows</strong>
+                <span>Per-member status records used during the event attendance workflow.</span>
+              </div>
+            </li>
+          </ul>
+        </section>
+      </div>
 
       <section className="metrics-grid">
         <StatCard label="Events in range" value={summary.total_events} tone="accent" />

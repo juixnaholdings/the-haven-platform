@@ -10,6 +10,7 @@ import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { groupsApi } from "../domains/groups/api";
 import { membersApi } from "../domains/members/api";
@@ -226,6 +227,7 @@ export function GroupDetailPage() {
 
   const group = groupQuery.data;
   const activeMembershipCount = group.memberships.filter((membership) => membership.is_active).length;
+  const inactiveMembershipCount = group.memberships.length - activeMembershipCount;
 
   return (
     <div className="page-stack">
@@ -251,6 +253,12 @@ export function GroupDetailPage() {
           </>
         }
       />
+
+      <section className="metrics-grid">
+        <StatCard label="Active members" value={activeMembershipCount} tone="accent" />
+        <StatCard label="Inactive members" value={inactiveMembershipCount} />
+        <StatCard label="Created" value={formatDate(group.created_at)} />
+      </section>
 
       <div className="content-grid">
         <section className="panel">

@@ -9,7 +9,9 @@ export function LoadingState({
 }: LoadingStateProps) {
   return (
     <div className="state-card">
-      <div className="loading-spinner" aria-hidden="true" />
+      <div className="state-icon" aria-hidden="true">
+        <div className="loading-spinner" />
+      </div>
       <div className="state-copy">
         <h3>{title}</h3>
         <p>{description}</p>

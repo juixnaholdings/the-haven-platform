@@ -7,6 +7,7 @@ import { EntityTable } from "../components/EntityTable";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { membersApi } from "../domains/members/api";
 
@@ -29,13 +30,18 @@ export function MembersPage() {
 
   const members = membersQuery.data ?? [];
   const hasFilters = Boolean(search.trim()) || statusFilter !== "all";
+  const activeMembers = members.filter((member) => member.is_active).length;
+  const inactiveMembers = members.length - activeMembers;
+  const contactReadyMembers = members.filter(
+    (member) => Boolean(member.email || member.phone_number),
+  ).length;
 
   return (
     <div className="page-stack">
       <PageHeader
         eyebrow="People operations"
         title="Members"
-        description="Manage the member directory, review profile details, and move into the profile-oriented create and edit flows."
+        description="A calm directory surface for member profiles, contact readiness, and profile-oriented create and edit workflows."
         actions={
           <Link className="button button-primary" to="/members/new">
             Add member
@@ -48,6 +54,13 @@ export function MembersPage() {
           />
         }
       />
+
+      <section className="metrics-grid">
+        <StatCard label="Directory records" value={members.length} tone="accent" />
+        <StatCard label="Active members" value={activeMembers} />
+        <StatCard label="Inactive members" value={inactiveMembers} />
+        <StatCard label="Contact ready" value={contactReadyMembers} />
+      </section>
 
       <section className="panel">
         <div className="filters-grid filters-grid-2">
