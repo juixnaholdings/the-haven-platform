@@ -13,6 +13,8 @@ from apps.households.serializers import (
     HouseholdListSerializer,
     HouseholdListFilterSerializer,
     HouseholdMembershipCreateSerializer,
+    HouseholdMemberDetailSerializer,
+    HouseholdMembershipUpdateSerializer,
     HouseholdWriteSerializer,
 )
 from apps.members import selectors as member_selectors
@@ -139,4 +141,36 @@ class HouseholdMemberCreateAdminApi(views.APIView):
             data=response_serializer.data,
             message="Member added to household successfully.",
             status_code=status.HTTP_201_CREATED,
+        )
+
+
+class HouseholdMembershipDetailAdminApi(views.APIView):
+    permission_classes = [HouseholdMembershipAdminPermission]
+
+    @extend_schema(
+        tags=["Admin - Households"],
+        summary="Update household membership",
+        request=HouseholdMembershipUpdateSerializer,
+        responses=HouseholdMemberDetailSerializer,
+    )
+    def patch(self, request, household_id: int, membership_id: int):
+        membership = selectors.get_household_membership_by_id(
+            household_id=household_id,
+            membership_id=membership_id,
+        )
+        if membership is None:
+            raise NotFound("Household membership not found.")
+
+        serializer = HouseholdMembershipUpdateSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        membership = services.update_household_membership(
+            membership=membership,
+            data=serializer.validated_data,
+            actor=request.user,
+        )
+        response_serializer = HouseholdMemberDetailSerializer(membership)
+        return CustomResponse(
+            data=response_serializer.data,
+            message="Household membership updated successfully.",
         )

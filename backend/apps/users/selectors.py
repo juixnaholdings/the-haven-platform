@@ -13,6 +13,12 @@ def get_current_user(user):
     return user
 
 
+def get_user_role_names(*, user) -> list[str]:
+    if not user or not user.is_authenticated:
+        return []
+    return list(user.groups.order_by("name").values_list("name", flat=True))
+
+
 def user_has_role(*, user, role_name: str) -> bool:
     if not user or not user.is_authenticated:
         return False

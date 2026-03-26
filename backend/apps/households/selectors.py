@@ -52,3 +52,11 @@ def get_household_detail_with_members(*, household_id: int):
         )
         .first()
     )
+
+
+def get_household_membership_by_id(*, household_id: int, membership_id: int):
+    return (
+        _ordered_membership_queryset()
+        .filter(household_id=household_id, id=membership_id)
+        .first()
+    )

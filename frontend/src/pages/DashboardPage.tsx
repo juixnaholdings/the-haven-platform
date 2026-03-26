@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { ErrorAlert } from "../components/ErrorAlert";
-import { LoadingScreen } from "../components/LoadingScreen";
+import { ErrorState } from "../components/ErrorState";
+import { LoadingState } from "../components/LoadingState";
+import { PageHeader } from "../components/PageHeader";
 import { reportingApi } from "../domains/reporting/api";
 
 function MetricCard({
@@ -28,12 +29,18 @@ export function DashboardPage() {
   });
 
   if (dashboardQuery.isLoading) {
-    return <LoadingScreen label="Loading dashboard metrics..." />;
+    return <LoadingState title="Loading dashboard metrics" />;
   }
 
   if (dashboardQuery.error) {
     return (
-      <ErrorAlert error={dashboardQuery.error} fallbackMessage="Unable to load dashboard metrics." />
+      <ErrorState
+        title="Dashboard metrics could not be loaded"
+        error={dashboardQuery.error}
+        onRetry={() => {
+          void dashboardQuery.refetch();
+        }}
+      />
     );
   }
 
@@ -44,16 +51,11 @@ export function DashboardPage() {
 
   return (
     <div className="page-stack">
-      <section className="page-header">
-        <div>
-          <p className="app-eyebrow">Protected reporting surface</p>
-          <h2>Operational dashboard</h2>
-        </div>
-        <p className="muted-text">
-          This proves the frontend can restore the session and consume protected reporting data from
-          the existing backend.
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="Protected reporting surface"
+        title="Operational dashboard"
+        description="This dashboard proves the current frontend session bootstrap and protected API flow against the existing reporting backend."
+      />
 
       <section className="metrics-grid">
         <MetricCard label="Total members" value={dashboard.members.total_members} tone="accent" />

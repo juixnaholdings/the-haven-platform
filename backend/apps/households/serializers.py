@@ -95,3 +95,15 @@ class HouseholdMembershipCreateSerializer(serializers.Serializer):
     joined_on = serializers.DateField(required=False, allow_null=True)
     left_on = serializers.DateField(required=False, allow_null=True)
     notes = serializers.CharField(required=False, allow_blank=True)
+
+
+class HouseholdMembershipUpdateSerializer(serializers.Serializer):
+    relationship_to_head = serializers.ChoiceField(
+        choices=HouseholdMembership._meta.get_field("relationship_to_head").choices,
+        required=False,
+    )
+    is_head = serializers.BooleanField(required=False)
+    is_active = serializers.BooleanField(required=False)
+    joined_on = serializers.DateField(required=False, allow_null=True)
+    left_on = serializers.DateField(required=False, allow_null=True)
+    notes = serializers.CharField(required=False, allow_blank=True)

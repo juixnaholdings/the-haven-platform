@@ -1,0 +1,384 @@
+import { useDeferredValue, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
+
+import { queryClient } from "../api/queryClient";
+import { ErrorAlert } from "../components/ErrorAlert";
+import { EmptyState } from "../components/EmptyState";
+import { EntityTable } from "../components/EntityTable";
+import { ErrorState } from "../components/ErrorState";
+import { FormSection } from "../components/FormSection";
+import { LoadingState } from "../components/LoadingState";
+import { PageHeader } from "../components/PageHeader";
+import { StatusBadge } from "../components/StatusBadge";
+import { householdsApi } from "../domains/households/api";
+import type { HouseholdWritePayload } from "../domains/types";
+
+type HouseholdStatusFilter = "all" | "active" | "inactive";
+
+interface HouseholdFormState {
+  name: string;
+  primary_phone: string;
+  address_line_1: string;
+  address_line_2: string;
+  city: string;
+  notes: string;
+  is_active: boolean;
+}
+
+const emptyHouseholdForm: HouseholdFormState = {
+  name: "",
+  primary_phone: "",
+  address_line_1: "",
+  address_line_2: "",
+  city: "",
+  notes: "",
+  is_active: true,
+};
+
+function toHouseholdPayload(formState: HouseholdFormState): HouseholdWritePayload {
+  return {
+    name: formState.name,
+    primary_phone: formState.primary_phone || undefined,
+    address_line_1: formState.address_line_1 || undefined,
+    address_line_2: formState.address_line_2 || undefined,
+    city: formState.city || undefined,
+    notes: formState.notes || undefined,
+    is_active: formState.is_active,
+  };
+}
+
+export function HouseholdsPage() {
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<HouseholdStatusFilter>("all");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [formState, setFormState] = useState<HouseholdFormState>(emptyHouseholdForm);
+  const deferredSearch = useDeferredValue(search);
+
+  const householdsQuery = useQuery({
+    queryKey: ["households", { search: deferredSearch, statusFilter }],
+    queryFn: () =>
+      householdsApi.listHouseholds({
+        search: deferredSearch || undefined,
+        is_active:
+          statusFilter === "all" ? undefined : statusFilter === "active",
+      }),
+  });
+
+  const createHouseholdMutation = useMutation({
+    mutationFn: (payload: HouseholdWritePayload) => householdsApi.createHousehold(payload),
+    onSuccess: async (household) => {
+      await queryClient.invalidateQueries({ queryKey: ["households"] });
+      setFormState(emptyHouseholdForm);
+      setShowCreateForm(false);
+      navigate(`/households/${household.id}`);
+    },
+  });
+
+  const households = householdsQuery.data ?? [];
+  const hasFilters = Boolean(search.trim()) || statusFilter !== "all";
+
+  return (
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="People operations"
+        title="Households"
+        description="Manage household records, keep family contact data current, and open the detail view for member assignment and household updates."
+        actions={
+          <div className="inline-actions">
+            <button
+              className={showCreateForm ? "button button-secondary" : "button button-primary"}
+              onClick={() => setShowCreateForm((current) => !current)}
+              type="button"
+            >
+              {showCreateForm ? "Close form" : "New household"}
+            </button>
+          </div>
+        }
+        meta={
+          <StatusBadge
+            label={`${households.length} household${households.length === 1 ? "" : "s"}`}
+            tone="info"
+          />
+        }
+      />
+
+      <section className="panel">
+        <div className="filters-grid filters-grid-2">
+          <label className="field">
+            <span>Search households</span>
+            <input
+              placeholder="Search by household name, phone, or city"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+
+          <label className="field">
+            <span>Status</span>
+            <select
+              value={statusFilter}
+              onChange={(event) =>
+                setStatusFilter(event.target.value as HouseholdStatusFilter)
+              }
+            >
+              <option value="all">All households</option>
+              <option value="active">Active households</option>
+              <option value="inactive">Inactive households</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      {showCreateForm ? (
+        <form
+          className="page-stack"
+          onSubmit={(event) => {
+            event.preventDefault();
+            createHouseholdMutation.mutate(toHouseholdPayload(formState));
+          }}
+        >
+          <FormSection
+            title="Create household"
+            description="This form maps directly to the current household create payload and opens the real detail workflow after save."
+          >
+            <div className="form-grid form-grid-2">
+              <label className="field">
+                <span>Household name</span>
+                <input
+                  required
+                  value={formState.name}
+                  onChange={(event) =>
+                    setFormState((current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className="field">
+                <span>Primary phone</span>
+                <input
+                  value={formState.primary_phone}
+                  onChange={(event) =>
+                    setFormState((current) => ({
+                      ...current,
+                      primary_phone: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className="field">
+                <span>City</span>
+                <input
+                  value={formState.city}
+                  onChange={(event) =>
+                    setFormState((current) => ({
+                      ...current,
+                      city: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className="field">
+                <span>Address line 1</span>
+                <input
+                  value={formState.address_line_1}
+                  onChange={(event) =>
+                    setFormState((current) => ({
+                      ...current,
+                      address_line_1: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className="field">
+                <span>Address line 2</span>
+                <input
+                  value={formState.address_line_2}
+                  onChange={(event) =>
+                    setFormState((current) => ({
+                      ...current,
+                      address_line_2: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className="checkbox-field checkbox-field-inline">
+                <input
+                  checked={formState.is_active}
+                  onChange={(event) =>
+                    setFormState((current) => ({
+                      ...current,
+                      is_active: event.target.checked,
+                    }))
+                  }
+                  type="checkbox"
+                />
+                <span>Household is active</span>
+              </label>
+            </div>
+
+            <label className="field">
+              <span>Notes</span>
+              <textarea
+                rows={4}
+                value={formState.notes}
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    notes: event.target.value,
+                  }))
+                }
+              />
+            </label>
+          </FormSection>
+
+          <ErrorAlert
+            error={createHouseholdMutation.error}
+            fallbackMessage="The household could not be created."
+          />
+
+          <div className="inline-actions">
+            <button
+              className="button button-primary"
+              disabled={createHouseholdMutation.isPending}
+              type="submit"
+            >
+              {createHouseholdMutation.isPending ? "Creating..." : "Create household"}
+            </button>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setShowCreateForm(false);
+                setFormState(emptyHouseholdForm);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : null}
+
+      {householdsQuery.isLoading ? (
+        <LoadingState
+          title="Loading households"
+          description="Pulling household records and member counts from the backend."
+        />
+      ) : null}
+
+      {householdsQuery.error ? (
+        <ErrorState
+          title="Households could not be loaded"
+          error={householdsQuery.error}
+          onRetry={() => {
+            void householdsQuery.refetch();
+          }}
+        />
+      ) : null}
+
+      {!householdsQuery.isLoading && !householdsQuery.error && households.length === 0 ? (
+        <EmptyState
+          title={
+            hasFilters
+              ? "No households matched the current filters"
+              : "No households have been created yet"
+          }
+          description={
+            hasFilters
+              ? "Try a broader search or reset the status filter."
+              : "Create the first household to start linking members into household records."
+          }
+          action={
+            hasFilters ? (
+              <button
+                className="button button-secondary"
+                onClick={() => {
+                  setSearch("");
+                  setStatusFilter("all");
+                }}
+                type="button"
+              >
+                Clear filters
+              </button>
+            ) : (
+              <button
+                className="button button-primary"
+                onClick={() => setShowCreateForm(true)}
+                type="button"
+              >
+                Create household
+              </button>
+            )
+          }
+        />
+      ) : null}
+
+      {!householdsQuery.isLoading && !householdsQuery.error && households.length > 0 ? (
+        <section className="panel">
+          <EntityTable
+            columns={[
+              {
+                header: "Household",
+                cell: (household) => (
+                  <div className="cell-stack">
+                    <Link className="table-link" to={`/households/${household.id}`}>
+                      {household.name}
+                    </Link>
+                    <span className="table-subtext">
+                      {household.primary_phone || household.city || "Profile-only record"}
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                header: "Phone",
+                cell: (household) => household.primary_phone || "—",
+              },
+              {
+                header: "City",
+                cell: (household) => household.city || "—",
+              },
+              {
+                header: "Members",
+                cell: (household) => household.active_member_count,
+              },
+              {
+                header: "Status",
+                cell: (household) => (
+                  <StatusBadge
+                    label={household.is_active ? "Active" : "Inactive"}
+                    tone={household.is_active ? "success" : "muted"}
+                  />
+                ),
+              },
+              {
+                header: "Actions",
+                className: "cell-actions",
+                cell: (household) => (
+                  <div className="inline-actions">
+                    <Link
+                      className="button button-secondary button-compact"
+                      to={`/households/${household.id}`}
+                    >
+                      Manage
+                    </Link>
+                  </div>
+                ),
+              },
+            ]}
+            getRowKey={(household) => household.id}
+            rows={households}
+          />
+        </section>
+      ) : null}
+    </div>
+  );
+}

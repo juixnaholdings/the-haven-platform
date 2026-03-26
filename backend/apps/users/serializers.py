@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenVerifySerializer
 
+from apps.users import selectors
 from apps.users.models import User
 
 
@@ -33,6 +34,11 @@ class JwtVerifyRequestSerializer(TokenVerifySerializer):
 
 
 class UserMeSerializer(serializers.ModelSerializer):
+    role_names = serializers.SerializerMethodField()
+
+    def get_role_names(self, obj):
+        return selectors.get_user_role_names(user=obj)
+
     class Meta:
         model = User
         fields = [
@@ -44,6 +50,7 @@ class UserMeSerializer(serializers.ModelSerializer):
             "is_active",
             "is_staff",
             "is_superuser",
+            "role_names",
         ]
 
 
