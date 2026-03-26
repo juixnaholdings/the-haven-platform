@@ -28,6 +28,17 @@ class HouseholdAdminApiTests(APITestCase):
         self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
         self.assertEqual(detail_response.data["data"]["name"], "Mensah Household")
 
+    def test_list_households_supports_optional_pagination(self):
+        Household.objects.create(name="Boateng Household")
+
+        response = self.client.get("/api/households/?page=1&page_size=1")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["data"]["count"], 2)
+        self.assertEqual(response.data["data"]["page"], 1)
+        self.assertEqual(response.data["data"]["page_size"], 1)
+        self.assertEqual(len(response.data["data"]["results"]), 1)
+
     def test_create_household(self):
         response = self.client.post(
             "/api/households/",

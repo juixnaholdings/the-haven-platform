@@ -33,7 +33,7 @@ def list_groups(*, filters: dict | None = None):
     if is_active is not None:
         queryset = queryset.filter(is_active=is_active)
 
-    return queryset
+    return queryset.order_by("name", "id")
 
 
 def get_group_by_id(*, group_id: int):

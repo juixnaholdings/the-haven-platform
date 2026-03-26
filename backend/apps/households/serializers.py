@@ -1,9 +1,10 @@
 from rest_framework import serializers
 
+from apps.common.serializers import PaginationQuerySerializer
 from apps.households.models import Household, HouseholdMembership
 
 
-class HouseholdListFilterSerializer(serializers.Serializer):
+class HouseholdListFilterSerializer(PaginationQuerySerializer):
     search = serializers.CharField(required=False, allow_blank=True)
     is_active = serializers.BooleanField(required=False)
 

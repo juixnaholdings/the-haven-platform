@@ -86,7 +86,7 @@ def list_fund_accounts(*, filters: dict | None = None):
     if is_active is not None:
         queryset = queryset.filter(is_active=is_active)
 
-    return queryset
+    return queryset.order_by("name", "id")
 
 
 def get_fund_account_by_id(*, fund_account_id: int):
@@ -139,7 +139,7 @@ def list_transactions(*, filters: dict | None = None):
     if transaction_date_to:
         queryset = queryset.filter(transaction_date__lte=transaction_date_to)
 
-    return queryset.distinct()
+    return queryset.order_by("-transaction_date", "-posted_at", "-id").distinct()
 
 
 def get_transaction_by_id(*, transaction_id: int):

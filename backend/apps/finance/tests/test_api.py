@@ -134,6 +134,36 @@ class FinanceAdminApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["data"]), 1)
 
+    def test_transaction_list_supports_optional_pagination(self):
+        self.client.post(
+            "/api/finance/transactions/income/",
+            {
+                "fund_account_id": self.general_fund.id,
+                "amount": "75.00",
+                "transaction_date": "2026-03-23",
+                "description": "Second offering",
+            },
+            format="json",
+        )
+        self.client.post(
+            "/api/finance/transactions/expense/",
+            {
+                "fund_account_id": self.general_fund.id,
+                "amount": "20.00",
+                "transaction_date": "2026-03-24",
+                "description": "Operational expense",
+            },
+            format="json",
+        )
+
+        response = self.client.get("/api/finance/transactions/?page=1&page_size=1")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["data"]["count"], 2)
+        self.assertEqual(response.data["data"]["page"], 1)
+        self.assertEqual(response.data["data"]["page_size"], 1)
+        self.assertEqual(len(response.data["data"]["results"]), 1)
+
     def test_finance_endpoints_require_authentication(self):
         self.client.force_authenticate(user=None)
 
