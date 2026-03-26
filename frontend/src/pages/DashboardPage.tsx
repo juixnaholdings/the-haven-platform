@@ -3,24 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { StatCard } from "../components/StatCard";
 import { reportingApi } from "../domains/reporting/api";
-
-function MetricCard({
-  label,
-  value,
-  tone = "default",
-}: {
-  label: string;
-  value: number | string;
-  tone?: "default" | "accent";
-}) {
-  return (
-    <article className={tone === "accent" ? "metric-card metric-card-accent" : "metric-card"}>
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </article>
-  );
-}
 
 export function DashboardPage() {
   const dashboardQuery = useQuery({
@@ -58,12 +42,12 @@ export function DashboardPage() {
       />
 
       <section className="metrics-grid">
-        <MetricCard label="Total members" value={dashboard.members.total_members} tone="accent" />
-        <MetricCard label="Active members" value={dashboard.members.active_members} />
-        <MetricCard label="Households" value={dashboard.households.total_households} />
-        <MetricCard label="Groups" value={dashboard.groups.total_groups} />
-        <MetricCard label="Events" value={dashboard.attendance.total_events} />
-        <MetricCard label="Net flow" value={dashboard.finance.net_flow} />
+        <StatCard label="Total members" value={dashboard.members.total_members} tone="accent" />
+        <StatCard label="Active members" value={dashboard.members.active_members} />
+        <StatCard label="Households" value={dashboard.households.total_households} />
+        <StatCard label="Groups" value={dashboard.groups.total_groups} />
+        <StatCard label="Events" value={dashboard.attendance.total_events} />
+        <StatCard label="Net flow" value={dashboard.finance.net_flow} />
       </section>
 
       <section className="panel-grid">

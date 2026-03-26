@@ -229,6 +229,10 @@ a {
   margin-top: -4px;
 }
 
+.inline-actions-bottom {
+  align-self: end;
+}
+
 .app-eyebrow {
   margin: 0;
   text-transform: uppercase;
@@ -274,6 +278,11 @@ a {
 .form-grid-2,
 .checkbox-group {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.filters-grid-3,
+.form-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .metric-card {
@@ -626,7 +635,9 @@ a {
   }
 
   .filters-grid-2,
+  .filters-grid-3,
   .form-grid-2,
+  .form-grid-3,
   .detail-grid-2,
   .detail-grid-3,
   .checkbox-group {
