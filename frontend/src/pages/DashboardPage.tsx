@@ -5,6 +5,7 @@ import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
 import { StatCard } from "../components/StatCard";
 import { reportingApi } from "../domains/reporting/api";
+import { formatAmount } from "../utils/formatters";
 
 export function DashboardPage() {
   const dashboardQuery = useQuery({
@@ -47,7 +48,7 @@ export function DashboardPage() {
         <StatCard label="Households" value={dashboard.households.total_households} />
         <StatCard label="Groups" value={dashboard.groups.total_groups} />
         <StatCard label="Events" value={dashboard.attendance.total_events} />
-        <StatCard label="Net flow" value={dashboard.finance.net_flow} />
+        <StatCard label="Net flow" value={formatAmount(dashboard.finance.net_flow)} />
       </section>
 
       <section className="panel-grid">
@@ -78,7 +79,7 @@ export function DashboardPage() {
                   <strong>{fund.name}</strong>
                   <span>{fund.code}</span>
                 </div>
-                <strong>{fund.current_balance}</strong>
+                <strong>{formatAmount(fund.current_balance)}</strong>
               </li>
             ))}
           </ul>

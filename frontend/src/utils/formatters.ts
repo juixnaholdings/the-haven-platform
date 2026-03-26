@@ -53,6 +53,22 @@ export function formatTime(value: string | null | undefined) {
   }).format(date);
 }
 
+export function formatAmount(value: number | string | null | undefined) {
+  if (value === null || value === undefined || value === "") {
+    return "0.00";
+  }
+
+  const numericValue = Number(value);
+  if (Number.isNaN(numericValue)) {
+    return String(value);
+  }
+
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(numericValue);
+}
+
 export function toDateTimeLocalInputValue(value: string | null | undefined) {
   if (!value) {
     return "";

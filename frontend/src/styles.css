@@ -374,6 +374,23 @@ a {
   font-size: 0.9rem;
 }
 
+.tag-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(22, 32, 49, 0.06);
+  color: #314052;
+  font-size: 0.82rem;
+  font-weight: 600;
+ }
+
 .session-summary {
   text-align: right;
   display: grid;
