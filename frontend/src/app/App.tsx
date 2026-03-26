@@ -2,7 +2,11 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { ProtectedRoute } from "../auth/ProtectedRoute";
 import { DashboardPage } from "../pages/DashboardPage";
+import { HouseholdDetailPage } from "../pages/HouseholdDetailPage";
+import { HouseholdsPage } from "../pages/HouseholdsPage";
 import { LoginPage } from "../pages/LoginPage";
+import { MemberDetailPage } from "../pages/MemberDetailPage";
+import { MemberFormPage } from "../pages/MemberFormPage";
 import { MembersPage } from "../pages/MembersPage";
 import { AppShell } from "./AppShell";
 
@@ -16,6 +20,11 @@ export function App() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/members" element={<MembersPage />} />
+            <Route path="/members/new" element={<MemberFormPage />} />
+            <Route path="/members/:memberId" element={<MemberDetailPage />} />
+            <Route path="/members/:memberId/edit" element={<MemberFormPage />} />
+            <Route path="/households" element={<HouseholdsPage />} />
+            <Route path="/households/:householdId" element={<HouseholdDetailPage />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

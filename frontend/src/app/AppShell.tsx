@@ -10,6 +10,7 @@ function navClassName({ isActive }: { isActive: boolean }) {
 export function AppShell() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const primaryRole = user?.role_names?.[0] ?? "Authenticated staff";
 
   const logoutMutation = useMutation({
     mutationFn: logout,
@@ -29,6 +30,7 @@ export function AppShell() {
           <div className="session-summary">
             <span className="session-label">Signed in as</span>
             <strong>{user?.first_name || user?.username}</strong>
+            <span className="session-role">{primaryRole}</span>
           </div>
           <button
             className="button button-secondary"
@@ -48,6 +50,9 @@ export function AppShell() {
             </NavLink>
             <NavLink className={navClassName} to="/members">
               Members
+            </NavLink>
+            <NavLink className={navClassName} to="/households">
+              Households
             </NavLink>
           </nav>
         </aside>
