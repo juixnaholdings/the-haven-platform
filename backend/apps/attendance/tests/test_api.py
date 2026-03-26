@@ -37,6 +37,22 @@ class AttendanceAdminApiTests(APITestCase):
         self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
         self.assertEqual(detail_response.data["data"]["title"], "Sunday Morning Service")
 
+    def test_list_service_events_supports_optional_pagination(self):
+        ServiceEvent.objects.create(
+            title="Prayer Meeting",
+            event_type=ServiceEventType.PRAYER_MEETING,
+            service_date=date(2026, 3, 16),
+            is_active=True,
+        )
+
+        response = self.client.get("/api/attendance/?page=1&page_size=1")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["data"]["count"], 2)
+        self.assertEqual(response.data["data"]["page"], 1)
+        self.assertEqual(response.data["data"]["page_size"], 1)
+        self.assertEqual(len(response.data["data"]["results"]), 1)
+
     def test_create_service_event(self):
         response = self.client.post(
             "/api/attendance/",

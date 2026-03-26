@@ -2,6 +2,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status, views
 from rest_framework.exceptions import NotFound
 
+from apps.common.pagination import get_optional_paginated_response
 from apps.common.responses import CustomResponse
 from apps.households import selectors, services
 from apps.households.permissions import (
@@ -31,11 +32,24 @@ class HouseholdListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Households"],
         summary="List households",
+        description=(
+            "Supports optional pagination. Provide `page` or `page_size` query params "
+            "to receive a paginated payload."
+        ),
         parameters=[HouseholdListFilterSerializer],
         responses=HouseholdListSerializer(many=True),
     )
     def get(self, request):
         households = selectors.list_households(filters=_get_validated_filters(request.query_params))
+        paginated_response = get_optional_paginated_response(
+            request=request,
+            queryset=households,
+            serializer_class=HouseholdListSerializer,
+            message="Households fetched successfully.",
+        )
+        if paginated_response is not None:
+            return paginated_response
+
         serializer = HouseholdListSerializer(households, many=True)
         return CustomResponse(data=serializer.data, message="Households fetched successfully.")
 

@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
@@ -9,6 +9,7 @@ import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { PaginationControls } from "../components/PaginationControls";
 import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { financeApi } from "../domains/finance/api";
@@ -25,7 +26,13 @@ export function FinancePage() {
   const [fundAccountFilter, setFundAccountFilter] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const deferredSearch = useDeferredValue(search);
+
+  useEffect(() => {
+    setPage(1);
+  }, [deferredSearch, transactionTypeFilter, fundAccountFilter, startDate, endDate]);
 
   const fundAccountsQuery = useQuery({
     queryKey: ["finance", "fund-accounts"],
@@ -43,17 +50,27 @@ export function FinancePage() {
 
   const transactionsQuery = useQuery({
     queryKey: [
-      "finance",
-      "transactions",
-      { search: deferredSearch, transactionTypeFilter, fundAccountFilter, startDate, endDate },
-    ],
+        "finance",
+        "transactions",
+        {
+          search: deferredSearch,
+          transactionTypeFilter,
+          fundAccountFilter,
+          startDate,
+          endDate,
+          page,
+          pageSize,
+        },
+      ],
     queryFn: () =>
-      financeApi.listTransactions({
+      financeApi.listTransactionsPage({
         search: deferredSearch || undefined,
         transaction_type: transactionTypeFilter === "all" ? undefined : transactionTypeFilter,
         fund_account_id: fundAccountFilter === "all" ? undefined : Number(fundAccountFilter),
         transaction_date_from: startDate || undefined,
         transaction_date_to: endDate || undefined,
+        page,
+        page_size: pageSize,
       }),
   });
 
@@ -82,7 +99,9 @@ export function FinancePage() {
 
   const fundAccounts = fundAccountsQuery.data ?? [];
   const financeSummary = financeSummaryQuery.data;
-  const transactions = transactionsQuery.data ?? [];
+  const transactions = transactionsQuery.data?.items ?? [];
+  const transactionsPagination = transactionsQuery.data?.pagination ?? null;
+  const totalTransactions = transactionsPagination?.count ?? transactions.length;
   const hasFilters =
     Boolean(search.trim()) ||
     transactionTypeFilter !== "all" ||
@@ -322,6 +341,7 @@ export function FinancePage() {
                   setFundAccountFilter("all");
                   setStartDate("");
                   setEndDate("");
+                  setPage(1);
                 }}
                 type="button"
               >
@@ -350,6 +370,7 @@ export function FinancePage() {
                   setFundAccountFilter("all");
                   setStartDate("");
                   setEndDate("");
+                  setPage(1);
                 }}
                 type="button"
               >
@@ -367,8 +388,14 @@ export function FinancePage() {
           <div className="panel-header">
             <div>
               <h3>Posted transactions</h3>
-              <p className="muted-text">Use transaction detail to inspect ledger lines and update safe metadata only.</p>
+              <p className="muted-text">
+                Use transaction detail to inspect ledger lines and update safe metadata only.
+              </p>
             </div>
+            <StatusBadge
+              label={`${totalTransactions} transaction${totalTransactions === 1 ? "" : "s"}`}
+              tone="info"
+            />
           </div>
 
           <EntityTable
@@ -435,6 +462,14 @@ export function FinancePage() {
             ]}
             getRowKey={(transaction) => transaction.id}
             rows={transactions}
+          />
+          <PaginationControls
+            pagination={transactionsPagination}
+            onPageChange={(nextPage) => setPage(nextPage)}
+            onPageSizeChange={(nextPageSize) => {
+              setPageSize(nextPageSize);
+              setPage(1);
+            }}
           />
         </section>
       )}

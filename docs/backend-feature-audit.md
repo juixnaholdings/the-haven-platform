@@ -25,7 +25,7 @@ Inspected areas included:
 | --- | --- | --- | --- |
 | Auth / Login / Session bootstrap | Ready | `apps/users/apis/public.py`, `apps/users/serializers.py`, `frontend/src/auth/` | Login, session restore, protected routes, and logout can use real backend flows now. |
 | Dashboard | Ready | `apps/reporting/apis/admin.py`, `apps/reporting/selectors.py` | Dashboard cards can use real backend aggregates now. |
-| Members | Ready with caveats | `apps/members/apis/admin.py`, `apps/members/serializers.py` | List/detail/create/update exist, but detail is profile-only and not relationship-rich. |
+| Members | Ready | `apps/members/apis/admin.py`, `apps/members/serializers.py`, `apps/members/selectors.py` | List/detail/create/update exist, and detail now includes household, group, and attendance context. |
 | Households | Ready | `apps/households/apis/admin.py`, `apps/households/services.py` | List/detail/create/update/add-member and membership update are available for a real management screen. |
 | Groups / Ministries | Ready with caveats | `apps/groups/apis/admin.py`, `apps/groups/models.py` | Group/ministry list/detail/membership editing exist, but only flat groups are supported. |
 | Events / Services | Ready | `apps/attendance/apis/admin.py`, `apps/attendance/serializers.py` | Service/event CRUD, attendance summary, and member attendance flows are present. |
@@ -40,7 +40,7 @@ Inspected areas included:
 - API responses are consistently wrapped in the standard success/error envelope via `apps.common.responses`.
 - Auth uses JWT access tokens plus a secure refresh-cookie flow. The frontend should not store refresh tokens in browser storage.
 - `GET /api/auth/me/` now includes `role_names`, which enables role-aware navigation and screen gating without probing endpoints blindly.
-- Core list endpoints are currently unpaginated arrays. This is workable for Phase 1 but should be treated as a performance caveat for large records.
+- Core list endpoints now support optional pagination using `page` and `page_size` query params while preserving unpaginated compatibility for existing consumers.
 - Choice metadata is available through the schema, but there is no dedicated enum/metadata endpoint for frontend forms.
 - Most domains rely on `is_active` and update flows instead of destructive delete endpoints.
 - `AuditModel` provides `created_at`, `updated_at`, `created_by`, and `updated_by`, but there is no dedicated audit trail model or query API.
@@ -80,7 +80,7 @@ Notes:
 
 ### Members
 
-Status: `Ready with caveats`
+Status: `Ready`
 
 What exists:
 
@@ -89,16 +89,16 @@ What exists:
 - `GET /api/members/{member_id}/`
 - `PATCH /api/members/{member_id}/`
 
-Caveats:
+Notes:
 
-- Member detail is limited to core member fields. It does not include household memberships, group affiliations, attendance history, or finance references.
+- Member detail now includes active/current household context, household membership history, group memberships, and attendance summary counters.
+- Finance or giving summary is still not included because there is no direct member-linked finance model in the current ledger design.
+- Member list now supports optional pagination (`page`, `page_size`) in addition to existing filters.
 - No delete/archive endpoint beyond `is_active`.
-- No pagination on the member directory list.
 
 Frontend consequence:
 
-- Directory, create member, and edit member screens are feasible now.
-- A richer member profile screen should either scope itself to the current payload or wait for a cross-domain member detail aggregation endpoint.
+- Directory, create member, edit member, and richer profile detail screens are feasible now without a separate cross-domain aggregation endpoint.
 
 ### Households
 
@@ -118,6 +118,7 @@ Notes:
 - Household detail includes member memberships.
 - Domain rules already existed in services for head-of-household enforcement and conflicting active memberships.
 - This audit pass exposed those membership edit rules through the API, which removes a direct blocker for the household-management screen.
+- Household list supports optional pagination (`page`, `page_size`).
 
 ### Groups / Ministries
 
@@ -141,6 +142,7 @@ Frontend consequence:
 
 - Ministry/group list and detail screens are feasible now.
 - Hierarchical ministry management is out of scope for the current backend.
+- Group list supports optional pagination (`page`, `page_size`).
 
 ### Events / Services and Attendance
 
@@ -161,6 +163,7 @@ Notes:
 
 - Event/service CRUD, anonymous summary attendance, and member-level attendance are all available.
 - The backend correctly keeps summary attendance and member attendance separate; the frontend should not assume reconciliation.
+- Service event and event member-attendance lists support optional pagination (`page`, `page_size`).
 
 ### Finance / Ledger
 
@@ -177,7 +180,7 @@ Caveats:
 
 - Transactions are posted-ledger records. There is no reversal, void, or deletion workflow.
 - Transaction “audit” is limited to the transaction detail payload and model audit fields; there is no separate audit timeline.
-- No pagination on transaction list endpoints.
+- Transaction and fund-account lists support optional pagination (`page`, `page_size`).
 
 Frontend consequence:
 
@@ -251,6 +254,8 @@ Frontend consequence:
 - Added `role_names` to the auth user payload returned by login and `GET /api/auth/me/`.
 - Fixed `config.settings.test` so local `backend/.env` security redirects do not leak into pytest runs.
 - Exposed `PATCH /api/households/{household_id}/memberships/{membership_id}/` to support real household management instead of add-only membership flows.
+- Added optional pagination support across high-value list endpoints: members, households, groups, service events, event member-attendance, and finance transactions/fund accounts.
+- Enriched member detail payload with household context, group memberships, and attendance summary counters.
 
 ## Recommended Product Build Order
 

@@ -73,6 +73,7 @@ Current alignment status:
 - shared UI primitives have been visually unified around the same spacing, card, badge, table, and state language
 - finance, reports, and read-only settings now also follow the same Stitch-aligned visual system and route composition
 - settings remains intentionally read-only on `/settings/roles` and `/settings/staff` because mutation APIs are still not available
+- members detail now consumes the richer backend payload (household context, group affiliations, attendance summary), and key list screens now consume optional pagination with a shared UI control pattern
 
 ## Route Map
 
@@ -80,9 +81,9 @@ Current alignment status:
 | --- | --- | --- | --- | --- |
 | `/login` | System login | Ready | Implemented | Wave 0 complete |
 | `/dashboard` | Dashboard | Ready | Implemented | Wave 0 complete |
-| `/members` | Members / Directory | Ready with caveats | Implemented | Wave 1 complete |
+| `/members` | Members / Directory | Ready | Implemented | Wave 1 complete |
 | `/members/new` | Create member | Ready | Implemented | Wave 1 complete |
-| `/members/:memberId` | Member profile detail | Ready with caveats | Implemented | Wave 1 complete |
+| `/members/:memberId` | Member profile detail | Ready | Implemented | Wave 1 complete |
 | `/members/:memberId/edit` | Edit member | Ready | Implemented | Wave 1 complete |
 | `/households` | Household management | Ready | Implemented | Wave 1 complete |
 | `/households/:householdId` | Household detail | Ready | Implemented | Wave 1 complete |
@@ -109,23 +110,23 @@ Current alignment status:
 | --- | --- | --- | --- |
 | System login | `POST /api/auth/login/` | `POST /api/auth/token/refresh/`, `GET /api/auth/me/`, `POST /api/auth/logout/` | Current auth flow uses access token plus refresh cookie. |
 | Dashboard | `GET /api/reports/dashboard/` | `GET /api/auth/me/` | Already wired in the frontend. |
-| Members / Directory | `GET /api/members/` | `GET /api/auth/me/` | Already wired in the frontend. |
-| Member profile detail | `GET /api/members/{member_id}/` | `PATCH /api/members/{member_id}/` | Detail payload is profile-only; related household/group history is not aggregated yet. |
+| Members / Directory | `GET /api/members/` | `GET /api/auth/me/` | Implemented with optional pagination (`page`, `page_size`) and normalized list filtering UI. |
+| Member profile detail | `GET /api/members/{member_id}/` | `PATCH /api/members/{member_id}/` | Implemented with household context, group affiliations, and attendance summary sections from the richer payload. |
 | Create/Edit member form | `POST /api/members/`, `PATCH /api/members/{member_id}/` | `GET /api/members/{member_id}/` | Backend supports both flows now. |
-| Household management | `GET /api/households/`, `POST /api/households/` | `PATCH /api/households/{household_id}/`, `POST /api/households/{household_id}/members/`, `PATCH /api/households/{household_id}/memberships/{membership_id}/` | Membership edit path is now exposed. |
+| Household management | `GET /api/households/`, `POST /api/households/` | `PATCH /api/households/{household_id}/`, `POST /api/households/{household_id}/members/`, `PATCH /api/households/{household_id}/memberships/{membership_id}/` | Membership edit path is now exposed; list view now uses optional pagination. |
 | Household detail | `GET /api/households/{household_id}/` | same as above | Household detail includes member memberships. |
-| Ministries / Groups | `GET /api/groups/`, `POST /api/groups/` | `PATCH /api/groups/{group_id}/` | Backend concept is flat groups, not hierarchical ministries. |
+| Ministries / Groups | `GET /api/groups/`, `POST /api/groups/` | `PATCH /api/groups/{group_id}/` | Backend concept is flat groups, not hierarchical ministries; list view now uses optional pagination. |
 | Ministry detail | `GET /api/groups/{group_id}/` | `POST /api/groups/{group_id}/members/`, `PATCH /api/groups/{group_id}/memberships/{membership_id}/` | Membership role and active-state editing is supported. |
-| Services / Events | `GET /api/attendance/`, `POST /api/attendance/` | `PATCH /api/attendance/{service_event_id}/` | Event list/detail/update flows are ready. |
+| Services / Events | `GET /api/attendance/`, `POST /api/attendance/` | `PATCH /api/attendance/{service_event_id}/` | Event list/detail/update flows are ready; list view now uses optional pagination. |
 | Attendance overview | `GET /api/reports/attendance/` | `GET /api/attendance/` | Uses reporting metrics plus event records; summary attendance and member attendance stay separate. |
 | Event attendance recording | `GET /api/attendance/{service_event_id}/`, `GET /api/attendance/{service_event_id}/member-attendance/` | `PUT|PATCH /api/attendance/{service_event_id}/summary/`, `POST /api/attendance/{service_event_id}/member-attendance/`, `PATCH /api/attendance/{service_event_id}/member-attendance/{member_attendance_id}/` | Supports both anonymous summary and member attendance. |
-| Finance / Ledger | `GET /api/finance/fund-accounts/`, `GET /api/finance/transactions/` | `GET /api/reports/finance/` | Ledger lists are ready, but unpaginated. |
+| Finance / Ledger | `GET /api/finance/fund-accounts/`, `GET /api/finance/transactions/` | `GET /api/reports/finance/` | Ledger lists are ready and now support optional pagination via `page`/`page_size`. |
 | Finance entry form | `POST /api/finance/transactions/income/`, `POST /api/finance/transactions/expense/` | `GET /api/finance/fund-accounts/`, `GET /api/attendance/` | Service/event association is optional. |
 | Fund transfer | `POST /api/finance/transactions/transfer/` | `GET /api/finance/fund-accounts/` | Validates source/destination separation server-side. |
 | Transaction detail / audit | `GET /api/finance/transactions/{transaction_id}/`, `PATCH /api/finance/transactions/{transaction_id}/` | none | Record detail exists, but no dedicated audit timeline endpoint exists. |
 | Reports dashboard | `GET /api/reports/members/`, `GET /api/reports/households/`, `GET /api/reports/groups/`, `GET /api/reports/attendance/`, `GET /api/reports/finance/` | `GET /api/reports/dashboard/` | Reports are backend-ready. |
-| Settings / Roles | `GET /api/settings/roles/` | existing role commands/admin | Read-only role and permission summary only. |
-| Staff user management | `GET /api/settings/staff-users/` | `GET /api/settings/roles/` | Read-only staff directory only. |
+| Settings / Roles | `GET /api/settings/roles/` | existing role commands/admin | API-backed read-only role and permission summary with explicit mutation blocked-state messaging. |
+| Staff user management | `GET /api/settings/staff-users/` | `GET /api/settings/roles/` | API-backed read-only staff directory with explicit invite/access-mutation blocked-state messaging. |
 | Audit trail | none | model audit fields only | Requires backend API work. |
 
 ## Shared Component Map
@@ -237,7 +238,7 @@ The next coding wave should be:
 
 1. decide whether settings needs a dedicated mutation slice beyond the new read-only summaries
 2. implement any remaining audit-trail backend and frontend surfaces
-3. add pagination or richer aggregation endpoints where real dataset size starts to pressure the current Phase 1 screens
+3. adopt the new optional paginated list contracts (`page`, `page_size`) in data-heavy frontend screens as record volumes grow
 
 Backend blockers that still remain outside those waves:
 

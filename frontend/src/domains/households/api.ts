@@ -1,16 +1,27 @@
 import { apiClient } from "../../api/client";
+import { normalizeListResponse } from "../list";
 import type {
   HouseholdDetail,
   HouseholdListFilters,
   HouseholdListItem,
   HouseholdMembershipCreatePayload,
   HouseholdMembershipUpdatePayload,
+  ListResponse,
+  ListResult,
   HouseholdWritePayload,
 } from "../types";
 
 export const householdsApi = {
   listHouseholds(filters: HouseholdListFilters = {}) {
     return apiClient.get<HouseholdListItem[]>("/api/households/", { params: filters });
+  },
+  async listHouseholdsPage(
+    filters: HouseholdListFilters = {},
+  ): Promise<ListResult<HouseholdListItem>> {
+    const response = await apiClient.get<ListResponse<HouseholdListItem>>("/api/households/", {
+      params: filters,
+    });
+    return normalizeListResponse(response);
   },
   getHousehold(householdId: number) {
     return apiClient.get<HouseholdDetail>(`/api/households/${householdId}/`);

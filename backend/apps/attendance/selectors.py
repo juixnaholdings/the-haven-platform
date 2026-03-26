@@ -43,7 +43,7 @@ def list_service_events(*, filters: dict | None = None):
     if service_date_to:
         queryset = queryset.filter(service_date__lte=service_date_to)
 
-    return queryset
+    return queryset.order_by("-service_date", "start_time", "title", "id")
 
 
 def get_service_event_by_id(*, service_event_id: int):

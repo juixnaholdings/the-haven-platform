@@ -72,18 +72,23 @@ export function SettingsStaffPage() {
       <PageHeader
         eyebrow="Settings / staff users"
         title="Staff users"
-        description="This is a read-only staff directory backed by the users app. Staff-user mutations are still intentionally outside the current frontend scope."
+        description="API-backed read-only staff directory from the users app. Staff-user mutations are intentionally outside the current frontend scope."
         actions={
           <div className="inline-actions">
             <Link className="button button-secondary" to="/settings/roles">
               View roles
             </Link>
             <button className="button button-ghost" type="button" disabled>
-              Invite user
+              Invite user (blocked)
             </button>
           </div>
         }
-        meta={<StatusBadge label="Read-only settings surface" tone="info" />}
+        meta={
+          <>
+            <StatusBadge label="Read-only settings surface" tone="info" />
+            <StatusBadge label="API-backed" tone="success" />
+          </>
+        }
       />
 
       <section className="metrics-grid">
@@ -95,7 +100,7 @@ export function SettingsStaffPage() {
 
       <BlockedFeatureCard
         title="Invite and access-control workflows"
-        description="The staff management design includes invite and access review actions, but the current backend settings slice is read-only."
+        description="Invite, user creation, and role mutation actions are still intentionally blocked in the current backend settings slice."
         reason="User creation, role assignment, and access mutation should remain in Django admin/bootstrap workflows until dedicated mutation APIs are implemented."
       />
 

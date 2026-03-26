@@ -3,15 +3,16 @@ from decimal import Decimal
 from rest_framework import serializers
 
 from apps.attendance.models import ServiceEvent
+from apps.common.serializers import PaginationQuerySerializer
 from apps.finance.models import FundAccount, Transaction, TransactionLine
 
 
-class FundAccountListFilterSerializer(serializers.Serializer):
+class FundAccountListFilterSerializer(PaginationQuerySerializer):
     search = serializers.CharField(required=False, allow_blank=True)
     is_active = serializers.BooleanField(required=False)
 
 
-class TransactionListFilterSerializer(serializers.Serializer):
+class TransactionListFilterSerializer(PaginationQuerySerializer):
     search = serializers.CharField(required=False, allow_blank=True)
     transaction_type = serializers.ChoiceField(
         choices=Transaction._meta.get_field("transaction_type").choices,

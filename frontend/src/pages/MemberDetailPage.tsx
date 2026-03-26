@@ -1,10 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 
+import { BlockedFeatureCard } from "../components/BlockedFeatureCard";
 import { DetailPanel } from "../components/DetailPanel";
+import { EmptyState } from "../components/EmptyState";
+import { EntityTable } from "../components/EntityTable";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { membersApi } from "../domains/members/api";
 import { formatDate, formatDateTime } from "../utils/formatters";
@@ -56,13 +60,15 @@ export function MemberDetailPage() {
 
   const member = memberQuery.data;
   const memberInitials = getMemberInitials(member.full_name);
+  const activeGroupMemberships = member.group_memberships.filter((membership) => membership.is_active);
+  const attendanceSummary = member.attendance_summary;
 
   return (
     <div className="page-stack">
       <PageHeader
         eyebrow="Member profile"
         title={member.full_name}
-        description="This detail screen is intentionally profile-oriented. Cross-domain activity, household history, and affiliation history are not yet aggregated by the backend."
+        description="Member profile, household context, ministry affiliations, and attendance summary in one operational detail surface."
         actions={
           <div className="inline-actions">
             <Link className="button button-secondary" to="/members">
@@ -113,6 +119,26 @@ export function MemberDetailPage() {
         </div>
       </section>
 
+      <section className="metrics-grid">
+        <StatCard
+          label="Current household"
+          value={member.active_household_membership?.household_name || "Not assigned"}
+          tone="accent"
+        />
+        <StatCard
+          label="Active ministries"
+          value={activeGroupMemberships.length}
+        />
+        <StatCard
+          label="Attendance records"
+          value={attendanceSummary.total_records}
+        />
+        <StatCard
+          label="Last attended"
+          value={formatDate(attendanceSummary.last_attended_on)}
+        />
+      </section>
+
       <div className="content-grid">
         <DetailPanel
           title="Profile"
@@ -127,57 +153,173 @@ export function MemberDetailPage() {
         />
 
         <DetailPanel
-          title="Record metadata"
+          title="Attendance summary"
           items={[
             {
-              label: "Status",
+              label: "Present",
               value: (
-                <StatusBadge
-                  label={member.is_active ? "Active" : "Inactive"}
-                  tone={member.is_active ? "success" : "muted"}
-                />
+                attendanceSummary.present_count
               ),
             },
-            { label: "Created", value: formatDateTime(member.created_at) },
-            { label: "Last updated", value: formatDateTime(member.updated_at) },
+            { label: "Absent", value: attendanceSummary.absent_count },
+            { label: "Late", value: attendanceSummary.late_count },
+            { label: "Excused", value: attendanceSummary.excused_count },
+            { label: "Total records", value: attendanceSummary.total_records },
+            { label: "Last attended", value: formatDate(attendanceSummary.last_attended_on) },
           ]}
         />
       </div>
 
-      <div className="panel-grid">
-        <section className="panel">
-          <div className="panel-header">
-            <div>
-              <h3>Notes</h3>
-              <p className="muted-text">Notes are profile-level only at the current backend scope.</p>
-            </div>
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <h3>Household context</h3>
+            <p className="muted-text">Current and historical household memberships returned by the member detail endpoint.</p>
           </div>
-          <p className="panel-copy">{member.notes || "No notes recorded for this member."}</p>
-        </section>
+        </div>
 
-        <section className="panel">
-          <div className="panel-header">
-            <div>
-              <h3>Current backend scope</h3>
-              <p className="muted-text">This page stays honest to the profile payload the backend currently exposes.</p>
-            </div>
+        {member.active_household_membership ? (
+          <div className="detail-item">
+            <dt>Current household</dt>
+            <dd>
+              <div className="inline-actions">
+                <Link
+                  className="table-link"
+                  to={`/households/${member.active_household_membership.household_id}`}
+                >
+                  {member.active_household_membership.household_name}
+                </Link>
+                <StatusBadge
+                  label={member.active_household_membership.is_head ? "Head" : member.active_household_membership.relationship_to_head}
+                  tone={member.active_household_membership.is_head ? "info" : "muted"}
+                />
+              </div>
+            </dd>
           </div>
-          <ul className="item-list">
-            <li className="item-row">
-              <div>
-                <strong>Included now</strong>
-                <span>Core identity, contact details, notes, and audit timestamps.</span>
-              </div>
-            </li>
-            <li className="item-row">
-              <div>
-                <strong>Not aggregated yet</strong>
-                <span>Household history, group history, attendance history, and finance history.</span>
-              </div>
-            </li>
-          </ul>
-        </section>
-      </div>
+        ) : (
+          <EmptyState
+            title="No active household membership"
+            description="This member is not currently linked to an active household."
+          />
+        )}
+
+        {member.household_memberships.length > 0 ? (
+          <EntityTable
+            columns={[
+              {
+                header: "Household",
+                cell: (membership) => (
+                  <Link className="table-link" to={`/households/${membership.household_id}`}>
+                    {membership.household_name}
+                  </Link>
+                ),
+              },
+              {
+                header: "Relationship",
+                cell: (membership) => membership.is_head ? "Head" : membership.relationship_to_head,
+              },
+              {
+                header: "Joined",
+                cell: (membership) => formatDate(membership.joined_on),
+              },
+              {
+                header: "Left",
+                cell: (membership) => formatDate(membership.left_on),
+              },
+              {
+                header: "Status",
+                cell: (membership) => (
+                  <StatusBadge
+                    label={membership.is_active ? "Active" : "Inactive"}
+                    tone={membership.is_active ? "success" : "muted"}
+                  />
+                ),
+              },
+            ]}
+            getRowKey={(membership) => membership.id}
+            rows={member.household_memberships}
+          />
+        ) : null}
+      </section>
+
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <h3>Ministry affiliations</h3>
+            <p className="muted-text">Group memberships and roles from the current flat ministry/group model.</p>
+          </div>
+        </div>
+
+        {member.group_memberships.length === 0 ? (
+          <EmptyState
+            title="No ministry affiliations"
+            description="This member has no current or historical group memberships."
+          />
+        ) : (
+          <EntityTable
+            columns={[
+              {
+                header: "Ministry",
+                cell: (membership) => (
+                  <Link className="table-link" to={`/groups/${membership.group_id}`}>
+                    {membership.group_name}
+                  </Link>
+                ),
+              },
+              {
+                header: "Role",
+                cell: (membership) => membership.role_name || "General member",
+              },
+              {
+                header: "Started",
+                cell: (membership) => formatDate(membership.started_on),
+              },
+              {
+                header: "Ended",
+                cell: (membership) => formatDate(membership.ended_on),
+              },
+              {
+                header: "Status",
+                cell: (membership) => (
+                  <StatusBadge
+                    label={membership.is_active ? "Active" : "Inactive"}
+                    tone={membership.is_active ? "success" : "muted"}
+                  />
+                ),
+              },
+            ]}
+            getRowKey={(membership) => membership.id}
+            rows={member.group_memberships}
+          />
+        )}
+      </section>
+
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <h3>Notes and metadata</h3>
+            <p className="muted-text">Profile notes plus record timestamps.</p>
+          </div>
+        </div>
+        <p className="panel-copy">{member.notes || "No notes recorded for this member."}</p>
+        <dl className="definition-list">
+          <div>
+            <dt>Created</dt>
+            <dd>{formatDateTime(member.created_at)}</dd>
+          </div>
+          <div>
+            <dt>Last updated</dt>
+            <dd>{formatDateTime(member.updated_at)}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <BlockedFeatureCard
+        title="Finance and giving summary"
+        description="The current backend member detail contract does not include member-linked finance or giving totals."
+        reason="Finance records are ledger-based and currently not modeled as direct member-linked giving history."
+        tone="info"
+      />
     </div>
   );
 }

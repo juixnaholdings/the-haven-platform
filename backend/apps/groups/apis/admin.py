@@ -2,6 +2,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status, views
 from rest_framework.exceptions import NotFound
 
+from apps.common.pagination import get_optional_paginated_response
 from apps.common.responses import CustomResponse
 from apps.groups import selectors, services
 from apps.groups.permissions import GroupMembershipAdminPermission, GroupsAdminPermission
@@ -28,11 +29,24 @@ class GroupListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Groups"],
         summary="List groups",
+        description=(
+            "Supports optional pagination. Provide `page` or `page_size` query params "
+            "to receive a paginated payload."
+        ),
         parameters=[GroupListFilterSerializer],
         responses=GroupListSerializer(many=True),
     )
     def get(self, request):
         groups = selectors.list_groups(filters=_get_validated_filters(request.query_params))
+        paginated_response = get_optional_paginated_response(
+            request=request,
+            queryset=groups,
+            serializer_class=GroupListSerializer,
+            message="Groups fetched successfully.",
+        )
+        if paginated_response is not None:
+            return paginated_response
+
         serializer = GroupListSerializer(groups, many=True)
         return CustomResponse(data=serializer.data, message="Groups fetched successfully.")
 

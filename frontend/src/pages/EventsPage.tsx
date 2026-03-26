@@ -1,4 +1,4 @@
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -10,6 +10,7 @@ import { ErrorState } from "../components/ErrorState";
 import { FormSection } from "../components/FormSection";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { PaginationControls } from "../components/PaginationControls";
 import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { attendanceApi } from "../domains/attendance/api";
@@ -62,17 +63,28 @@ export function EventsPage() {
   const [search, setSearch] = useState("");
   const [eventTypeFilter, setEventTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<EventStatusFilter>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formState, setFormState] = useState<EventFormState>(emptyEventForm);
   const deferredSearch = useDeferredValue(search);
 
+  useEffect(() => {
+    setPage(1);
+  }, [deferredSearch, eventTypeFilter, statusFilter]);
+
   const serviceEventsQuery = useQuery({
-    queryKey: ["service-events", { search: deferredSearch, eventTypeFilter, statusFilter }],
+    queryKey: [
+      "service-events",
+      { search: deferredSearch, eventTypeFilter, statusFilter, page, pageSize },
+    ],
     queryFn: () =>
-      attendanceApi.listServiceEvents({
+      attendanceApi.listServiceEventsPage({
         search: deferredSearch || undefined,
         event_type: eventTypeFilter === "all" ? undefined : eventTypeFilter,
         is_active: statusFilter === "all" ? undefined : statusFilter === "active",
+        page,
+        page_size: pageSize,
       }),
   });
 
@@ -86,7 +98,9 @@ export function EventsPage() {
     },
   });
 
-  const serviceEvents = serviceEventsQuery.data ?? [];
+  const serviceEvents = serviceEventsQuery.data?.items ?? [];
+  const pagination = serviceEventsQuery.data?.pagination ?? null;
+  const totalServiceEvents = pagination?.count ?? serviceEvents.length;
   const hasFilters =
     Boolean(search.trim()) || eventTypeFilter !== "all" || statusFilter !== "all";
   const activeEvents = serviceEvents.filter((serviceEvent) => serviceEvent.is_active).length;
@@ -114,18 +128,18 @@ export function EventsPage() {
         }
         meta={
           <StatusBadge
-            label={`${serviceEvents.length} event${serviceEvents.length === 1 ? "" : "s"}`}
+            label={`${totalServiceEvents} event${totalServiceEvents === 1 ? "" : "s"}`}
             tone="info"
           />
         }
       />
 
       <section className="metrics-grid">
-        <StatCard label="Events" value={serviceEvents.length} tone="accent" />
-        <StatCard label="Active events" value={activeEvents} />
-        <StatCard label="Summary recorded" value={eventsWithSummary} />
+        <StatCard label="Events" value={totalServiceEvents} tone="accent" />
+        <StatCard label="Active in view" value={activeEvents} />
+        <StatCard label="Summary in view" value={eventsWithSummary} />
         <StatCard
-          label="Next service date"
+          label="Next in view"
           value={nextEvent ? formatDate(nextEvent.service_date) : "Not scheduled"}
         />
       </section>
@@ -362,6 +376,7 @@ export function EventsPage() {
                   setSearch("");
                   setEventTypeFilter("all");
                   setStatusFilter("all");
+                  setPage(1);
                 }}
                 type="button"
               >
@@ -448,6 +463,14 @@ export function EventsPage() {
             ]}
             getRowKey={(serviceEvent) => serviceEvent.id}
             rows={serviceEvents}
+          />
+          <PaginationControls
+            pagination={pagination}
+            onPageChange={(nextPage) => setPage(nextPage)}
+            onPageSizeChange={(nextPageSize) => {
+              setPageSize(nextPageSize);
+              setPage(1);
+            }}
           />
         </section>
       ) : null}

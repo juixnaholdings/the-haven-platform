@@ -3,6 +3,7 @@ from rest_framework import status, views
 from rest_framework.exceptions import NotFound
 
 from apps.attendance import selectors as attendance_selectors
+from apps.common.pagination import get_optional_paginated_response
 from apps.common.responses import CustomResponse
 from apps.finance import selectors, services
 from apps.finance.permissions import FundAccountAdminPermission, TransactionAdminPermission
@@ -57,6 +58,10 @@ class FundAccountListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Finance"],
         summary="List fund accounts",
+        description=(
+            "Supports optional pagination. Provide `page` or `page_size` query params "
+            "to receive a paginated payload."
+        ),
         parameters=[FundAccountListFilterSerializer],
         responses=FundAccountListSerializer(many=True),
     )
@@ -64,6 +69,15 @@ class FundAccountListCreateAdminApi(views.APIView):
         fund_accounts = selectors.list_fund_accounts(
             filters=_get_fund_account_filters(request.query_params)
         )
+        paginated_response = get_optional_paginated_response(
+            request=request,
+            queryset=fund_accounts,
+            serializer_class=FundAccountListSerializer,
+            message="Fund accounts fetched successfully.",
+        )
+        if paginated_response is not None:
+            return paginated_response
+
         serializer = FundAccountListSerializer(fund_accounts, many=True)
         return CustomResponse(
             data=serializer.data,
@@ -145,6 +159,10 @@ class TransactionListAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Finance"],
         summary="List transactions",
+        description=(
+            "Supports optional pagination. Provide `page` or `page_size` query params "
+            "to receive a paginated payload."
+        ),
         parameters=[TransactionListFilterSerializer],
         responses=TransactionListSerializer(many=True),
     )
@@ -152,6 +170,15 @@ class TransactionListAdminApi(views.APIView):
         transactions = selectors.list_transactions(
             filters=_get_transaction_filters(request.query_params)
         )
+        paginated_response = get_optional_paginated_response(
+            request=request,
+            queryset=transactions,
+            serializer_class=TransactionListSerializer,
+            message="Transactions fetched successfully.",
+        )
+        if paginated_response is not None:
+            return paginated_response
+
         serializer = TransactionListSerializer(transactions, many=True)
         return CustomResponse(
             data=serializer.data,
