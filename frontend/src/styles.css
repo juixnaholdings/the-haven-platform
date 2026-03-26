@@ -551,6 +551,21 @@ h2 {
   gap: 18px;
 }
 
+.panel-accent {
+  background: linear-gradient(145deg, var(--color-navy) 0%, #1f4479 100%);
+  color: #fefefe;
+  border-color: rgba(15, 32, 61, 0.35);
+}
+
+.panel-accent .panel-copy,
+.panel-accent .muted-text {
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.panel-accent h3 {
+  color: #fff;
+}
+
 .panel h3,
 .entity-hero-header h3 {
   margin: 0;
@@ -753,6 +768,15 @@ h2 {
   display: grid;
   gap: 18px;
   justify-items: start;
+}
+
+.blocked-feature-card {
+  border-style: dashed;
+}
+
+.blocked-feature-reason {
+  margin: 0;
+  color: var(--color-ink-soft);
 }
 
 .state-card-error {

@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
+import { BlockedFeatureCard } from "../components/BlockedFeatureCard";
 import { EmptyState } from "../components/EmptyState";
+import { EntityTable } from "../components/EntityTable";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
@@ -39,6 +41,22 @@ export function SettingsRolesPage() {
   const roles = rolesQuery.data ?? [];
   const totalAssignedUsers = roles.reduce((sum, role) => sum + role.user_count, 0);
   const totalPermissions = roles.reduce((sum, role) => sum + role.permissions.length, 0);
+  const permissionGroups = Object.entries(
+    roles.reduce<Record<string, Set<string>>>((groups, role) => {
+      role.permissions.forEach((permission) => {
+        if (!groups[permission.app_label]) {
+          groups[permission.app_label] = new Set();
+        }
+        groups[permission.app_label].add(permission.permission_code);
+      });
+      return groups;
+    }, {}),
+  )
+    .map(([appLabel, permissions]) => ({
+      appLabel,
+      permissionCount: permissions.size,
+    }))
+    .sort((left, right) => right.permissionCount - left.permissionCount);
 
   return (
     <div className="page-stack">
@@ -58,7 +76,14 @@ export function SettingsRolesPage() {
         <StatCard label="Roles" value={roles.length} tone="accent" />
         <StatCard label="Assigned users" value={totalAssignedUsers} />
         <StatCard label="Role permissions" value={totalPermissions} />
+        <StatCard label="Permission groups" value={permissionGroups.length} />
       </section>
+
+      <BlockedFeatureCard
+        title="System preferences and governance log"
+        description="The Stitch settings screen includes system preferences and governance audit management, but those APIs are not available in the current backend."
+        reason="This settings route intentionally exposes only read-only role and permission summaries."
+      />
 
       {roles.length === 0 ? (
         <EmptyState
@@ -98,6 +123,36 @@ export function SettingsRolesPage() {
           ))}
         </div>
       )}
+
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <h3>Permission groups</h3>
+            <p className="muted-text">Grouped by Django app label from the role permission summary payload.</p>
+          </div>
+        </div>
+        {permissionGroups.length === 0 ? (
+          <EmptyState
+            title="No permission groups available"
+            description="Assign role permissions to populate grouped access visibility."
+          />
+        ) : (
+          <EntityTable
+            columns={[
+              {
+                header: "Group",
+                cell: (group) => group.appLabel,
+              },
+              {
+                header: "Permissions",
+                cell: (group) => group.permissionCount,
+              },
+            ]}
+            getRowKey={(group) => group.appLabel}
+            rows={permissionGroups}
+          />
+        )}
+      </section>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
+import { BlockedFeatureCard } from "../components/BlockedFeatureCard";
 import { EmptyState } from "../components/EmptyState";
 import { EntityTable } from "../components/EntityTable";
 import { ErrorState } from "../components/ErrorState";
@@ -92,6 +93,10 @@ export function FinancePage() {
     () => fundAccounts.filter((fundAccount) => fundAccount.is_active).length,
     [fundAccounts],
   );
+  const latestTransaction = useMemo(() => {
+    return [...transactions]
+      .sort((left, right) => right.posted_at.localeCompare(left.posted_at))[0];
+  }, [transactions]);
 
   if (!financeSummary) {
     return null;
@@ -211,7 +216,47 @@ export function FinancePage() {
             </li>
           </ul>
         </section>
+
+        <section className="panel">
+          <div className="panel-header">
+            <div>
+              <h3>Latest posting</h3>
+              <p className="muted-text">A quick checkpoint from the most recent posted record.</p>
+            </div>
+          </div>
+          {latestTransaction ? (
+            <dl className="definition-list">
+              <div>
+                <dt>Reference</dt>
+                <dd>{latestTransaction.reference_no}</dd>
+              </div>
+              <div>
+                <dt>Type</dt>
+                <dd>{getTransactionTypeLabel(latestTransaction.transaction_type)}</dd>
+              </div>
+              <div>
+                <dt>Date</dt>
+                <dd>{formatDate(latestTransaction.transaction_date)}</dd>
+              </div>
+              <div>
+                <dt>Posted at</dt>
+                <dd>{formatDateTime(latestTransaction.posted_at)}</dd>
+              </div>
+            </dl>
+          ) : (
+            <EmptyState
+              title="No posted transaction yet"
+              description="Record income, expense, or transfer entries to establish the ledger timeline."
+            />
+          )}
+        </section>
       </div>
+
+      <BlockedFeatureCard
+        title="Reversal and void workflow"
+        description="The current finance contract does not expose reversal, void, or delete actions for posted transactions."
+        reason="Use careful transaction descriptions and metadata updates for corrections. If a reversal workflow is needed, it requires a dedicated backend slice."
+      />
 
       <form className="page-stack">
         <FormSection

@@ -2,11 +2,13 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
+import { BlockedFeatureCard } from "../components/BlockedFeatureCard";
 import { EmptyState } from "../components/EmptyState";
 import { EntityTable } from "../components/EntityTable";
 import { ErrorState } from "../components/ErrorState";
 import { LoadingState } from "../components/LoadingState";
 import { PageHeader } from "../components/PageHeader";
+import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import { usersApi } from "../domains/users/api";
 import { formatDateTime } from "../utils/formatters";
@@ -60,6 +62,10 @@ export function SettingsStaffPage() {
   }
 
   const hasFilters = Boolean(search.trim()) || statusFilter !== "all";
+  const allStaffUsers = staffUsersQuery.data ?? [];
+  const activeCount = allStaffUsers.filter((user) => user.is_active).length;
+  const inactiveCount = allStaffUsers.length - activeCount;
+  const superuserCount = allStaffUsers.filter((user) => user.is_superuser).length;
 
   return (
     <div className="page-stack">
@@ -68,11 +74,29 @@ export function SettingsStaffPage() {
         title="Staff users"
         description="This is a read-only staff directory backed by the users app. Staff-user mutations are still intentionally outside the current frontend scope."
         actions={
-          <Link className="button button-secondary" to="/settings/roles">
-            View roles
-          </Link>
+          <div className="inline-actions">
+            <Link className="button button-secondary" to="/settings/roles">
+              View roles
+            </Link>
+            <button className="button button-ghost" type="button" disabled>
+              Invite user
+            </button>
+          </div>
         }
         meta={<StatusBadge label="Read-only settings surface" tone="info" />}
+      />
+
+      <section className="metrics-grid">
+        <StatCard label="Staff users" value={allStaffUsers.length} tone="accent" />
+        <StatCard label="Active now" value={activeCount} />
+        <StatCard label="Inactive" value={inactiveCount} />
+        <StatCard label="Superusers" value={superuserCount} />
+      </section>
+
+      <BlockedFeatureCard
+        title="Invite and access-control workflows"
+        description="The staff management design includes invite and access review actions, but the current backend settings slice is read-only."
+        reason="User creation, role assignment, and access mutation should remain in Django admin/bootstrap workflows until dedicated mutation APIs are implemented."
       />
 
       <section className="panel">
