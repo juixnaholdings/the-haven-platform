@@ -135,9 +135,20 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 ## Settings Admin Endpoints
 
 - `GET /api/settings/staff-users/`
-  Returns a read-only staff-user directory with role names, active-state flags, and login metadata.
+  Returns the staff-user directory with role names, role ids, active-state flags, and login metadata.
+- `POST /api/settings/staff-users/`
+  Creates a staff user and optionally assigns one or more existing roles.
+- `GET /api/settings/staff-users/{staff_user_id}/`
+  Returns one staff user for settings-edit workflows.
+- `PATCH /api/settings/staff-users/{staff_user_id}/`
+  Updates safe staff fields (`email`, names, `is_active`) and assigned `role_ids`.
 - `GET /api/settings/roles/`
-  Returns a read-only role summary with assigned-user counts and permission codes.
+  Returns a role summary with assigned-user counts and permission codes.
+
+Role-definition caveat:
+
+- role-definition mutation (renaming roles or changing permission maps) is intentionally not exposed through product APIs
+- role definitions remain bootstrap/admin-governed through `setup_roles` and Django admin
 
 ## Reporting Date Filters
 
