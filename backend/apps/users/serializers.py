@@ -72,9 +72,21 @@ class StaffUserListSerializer(UserMeSerializer):
     full_name = serializers.SerializerMethodField()
     last_login = serializers.DateTimeField(read_only=True)
     date_joined = serializers.DateTimeField(read_only=True)
+    roles = serializers.SerializerMethodField()
 
     def get_full_name(self, obj):
         return obj.get_full_name() or obj.username
+
+    def get_roles(self, obj):
+        prefetched_groups = getattr(obj, "_prefetched_objects_cache", {}).get("groups")
+        if prefetched_groups is not None:
+            sorted_groups = sorted(prefetched_groups, key=lambda group: group.name)
+            return [{"id": group.id, "name": group.name} for group in sorted_groups]
+
+        return [
+            {"id": group.id, "name": group.name}
+            for group in obj.groups.all().order_by("name")
+        ]
 
     class Meta(UserMeSerializer.Meta):
         model = User
@@ -89,9 +101,36 @@ class StaffUserListSerializer(UserMeSerializer):
             "is_staff",
             "is_superuser",
             "role_names",
+            "roles",
             "last_login",
             "date_joined",
         ]
+
+
+class StaffUserCreateSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150)
+    email = serializers.EmailField()
+    first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    password = serializers.CharField(write_only=True, min_length=8)
+    is_active = serializers.BooleanField(required=False, default=True)
+    role_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Group.objects.order_by("name"),
+        many=True,
+        required=False,
+    )
+
+
+class StaffUserUpdateSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=False)
+    first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    is_active = serializers.BooleanField(required=False)
+    role_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Group.objects.order_by("name"),
+        many=True,
+        required=False,
+    )
 
 
 class RolePermissionSummarySerializer(serializers.ModelSerializer):
