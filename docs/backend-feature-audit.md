@@ -1,6 +1,6 @@
 # Backend Feature Audit
 
-Date: 2026-03-25
+Date: 2026-03-26
 
 This audit is based on the actual repository state on `develop`. It reflects inspected backend apps, URL wiring, serializers, selectors, services, permissions, tests, and the current frontend integration layer. It is the working product-readiness source of truth for frontend implementation planning.
 
@@ -32,7 +32,7 @@ Inspected areas included:
 | Attendance overview | Ready | `apps/reporting/apis/admin.py`, `apps/attendance/apis/admin.py` | Overview/report and per-event recording screens can use real data. |
 | Finance / Ledger | Ready with caveats | `apps/finance/apis/admin.py`, `apps/finance/services.py` | Core ledger flows work, but there is no reversal/void workflow or dedicated audit trail. |
 | Reports | Ready | `apps/reporting/apis/admin.py`, `apps/reporting/selectors.py` | Reporting screens can use real summary endpoints now. |
-| Settings / Roles / Users | Not ready | `apps/users/urls.py`, `apps/users/management/commands/` | Auth exists, but there are no user-management or role-management APIs for UI screens. |
+| Settings / Roles / Users | Ready with caveats | `apps/users/apis/admin.py`, `apps/users/urls.py` | Read-only staff-user and role summary screens are feasible now, but mutations still belong to admin/bootstrap flows. |
 | Audit Trail | Not ready | `apps/common/models.py`, no audit-log app/API | Models capture audit fields, but there is no audit timeline/query surface. |
 
 ## Cross-Cutting Findings
@@ -205,7 +205,7 @@ Notes:
 
 ### Settings / Roles / Users
 
-Status: `Not ready`
+Status: `Ready with caveats`
 
 What exists:
 
@@ -213,18 +213,19 @@ What exists:
 - RBAC constants and role seeding command
 - Superuser seeding command
 - Django admin for manual ops
+- `GET /api/settings/staff-users/`
+- `GET /api/settings/roles/`
 
-What is missing for product UI:
+Caveats:
 
-- Staff user list/detail/create/update API
-- Role list/detail/update API
-- User-role assignment API
-- Settings metadata/config API
+- The new settings endpoints are intentionally read-only.
+- There is still no UI-safe mutation surface for staff-user creation, user-role assignment, or permission editing.
+- The operational write paths remain Django admin plus management commands such as `setup_roles` and `seed_superuser`.
 
 Frontend consequence:
 
-- The current Settings / Roles / Staff User screens should not be scheduled as normal product implementation yet.
-- Those screens require a dedicated backend slice rather than frontend-only work.
+- Read-only staff user and role-summary screens are feasible now.
+- Full settings/user-management workflows should still not be scheduled without a dedicated mutation slice.
 
 ### Audit Trail
 
@@ -257,5 +258,5 @@ Frontend consequence:
    login polish, dashboard, members, households, groups, services/events, attendance recording, finance, reports.
 2. Add richer cross-domain read models where the current screens need more than the core CRUD payloads:
    especially member profile aggregation.
-3. Build a dedicated settings/users/roles backend slice.
+3. Build the mutation half of settings/users/roles management.
 4. Build a dedicated audit trail slice.

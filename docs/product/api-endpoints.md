@@ -132,6 +132,13 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 - `GET /api/reports/finance/`
   Returns finance summary metrics, with optional `start_date` and `end_date`.
 
+## Settings Admin Endpoints
+
+- `GET /api/settings/staff-users/`
+  Returns a read-only staff-user directory with role names, active-state flags, and login metadata.
+- `GET /api/settings/roles/`
+  Returns a read-only role summary with assigned-user counts and permission codes.
+
 ## Reporting Date Filters
 
 - `start_date` and `end_date` are optional query params on the dashboard, attendance, and finance report endpoints.
