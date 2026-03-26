@@ -1,0 +1,304 @@
+import { useDeferredValue, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
+
+import { queryClient } from "../api/queryClient";
+import { ErrorAlert } from "../components/ErrorAlert";
+import { EmptyState } from "../components/EmptyState";
+import { EntityTable } from "../components/EntityTable";
+import { ErrorState } from "../components/ErrorState";
+import { FormSection } from "../components/FormSection";
+import { LoadingState } from "../components/LoadingState";
+import { PageHeader } from "../components/PageHeader";
+import { StatusBadge } from "../components/StatusBadge";
+import { groupsApi } from "../domains/groups/api";
+import type { GroupWritePayload } from "../domains/types";
+
+type GroupStatusFilter = "all" | "active" | "inactive";
+
+interface GroupFormState {
+  name: string;
+  description: string;
+  is_active: boolean;
+}
+
+const emptyGroupForm: GroupFormState = {
+  name: "",
+  description: "",
+  is_active: true,
+};
+
+function toGroupPayload(formState: GroupFormState): GroupWritePayload {
+  return {
+    name: formState.name,
+    description: formState.description || undefined,
+    is_active: formState.is_active,
+  };
+}
+
+export function GroupsPage() {
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<GroupStatusFilter>("all");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [formState, setFormState] = useState<GroupFormState>(emptyGroupForm);
+  const deferredSearch = useDeferredValue(search);
+
+  const groupsQuery = useQuery({
+    queryKey: ["groups", { search: deferredSearch, statusFilter }],
+    queryFn: () =>
+      groupsApi.listGroups({
+        search: deferredSearch || undefined,
+        is_active: statusFilter === "all" ? undefined : statusFilter === "active",
+      }),
+  });
+
+  const createGroupMutation = useMutation({
+    mutationFn: (payload: GroupWritePayload) => groupsApi.createGroup(payload),
+    onSuccess: async (group) => {
+      await queryClient.invalidateQueries({ queryKey: ["groups"] });
+      setFormState(emptyGroupForm);
+      setShowCreateForm(false);
+      navigate(`/groups/${group.id}`);
+    },
+  });
+
+  const groups = groupsQuery.data ?? [];
+  const hasFilters = Boolean(search.trim()) || statusFilter !== "all";
+
+  return (
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Groups / ministries"
+        title="Ministries"
+        description="The current backend models ministries as flat groups. Use this screen to manage those group records and open each ministry detail workflow."
+        actions={
+          <button
+            className={showCreateForm ? "button button-secondary" : "button button-primary"}
+            onClick={() => setShowCreateForm((current) => !current)}
+            type="button"
+          >
+            {showCreateForm ? "Close form" : "New ministry"}
+          </button>
+        }
+        meta={
+          <StatusBadge
+            label={`${groups.length} ministry${groups.length === 1 ? "" : "ies"}`}
+            tone="info"
+          />
+        }
+      />
+
+      <section className="panel">
+        <div className="filters-grid filters-grid-2">
+          <label className="field">
+            <span>Search ministries</span>
+            <input
+              placeholder="Search by ministry name or description"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+
+          <label className="field">
+            <span>Status</span>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as GroupStatusFilter)}
+            >
+              <option value="all">All ministries</option>
+              <option value="active">Active ministries</option>
+              <option value="inactive">Inactive ministries</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      {showCreateForm ? (
+        <form
+          className="page-stack"
+          onSubmit={(event) => {
+            event.preventDefault();
+            createGroupMutation.mutate(toGroupPayload(formState));
+          }}
+        >
+          <FormSection
+            title="Create ministry"
+            description="This writes directly to the current flat group model used as the ministry analogue."
+          >
+            <div className="form-grid form-grid-2">
+              <label className="field">
+                <span>Ministry name</span>
+                <input
+                  required
+                  value={formState.name}
+                  onChange={(event) =>
+                    setFormState((current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className="checkbox-field checkbox-field-inline">
+                <input
+                  checked={formState.is_active}
+                  onChange={(event) =>
+                    setFormState((current) => ({
+                      ...current,
+                      is_active: event.target.checked,
+                    }))
+                  }
+                  type="checkbox"
+                />
+                <span>Ministry is active</span>
+              </label>
+            </div>
+
+            <label className="field">
+              <span>Description</span>
+              <textarea
+                rows={4}
+                value={formState.description}
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    description: event.target.value,
+                  }))
+                }
+              />
+            </label>
+          </FormSection>
+
+          <ErrorAlert
+            error={createGroupMutation.error}
+            fallbackMessage="The ministry could not be created."
+          />
+
+          <div className="inline-actions">
+            <button
+              className="button button-primary"
+              disabled={createGroupMutation.isPending}
+              type="submit"
+            >
+              {createGroupMutation.isPending ? "Creating..." : "Create ministry"}
+            </button>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setFormState(emptyGroupForm);
+                setShowCreateForm(false);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : null}
+
+      {groupsQuery.isLoading ? (
+        <LoadingState
+          title="Loading ministries"
+          description="Fetching group records and active membership counts from the backend."
+        />
+      ) : null}
+
+      {groupsQuery.error ? (
+        <ErrorState
+          title="Ministries could not be loaded"
+          error={groupsQuery.error}
+          onRetry={() => {
+            void groupsQuery.refetch();
+          }}
+        />
+      ) : null}
+
+      {!groupsQuery.isLoading && !groupsQuery.error && groups.length === 0 ? (
+        <EmptyState
+          title={
+            hasFilters
+              ? "No ministries matched the current filters"
+              : "No ministries have been created yet"
+          }
+          description={
+            hasFilters
+              ? "Try a broader search or reset the status filter."
+              : "Create the first ministry to start assigning members into group-based operations."
+          }
+          action={
+            hasFilters ? (
+              <button
+                className="button button-secondary"
+                onClick={() => {
+                  setSearch("");
+                  setStatusFilter("all");
+                }}
+                type="button"
+              >
+                Clear filters
+              </button>
+            ) : (
+              <button
+                className="button button-primary"
+                onClick={() => setShowCreateForm(true)}
+                type="button"
+              >
+                Create ministry
+              </button>
+            )
+          }
+        />
+      ) : null}
+
+      {!groupsQuery.isLoading && !groupsQuery.error && groups.length > 0 ? (
+        <section className="panel">
+          <EntityTable
+            columns={[
+              {
+                header: "Ministry",
+                cell: (group) => (
+                  <div className="cell-stack">
+                    <Link className="table-link" to={`/groups/${group.id}`}>
+                      {group.name}
+                    </Link>
+                    <span className="table-subtext">
+                      {group.description || "No ministry description yet"}
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                header: "Active members",
+                cell: (group) => group.active_member_count,
+              },
+              {
+                header: "Status",
+                cell: (group) => (
+                  <StatusBadge
+                    label={group.is_active ? "Active" : "Inactive"}
+                    tone={group.is_active ? "success" : "muted"}
+                  />
+                ),
+              },
+              {
+                header: "Actions",
+                className: "cell-actions",
+                cell: (group) => (
+                  <div className="inline-actions">
+                    <Link className="button button-secondary button-compact" to={`/groups/${group.id}`}>
+                      Manage
+                    </Link>
+                  </div>
+                ),
+              },
+            ]}
+            getRowKey={(group) => group.id}
+            rows={groups}
+          />
+        </section>
+      ) : null}
+    </div>
+  );
+}

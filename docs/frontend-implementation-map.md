@@ -25,6 +25,12 @@ Current implemented routes:
 - `/members/:memberId/edit`
 - `/households`
 - `/households/:householdId`
+- `/groups`
+- `/groups/:groupId`
+- `/events`
+- `/events/:serviceEventId`
+- `/events/:serviceEventId/attendance`
+- `/attendance`
 
 ## Design Coverage Status
 
@@ -65,11 +71,12 @@ Design source of truth for this map:
 | `/members/:memberId/edit` | Edit member | Ready | Implemented | Wave 1 complete |
 | `/households` | Household management | Ready | Implemented | Wave 1 complete |
 | `/households/:householdId` | Household detail | Ready | Implemented | Wave 1 complete |
-| `/groups` | Ministries / Groups | Ready with caveats | Not started | Wave 2 |
-| `/groups/:groupId` | Ministry detail | Ready with caveats | Not started | Wave 2 |
-| `/events` | Services / Events | Ready | Not started | Wave 2 |
-| `/events/:serviceEventId` | Event detail | Ready | Not started | Wave 2 |
-| `/events/:serviceEventId/attendance` | Event attendance recording | Ready | Not started | Wave 2 |
+| `/groups` | Ministries / Groups | Ready with caveats | Implemented | Wave 2 complete |
+| `/groups/:groupId` | Ministry detail | Ready with caveats | Implemented | Wave 2 complete |
+| `/events` | Services / Events | Ready | Implemented | Wave 2 complete |
+| `/events/:serviceEventId` | Event detail | Ready | Implemented | Wave 2 complete |
+| `/events/:serviceEventId/attendance` | Event attendance recording | Ready | Implemented | Wave 2 complete |
+| `/attendance` | Attendance overview | Ready | Implemented | Wave 2 complete |
 | `/finance` | Finance / Ledger | Ready with caveats | Not started | Wave 2 |
 | `/finance/entries/income` | Finance entry form | Ready | Not started | Wave 2 |
 | `/finance/entries/expense` | Finance entry form | Ready | Not started | Wave 2 |
@@ -95,6 +102,7 @@ Design source of truth for this map:
 | Ministries / Groups | `GET /api/groups/`, `POST /api/groups/` | `PATCH /api/groups/{group_id}/` | Backend concept is flat groups, not hierarchical ministries. |
 | Ministry detail | `GET /api/groups/{group_id}/` | `POST /api/groups/{group_id}/members/`, `PATCH /api/groups/{group_id}/memberships/{membership_id}/` | Membership role and active-state editing is supported. |
 | Services / Events | `GET /api/attendance/`, `POST /api/attendance/` | `PATCH /api/attendance/{service_event_id}/` | Event list/detail/update flows are ready. |
+| Attendance overview | `GET /api/reports/attendance/` | `GET /api/attendance/` | Uses reporting metrics plus event records; summary attendance and member attendance stay separate. |
 | Event attendance recording | `GET /api/attendance/{service_event_id}/`, `GET /api/attendance/{service_event_id}/member-attendance/` | `PUT|PATCH /api/attendance/{service_event_id}/summary/`, `POST /api/attendance/{service_event_id}/member-attendance/`, `PATCH /api/attendance/{service_event_id}/member-attendance/{member_attendance_id}/` | Supports both anonymous summary and member attendance. |
 | Finance / Ledger | `GET /api/finance/fund-accounts/`, `GET /api/finance/transactions/` | `GET /api/reports/finance/` | Ledger lists are ready, but unpaginated. |
 | Finance entry form | `POST /api/finance/transactions/income/`, `POST /api/finance/transactions/expense/` | `GET /api/finance/fund-accounts/`, `GET /api/attendance/` | Service/event association is optional. |
@@ -125,19 +133,21 @@ Design source of truth for this map:
 | `frontend/src/components/EntityTable.tsx` | Implemented | Directory and management tables |
 | `frontend/src/components/DetailPanel.tsx` | Implemented | Read-only entity detail sections |
 | `frontend/src/components/FormSection.tsx` | Implemented | Grouped create/edit forms |
+| `frontend/src/components/StatCard.tsx` | Implemented | Summary metric cards across dashboards and attendance |
 
 ### Shared primitives extracted during Wave 1
 
 | Primitive | Why it exists | Current screens |
 | --- | --- | --- |
-| `PageHeader` | Standardizes eyebrow, title, helper copy, badges, and actions | dashboard, members, member form/detail, households, household detail |
-| `StatusBadge` | Normalizes active/inactive and contextual state rendering | dashboard, members, households |
-| `EntityTable` | Provides the reusable searchable-table pattern for operational pages | members, households, household memberships |
-| `DetailPanel` | Provides a reusable read-only profile layout | member detail |
-| `FormSection` | Groups create/edit fields into reusable panel sections | member create/edit, household create/update, membership management |
-| `EmptyState` | Covers empty and no-results states without fake data | members, households, household detail |
-| `ErrorState` | Handles page-level failures consistently | dashboard, members, member detail/form, households, household detail |
-| `LoadingState` | Handles page-level loading consistently | dashboard, members, member detail/form, households, household detail |
+| `PageHeader` | Standardizes eyebrow, title, helper copy, badges, and actions | dashboard, members, households, ministries, events, attendance |
+| `StatusBadge` | Normalizes active/inactive and contextual state rendering | dashboard, members, households, ministries, events, attendance |
+| `EntityTable` | Provides the reusable searchable-table pattern for operational pages | members, households, household memberships, ministries, events, attendance records |
+| `DetailPanel` | Provides a reusable read-only profile layout | member detail and any future detail-heavy pages that need a simpler panel pattern |
+| `FormSection` | Groups create/edit fields into reusable panel sections | member, household, ministry, event, and attendance workflows |
+| `EmptyState` | Covers empty and no-results states without fake data | members, households, ministries, events, attendance |
+| `ErrorState` | Handles page-level failures consistently | dashboard and all implemented operational pages |
+| `LoadingState` | Handles page-level loading consistently | dashboard and all implemented operational pages |
+| `StatCard` | Reuses metric-card presentation for overview and detail summaries | dashboard, event detail, attendance overview, attendance recording |
 
 ## Implementation Waves
 
@@ -171,6 +181,13 @@ Why second:
 - These screens are backend-ready and map well onto the existing domain API modules.
 - The shared table/detail/form/state primitives are now in place, so these screens can be implemented with less UI duplication.
 
+Status:
+
+- Groups / ministries list and detail are now implemented.
+- Services / events list and detail are now implemented.
+- Attendance overview and event attendance recording are now implemented.
+- Finance remains the major unfinished Wave 2 domain.
+
 ### Wave 3: reporting expansion and polish
 
 - Reports dashboard
@@ -192,10 +209,9 @@ Blocked by:
 
 The next coding wave should be:
 
-1. implement groups / ministries list and detail using the new shared data-page primitives
-2. implement services / events list/detail plus attendance recording flows
-3. implement finance ledger list, entry, transfer, and transaction detail flows
-4. add a routed reports surface that reuses the current dashboard/reporting patterns
+1. implement the finance ledger list, entry, transfer, and transaction detail workflows
+2. add a routed reports surface that reuses the current dashboard and reporting patterns
+3. consider small shared refinements that finance/reporting surfaces genuinely need, but do not reopen the page-foundation work
 
 Backend blockers that still remain outside those waves:
 
