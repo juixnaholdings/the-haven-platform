@@ -197,6 +197,170 @@ export interface HouseholdMembershipUpdatePayload {
   notes?: string;
 }
 
+export interface GroupListItem {
+  id: number;
+  name: string;
+  description: string;
+  is_active: boolean;
+  active_member_count: number;
+}
+
+export interface GroupMembership {
+  id: number;
+  member_id: number;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  email: string;
+  role_name: string;
+  started_on: string | null;
+  ended_on: string | null;
+  is_active: boolean;
+  notes: string;
+}
+
+export interface GroupDetail {
+  id: number;
+  name: string;
+  description: string;
+  is_active: boolean;
+  memberships: GroupMembership[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GroupWritePayload {
+  name: string;
+  description?: string;
+  is_active?: boolean;
+}
+
+export interface GroupMembershipCreatePayload {
+  member_id: number;
+  role_name?: string;
+  started_on?: string | null;
+  notes?: string;
+}
+
+export interface GroupMembershipUpdatePayload {
+  role_name?: string;
+  started_on?: string | null;
+  ended_on?: string | null;
+  is_active?: boolean;
+  notes?: string;
+}
+
+export interface GroupListFilters extends PaginationParams {
+  search?: string;
+  is_active?: boolean;
+}
+
+export interface AttendanceSummary {
+  id: number;
+  men_count: number;
+  women_count: number;
+  children_count: number;
+  visitor_count: number;
+  total_count: number;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AttendanceSummaryWritePayload {
+  men_count: number;
+  women_count: number;
+  children_count: number;
+  visitor_count: number;
+  total_count: number;
+  notes?: string;
+}
+
+export interface MemberAttendance {
+  id: number;
+  member_id: number;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  email: string;
+  status: string;
+  checked_in_at: string | null;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MemberAttendanceCreatePayload {
+  member_id: number;
+  status?: string;
+  checked_in_at?: string | null;
+  notes?: string;
+}
+
+export interface MemberAttendanceUpdatePayload {
+  status?: string;
+  checked_in_at?: string | null;
+  notes?: string;
+}
+
+export interface ServiceEventListItem {
+  id: number;
+  title: string;
+  event_type: string;
+  service_date: string;
+  start_time: string | null;
+  end_time: string | null;
+  location: string;
+  is_active: boolean;
+  member_attendance_count: number;
+  has_attendance_summary: boolean;
+}
+
+export interface ServiceEventDetail {
+  id: number;
+  title: string;
+  event_type: string;
+  service_date: string;
+  start_time: string | null;
+  end_time: string | null;
+  location: string;
+  notes: string;
+  is_active: boolean;
+  attendance_summary: AttendanceSummary | null;
+  member_attendances: MemberAttendance[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ServiceEventWritePayload {
+  title: string;
+  event_type: string;
+  service_date: string;
+  start_time?: string | null;
+  end_time?: string | null;
+  location?: string;
+  notes?: string;
+  is_active?: boolean;
+}
+
+export interface ServiceEventListFilters extends PaginationParams {
+  search?: string;
+  event_type?: string;
+  is_active?: boolean;
+  service_date_from?: string;
+  service_date_to?: string;
+}
+
+export interface MemberAttendanceListFilters {
+  search?: string;
+  status?: string;
+}
+
+export interface ReportingDateRange {
+  start_date?: string;
+  end_date?: string;
+}
+
 export interface MembershipSummary {
   total_members: number;
   active_members: number;

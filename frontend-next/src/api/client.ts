@@ -231,6 +231,17 @@ export const apiClient = {
       body,
     });
   },
+  put<TResponse, TBody = unknown>(
+    path: string,
+    body?: TBody,
+    options?: Omit<RequestOptions<TBody>, "method" | "body">,
+  ) {
+    return request<TResponse, TBody>(path, {
+      ...options,
+      method: "PUT",
+      body,
+    });
+  },
   patch<TResponse, TBody = unknown>(
     path: string,
     body?: TBody,
