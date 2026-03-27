@@ -3,12 +3,14 @@ upstream haven_backend {
     keepalive 16;
 }
 
+upstream haven_frontend {
+    server frontend:3000;
+    keepalive 16;
+}
+
 server {
     listen 80;
     server_name ${APP_DOMAIN};
-
-    root /usr/share/nginx/html;
-    index index.html;
     client_max_body_size 20m;
 
     location /.well-known/acme-challenge/ {
@@ -57,11 +59,23 @@ server {
         proxy_set_header X-Forwarded-Proto http;
     }
 
-    location = /index.html {
-        add_header Cache-Control "no-store";
+    location /_next/ {
+        proxy_pass http://haven_frontend;
+        proxy_http_version 1.1;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto http;
     }
 
     location / {
-        try_files $uri $uri/ /index.html;
+        proxy_pass http://haven_frontend;
+        proxy_http_version 1.1;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto http;
     }
 }
