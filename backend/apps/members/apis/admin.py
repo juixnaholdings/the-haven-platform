@@ -2,6 +2,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status, views
 from rest_framework.exceptions import NotFound
 
+from apps.common.pagination import get_optional_paginated_response
 from apps.common.responses import CustomResponse
 from apps.members import selectors, services
 from apps.members.permissions import MembersAdminPermission
@@ -24,11 +25,24 @@ class MemberListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Members"],
         summary="List members",
+        description=(
+            "Supports optional pagination. Provide `page` or `page_size` query params "
+            "to receive a paginated payload."
+        ),
         parameters=[MemberListFilterSerializer],
         responses=MemberListSerializer(many=True),
     )
     def get(self, request):
         members = selectors.list_members(filters=_get_validated_filters(request.query_params))
+        paginated_response = get_optional_paginated_response(
+            request=request,
+            queryset=members,
+            serializer_class=MemberListSerializer,
+            message="Members fetched successfully.",
+        )
+        if paginated_response is not None:
+            return paginated_response
+
         serializer = MemberListSerializer(members, many=True)
         return CustomResponse(data=serializer.data, message="Members fetched successfully.")
 

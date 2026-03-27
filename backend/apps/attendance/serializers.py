@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from apps.common.serializers import PaginationQuerySerializer
 from apps.attendance.models import (
     AttendanceSummary,
     MemberAttendance,
@@ -7,7 +8,7 @@ from apps.attendance.models import (
 )
 
 
-class ServiceEventListFilterSerializer(serializers.Serializer):
+class ServiceEventListFilterSerializer(PaginationQuerySerializer):
     search = serializers.CharField(required=False, allow_blank=True)
     event_type = serializers.ChoiceField(
         choices=ServiceEvent._meta.get_field("event_type").choices,
@@ -27,7 +28,7 @@ class ServiceEventListFilterSerializer(serializers.Serializer):
         return attrs
 
 
-class MemberAttendanceListFilterSerializer(serializers.Serializer):
+class MemberAttendanceListFilterSerializer(PaginationQuerySerializer):
     search = serializers.CharField(required=False, allow_blank=True)
     status = serializers.ChoiceField(
         choices=MemberAttendance._meta.get_field("status").choices,

@@ -49,6 +49,7 @@ assert_status() {
 }
 
 assert_status "/health/" "200"
+assert_status "/login" "200"
 assert_status "/admin/login/" "200"
 assert_status "/$API_PREFIX/schema" "200"
 assert_status "/$API_PREFIX/docs/" "200"

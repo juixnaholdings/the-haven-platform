@@ -45,12 +45,12 @@ jobs:
           if [ -f requirements.txt ]; then pip-audit -r requirements.txt; else pip-audit .; fi
 
   frontend-security:
-    name: Frontend dependency audit
+    name: Frontend dependency audit (Next)
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: frontend
+        working-directory: frontend-next
 
     steps:
       - name: Checkout
@@ -61,7 +61,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: frontend-next/package-lock.json
 
       - name: Install dependencies
         run: npm ci

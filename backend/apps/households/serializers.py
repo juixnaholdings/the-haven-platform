@@ -1,9 +1,10 @@
 from rest_framework import serializers
 
+from apps.common.serializers import PaginationQuerySerializer
 from apps.households.models import Household, HouseholdMembership
 
 
-class HouseholdListFilterSerializer(serializers.Serializer):
+class HouseholdListFilterSerializer(PaginationQuerySerializer):
     search = serializers.CharField(required=False, allow_blank=True)
     is_active = serializers.BooleanField(required=False)
 
@@ -92,6 +93,18 @@ class HouseholdMembershipCreateSerializer(serializers.Serializer):
         default=HouseholdMembership._meta.get_field("relationship_to_head").default,
     )
     is_head = serializers.BooleanField(default=False)
+    joined_on = serializers.DateField(required=False, allow_null=True)
+    left_on = serializers.DateField(required=False, allow_null=True)
+    notes = serializers.CharField(required=False, allow_blank=True)
+
+
+class HouseholdMembershipUpdateSerializer(serializers.Serializer):
+    relationship_to_head = serializers.ChoiceField(
+        choices=HouseholdMembership._meta.get_field("relationship_to_head").choices,
+        required=False,
+    )
+    is_head = serializers.BooleanField(required=False)
+    is_active = serializers.BooleanField(required=False)
     joined_on = serializers.DateField(required=False, allow_null=True)
     left_on = serializers.DateField(required=False, allow_null=True)
     notes = serializers.CharField(required=False, allow_blank=True)

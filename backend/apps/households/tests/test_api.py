@@ -28,6 +28,17 @@ class HouseholdAdminApiTests(APITestCase):
         self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
         self.assertEqual(detail_response.data["data"]["name"], "Mensah Household")
 
+    def test_list_households_supports_optional_pagination(self):
+        Household.objects.create(name="Boateng Household")
+
+        response = self.client.get("/api/households/?page=1&page_size=1")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["data"]["count"], 2)
+        self.assertEqual(response.data["data"]["page"], 1)
+        self.assertEqual(response.data["data"]["page_size"], 1)
+        self.assertEqual(len(response.data["data"]["results"]), 1)
+
     def test_create_household(self):
         response = self.client.post(
             "/api/households/",
@@ -57,6 +68,33 @@ class HouseholdAdminApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data["data"]["members"]), 1)
         self.assertEqual(response.data["data"]["members"][0]["member_id"], self.member.id)
+
+    def test_update_household_membership(self):
+        create_response = self.client.post(
+            f"/api/households/{self.household.id}/members/",
+            {
+                "member_id": self.member.id,
+                "relationship_to_head": "OTHER",
+                "is_head": False,
+            },
+            format="json",
+        )
+
+        membership_id = create_response.data["data"]["members"][0]["id"]
+
+        response = self.client.patch(
+            f"/api/households/{self.household.id}/memberships/{membership_id}/",
+            {
+                "relationship_to_head": "HEAD",
+                "is_head": True,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["data"]["id"], membership_id)
+        self.assertTrue(response.data["data"]["is_head"])
+        self.assertEqual(response.data["data"]["relationship_to_head"], "HEAD")
 
     def test_household_endpoints_require_authentication(self):
         self.client.force_authenticate(user=None)

@@ -28,6 +28,17 @@ class GroupAdminApiTests(APITestCase):
         self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
         self.assertEqual(detail_response.data["data"]["name"], "Choir")
 
+    def test_list_groups_supports_optional_pagination(self):
+        Group.objects.create(name="Ushering")
+
+        response = self.client.get("/api/groups/?page=1&page_size=1")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["data"]["count"], 2)
+        self.assertEqual(response.data["data"]["page"], 1)
+        self.assertEqual(response.data["data"]["page_size"], 1)
+        self.assertEqual(len(response.data["data"]["results"]), 1)
+
     def test_create_group(self):
         response = self.client.post(
             "/api/groups/",

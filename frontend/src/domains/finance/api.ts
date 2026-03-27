@@ -1,4 +1,5 @@
 import { apiClient } from "../../api/client";
+import { normalizeListResponse } from "../list";
 import type {
   ExpenseTransactionPayload,
   FundAccountDetail,
@@ -6,6 +7,8 @@ import type {
   FundAccountListItem,
   FundAccountWritePayload,
   IncomeTransactionPayload,
+  ListResponse,
+  ListResult,
   TransactionDetail,
   TransactionListFilters,
   TransactionListItem,
@@ -34,6 +37,15 @@ export const financeApi = {
   },
   listTransactions(filters: TransactionListFilters = {}) {
     return apiClient.get<TransactionListItem[]>("/api/finance/transactions/", { params: filters });
+  },
+  async listTransactionsPage(
+    filters: TransactionListFilters = {},
+  ): Promise<ListResult<TransactionListItem>> {
+    const response = await apiClient.get<ListResponse<TransactionListItem>>(
+      "/api/finance/transactions/",
+      { params: filters },
+    );
+    return normalizeListResponse(response);
   },
   getTransaction(transactionId: number) {
     return apiClient.get<TransactionDetail>(`/api/finance/transactions/${transactionId}/`);

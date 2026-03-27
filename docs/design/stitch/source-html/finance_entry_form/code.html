@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ekklesia | Finance Entry</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed-variant": "#633f0f",
+                        "on-surface-variant": "#43474e",
+                        "on-secondary-container": "#5b6577",
+                        "surface": "#fcf9f3",
+                        "on-tertiary-fixed": "#2b1700",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f6f3ed",
+                        "background": "#fcf9f3",
+                        "surface-container-high": "#ebe8e2",
+                        "surface-dim": "#dcdad4",
+                        "primary-fixed-dim": "#adc7f7",
+                        "on-primary-fixed": "#001b3c",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#321b00",
+                        "on-primary-fixed-variant": "#2d476f",
+                        "surface-container-highest": "#e5e2dc",
+                        "secondary-fixed": "#d9e3f8",
+                        "inverse-on-surface": "#f3f0ea",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#455f88",
+                        "error-container": "#ffdad6",
+                        "primary": "#002045",
+                        "primary-container": "#1a365d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fcf9f3",
+                        "inverse-surface": "#31312d",
+                        "surface-container": "#f0eee8",
+                        "inverse-primary": "#adc7f7",
+                        "outline": "#74777f",
+                        "on-secondary-fixed": "#121c2b",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#f2bc82",
+                        "outline-variant": "#c4c6cf",
+                        "on-surface": "#1c1c18",
+                        "tertiary-fixed": "#ffddba",
+                        "surface-variant": "#e5e2dc",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#c6955e",
+                        "on-secondary-fixed-variant": "#3e4758",
+                        "primary-fixed": "#d6e3ff",
+                        "secondary-container": "#d9e3f8",
+                        "secondary": "#555f70",
+                        "on-primary-container": "#86a0cd",
+                        "tertiary-container": "#4f2e00",
+                        "on-background": "#1c1c18",
+                        "secondary-fixed-dim": "#bdc7db"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-50 dark:bg-slate-900 z-50">
+<div class="flex flex-col h-full p-4 gap-2">
+<div class="flex items-center gap-3 px-2 py-6">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="church">church</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-blue-900 dark:text-blue-500 tracking-tighter">Ekklesia Admin</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500">St. Jude's Parish</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-sm font-medium">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home_work">home_work</span>
+<span class="text-sm font-medium">Households</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="church">church</span>
+<span class="text-sm font-medium">Ministries</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="event_upcoming">event_upcoming</span>
+<span class="text-sm font-medium">Services</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-400 rounded-lg shadow-sm font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-sm font-medium">Finances</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="text-sm font-medium">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Stage -->
+<main class="ml-64 min-h-screen relative">
+<!-- TopAppBar Anchor -->
+<header class="w-full h-16 sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm dark:shadow-none font-inter tracking-tight antialiased">
+<div class="flex items-center justify-between px-8 w-full h-full">
+<div class="flex items-center gap-6">
+<h2 class="text-xl font-bold tracking-tighter text-blue-900 dark:text-blue-500">Finance Entry</h2>
+<div class="hidden md:flex items-center gap-4">
+<span class="text-slate-300">/</span>
+<span class="text-sm font-medium text-slate-500">New Transaction</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-slate-100 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface">Admin User</p>
+<p class="text-[10px] text-slate-400">Finance Dept.</p>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="person">person</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-slate-100/50 dark:bg-slate-900/50 h-[1px] w-full"></div>
+</header>
+<!-- Form Workspace -->
+<div class="p-10 max-w-6xl mx-auto">
+<div class="grid grid-cols-12 gap-10">
+<!-- Left Column: Form -->
+<div class="col-span-8">
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-outline-variant/10">
+<div class="mb-8">
+<h3 class="text-2xl font-bold tracking-tight text-primary">Transaction Details</h3>
+<p class="text-sm text-on-surface-variant mt-1">Record a new movement of funds with clerical precision.</p>
+</div>
+<form class="space-y-8">
+<!-- Amount Section: Hero Input -->
+<div class="bg-surface-container-low rounded-xl p-6 flex items-center justify-between border-b-2 border-primary/10">
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-primary/60 mb-1">Amount</label>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-light text-primary/40">$</span>
+<input class="bg-transparent border-none focus:ring-0 text-5xl font-bold text-primary tracking-tighter w-full placeholder:text-primary/10" placeholder="0.00" step="0.01" type="number"/>
+</div>
+</div>
+<div class="hidden sm:block">
+<span class="material-symbols-outlined text-primary/20 text-6xl" data-icon="payments">payments</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<!-- Transaction Type -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-on-surface">Transaction Type</label>
+<div class="grid grid-cols-3 gap-2 p-1 bg-surface-container-high rounded-lg">
+<button class="py-2 px-3 text-xs font-bold rounded-md bg-white shadow-sm text-primary" type="button">Income</button>
+<button class="py-2 px-3 text-xs font-bold rounded-md text-on-surface-variant hover:bg-white/50 transition-all" type="button">Expense</button>
+<button class="py-2 px-3 text-xs font-bold rounded-md text-on-surface-variant hover:bg-white/50 transition-all" type="button">Transfer</button>
+</div>
+</div>
+<!-- Fund Account -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-on-surface">Fund Account</label>
+<select class="w-full bg-surface-container-lowest border-outline-variant/30 rounded-lg py-2.5 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/20 appearance-none">
+<option>General Fund</option>
+<option>Building Fund</option>
+<option>Missions &amp; Outreach</option>
+<option>Emergency Reserve</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<!-- Category -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-on-surface">Category</label>
+<select class="w-full bg-surface-container-lowest border-outline-variant/30 rounded-lg py-2.5 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/20">
+<option>Offering</option>
+<option>Tithe</option>
+<option>Utility Bill</option>
+<option>Maintenance</option>
+<option>Staff Salary</option>
+</select>
+</div>
+<!-- Linked Service -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-on-surface">Linked Service</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-outline-variant/30 rounded-lg py-2.5 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/20" placeholder="Select Service Date/Type" type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-400 text-sm" data-icon="event">event</span>
+</div>
+</div>
+</div>
+<!-- Notes -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-on-surface">Notes</label>
+<textarea class="w-full bg-surface-container-lowest border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/20 resize-none" placeholder="Additional transaction context..." rows="4"></textarea>
+</div>
+<!-- Submit -->
+<div class="pt-6 flex justify-end gap-4">
+<button class="px-6 py-3 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all" type="button">Cancel</button>
+<button class="px-10 py-3 text-sm font-bold text-on-primary bg-primary hover:bg-primary-container rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95 flex items-center gap-2" type="submit">
+                                    Post Transaction
+                                    <span class="material-symbols-outlined text-sm" data-icon="done_all">done_all</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+<!-- Right Column: Context/Stats -->
+<div class="col-span-4 space-y-8">
+<!-- Quick Summary Card -->
+<div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+<h4 class="text-xs font-black uppercase tracking-widest text-primary/40 mb-4">Current Fund Status</h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+<div>
+<p class="text-[10px] font-bold text-slate-400 uppercase">General Fund</p>
+<p class="text-lg font-bold text-primary">$42,850.00</p>
+</div>
+<div class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-green-600 text-sm" data-icon="trending_up">trending_up</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+<div>
+<p class="text-[10px] font-bold text-slate-400 uppercase">Building Fund</p>
+<p class="text-lg font-bold text-primary">$128,400.00</p>
+</div>
+<div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-600 text-sm" data-icon="account_balance">account_balance</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-2 text-[10px] font-bold text-primary/60 hover:text-primary uppercase tracking-widest flex items-center justify-center gap-2 border border-dashed border-primary/20 rounded-lg hover:bg-white transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
+                            View All Ledgers
+                        </button>
+</div>
+<!-- Recent Activity Visual -->
+<div class="bg-white rounded-xl p-6 shadow-sm border border-outline-variant/10 overflow-hidden relative">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<h4 class="text-xs font-black uppercase tracking-widest text-primary/40 mb-4">Journal Context</h4>
+<div class="space-y-6 relative z-10">
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-2 h-2 rounded-full bg-primary mt-1.5"></div>
+<div class="w-px flex-1 bg-slate-100 my-1"></div>
+</div>
+<div>
+<p class="text-xs font-bold text-primary">Last Transaction</p>
+<p class="text-[10px] text-on-surface-variant">Offering - General Fund</p>
+<p class="text-sm font-black text-primary/80 mt-1">+$1,250.00</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-2 h-2 rounded-full bg-slate-200 mt-1.5"></div>
+<div class="w-px flex-1 bg-slate-100 my-1"></div>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-400">Projected Goal</p>
+<p class="text-[10px] text-on-surface-variant">Monthly Operational Budget</p>
+<div class="w-full h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full w-[65%]"></div>
+</div>
+<p class="text-[10px] font-bold text-primary mt-1">65% Achieved</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Guidelines -->
+<div class="bg-primary-container rounded-xl p-6 text-on-primary-container relative overflow-hidden">
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-white/5 text-9xl transform -rotate-12" data-icon="info">info</span>
+<h4 class="text-sm font-bold mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="tips_and_updates">tips_and_updates</span>
+                            Audit Tip
+                        </h4>
+<p class="text-xs leading-relaxed opacity-80">
+                            Ensure all transactions over $500.00 are accompanied by an scanned digital receipt or official invoice for year-end reporting compliance.
+                        </p>
+</div>
+</div>
+</div>
+<!-- Asymmetric Data Visualization Footer -->
+<section class="mt-16 grid grid-cols-3 gap-6">
+<div class="col-span-2 bg-surface-container-low rounded-2xl p-1 w-full h-48 overflow-hidden relative">
+<img class="w-full h-full object-cover rounded-2xl opacity-60" data-alt="clean abstract professional data visualization showing church finance trends with blue lines and soft shaded areas on white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJnieehdj9SjFrOAwIai8JDbUU06RUOXWakMYCMudjwg0yZIrpzAWptEuaJAy5-ruQ8ZBhPrA-sCW6xQYD21SvloHd36IFzsZZnvlYVGg51AsVV40zNv3WobvxaOo5bs8Of499amMtJStSU6oFESkSbVeBcYIBSOjgYgKSxJfiuyVJ7Pf5wHecDILckYwK8DTy0SDUdIuouAz9a6JnqTQ2h2OGGu2sKzY-Mne75-bb13lrgvJAB1vYqCSAaSaIDrhLvvng1V-CGlI"/>
+<div class="absolute inset-0 p-8 flex flex-col justify-end">
+<p class="text-[10px] font-black uppercase tracking-[0.2em] text-primary/50">Cumulative Yield Index</p>
+<h3 class="text-2xl font-bold text-primary tracking-tighter">Fiscal Year 2024 Performance</h3>
+</div>
+</div>
+<div class="bg-primary rounded-2xl p-8 flex flex-col justify-between text-white">
+<div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="verified_user">verified_user</span>
+</div>
+<div>
+<p class="text-3xl font-bold tracking-tighter">Secure</p>
+<p class="text-xs opacity-70">256-bit Clerical Grade Encryption Active</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Contextual FAB - Hidden as per suppression rules for Detail/Form screens -->
+</body></html>

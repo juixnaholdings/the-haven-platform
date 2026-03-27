@@ -1,40 +1,46 @@
 # Operations Index
 
 ## Purpose
-This document is the operational map for The Haven.
 
-It provides a single place to find:
+Operational map for deployment, verification, and release controls in The Haven.
 
-- deployment workflows
-- environment templates
-- Compose files
-- Nginx configs
-- security and rollout runbooks
-- server bootstrap references
+## Branch and environment model
 
-Use this as the entry point for engineering operations, deployment work, and release handling.
+- `develop` -> staging/integration
+- `main` -> production
+- GitHub environments:
+  - `staging`
+  - `production`
 
----
+## Active frontend
 
-## 1. Branch and environment model
+- Primary frontend: `frontend-next/`
+- Legacy snapshot only: `frontend/`
 
-### Branches
-- `develop` → active integration branch
-- `main` → release branch
+## Core workflows
 
-### Deployment targets
-- `develop` → staging
-- `main` → production
+- CI: `.github/workflows/ci.yml`
+- Security: `.github/workflows/security.yml`
+- Staging deploy: `.github/workflows/deploy-staging.yml`
+- Production deploy: `.github/workflows/deploy-production.yml`
 
-### GitHub environments
-- `staging`
-- `production`
+## Next frontend replacement references
 
----
+- `docs/nextjs-migration-plan.md`
+- `docs/nextjs-cutover-readiness.md`
+- `docs/runbooks/nextjs-staged-cutover.md`
+- `docs/runbooks/nextjs-staging-verification-checklist.md`
+- `frontend-next/README.md`
 
-## 2. GitHub Actions workflows
+## Deployment/runbooks
 
-### CI workflow
-Path:
-```text id="ya3emo"
-.github/workflows/ci.yml
+- `docs/runbooks/local-setup.md`
+- `docs/runbooks/deployment.md`
+- `docs/runbooks/release-checklist.md`
+- `docs/runbooks/production-rollout.md`
+- `docs/runbooks/backup-restore.md`
+
+## Rollback posture
+
+- Legacy Vite snapshot in `frontend/` is retained as a rollback reference only.
+- Primary operational path remains `frontend-next/`.

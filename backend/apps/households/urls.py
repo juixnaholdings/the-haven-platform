@@ -4,6 +4,7 @@ from apps.households.apis.admin import (
     HouseholdDetailAdminApi,
     HouseholdListCreateAdminApi,
     HouseholdMemberCreateAdminApi,
+    HouseholdMembershipDetailAdminApi,
 )
 
 urlpatterns = [
@@ -13,5 +14,10 @@ urlpatterns = [
         "<int:household_id>/members/",
         HouseholdMemberCreateAdminApi.as_view(),
         name="household-member-create",
+    ),
+    path(
+        "<int:household_id>/memberships/<int:membership_id>/",
+        HouseholdMembershipDetailAdminApi.as_view(),
+        name="household-membership-detail",
     ),
 ]

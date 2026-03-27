@@ -28,55 +28,73 @@ export function LoginPage() {
 
   return (
     <div className="auth-layout">
-      <div className="auth-card">
-        <p className="app-eyebrow">The Haven</p>
-        <h1>Sign in to continue</h1>
-        <p className="muted-text">
-          Use your backend credentials. The app keeps the access token in memory
-          and restores your session from a secure refresh cookie when possible.
-        </p>
+      <div className="auth-stack">
+        <div className="auth-brand">
+          <div className="auth-brand-mark" aria-hidden="true">
+            TH
+          </div>
+          <div className="auth-brand-copy">
+            <p className="app-eyebrow">Refined clerical minimalism</p>
+            <h1>The Haven</h1>
+            <p className="muted-text">
+              Calm, trustworthy church administration for members, households, ministries,
+              services, and attendance.
+            </p>
+          </div>
+        </div>
 
-        <form
-          className="auth-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            loginMutation.mutate({ username, password });
-          }}
-        >
-          <label className="field">
-            <span>Username</span>
-            <input
-              autoComplete="username"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              required
-            />
-          </label>
+        <div className="auth-card">
+          <div className="auth-card-header">
+            <p className="app-eyebrow">Secure sign in</p>
+            <h2>Welcome back</h2>
+            <p className="muted-text">
+              Use your backend credentials. Access tokens stay in memory and the session
+              restores from the secure refresh cookie when available.
+            </p>
+          </div>
 
-          <label className="field">
-            <span>Password</span>
-            <input
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-          </label>
-
-          <button
-            className="button button-primary"
-            type="submit"
-            disabled={loginMutation.isPending}
+          <form
+            className="auth-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              loginMutation.mutate({ username, password });
+            }}
           >
-            {loginMutation.isPending ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
+            <label className="field">
+              <span>Username</span>
+              <input
+                autoComplete="username"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                required
+              />
+            </label>
 
-        <ErrorAlert
-          error={loginMutation.error}
-          fallbackMessage="Unable to sign in."
-        />
+            <label className="field">
+              <span>Password</span>
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
+            </label>
+
+            <button
+              className="button button-primary button-block"
+              type="submit"
+              disabled={loginMutation.isPending}
+            >
+              {loginMutation.isPending ? "Signing in..." : "Sign in"}
+            </button>
+          </form>
+
+          <ErrorAlert
+            error={loginMutation.error}
+            fallbackMessage="Unable to sign in."
+          />
+        </div>
       </div>
     </div>
   );

@@ -11,6 +11,52 @@ export interface User {
   is_active: boolean;
   is_staff: boolean;
   is_superuser: boolean;
+  role_names: string[];
+}
+
+export interface UserRoleRef {
+  id: number;
+  name: string;
+}
+
+export interface StaffUserListItem extends User {
+  full_name: string;
+  roles: UserRoleRef[];
+  last_login: string | null;
+  date_joined: string;
+}
+
+export interface StaffUserCreatePayload {
+  username: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  password: string;
+  is_active?: boolean;
+  role_ids?: number[];
+}
+
+export interface StaffUserUpdatePayload {
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  is_active?: boolean;
+  role_ids?: number[];
+}
+
+export interface RolePermissionSummary {
+  id: number;
+  app_label: string;
+  codename: string;
+  name: string;
+  permission_code: string;
+}
+
+export interface RoleSummary {
+  id: number;
+  name: string;
+  user_count: number;
+  permissions: RolePermissionSummary[];
 }
 
 export interface LoginPayload {
@@ -32,6 +78,36 @@ export interface RefreshTokenPayload {
   refresh: string;
 }
 
+export interface PaginationParams {
+  page?: number;
+  page_size?: number;
+}
+
+export interface PaginatedListResponse<TItem> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  page: number;
+  page_size: number;
+  results: TItem[];
+}
+
+export type ListResponse<TItem> = TItem[] | PaginatedListResponse<TItem>;
+
+export interface ListPaginationMeta {
+  count: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export interface ListResult<TItem> {
+  items: TItem[];
+  pagination: ListPaginationMeta | null;
+}
+
 export interface MemberListItem {
   id: number;
   first_name: string;
@@ -46,8 +122,44 @@ export interface MemberListItem {
 export interface MemberDetail extends MemberListItem {
   date_of_birth: string | null;
   notes: string;
+  active_household_membership: MemberHouseholdMembership | null;
+  household_memberships: MemberHouseholdMembership[];
+  group_memberships: MemberGroupMembership[];
+  attendance_summary: MemberAttendanceSummary;
   created_at: string;
   updated_at: string;
+}
+
+export interface MemberHouseholdMembership {
+  id: number;
+  household_id: number;
+  household_name: string;
+  relationship_to_head: string;
+  is_head: boolean;
+  is_active: boolean;
+  joined_on: string | null;
+  left_on: string | null;
+  notes: string;
+}
+
+export interface MemberGroupMembership {
+  id: number;
+  group_id: number;
+  group_name: string;
+  role_name: string;
+  started_on: string | null;
+  ended_on: string | null;
+  is_active: boolean;
+  notes: string;
+}
+
+export interface MemberAttendanceSummary {
+  total_records: number;
+  present_count: number;
+  absent_count: number;
+  late_count: number;
+  excused_count: number;
+  last_attended_on: string | null;
 }
 
 export interface MemberWritePayload {
@@ -61,7 +173,7 @@ export interface MemberWritePayload {
   is_active?: boolean;
 }
 
-export interface MemberListFilters {
+export interface MemberListFilters extends PaginationParams {
   search?: string;
   is_active?: boolean;
   household_id?: number;
@@ -116,7 +228,7 @@ export interface HouseholdWritePayload {
   is_active?: boolean;
 }
 
-export interface HouseholdListFilters {
+export interface HouseholdListFilters extends PaginationParams {
   search?: string;
   is_active?: boolean;
 }
@@ -125,6 +237,15 @@ export interface HouseholdMembershipCreatePayload {
   member_id: number;
   relationship_to_head?: string;
   is_head?: boolean;
+  joined_on?: string | null;
+  left_on?: string | null;
+  notes?: string;
+}
+
+export interface HouseholdMembershipUpdatePayload {
+  relationship_to_head?: string;
+  is_head?: boolean;
+  is_active?: boolean;
   joined_on?: string | null;
   left_on?: string | null;
   notes?: string;
@@ -183,7 +304,7 @@ export interface GroupMembershipUpdatePayload {
   notes?: string;
 }
 
-export interface GroupListFilters {
+export interface GroupListFilters extends PaginationParams {
   search?: string;
   is_active?: boolean;
 }
@@ -276,7 +397,7 @@ export interface ServiceEventWritePayload {
   is_active?: boolean;
 }
 
-export interface ServiceEventListFilters {
+export interface ServiceEventListFilters extends PaginationParams {
   search?: string;
   event_type?: string;
   is_active?: boolean;
@@ -362,7 +483,7 @@ export interface TransactionDetail {
   updated_at: string;
 }
 
-export interface TransactionListFilters {
+export interface TransactionListFilters extends PaginationParams {
   search?: string;
   transaction_type?: string;
   fund_account_id?: number;
@@ -476,4 +597,30 @@ export interface DashboardOverview {
   groups: GroupSummary;
   attendance: AttendanceReportSummary;
   finance: FinanceSummary;
+}
+
+export interface AuditActor {
+  id: number;
+  username: string;
+  full_name: string;
+}
+
+export interface AuditEvent {
+  id: number;
+  event_type: string;
+  target_type: string;
+  target_id: number | null;
+  summary: string;
+  payload: Record<string, unknown>;
+  created_at: string;
+  actor: AuditActor | null;
+}
+
+export interface AuditEventListFilters extends PaginationParams {
+  event_type?: string;
+  target_type?: string;
+  target_id?: number;
+  actor_id?: number;
+  start_date?: string;
+  end_date?: string;
 }

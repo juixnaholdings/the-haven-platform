@@ -1,83 +1,207 @@
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 
-import { ErrorAlert } from "../components/ErrorAlert";
-import { LoadingScreen } from "../components/LoadingScreen";
+import { EmptyState } from "../components/EmptyState";
+import { EntityTable } from "../components/EntityTable";
+import { ErrorState } from "../components/ErrorState";
+import { LoadingState } from "../components/LoadingState";
+import { PageHeader } from "../components/PageHeader";
+import { PaginationControls } from "../components/PaginationControls";
+import { StatCard } from "../components/StatCard";
+import { StatusBadge } from "../components/StatusBadge";
 import { membersApi } from "../domains/members/api";
+
+type MemberStatusFilter = "all" | "active" | "inactive";
 
 export function MembersPage() {
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const deferredSearch = useDeferredValue(search);
 
+  useEffect(() => {
+    setPage(1);
+  }, [deferredSearch, statusFilter]);
+
   const membersQuery = useQuery({
-    queryKey: ["members", { search: deferredSearch }],
+    queryKey: ["members", { search: deferredSearch, statusFilter, page, pageSize }],
     queryFn: () =>
-      membersApi.listMembers({
+      membersApi.listMembersPage({
         search: deferredSearch || undefined,
+        is_active:
+          statusFilter === "all" ? undefined : statusFilter === "active",
+        page,
+        page_size: pageSize,
       }),
   });
 
+  const members = membersQuery.data?.items ?? [];
+  const pagination = membersQuery.data?.pagination ?? null;
+  const hasFilters = Boolean(search.trim()) || statusFilter !== "all";
+  const totalRecords = pagination?.count ?? members.length;
+  const activeMembers = members.filter((member) => member.is_active).length;
+  const inactiveMembers = members.length - activeMembers;
+  const contactReadyMembers = members.filter(
+    (member) => Boolean(member.email || member.phone_number),
+  ).length;
+
   return (
     <div className="page-stack">
-      <section className="page-header">
-        <div>
-          <p className="app-eyebrow">Representative CRUD surface</p>
-          <h2>Members</h2>
-        </div>
-        <p className="muted-text">
-          This page proves a protected domain list flow using the shared API client and members
-          module.
-        </p>
+      <PageHeader
+        eyebrow="People operations"
+        title="Members"
+        description="A calm directory surface for member profiles, contact readiness, and profile-oriented create and edit workflows."
+        actions={
+          <Link className="button button-primary" to="/members/new">
+            Add member
+          </Link>
+        }
+        meta={
+          <StatusBadge
+            label={`${totalRecords} record${totalRecords === 1 ? "" : "s"}`}
+            tone="info"
+          />
+        }
+      />
+
+      <section className="metrics-grid">
+        <StatCard label="Directory records" value={totalRecords} tone="accent" />
+        <StatCard label="Active in view" value={activeMembers} />
+        <StatCard label="Inactive in view" value={inactiveMembers} />
+        <StatCard label="Contact ready in view" value={contactReadyMembers} />
       </section>
 
       <section className="panel">
-        <label className="field">
-          <span>Search members</span>
-          <input
-            placeholder="Search by name, email, or phone"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </label>
+        <div className="filters-grid filters-grid-2">
+          <label className="field">
+            <span>Search members</span>
+            <input
+              placeholder="Search by name, email, or phone"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+
+          <label className="field">
+            <span>Status</span>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as MemberStatusFilter)}
+            >
+              <option value="all">All members</option>
+              <option value="active">Active members</option>
+              <option value="inactive">Inactive members</option>
+            </select>
+          </label>
+        </div>
       </section>
 
-      {membersQuery.isLoading ? <LoadingScreen label="Loading members..." /> : null}
-      {membersQuery.error ? (
-        <ErrorAlert error={membersQuery.error} fallbackMessage="Unable to load members." />
+      {membersQuery.isLoading ? (
+        <LoadingState title="Loading members" description="Pulling the member directory from the backend." />
       ) : null}
 
-      {!membersQuery.isLoading && !membersQuery.error ? (
+      {membersQuery.error ? (
+        <ErrorState
+          title="Members could not be loaded"
+          error={membersQuery.error}
+          onRetry={() => {
+            void membersQuery.refetch();
+          }}
+        />
+      ) : null}
+
+      {!membersQuery.isLoading && !membersQuery.error && members.length === 0 ? (
+        <EmptyState
+          title={hasFilters ? "No members matched the current filters" : "No members have been added yet"}
+          description={
+            hasFilters
+              ? "Try a broader search or reset the status filter."
+              : "Create the first member record to start populating the directory."
+          }
+          action={
+            hasFilters ? (
+              <button
+                className="button button-secondary"
+                onClick={() => {
+                  setSearch("");
+                  setStatusFilter("all");
+                  setPage(1);
+                }}
+                type="button"
+              >
+                Clear filters
+              </button>
+            ) : (
+              <Link className="button button-primary" to="/members/new">
+                Add member
+              </Link>
+            )
+          }
+        />
+      ) : null}
+
+      {!membersQuery.isLoading && !membersQuery.error && members.length > 0 ? (
         <section className="panel">
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {membersQuery.data && membersQuery.data.length > 0 ? (
-                  membersQuery.data.map((member) => (
-                    <tr key={member.id}>
-                      <td>{member.full_name}</td>
-                      <td>{member.email || "—"}</td>
-                      <td>{member.phone_number || "—"}</td>
-                      <td>{member.is_active ? "Active" : "Inactive"}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="empty-cell" colSpan={4}>
-                      No members matched the current filter.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <EntityTable
+            columns={[
+              {
+                header: "Member",
+                cell: (member) => (
+                  <div className="cell-stack">
+                    <Link className="table-link" to={`/members/${member.id}`}>
+                      {member.full_name}
+                    </Link>
+                    <span className="table-subtext">
+                      {member.email || member.phone_number || "Profile-only record"}
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                header: "Email",
+                cell: (member) => member.email || "—",
+              },
+              {
+                header: "Phone",
+                cell: (member) => member.phone_number || "—",
+              },
+              {
+                header: "Status",
+                cell: (member) => (
+                  <StatusBadge
+                    label={member.is_active ? "Active" : "Inactive"}
+                    tone={member.is_active ? "success" : "muted"}
+                  />
+                ),
+              },
+              {
+                header: "Actions",
+                className: "cell-actions",
+                cell: (member) => (
+                  <div className="inline-actions">
+                    <Link className="button button-secondary button-compact" to={`/members/${member.id}`}>
+                      View
+                    </Link>
+                    <Link className="button button-ghost button-compact" to={`/members/${member.id}/edit`}>
+                      Edit
+                    </Link>
+                  </div>
+                ),
+              },
+            ]}
+            getRowKey={(member) => member.id}
+            rows={members}
+          />
+          <PaginationControls
+            pagination={pagination}
+            onPageChange={(nextPage) => setPage(nextPage)}
+            onPageSizeChange={(nextPageSize) => {
+              setPageSize(nextPageSize);
+              setPage(1);
+            }}
+          />
         </section>
       ) : null}
     </div>

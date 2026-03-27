@@ -37,7 +37,7 @@ def list_households(*, filters: dict | None = None):
     if is_active is not None:
         queryset = queryset.filter(is_active=is_active)
 
-    return queryset
+    return queryset.order_by("name", "id")
 
 
 def get_household_by_id(*, household_id: int):
@@ -50,5 +50,13 @@ def get_household_detail_with_members(*, household_id: int):
         .prefetch_related(
             Prefetch("memberships", queryset=_ordered_membership_queryset())
         )
+        .first()
+    )
+
+
+def get_household_membership_by_id(*, household_id: int, membership_id: int):
+    return (
+        _ordered_membership_queryset()
+        .filter(household_id=household_id, id=membership_id)
         .first()
     )

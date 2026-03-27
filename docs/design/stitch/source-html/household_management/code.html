@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ekklesia | Household Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed-variant": "#633f0f",
+                        "on-surface-variant": "#43474e",
+                        "on-secondary-container": "#5b6577",
+                        "surface": "#fcf9f3",
+                        "on-tertiary-fixed": "#2b1700",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f6f3ed",
+                        "background": "#fcf9f3",
+                        "surface-container-high": "#ebe8e2",
+                        "surface-dim": "#dcdad4",
+                        "primary-fixed-dim": "#adc7f7",
+                        "on-primary-fixed": "#001b3c",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#321b00",
+                        "on-primary-fixed-variant": "#2d476f",
+                        "surface-container-highest": "#e5e2dc",
+                        "secondary-fixed": "#d9e3f8",
+                        "inverse-on-surface": "#f3f0ea",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#455f88",
+                        "error-container": "#ffdad6",
+                        "primary": "#002045",
+                        "primary-container": "#1a365d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fcf9f3",
+                        "inverse-surface": "#31312d",
+                        "surface-container": "#f0eee8",
+                        "inverse-primary": "#adc7f7",
+                        "outline": "#74777f",
+                        "on-secondary-fixed": "#121c2b",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#f2bc82",
+                        "outline-variant": "#c4c6cf",
+                        "on-surface": "#1c1c18",
+                        "tertiary-fixed": "#ffddba",
+                        "surface-variant": "#e5e2dc",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#c6955e",
+                        "on-secondary-fixed-variant": "#3e4758",
+                        "primary-fixed": "#d6e3ff",
+                        "secondary-container": "#d9e3f8",
+                        "secondary": "#555f70",
+                        "on-primary-container": "#86a0cd",
+                        "tertiary-container": "#4f2e00",
+                        "on-background": "#1c1c18",
+                        "secondary-fixed-dim": "#bdc7db"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcf9f3;
+        }
+    </style>
+</head>
+<body class="text-on-surface antialiased overflow-x-hidden">
+<!-- SideNavBar (Authority Source: JSON) -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-50 dark:bg-slate-900 z-50">
+<div class="p-6">
+<h1 class="text-lg font-black text-blue-900 dark:text-blue-500 tracking-tighter">Ekklesia Admin</h1>
+<p class="text-xs text-slate-500 font-medium">St. Jude's Parish</p>
+</div>
+<nav class="flex flex-col h-full p-4 gap-2">
+<!-- Dashboard Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<!-- Members Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-sm font-medium">Members</span>
+</a>
+<!-- Households Tab (ACTIVE) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-400 rounded-lg shadow-sm font-semibold transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="home_work">home_work</span>
+<span class="text-sm font-medium">Households</span>
+</a>
+<!-- Ministries Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="church">church</span>
+<span class="text-sm font-medium">Ministries</span>
+</a>
+<!-- Services Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="event_upcoming">event_upcoming</span>
+<span class="text-sm font-medium">Services</span>
+</a>
+<!-- Finances Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-sm font-medium">Finances</span>
+</a>
+<!-- Reports Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<!-- Settings Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+<div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="text-sm font-medium">Logout</span>
+</a>
+</div>
+</nav>
+</aside>
+<!-- Main Workspace -->
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopAppBar (Authority Source: JSON) -->
+<header class="w-full h-16 sticky top-0 z-40 flex items-center justify-between px-8 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm dark:shadow-none font-inter tracking-tight antialiased">
+<div class="flex items-center gap-8">
+<div class="relative w-64">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-sm" data-icon="search">search</span>
+<input class="w-full bg-slate-100/50 dark:bg-slate-900/50 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-900/20 transition-all" placeholder="Search households..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
+<button class="px-4 py-2 bg-blue-900 text-white text-sm font-semibold rounded-lg hover:bg-blue-800 active:scale-95 transition-all">
+                    Add Member
+                </button>
+<div class="h-10 w-10 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="Close up portrait of a middle-aged male administrator with a professional and friendly expression, warm studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvo7ByjGeV5t8MwVhBbmAt4xQwD1QSpr5iF80oOxhmmM1eaZ79d8gXrikCDkVy80eRGrOsWjPs2RfnkvR_Jm-Zp-C_r4-DY8astmoywvy1q7IFPQIv-fvaIIms6ubRRllB0FoGZ6oyQI3bIFsaGOFSqLq8BLK02Pd9ZsuvlwDCSY4KpaSIlEMG1VoyAsleOiXXonFtIRR2tIzJ0wn6SBqVNUcBchxgbSFJVC9lQi0iv-mtdtTwRt9R1qgsEruORMxcGc7prW4qW2c"/>
+</div>
+</div>
+</header>
+<!-- Content Stage -->
+<div class="p-10 flex gap-8">
+<!-- Household Table Section -->
+<div class="flex-grow space-y-6">
+<div class="flex items-baseline justify-between">
+<div>
+<h2 class="text-2xl font-bold tracking-tight text-primary">Household Management</h2>
+<p class="text-on-surface-variant text-sm mt-1">Manage family units and living arrangements within the congregation.</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 text-xs font-semibold bg-secondary-container text-on-secondary-container rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span> Filter
+                        </button>
+<button class="px-3 py-1.5 text-xs font-semibold bg-secondary-container text-on-secondary-container rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span> Export
+                        </button>
+</div>
+</div>
+<!-- Table Surface -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant text-xs font-bold uppercase tracking-wider">
+<th class="px-6 py-4">Household Name</th>
+<th class="px-6 py-4">Head of Household</th>
+<th class="px-6 py-4">Member Count</th>
+<th class="px-6 py-4">Primary Phone</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-sm">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-5 font-semibold text-primary">The Abernathy Family</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<img alt="Head of household" class="w-8 h-8 rounded-full" data-alt="Headshot of an older gentleman with gray hair and glasses, wearing a neutral collared shirt, soft professional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWZaHURBwrlR0LkPG67JPYKanTHI7jVtpOJWsCYjPGIkbPrT5CWQiGgicl3i03eHzBwtioTRYCrll3vJKgZv37hpzepbeEF_HGE2nBKBdXpiLP4Lnxso3GAOsOzciyhxjTqrwtichMT3vmpdzLt_1-JRxWyD4ZHYsxl5QkhlLXsvDPi13CgT-TGYGD6JPYYpXOeO2fLGuoebKM774IiKypxZ3EL_W3GDODAST22RObQjRxL7-zg99LL6lDUgZyV7IyNfCsKYN5azs"/>
+<span>Arthur Abernathy</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-surface-container rounded-lg text-xs font-medium">4 Members</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">(555) 012-3456</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 hover:bg-surface-container rounded-lg text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-lg text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 (Zebra) -->
+<tr class="bg-surface-container-low/40 hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-5 font-semibold text-primary">Chen-Rodriguez</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<img alt="Head of household" class="w-8 h-8 rounded-full" data-alt="Portrait of a young woman with dark hair tied back, friendly smile, natural lighting in a garden setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHjf3rRycgeA3i1dHiFLFpMe8-feRhEYI0gIX0d9fRlJqf_wkIHEFHtSpEsMbU6jIjOsg7mCSkLfh3AE2plAgC7XKnl5Jy4HI1ON6As-ZxVOf76Q-IBRxGlTVzSdnBKZjd6Q4JO0btKGNrwZ2pOikUk1Xdxb0SHEvVyWbSv3id-OXFh7GUhiXkesugrShG4QLebS5Nkbs2vxQGx-h_g3psGhatn68atKxPEZk2anzAAD9S5xOPkygqn1zj-gRCTbnlgqG8V23uHvM"/>
+<span>Maria Chen-Rodriguez</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-surface-container rounded-lg text-xs font-medium">3 Members</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">(555) 098-7654</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 hover:bg-surface-container rounded-lg text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-lg text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-5 font-semibold text-primary">The Thompson Residence</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<img alt="Head of household" class="w-8 h-8 rounded-full" data-alt="Casual portrait of a man in his 30s with a short beard, wearing a navy blue polo, warm indoor lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAszK85QrFq9zY7W377OQmErpCu5eXWMgxRajGXuqjA0yypFA9gzhDQfuF64xqBaUalJ9jvifXkgNw2AHfSrUSQY2pcCpr4wTzzEcawE4dA8_IXvQYZHb2ZVx9ozE0umAudaXGyCcu114ioMZyZqPhZrITCujipxPI4h5ZfriUppdYfJ6zBucUfCuT4Po9e06UtAtH2UiyvZqFU0pCX4PKHdaRwr68vcEdrGdPzkrbyGIjUCcPSMCEK0-rIpXDTiLHRbLY8FzAtlYY"/>
+<span>David Thompson</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-surface-container rounded-lg text-xs font-medium">5 Members</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">(555) 443-2211</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 hover:bg-surface-container rounded-lg text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-lg text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 (Zebra) -->
+<tr class="bg-surface-container-low/40 hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-5 font-semibold text-primary">The Sterling Household</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<img alt="Head of household" class="w-8 h-8 rounded-full" data-alt="Elegant headshot of an elderly woman with silver hair, soft lighting emphasizing a kind expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAml-QApJRdneT0bUeUcwTI3EZTR7f8jyCIa1STp1i3V-Rg0D3BqgG7TpD0KC7-Yh3I8UnY0mkmv9zi9Boz0EZPigyUT0yvO-Zqqu7n4_RavqxJuCKb_ZwovrWOJYx5gsGjEcOWWxMbpXFqa0rt8bGzL-_80XuJ6Uwfd_ZNH-9sGQoXb8EyVU-k2HaoIezTfDdQlTdAxtcp2nmJKeVa8DF1UbSnuOesAVeZRB322aMcZPAW5qAVoyAHty9rjTHBT88nvNUgaFWfkYs"/>
+<span>Grace Sterling</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-surface-container rounded-lg text-xs font-medium">1 Member</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">(555) 888-9900</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 hover:bg-surface-container rounded-lg text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-lg text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-5 font-semibold text-primary">Miller-Kaur</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<img alt="Head of household" class="w-8 h-8 rounded-full" data-alt="Portrait of a young man with a turban, smiling warmly towards the camera, high-key bright lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8K1UTBqKifghff6zA0OP0YTZRuziJPuGV8Y4FJFnBe0Xf2jwHqkkyK42TeEzli-n9uYtuzoMM3ZFP1KONVS87TbJRg8wcWase38spdVbOpZdNyhMGurZJjQsPHLkCEue_c8K4hH_AFt4pwFgN0bSPKfebYqjCHqsNUpMNH3E1JWUI8gqe5rAXEx85dkp6QIpMfIegpiSLKHAhgPou3YTbSrFHJPD-AtRia_h36DcPKjKYywsmOn_pGs4fMIfxaiAYj5H9r3FxrFM"/>
+<span>Jaspreet Kaur</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-surface-container rounded-lg text-xs font-medium">2 Members</span>
+</td>
+<td class="px-6 py-5 text-on-surface-variant">(555) 776-5544</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 hover:bg-surface-container rounded-lg text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-lg text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="flex items-center justify-between px-2">
+<p class="text-xs text-on-surface-variant">Showing 1 to 5 of 342 Households</p>
+<div class="flex gap-1">
+<button class="p-2 text-primary hover:bg-surface-container rounded-lg transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center bg-primary text-white text-xs font-bold rounded-lg">1</button>
+<button class="w-8 h-8 flex items-center justify-center text-primary text-xs font-bold rounded-lg hover:bg-surface-container">2</button>
+<button class="w-8 h-8 flex items-center justify-center text-primary text-xs font-bold rounded-lg hover:bg-surface-container">3</button>
+<button class="p-2 text-primary hover:bg-surface-container rounded-lg transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Household Summary Sidebar -->
+<aside class="w-80 flex flex-col gap-6">
+<!-- Quick Stats Bento -->
+<div class="bg-surface-container-low rounded-xl p-6 space-y-6">
+<h3 class="text-sm font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="analytics">analytics</span> Summary
+                    </h3>
+<div class="grid grid-cols-1 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm">
+<span class="text-xs text-on-surface-variant font-medium">Total Households</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="text-2xl font-bold text-primary">342</span>
+<span class="text-[10px] text-emerald-600 font-bold">+12% vs last month</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm">
+<span class="text-xs text-on-surface-variant font-medium">Avg. Household Size</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="text-2xl font-bold text-primary">3.4</span>
+<span class="text-[10px] text-on-surface-variant font-medium">Active Members</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm">
+<span class="text-xs text-on-surface-variant font-medium">New Registrations</span>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="text-2xl font-bold text-primary">18</span>
+<span class="text-[10px] text-on-surface-variant font-medium">This Quarter</span>
+</div>
+</div>
+</div>
+<div class="pt-4">
+<h4 class="text-xs font-bold text-on-surface-variant mb-3 uppercase tracking-wider">Demographic Mix</h4>
+<div class="space-y-3">
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-1">
+<span>FAMILIES</span>
+<span>65%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 65%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-1">
+<span>INDIVIDUALS</span>
+<span>22%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container" style="width: 22%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-1">
+<span>SENIORS</span>
+<span>13%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-on-primary-container" style="width: 13%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Card -->
+<div class="bg-primary p-6 rounded-xl text-white overflow-hidden relative">
+<div class="relative z-10">
+<h3 class="text-lg font-bold leading-tight">Need a detailed report?</h3>
+<p class="text-on-primary-container text-xs mt-2 leading-relaxed opacity-90">Generate comprehensive household census data including baptismal status and directory info.</p>
+<button class="mt-4 px-4 py-2 bg-white text-primary text-xs font-bold rounded-lg hover:bg-slate-100 transition-colors active:scale-95">
+                            Generate Census
+                        </button>
+</div>
+<!-- Decorative Graphic -->
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-8xl" data-icon="church">church</span>
+</div>
+</div>
+<!-- Recent Activity Mini-List -->
+<div class="space-y-3">
+<h4 class="text-xs font-bold text-on-surface-variant uppercase tracking-widest px-2">Recent Changes</h4>
+<div class="space-y-1">
+<div class="flex gap-3 p-2 rounded-lg hover:bg-surface-container transition-colors">
+<div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+<span class="material-symbols-outlined text-sm" data-icon="person_add">person_add</span>
+</div>
+<div class="text-[11px]">
+<p class="font-bold text-primary">New Member Added</p>
+<p class="text-on-surface-variant">Sterling Household • 2h ago</p>
+</div>
+</div>
+<div class="flex gap-3 p-2 rounded-lg hover:bg-surface-container transition-colors">
+<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700">
+<span class="material-symbols-outlined text-sm" data-icon="edit_note">edit_note</span>
+</div>
+<div class="text-[11px]">
+<p class="font-bold text-primary">Address Updated</p>
+<p class="text-on-surface-variant">The Thompson Family • 5h ago</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Floating Action Button (FAB) Suppressed as per Task Logic for Specific Search/Admin screens -->
+</body></html>

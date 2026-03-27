@@ -1,25 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { ErrorAlert } from "../components/ErrorAlert";
-import { LoadingScreen } from "../components/LoadingScreen";
+import { ErrorState } from "../components/ErrorState";
+import { LoadingState } from "../components/LoadingState";
+import { PageHeader } from "../components/PageHeader";
+import { StatCard } from "../components/StatCard";
 import { reportingApi } from "../domains/reporting/api";
-
-function MetricCard({
-  label,
-  value,
-  tone = "default",
-}: {
-  label: string;
-  value: number | string;
-  tone?: "default" | "accent";
-}) {
-  return (
-    <article className={tone === "accent" ? "metric-card metric-card-accent" : "metric-card"}>
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </article>
-  );
-}
+import { formatAmount } from "../utils/formatters";
 
 export function DashboardPage() {
   const dashboardQuery = useQuery({
@@ -28,12 +14,18 @@ export function DashboardPage() {
   });
 
   if (dashboardQuery.isLoading) {
-    return <LoadingScreen label="Loading dashboard metrics..." />;
+    return <LoadingState title="Loading dashboard metrics" />;
   }
 
   if (dashboardQuery.error) {
     return (
-      <ErrorAlert error={dashboardQuery.error} fallbackMessage="Unable to load dashboard metrics." />
+      <ErrorState
+        title="Dashboard metrics could not be loaded"
+        error={dashboardQuery.error}
+        onRetry={() => {
+          void dashboardQuery.refetch();
+        }}
+      />
     );
   }
 
@@ -44,24 +36,19 @@ export function DashboardPage() {
 
   return (
     <div className="page-stack">
-      <section className="page-header">
-        <div>
-          <p className="app-eyebrow">Protected reporting surface</p>
-          <h2>Operational dashboard</h2>
-        </div>
-        <p className="muted-text">
-          This proves the frontend can restore the session and consume protected reporting data from
-          the existing backend.
-        </p>
-      </section>
+      <PageHeader
+        eyebrow="Protected reporting surface"
+        title="Operational dashboard"
+        description="A calm operational snapshot across members, households, ministries, attendance, and finance using the protected reporting backend."
+      />
 
       <section className="metrics-grid">
-        <MetricCard label="Total members" value={dashboard.members.total_members} tone="accent" />
-        <MetricCard label="Active members" value={dashboard.members.active_members} />
-        <MetricCard label="Households" value={dashboard.households.total_households} />
-        <MetricCard label="Groups" value={dashboard.groups.total_groups} />
-        <MetricCard label="Events" value={dashboard.attendance.total_events} />
-        <MetricCard label="Net flow" value={dashboard.finance.net_flow} />
+        <StatCard label="Total members" value={dashboard.members.total_members} tone="accent" />
+        <StatCard label="Active members" value={dashboard.members.active_members} />
+        <StatCard label="Households" value={dashboard.households.total_households} />
+        <StatCard label="Groups" value={dashboard.groups.total_groups} />
+        <StatCard label="Events" value={dashboard.attendance.total_events} />
+        <StatCard label="Net flow" value={formatAmount(dashboard.finance.net_flow)} />
       </section>
 
       <section className="panel-grid">
@@ -92,10 +79,28 @@ export function DashboardPage() {
                   <strong>{fund.name}</strong>
                   <span>{fund.code}</span>
                 </div>
-                <strong>{fund.current_balance}</strong>
+                <strong>{formatAmount(fund.current_balance)}</strong>
               </li>
             ))}
           </ul>
+        </article>
+
+        <article className="panel">
+          <h3>People and ministry snapshot</h3>
+          <dl className="definition-list">
+            <div>
+              <dt>Active members</dt>
+              <dd>{dashboard.members.active_members}</dd>
+            </div>
+            <div>
+              <dt>Households</dt>
+              <dd>{dashboard.households.total_households}</dd>
+            </div>
+            <div>
+              <dt>Active group memberships</dt>
+              <dd>{dashboard.groups.total_active_affiliations}</dd>
+            </div>
+          </dl>
         </article>
       </section>
     </div>

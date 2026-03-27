@@ -3,6 +3,11 @@ upstream haven_backend {
     keepalive 16;
 }
 
+upstream haven_frontend {
+    server frontend:3000;
+    keepalive 16;
+}
+
 server {
     listen 80;
     server_name ${APP_DOMAIN};
@@ -24,8 +29,6 @@ server {
     ssl_certificate /etc/letsencrypt/live/${APP_DOMAIN}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/${APP_DOMAIN}/privkey.pem;
 
-    root /usr/share/nginx/html;
-    index index.html;
     client_max_body_size 20m;
 
     add_header Strict-Transport-Security "max-age=${HSTS_HEADER_MAX_AGE}" always;
@@ -75,11 +78,23 @@ server {
         proxy_set_header X-Forwarded-Proto https;
     }
 
-    location = /index.html {
-        add_header Cache-Control "no-store";
+    location /_next/ {
+        proxy_pass http://haven_frontend;
+        proxy_http_version 1.1;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
     }
 
     location / {
-        try_files $uri $uri/ /index.html;
+        proxy_pass http://haven_frontend;
+        proxy_http_version 1.1;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
     }
 }

@@ -1,7 +1,28 @@
-from django.db.models import Prefetch, Q
+from django.db.models import Count, Max, Prefetch, Q
 
+from apps.attendance.models import AttendanceStatus
+from apps.groups.models import GroupMembership
 from apps.households.models import HouseholdMembership
 from apps.members.models import Member
+
+
+def _ordered_household_membership_queryset():
+    return HouseholdMembership.objects.select_related("household").order_by(
+        "-is_active",
+        "-is_head",
+        "-joined_on",
+        "household__name",
+        "id",
+    )
+
+
+def _ordered_group_membership_queryset():
+    return GroupMembership.objects.select_related("group").order_by(
+        "-is_active",
+        "group__name",
+        "-started_on",
+        "id",
+    )
 
 
 def list_members(*, filters: dict | None = None):
@@ -29,15 +50,39 @@ def list_members(*, filters: dict | None = None):
             household_memberships__is_active=True,
         )
 
-    return queryset.distinct()
+    return queryset.order_by("last_name", "first_name", "id").distinct()
 
 
 def get_member_by_id(*, member_id: int):
-    active_memberships = HouseholdMembership.objects.filter(is_active=True).select_related("household")
     return (
         Member.objects.filter(id=member_id)
+        .annotate(
+            attendance_total_count=Count("member_attendances", distinct=True),
+            attendance_present_count=Count(
+                "member_attendances",
+                filter=Q(member_attendances__status=AttendanceStatus.PRESENT),
+                distinct=True,
+            ),
+            attendance_absent_count=Count(
+                "member_attendances",
+                filter=Q(member_attendances__status=AttendanceStatus.ABSENT),
+                distinct=True,
+            ),
+            attendance_late_count=Count(
+                "member_attendances",
+                filter=Q(member_attendances__status=AttendanceStatus.LATE),
+                distinct=True,
+            ),
+            attendance_excused_count=Count(
+                "member_attendances",
+                filter=Q(member_attendances__status=AttendanceStatus.EXCUSED),
+                distinct=True,
+            ),
+            attendance_last_attended_on=Max("member_attendances__service_event__service_date"),
+        )
         .prefetch_related(
-            Prefetch("household_memberships", queryset=active_memberships)
+            Prefetch("household_memberships", queryset=_ordered_household_membership_queryset()),
+            Prefetch("group_memberships", queryset=_ordered_group_membership_queryset()),
         )
         .first()
     )

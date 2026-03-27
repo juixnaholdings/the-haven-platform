@@ -24,7 +24,7 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 - `POST /api/auth/token/verify/`
   Verifies an access token and returns the standard success envelope.
 - `GET /api/auth/me/`
-  Returns the current authenticated user for the supplied bearer token.
+  Returns the current authenticated user for the supplied bearer token, including `role_names` for RBAC-aware frontend routing.
 
 ## Admin
 
@@ -54,6 +54,8 @@ All API routes are mounted under the configured API prefix, which defaults to `/
   Updates a household.
 - `POST /api/households/{household_id}/members/`
   Adds a member to a household while enforcing household membership rules.
+- `PATCH /api/households/{household_id}/memberships/{membership_id}/`
+  Updates household membership state, relationship, dates, and head-of-household assignment.
 
 ## Groups Admin Endpoints
 
@@ -129,6 +131,42 @@ All API routes are mounted under the configured API prefix, which defaults to `/
   Returns attendance summary metrics, with optional `start_date` and `end_date`.
 - `GET /api/reports/finance/`
   Returns finance summary metrics, with optional `start_date` and `end_date`.
+
+## Settings Admin Endpoints
+
+- `GET /api/settings/staff-users/`
+  Returns the staff-user directory with role names, role ids, active-state flags, and login metadata.
+- `POST /api/settings/staff-users/`
+  Creates a staff user and optionally assigns one or more existing roles.
+- `GET /api/settings/staff-users/{staff_user_id}/`
+  Returns one staff user for settings-edit workflows.
+- `PATCH /api/settings/staff-users/{staff_user_id}/`
+  Updates safe staff fields (`email`, names, `is_active`) and assigned `role_ids`.
+- `GET /api/settings/roles/`
+  Returns a role summary with assigned-user counts and permission codes.
+
+Role-definition caveat:
+
+- role-definition mutation (renaming roles or changing permission maps) is intentionally not exposed through product APIs
+- role definitions remain bootstrap/admin-governed through `setup_roles` and Django admin
+
+## Audit Admin Endpoints
+
+- `GET /api/audit/events/`
+  Returns audit events for high-value operational mutations. Supports optional filters:
+  `event_type`, `actor_id`, `target_type`, `target_id`, `start_date`, `end_date`, plus optional pagination (`page`, `page_size`).
+- `GET /api/audit/events/{audit_event_id}/`
+  Returns one audit event payload for focused inspection.
+
+Current first-wave coverage includes:
+
+- member create/update
+- household membership create/update
+- group membership create/update
+- attendance summary create/update
+- member attendance create/update
+- finance transaction create/update (income/expense/transfer flows included)
+- staff user create/update and role-assignment changes
 
 ## Reporting Date Filters
 

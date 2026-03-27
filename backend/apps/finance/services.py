@@ -5,6 +5,8 @@ from django.db import transaction as db_transaction
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
+from apps.common.audit import AuditEventType, AuditTargetType
+from apps.common import services as common_services
 from apps.finance.models import (
     FundAccount,
     LedgerDirection,
@@ -76,6 +78,34 @@ def _create_posted_transaction(
         lines.append(line)
 
     TransactionLine.objects.bulk_create(lines)
+
+    total_in = sum(
+        (line_spec["amount"] for line_spec in line_specs if line_spec["direction"] == LedgerDirection.IN),
+        Decimal("0"),
+    )
+    total_out = sum(
+        (line_spec["amount"] for line_spec in line_specs if line_spec["direction"] == LedgerDirection.OUT),
+        Decimal("0"),
+    )
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.FINANCE_TRANSACTION_CREATED,
+        target_type=AuditTargetType.FINANCE_TRANSACTION,
+        target_id=transaction.id,
+        summary=(
+            f"Recorded {transaction.get_transaction_type_display().lower()} transaction "
+            f"'{transaction.reference_no}'."
+        ),
+        payload={
+            "reference_no": transaction.reference_no,
+            "transaction_type": transaction.transaction_type,
+            "transaction_date": str(transaction.transaction_date),
+            "service_event_id": transaction.service_event_id,
+            "line_count": len(line_specs),
+            "total_in_amount": str(total_in),
+            "total_out_amount": str(total_out),
+        },
+    )
     return transaction
 
 
@@ -219,10 +249,27 @@ def record_transfer(
 
 @db_transaction.atomic
 def update_transaction_metadata(*, transaction: Transaction, data: dict, actor=None) -> Transaction:
+    changed_fields = sorted(
+        field for field in ("transaction_date", "description", "service_event") if field in data
+    )
     for field in ("transaction_date", "description", "service_event"):
         if field in data:
             setattr(transaction, field, data[field])
 
     _set_audit_fields(transaction, actor=actor)
     transaction.save()
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.FINANCE_TRANSACTION_UPDATED,
+        target_type=AuditTargetType.FINANCE_TRANSACTION,
+        target_id=transaction.id,
+        summary=f"Updated transaction metadata for '{transaction.reference_no}'.",
+        payload={
+            "reference_no": transaction.reference_no,
+            "changed_fields": changed_fields,
+            "transaction_date": str(transaction.transaction_date),
+            "service_event_id": transaction.service_event_id,
+        },
+    )
     return transaction

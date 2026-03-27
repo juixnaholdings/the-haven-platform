@@ -20,6 +20,7 @@ from apps.attendance.serializers import (
     ServiceEventWriteSerializer,
 )
 from apps.common.responses import CustomResponse
+from apps.common.pagination import get_optional_paginated_response
 from apps.members import selectors as member_selectors
 
 def _get_service_event_filters(query_params):
@@ -40,6 +41,10 @@ class ServiceEventListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Attendance"],
         summary="List service events",
+        description=(
+            "Supports optional pagination. Provide `page` or `page_size` query params "
+            "to receive a paginated payload."
+        ),
         parameters=[ServiceEventListFilterSerializer],
         responses=ServiceEventListSerializer(many=True),
     )
@@ -47,6 +52,15 @@ class ServiceEventListCreateAdminApi(views.APIView):
         service_events = selectors.list_service_events(
             filters=_get_service_event_filters(request.query_params)
         )
+        paginated_response = get_optional_paginated_response(
+            request=request,
+            queryset=service_events,
+            serializer_class=ServiceEventListSerializer,
+            message="Service events fetched successfully.",
+        )
+        if paginated_response is not None:
+            return paginated_response
+
         serializer = ServiceEventListSerializer(service_events, many=True)
         return CustomResponse(
             data=serializer.data,
@@ -169,6 +183,10 @@ class MemberAttendanceListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Attendance"],
         summary="List member attendance records for an event",
+        description=(
+            "Supports optional pagination. Provide `page` or `page_size` query params "
+            "to receive a paginated payload."
+        ),
         parameters=[MemberAttendanceListFilterSerializer],
         responses=MemberAttendanceDetailSerializer(many=True),
     )
@@ -181,6 +199,15 @@ class MemberAttendanceListCreateAdminApi(views.APIView):
             service_event_id=service_event_id,
             filters=_get_member_attendance_filters(request.query_params),
         )
+        paginated_response = get_optional_paginated_response(
+            request=request,
+            queryset=member_attendances,
+            serializer_class=MemberAttendanceDetailSerializer,
+            message="Member attendance records fetched successfully.",
+        )
+        if paginated_response is not None:
+            return paginated_response
+
         serializer = MemberAttendanceDetailSerializer(member_attendances, many=True)
         return CustomResponse(
             data=serializer.data,

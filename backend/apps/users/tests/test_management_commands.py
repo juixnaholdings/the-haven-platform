@@ -24,6 +24,12 @@ class SetupRolesCommandTests(TestCase):
         church_admin = Group.objects.get(name=CHURCH_ADMIN_ROLE)
         self.assertTrue(
             church_admin.permissions.filter(
+                content_type__app_label="common",
+                codename="view_auditevent",
+            ).exists()
+        )
+        self.assertTrue(
+            church_admin.permissions.filter(
                 content_type__app_label="users",
                 codename="view_user",
             ).exists()

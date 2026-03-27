@@ -1,0 +1,26 @@
+class AuditTargetType:
+    MEMBER = "member"
+    HOUSEHOLD_MEMBERSHIP = "household_membership"
+    GROUP_MEMBERSHIP = "group_membership"
+    ATTENDANCE_SUMMARY = "attendance_summary"
+    MEMBER_ATTENDANCE = "member_attendance"
+    FINANCE_TRANSACTION = "finance_transaction"
+    STAFF_USER = "staff_user"
+
+
+class AuditEventType:
+    MEMBER_CREATED = "member.created"
+    MEMBER_UPDATED = "member.updated"
+    HOUSEHOLD_MEMBERSHIP_CREATED = "household.membership.created"
+    HOUSEHOLD_MEMBERSHIP_UPDATED = "household.membership.updated"
+    GROUP_MEMBERSHIP_CREATED = "group.membership.created"
+    GROUP_MEMBERSHIP_UPDATED = "group.membership.updated"
+    ATTENDANCE_SUMMARY_CREATED = "attendance.summary.created"
+    ATTENDANCE_SUMMARY_UPDATED = "attendance.summary.updated"
+    MEMBER_ATTENDANCE_CREATED = "attendance.member.created"
+    MEMBER_ATTENDANCE_UPDATED = "attendance.member.updated"
+    FINANCE_TRANSACTION_CREATED = "finance.transaction.created"
+    FINANCE_TRANSACTION_UPDATED = "finance.transaction.updated"
+    STAFF_USER_CREATED = "settings.staff_user.created"
+    STAFF_USER_UPDATED = "settings.staff_user.updated"
+    STAFF_ROLE_ASSIGNMENT_UPDATED = "settings.staff_role_assignment.updated"

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sanctuary Choir | Ekklesia</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed": "#001b3c",
+              "on-primary-fixed-variant": "#2d476f",
+              "outline-variant": "#c4c6cf",
+              "on-secondary-fixed": "#121c2b",
+              "on-tertiary-fixed": "#2b1700",
+              "surface-variant": "#e5e2dc",
+              "primary-fixed": "#d6e3ff",
+              "outline": "#74777f",
+              "inverse-on-surface": "#f3f0ea",
+              "surface-container-low": "#f6f3ed",
+              "inverse-surface": "#31312d",
+              "error-container": "#ffdad6",
+              "on-tertiary-fixed-variant": "#633f0f",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "tertiary-fixed-dim": "#f2bc82",
+              "primary-container": "#1a365d",
+              "on-tertiary-container": "#c6955e",
+              "surface-bright": "#fcf9f3",
+              "on-surface": "#1c1c18",
+              "on-error-container": "#93000a",
+              "secondary-fixed": "#d9e3f8",
+              "on-secondary-container": "#5b6577",
+              "on-primary": "#ffffff",
+              "on-secondary-fixed-variant": "#3e4758",
+              "tertiary-container": "#4f2e00",
+              "surface-container": "#f0eee8",
+              "tertiary": "#321b00",
+              "secondary-container": "#d9e3f8",
+              "secondary": "#555f70",
+              "on-tertiary": "#ffffff",
+              "on-background": "#1c1c18",
+              "surface": "#fcf9f3",
+              "on-error": "#ffffff",
+              "surface-tint": "#455f88",
+              "on-primary-container": "#86a0cd",
+              "background": "#fcf9f3",
+              "surface-container-highest": "#e5e2dc",
+              "secondary-fixed-dim": "#bdc7db",
+              "primary": "#002045",
+              "surface-container-lowest": "#ffffff",
+              "on-surface-variant": "#43474e",
+              "primary-fixed-dim": "#adc7f7",
+              "surface-container-high": "#ebe8e2",
+              "tertiary-fixed": "#ffddba",
+              "surface-dim": "#dcdad4",
+              "inverse-primary": "#adc7f7"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased">
+<!-- TopNavBar -->
+<nav class="bg-[#fcf9f3] dark:bg-slate-950 flex justify-between items-center px-12 h-16 w-full z-50 docked full-width top-0 fixed font-inter antialiased tracking-tight">
+<div class="flex items-center gap-8">
+<span class="text-xl font-semibold text-[#1A365D] dark:text-blue-500">Ekklesia</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-[#1A365D] dark:hover:text-blue-300 transition-colors duration-200 cursor-pointer active:opacity-70">Dashboard</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-[#1A365D] dark:hover:text-blue-300 transition-colors duration-200 cursor-pointer active:opacity-70">Directory</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-[#1A365D] dark:hover:text-blue-300 transition-colors duration-200 cursor-pointer active:opacity-70">Finances</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-[#1A365D] dark:hover:text-blue-300 transition-colors duration-200 cursor-pointer active:opacity-70">Events</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="pl-10 pr-4 py-1.5 rounded-full bg-surface-container-low border-none text-sm focus:ring-1 focus:ring-primary-container w-64" placeholder="Search..." type="text"/>
+</div>
+<button class="material-symbols-outlined p-2 text-slate-600 hover:bg-surface-container-high rounded-full transition-colors">notifications</button>
+<button class="material-symbols-outlined p-2 text-slate-600 hover:bg-surface-container-high rounded-full transition-colors">help_outline</button>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container text-xs font-bold overflow-hidden">
+<img alt="User profile" data-alt="Close-up portrait of a professional man in a clean studio setting with soft directional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEN48J3O69vqXR4b28J-DmllsUJKlNkguvD5fNdRvEEHnDsmWgB63AFBvAKjqwEv3sCMNW_TOtGjnrJcgjndOBlEUMMshnM2_6fw4h4CUL2-4S001M708pVIko3C514i4dBoVCKi3Gk1A20XevpywggGTA7q3hJ2cnvqM7jTvrXljPSlESow8XwngTVjefls1xXBK6x3JdpQjFwz-S0vK0vZ2Q2XEqh-AxObEktgJmIjok0nM4Wg9-1n1hJUiryysv7w--IJbHsFY"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-6 z-40 bg-[#f6f3ed] dark:bg-slate-900 docked left-0 h-full w-64 no-border tonal-shift text-sm font-medium font-inter pt-20">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">church</span>
+</div>
+<div>
+<p class="font-bold text-[#1A365D] leading-tight">The Vestry</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Administrative Portal</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-150 hover:translate-x-1">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Households</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-[#ebe8e2] dark:bg-slate-800 text-[#1A365D] dark:text-blue-400 font-bold rounded-lg transition-all duration-150 hover:translate-x-1">
+<span class="material-symbols-outlined" data-icon="church">church</span>
+<span>Ministries</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-150 hover:translate-x-1">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Transactions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-150 hover:translate-x-1">
+<span class="material-symbols-outlined" data-icon="manage_accounts">manage_accounts</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-150 hover:translate-x-1">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-[#ebe8e2]/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-150 hover:translate-x-1">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span>Logs</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 space-y-1 border-t border-outline-variant/20">
+<button class="w-full bg-primary text-on-primary py-2.5 rounded-full font-semibold mb-4 text-xs tracking-wide shadow-sm hover:opacity-90 transition-opacity">
+                New Record
+            </button>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-[#ebe8e2] rounded-lg transition-all">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-[#ebe8e2] rounded-lg transition-all">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="px-12 py-10 max-w-7xl mx-auto">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div>
+<nav class="flex items-center gap-2 text-xs font-semibold text-on-tertiary-container uppercase tracking-widest mb-3">
+<span>Ministries</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-on-surface-variant">Sanctuary Choir</span>
+</nav>
+<h1 class="text-4xl font-extrabold text-primary tracking-tight mb-2">Sanctuary Choir</h1>
+<p class="text-on-surface-variant max-w-xl leading-relaxed">Dedicated to elevating the worship experience through choral excellence and spiritual devotion. Serving the 10:30 AM Sunday Liturgy.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-6 py-2.5 bg-surface-container-high text-primary font-bold rounded-full text-sm transition-all hover:bg-surface-container-highest">
+<span class="material-symbols-outlined text-lg">mail</span>
+                        Send Group Email
+                    </button>
+<button class="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold rounded-full text-sm shadow-lg shadow-primary/10 transition-all hover:scale-[1.02]">
+<span class="material-symbols-outlined text-lg">event</span>
+                        Schedule Rehearsal
+                    </button>
+</div>
+</header>
+<!-- Bento Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<!-- Leader Card -->
+<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] flex items-center gap-5">
+<div class="w-16 h-16 rounded-2xl overflow-hidden shadow-inner">
+<img alt="David Richards" data-alt="Portrait of a middle-aged man with kind eyes and a warm smile, professional lighting, soft background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZjMM8K0MN3S3FcBF2OQ5oVjh_IKTaAlQPI55Av7n8HsJ12ELJVZzsVXFKAVyCb3IzpJM4Z_GAVCVl4boatirJbmg8w1NxUyKfpIgrVhB3f_WDkZebrRdf5RD1lwjnZNUoWS7Mr0Jwjg0XRdi6cJ0dseEMKKTJ9dLCsnbWfHm50-vIoeMJPmhjXD5-BnCT9iBqBLw68XZ5nZY9mrQMz1obY0koN7x7h-u1lvkzB97KXgDILUOZMKAFytnLIKaEvHICAnb41Ons_Fw"/>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Ministry Leader</p>
+<h3 class="text-lg font-bold text-primary">David Richards</h3>
+<p class="text-xs text-on-tertiary-container font-medium">Director of Music</p>
+</div>
+</div>
+<!-- Member Count -->
+<div class="bg-surface-container-low p-6 rounded-3xl flex flex-col justify-between">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-4">Active Members</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-extrabold text-primary tracking-tighter">42</span>
+<span class="text-sm font-medium text-on-surface-variant">Vocals &amp; Accompaniment</span>
+</div>
+<div class="flex -space-x-2 mt-4">
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-low overflow-hidden"><img alt="Member" data-alt="Close-up portrait of a woman smiling outdoors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxKP1S0BXtDA2PAe-o849eqvS6crWvdRRRc-wBU3SPkyIItOTNuo2bdzMjfwdnBtIawSpwufPCj83pFFrkOAEYExcDoknlka4mAXvCeUuBU1eDQbSrxd9MLeXZNnt6f_ycOFlvAKN0IrlNCmuqqTZTlJYGlh7X2dvT0tZW1XD7HwjgsXEqVGkt_bDHKyVcI8UmG5ca5ouNF_3g0ofoRPnWOLzeBl1SDsr1CQp0zixMxAw-QUiipbm_Q2vmPpQtTMPY85NcBT4TJJg"/></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-low overflow-hidden"><img alt="Member" data-alt="Close-up portrait of a young man with glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfaEUnIu6e1ed8zCE08Fqk3FidzY_MrV-EZeVdiX_YnT8h1lHcakJTKb8mIgDXelRIJmw4QALDYcj9BrwqtwenuH8v0hGBIknvfC993Q8L8m-MGEbKmYhkwVQwhcmrhohAc5bpgwMDPmDl0mxmK_vdXRm_PL_7jwv5RC1tqSfXrzCrSjWPbe-xw_2UoYkruUupKPnvquHpxS8CodOXMRmgZS-qg8YaSiMKJq_STn92Y0AxclBntPbD70IIaA-0XIvMZ5Od2M6kDuw"/></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-low overflow-hidden"><img alt="Member" data-alt="Close-up portrait of a woman with curly hair" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyB0yjuNnCTcCiXBKF2BoVbiFsMiLPYhX90aORvyImOWjpsXAAb5XUXEzilmGbsTa3eFFmEfvgFxrrFIeXedMCzGVhKLmeA8D5XsWZxhA1PLlT6Q18zGkB3Fu7gGb4KsQN6l8YRwGHGj5FAVGJXbVqkpdcXWQkWvnSPSCKsZATa4v6h5YBsbQp6Tot5zpooB48fUrNeq3NbFwr9tsaLo5inVLwr5rgRMve3JBpG9uyG5mzdPMerBFPBY16zv02bzk_M9X_NGaxv3I"/></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface-container-low bg-primary-fixed flex items-center justify-center text-[10px] font-bold text-on-primary-fixed">+39</div>
+</div>
+</div>
+<!-- Next Meeting -->
+<div class="bg-primary text-on-primary p-6 rounded-3xl shadow-xl shadow-primary/20">
+<p class="text-[10px] uppercase tracking-widest text-on-primary/60 font-bold mb-4">Next Rehearsal</p>
+<div class="flex items-start gap-4">
+<div class="bg-on-primary/10 p-3 rounded-2xl text-center min-w-[60px]">
+<p class="text-[10px] font-bold uppercase">Oct</p>
+<p class="text-2xl font-black">24</p>
+</div>
+<div>
+<p class="font-bold text-lg leading-tight">Thursday Practice</p>
+<p class="text-sm text-on-primary/80">07:00 PM • Main Sanctuary</p>
+<div class="mt-3 flex items-center gap-1.5 text-[10px] font-semibold bg-on-primary/10 py-1 px-2.5 rounded-full w-fit">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">alarm</span>
+                                48 Hours Remaining
+                            </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Member Management Section -->
+<section class="bg-surface-container-lowest rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] overflow-hidden">
+<div class="p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-outline-variant/10">
+<h2 class="text-xl font-bold text-primary">Member Directory</h2>
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">filter_list</span>
+<select class="pl-10 pr-8 py-2 rounded-xl bg-surface-container-low border-none text-xs font-semibold focus:ring-1 focus:ring-primary-container appearance-none cursor-pointer">
+<option>All Roles</option>
+<option>Soprano</option>
+<option>Alto</option>
+<option>Tenor</option>
+<option>Bass</option>
+</select>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="pl-10 pr-4 py-2 rounded-xl bg-surface-container-low border-none text-xs focus:ring-1 focus:ring-primary-container w-full sm:w-64" placeholder="Search members..." type="text"/>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low/40">
+<th class="px-8 py-4 text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Member</th>
+<th class="px-8 py-4 text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Role</th>
+<th class="px-8 py-4 text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Joining Date</th>
+<th class="px-8 py-4 text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Attendance (Last 5)</th>
+<th class="px-8 py-4 text-[10px] uppercase tracking-widest text-on-surface-variant font-bold text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/20 transition-colors">
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-secondary-fixed flex items-center justify-center overflow-hidden">
+<img alt="Alice" data-alt="Portrait of a smiling young woman with dark hair" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA07WBHq207gk0T2wby505CvvyjSvkDzBBKFUFFqow6yciFSdK8FJlhcpRx5WzWl450ZhANY2L1xWDoce6Yc5zS3jCRABxtwOu2VmTD2mqnToy_UWZOEpHAIK21uu6jdkvsqg8yyRroax7VFOS8Cxwmmbz__2dAWR2LVudOlJVMvDnuCuNqCrBVtkefHL5YBVfp_PeJ013P5asNXee2JXPSFdiDvo4rYws2lQ7sLG2TbOTql27ft2tnKYkoGycqzXDL2sYRyGkaet0"/>
+</div>
+<div>
+<p class="font-bold text-primary text-sm">Alice Vance</p>
+<p class="text-[11px] text-on-surface-variant">alice.v@example.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold">Soprano</span>
+</td>
+<td class="px-8 py-4 text-xs font-medium text-on-surface-variant">Mar 12, 2022</td>
+<td class="px-8 py-4">
+<div class="flex gap-1">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary/20"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+</div>
+</td>
+<td class="px-8 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-container-low/20 hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-secondary-fixed flex items-center justify-center overflow-hidden">
+<img alt="Mark" data-alt="Portrait of a friendly man with a beard and glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5bFT9--UuAL4OqL-HPE5CP5aL7ooJs9gUWYjJeA9vVr9QypNboqMNMQZR_k-SY8Df0SDvNCecf3HL9sXHKUMJCTqapr4U96fyzzGhy018OluH2JOFbkJ_GL-w3HC_irLlqTx3yvqL-KDPL77Ojy5e-goT7POtUBj2HUXRjucvKWzlp3D44melz21kRUXpopXijvdJFeni50CfPV-waLHiCrDnWObTpRZRg2pq46eaBYBO2vGMNx4S0BM7hQx-F-qMSl3-hMJUaJw"/>
+</div>
+<div>
+<p class="font-bold text-primary text-sm">Mark Thompson</p>
+<p class="text-[11px] text-on-surface-variant">m.thompson@church.org</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-4">
+<span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full text-[10px] font-bold">Tenor</span>
+</td>
+<td class="px-8 py-4 text-xs font-medium text-on-surface-variant">Jan 05, 2021</td>
+<td class="px-8 py-4">
+<div class="flex gap-1">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+</div>
+</td>
+<td class="px-8 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/20 transition-colors">
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-secondary-fixed flex items-center justify-center overflow-hidden">
+<img alt="Sarah" data-alt="Portrait of a professional woman with a soft smile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwUI-74-uXVS1BEcrBPdTzgWvyyS0wAMJ3nKrg_i5IIrCLonLHYAA-JrKcKXW1bE0MUWXw7qoTBsUWKZhTHDW5z4f87-Xy-T5V48J-gSkn1HYU3UOuZP4nGh1pTmFIWQdu2hr9TnZmmrwpmxr2aswDfep8zBXxtl7E6Vx4RvwlurCw5m0wn_satAnaaj7CDYjExNhptcKVeFXuw-xZZL-Gkgx3rAPl_PQ-f3vAndxouN-N8aCByVBjvQmMvWMuiv8k4BGZCB57_h8"/>
+</div>
+<div>
+<p class="font-bold text-primary text-sm">Sarah Jenkins</p>
+<p class="text-[11px] text-on-surface-variant">s.jenkins@domain.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold">Alto</span>
+</td>
+<td class="px-8 py-4 text-xs font-medium text-on-surface-variant">Aug 18, 2023</td>
+<td class="px-8 py-4">
+<div class="flex gap-1">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary/20"></div>
+<div class="w-2 h-2 rounded-full bg-primary/20"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+</div>
+</td>
+<td class="px-8 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-surface-container-low/20 hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-secondary-fixed flex items-center justify-center overflow-hidden">
+<img alt="James" data-alt="Portrait of a stylish man looking away from camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaafFMhtJPm3KQwsj37eS76_jTFv-T6Twr2d6YXiNumfdDHuzagDzuk2wSPX512OBLXcCg49_KNxJXq30dEU0po937Fh9f4MP_ev9PdPt2Jn3xXGUNqmDIWF82q3fbdVVmX8kkPNCk_yQSsj_GaJPIY35NEbPBy4QTUEqsm8lEvJlG5ThTvi8tI-YJKY06-QiFlILu2uo6YrcA5DAFybagQnWnybOoM6KhZTEh48RkJm6Bk_6Tyd-Gnxe-f1SQvFYsHiBCm4TVZNs"/>
+</div>
+<div>
+<p class="font-bold text-primary text-sm">James Wilson</p>
+<p class="text-[11px] text-on-surface-variant">j.wilson@liturgy.org</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-4">
+<span class="px-3 py-1 bg-on-tertiary-fixed-variant/10 text-on-tertiary-fixed-variant rounded-full text-[10px] font-bold">Bass</span>
+</td>
+<td class="px-8 py-4 text-xs font-medium text-on-surface-variant">Nov 30, 2022</td>
+<td class="px-8 py-4">
+<div class="flex gap-1">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<div class="w-2 h-2 rounded-full bg-primary/20"></div>
+</div>
+</td>
+<td class="px-8 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 bg-surface-container-low/10 flex items-center justify-between">
+<p class="text-xs text-on-surface-variant font-medium">Showing 4 of 42 members</p>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-primary text-on-primary text-xs font-bold">1</button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-container-high text-on-surface-variant text-xs font-bold">2</button>
+<button class="w-8 h-8 rounded-lg hover:bg-surface-container-high text-on-surface-variant text-xs font-bold">3</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

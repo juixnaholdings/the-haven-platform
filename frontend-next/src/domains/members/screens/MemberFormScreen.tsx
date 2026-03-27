@@ -1,0 +1,310 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { queryClient } from "@/api/queryClient";
+import {
+  ErrorAlert,
+  ErrorState,
+  FormSection,
+  LoadingState,
+  PageHeader,
+  StatusBadge,
+} from "@/components";
+import { membersApi } from "@/domains/members/api";
+import type { MemberWritePayload } from "@/domains/types";
+
+interface MemberFormState {
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+  date_of_birth: string;
+  notes: string;
+  is_active: boolean;
+}
+
+const emptyMemberForm: MemberFormState = {
+  first_name: "",
+  middle_name: "",
+  last_name: "",
+  email: "",
+  phone_number: "",
+  date_of_birth: "",
+  notes: "",
+  is_active: true,
+};
+
+function toMemberPayload(formState: MemberFormState): MemberWritePayload {
+  return {
+    first_name: formState.first_name,
+    middle_name: formState.middle_name || undefined,
+    last_name: formState.last_name,
+    email: formState.email || undefined,
+    phone_number: formState.phone_number || undefined,
+    date_of_birth: formState.date_of_birth || null,
+    notes: formState.notes || undefined,
+    is_active: formState.is_active,
+  };
+}
+
+interface MemberFormScreenProps {
+  memberId?: number;
+}
+
+export function MemberFormScreen({ memberId }: MemberFormScreenProps) {
+  const router = useRouter();
+  const isEdit = Number.isFinite(memberId);
+  const [formOverrides, setFormOverrides] = useState<Partial<MemberFormState>>({});
+
+  const memberQuery = useQuery({
+    enabled: isEdit,
+    queryKey: ["member", memberId],
+    queryFn: () => membersApi.getMember(memberId as number),
+  });
+
+  const baseFormState = useMemo<MemberFormState>(() => {
+    if (!isEdit || !memberQuery.data) {
+      return emptyMemberForm;
+    }
+
+    return {
+      first_name: memberQuery.data.first_name,
+      middle_name: memberQuery.data.middle_name || "",
+      last_name: memberQuery.data.last_name,
+      email: memberQuery.data.email || "",
+      phone_number: memberQuery.data.phone_number || "",
+      date_of_birth: memberQuery.data.date_of_birth || "",
+      notes: memberQuery.data.notes || "",
+      is_active: memberQuery.data.is_active,
+    };
+  }, [isEdit, memberQuery.data]);
+
+  const formState: MemberFormState = useMemo(
+    () => ({
+      ...baseFormState,
+      ...formOverrides,
+    }),
+    [baseFormState, formOverrides],
+  );
+
+  const saveMemberMutation = useMutation({
+    mutationFn: async (payload: MemberWritePayload) => {
+      if (isEdit) {
+        return membersApi.updateMember(memberId as number, payload);
+      }
+
+      return membersApi.createMember(payload);
+    },
+    onSuccess: async (member) => {
+      await queryClient.invalidateQueries({ queryKey: ["members"] });
+      await queryClient.invalidateQueries({ queryKey: ["member", member.id] });
+      router.replace(`/members/${member.id}`);
+    },
+  });
+
+  if (isEdit && memberQuery.isLoading) {
+    return (
+      <LoadingState
+        description="Preparing the current member record."
+        title="Loading member editor"
+      />
+    );
+  }
+
+  if (isEdit && (memberQuery.error || !memberQuery.data)) {
+    return (
+      <ErrorState
+        error={memberQuery.error ?? new Error("Member not found.")}
+        onRetry={() => {
+          void memberQuery.refetch();
+        }}
+        title="Member editor could not be opened"
+      />
+    );
+  }
+
+  return (
+    <div className="page-stack">
+      <PageHeader
+        actions={
+          <div className="inline-actions">
+            <Link className="button button-secondary" href={isEdit ? `/members/${memberId}` : "/members"}>
+              Cancel
+            </Link>
+          </div>
+        }
+        description={
+          isEdit
+            ? "Update the core member profile fields currently supported by the backend."
+            : "Create a new member profile using the real members API."
+        }
+        eyebrow="Member profile"
+        title={isEdit ? "Edit member" : "Create member"}
+      />
+
+      <form
+        className="page-stack"
+        onSubmit={(event) => {
+          event.preventDefault();
+          saveMemberMutation.mutate(toMemberPayload(formState));
+        }}
+      >
+        <div className="content-grid content-grid-form">
+          <div className="page-stack">
+            <FormSection
+              description="These fields map directly to the current member profile payload exposed by the backend."
+              title="Core profile"
+            >
+              <div className="form-grid form-grid-2">
+                <label className="field">
+                  <span>First name</span>
+                  <input
+                    onChange={(event) =>
+                      setFormOverrides((current) => ({ ...current, first_name: event.target.value }))
+                    }
+                    required
+                    value={formState.first_name}
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Middle name</span>
+                  <input
+                    onChange={(event) =>
+                      setFormOverrides((current) => ({ ...current, middle_name: event.target.value }))
+                    }
+                    value={formState.middle_name}
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Last name</span>
+                  <input
+                    onChange={(event) =>
+                      setFormOverrides((current) => ({ ...current, last_name: event.target.value }))
+                    }
+                    required
+                    value={formState.last_name}
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Email</span>
+                  <input
+                    onChange={(event) =>
+                      setFormOverrides((current) => ({ ...current, email: event.target.value }))
+                    }
+                    type="email"
+                    value={formState.email}
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Phone number</span>
+                  <input
+                    onChange={(event) =>
+                      setFormOverrides((current) => ({ ...current, phone_number: event.target.value }))
+                    }
+                    value={formState.phone_number}
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Date of birth</span>
+                  <input
+                    onChange={(event) =>
+                      setFormOverrides((current) => ({ ...current, date_of_birth: event.target.value }))
+                    }
+                    type="date"
+                    value={formState.date_of_birth}
+                  />
+                </label>
+              </div>
+            </FormSection>
+
+            <FormSection
+              description="The backend currently stores profile notes and active state, but not related household or attendance history on this form."
+              title="Operational notes"
+            >
+              <div className="form-grid">
+                <label className="field">
+                  <span>Notes</span>
+                  <textarea
+                    onChange={(event) =>
+                      setFormOverrides((current) => ({ ...current, notes: event.target.value }))
+                    }
+                    rows={5}
+                    value={formState.notes}
+                  />
+                </label>
+
+                <label className="checkbox-field">
+                  <input
+                    checked={formState.is_active}
+                    onChange={(event) =>
+                      setFormOverrides((current) => ({ ...current, is_active: event.target.checked }))
+                    }
+                    type="checkbox"
+                  />
+                  <span>Member is active</span>
+                </label>
+              </div>
+            </FormSection>
+
+            <ErrorAlert
+              error={saveMemberMutation.error}
+              fallbackMessage="The member record could not be saved."
+            />
+
+            <div className="inline-actions">
+              <button className="button button-primary" disabled={saveMemberMutation.isPending} type="submit">
+                {saveMemberMutation.isPending ? "Saving..." : isEdit ? "Save changes" : "Create member"}
+              </button>
+              <Link className="button button-secondary" href={isEdit ? `/members/${memberId}` : "/members"}>
+                Cancel
+              </Link>
+            </div>
+          </div>
+
+          <aside className="page-stack">
+            <section className="panel sticky-panel">
+              <div className="panel-header">
+                <div>
+                  <h3>Record status</h3>
+                  <p className="muted-text">A quick summary of what this form controls today.</p>
+                </div>
+              </div>
+              <div className="page-stack">
+                <StatusBadge
+                  label={formState.is_active ? "Active member" : "Inactive member"}
+                  tone={formState.is_active ? "success" : "muted"}
+                />
+                <ul className="item-list">
+                  <li className="item-row">
+                    <div>
+                      <strong>Included on this form</strong>
+                      <span>Identity, contact fields, birth date, notes, and active state.</span>
+                    </div>
+                  </li>
+                  <li className="item-row">
+                    <div>
+                      <strong>Not included here</strong>
+                      <span>
+                        Household links, ministry affiliations, attendance history, and finance history.
+                      </span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </form>
+    </div>
+  );
+}

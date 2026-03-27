@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed-variant": "#633f0f",
+              "on-surface-variant": "#43474e",
+              "on-secondary-container": "#5b6577",
+              "surface": "#fcf9f3",
+              "on-tertiary-fixed": "#2b1700",
+              "on-error": "#ffffff",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#f6f3ed",
+              "background": "#fcf9f3",
+              "surface-container-high": "#ebe8e2",
+              "surface-dim": "#dcdad4",
+              "primary-fixed-dim": "#adc7f7",
+              "on-primary-fixed": "#001b3c",
+              "on-secondary": "#ffffff",
+              "tertiary": "#321b00",
+              "on-primary-fixed-variant": "#2d476f",
+              "surface-container-highest": "#e5e2dc",
+              "secondary-fixed": "#d9e3f8",
+              "inverse-on-surface": "#f3f0ea",
+              "on-tertiary": "#ffffff",
+              "surface-tint": "#455f88",
+              "error-container": "#ffdad6",
+              "primary": "#002045",
+              "primary-container": "#1a365d",
+              "surface-container-lowest": "#ffffff",
+              "surface-bright": "#fcf9f3",
+              "inverse-surface": "#31312d",
+              "surface-container": "#f0eee8",
+              "inverse-primary": "#adc7f7",
+              "outline": "#74777f",
+              "on-secondary-fixed": "#121c2b",
+              "error": "#ba1a1a",
+              "tertiary-fixed-dim": "#f2bc82",
+              "outline-variant": "#c4c6cf",
+              "on-surface": "#1c1c18",
+              "tertiary-fixed": "#ffddba",
+              "surface-variant": "#e5e2dc",
+              "on-error-container": "#93000a",
+              "on-tertiary-container": "#c6955e",
+              "on-secondary-fixed-variant": "#3e4758",
+              "primary-fixed": "#d6e3ff",
+              "secondary-container": "#d9e3f8",
+              "secondary": "#555f70",
+              "on-primary-container": "#86a0cd",
+              "tertiary-container": "#4f2e00",
+              "on-background": "#1c1c18",
+              "secondary-fixed-dim": "#bdc7db"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-x-hidden">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-50 dark:bg-slate-900 z-50">
+<div class="flex flex-col h-full p-4 gap-2">
+<div class="px-4 py-6">
+<h1 class="text-lg font-black text-blue-900 dark:text-blue-500 tracking-tighter">Ekklesia Admin</h1>
+<p class="text-xs text-slate-500 font-medium">St. Jude's Parish</p>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Members</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">home_work</span>
+<span class="text-sm font-medium">Households</span>
+</a>
+<!-- Active Item -->
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-400 rounded-lg shadow-sm font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">church</span>
+<span class="text-sm">Ministries</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">event_upcoming</span>
+<span class="text-sm font-medium">Services</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-sm font-medium">Finances</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-medium">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- Top App Bar -->
+<header class="w-full h-16 sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm dark:shadow-none font-inter tracking-tight antialiased">
+<div class="flex items-center justify-between px-8 w-full h-full">
+<div class="flex items-center gap-6 flex-1">
+<div class="relative w-96 max-w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-slate-100/50 dark:bg-slate-900 border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-900/10" placeholder="Search ministries or leaders..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-900 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors active:scale-95 duration-200">
+                        Quick Report
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-blue-900 text-white text-sm font-semibold rounded-xl hover:bg-primary-container transition-colors shadow-sm active:scale-95 duration-200">
+<span class="material-symbols-outlined text-sm">add</span>
+                        Add Member
+                    </button>
+<div class="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-slate-200">
+<img alt="User Profile Avatar" data-alt="Portrait of a professional man in his 40s with a warm smile, clean-cut, against a neutral studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTCnbbTPOq65vF38S8DImrTaDKJXYLQLkLPz-l4SMXG09LjxRsknGT8qFJE-3u_og2bDxqIBYvYgIt6BHrxBzrlxXnrWUNWxUKqefLcj7f8cx4X0gEiwuheQBVNhR9bYS_NTaMGW_Bn4pon0mA-ZpCz3zVLUZ_ae9DhvQYB9jDAzs7VqGn7aC5O1QL2tBkalfKndF_Fbz1qr6gAsAcaFu4TQTQmB-ltmOhGmMEi7f_AFwb73bvq5e49Y55L1rxrDh7gJqR5u5xzis"/>
+</div>
+</div>
+</div>
+<div class="bg-slate-100/50 dark:bg-slate-900/50 h-[1px] w-full"></div>
+</header>
+<!-- Content Canvas -->
+<div class="p-10 space-y-10">
+<!-- Page Header -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-3xl font-bold tracking-tight text-primary mb-1">Ministries &amp; Groups</h2>
+<p class="text-on-surface-variant text-sm max-w-md">Oversee the vibrant spiritual communities and operational teams within St. Jude's Parish.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-high text-primary text-sm font-semibold rounded-xl hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+                        Filters
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary text-sm font-semibold rounded-xl hover:shadow-lg transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+                        Create Ministry
+                    </button>
+</div>
+</div>
+<!-- Stats Overview - Asymmetric Bento Grid -->
+<div class="grid grid-cols-12 gap-6">
+<div class="col-span-12 lg:col-span-7 bg-primary-container rounded-xl p-8 text-on-primary-container relative overflow-hidden flex flex-col justify-between">
+<div class="relative z-10">
+<h3 class="text-lg font-medium opacity-80 mb-2">Total Ministry Engagement</h3>
+<div class="flex items-baseline gap-4">
+<span class="text-6xl font-bold tracking-tighter">1,284</span>
+<span class="text-sm bg-white/20 px-3 py-1 rounded-full font-medium">+12% this month</span>
+</div>
+</div>
+<div class="mt-8 flex gap-4 relative z-10">
+<div class="flex flex-col">
+<span class="text-xs uppercase tracking-widest opacity-60 font-bold">Active Groups</span>
+<span class="text-2xl font-semibold">24</span>
+</div>
+<div class="w-px h-10 bg-white/20 mx-2"></div>
+<div class="flex flex-col">
+<span class="text-xs uppercase tracking-widest opacity-60 font-bold">New Registrations</span>
+<span class="text-2xl font-semibold">48</span>
+</div>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+</div>
+<div class="col-span-12 lg:col-span-5 grid grid-cols-2 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col justify-between">
+<span class="material-symbols-outlined text-on-tertiary-container bg-tertiary-fixed w-10 h-10 flex items-center justify-center rounded-lg mb-4">volunteer_activism</span>
+<div>
+<p class="text-3xl font-bold tracking-tight">82%</p>
+<p class="text-sm text-on-surface-variant font-medium">Leadership Coverage</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col justify-between border border-transparent hover:border-outline-variant/20 transition-all">
+<span class="material-symbols-outlined text-primary bg-primary-fixed w-10 h-10 flex items-center justify-center rounded-lg mb-4">calendar_month</span>
+<div>
+<p class="text-3xl font-bold tracking-tight">16</p>
+<p class="text-sm text-on-surface-variant font-medium">Events This Week</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Ministries Grid -->
+<div class="space-y-6">
+<div class="flex items-center justify-between px-1">
+<h3 class="text-xl font-bold text-primary">Active Ministries</h3>
+<div class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span>Sort by:</span>
+<select class="bg-transparent border-none text-primary font-semibold py-0 focus:ring-0 cursor-pointer">
+<option>Engagement</option>
+<option>Name A-Z</option>
+<option>Next Meeting</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Ministry Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10 group hover:shadow-md transition-all duration-300">
+<div class="flex justify-between items-start mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">music_note</span>
+</div>
+<button class="p-2 text-outline hover:text-primary rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="mb-6">
+<h4 class="text-xl font-bold text-primary mb-1">Sanctuary Choir</h4>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-base">person</span>
+<span>Leader: <span class="text-on-surface font-semibold">David Richards</span></span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low/50 p-3 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Members</p>
+<p class="text-lg font-bold text-primary">42</p>
+</div>
+<div class="bg-surface-container-low/50 p-3 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Next Meeting</p>
+<p class="text-sm font-bold text-primary">Thu, 7:00 PM</p>
+</div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-50">
+<div class="flex -space-x-2">
+<img alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="close-up portrait of a smiling woman with glasses in a professional setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH5oGbjaFkjCTS99VwWaqvKGqUUnB2rAhKer02IZBhziYOGZrQpTLtBkGB_hPqF2tKakLU7po9RVN4qekFIQrBKH-RXKgLrEP-SKzC-hzIQbRfDmfufT0sRrkMs7Xt1LimPE0elWbVDs_fGiQIdTHT5TBFaEta0OA3muG6W0M9r7zmuXlonz7veFi97EnZ0WRq3LY4ah-tH2Wyk23N_MLv1ukhoejje4QeZ4qYHLkXR2IhFq4aSpWZpkCOymRWJXnF1OtM9qRBUxM"/>
+<img alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="portrait of a young man with a slight beard in soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkVwpq_yg5GUaaDb6zYri_jz4yB29dYhQ3Ac8sSc6F5EPWDMPCUbYmH0gR9KtgOLfrbcn1MgusuHQuuWDM7_mkx_IHSoncSeclrJqvzA_v1Hvd1oT_7sWmvwPtAoy3hEKEW7884Q6Vgqy-i8UsNtAepjqeZm8XncBsj6bT4L6U67cR3E_QtztHKjS5PlQ_-rsko2uWw_fbHQ6KkFYt-_lsUFrFCj26pHVdZxaHQyJPHLRFPUPLDoXCsnL5pX77rpmUcetFmuuepZo"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-white flex items-center justify-center text-[10px] font-bold text-on-surface-variant">+39</div>
+</div>
+<button class="text-sm font-bold text-primary hover:underline underline-offset-4">Manage Members</button>
+</div>
+</div>
+<!-- Ministry Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10 group hover:shadow-md transition-all duration-300">
+<div class="flex justify-between items-start mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">auto_awesome</span>
+</div>
+<button class="p-2 text-outline hover:text-primary rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="mb-6">
+<h4 class="text-xl font-bold text-primary mb-1">Youth Fellowship</h4>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-base">person</span>
+<span>Leader: <span class="text-on-surface font-semibold">Sarah Jenkins</span></span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low/50 p-3 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Members</p>
+<p class="text-lg font-bold text-primary">156</p>
+</div>
+<div class="bg-surface-container-low/50 p-3 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Next Meeting</p>
+<p class="text-sm font-bold text-primary">Fri, 6:30 PM</p>
+</div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-50">
+<div class="flex -space-x-2">
+<img alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="headshot of a cheerful man in a light blue shirt outdoors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRpnHBH1zcBjCjGjfz7t2vHjeh96jVu3NQq0-i9PiggHUm07Ioz-0NCzoCJZYUOgbHlxuO9j1bC5aVdLtLpm4YY58NCI24vuVDg2pRDg8QAyOrd4IAjSVOFT4co15Xh5rlBkQ-mqJY56OUX-LFsG9XWf3OOb7NI5GV4ThiJrSeoo0KOy8-MNJgMifqDO31G4mKz3_5WJhB4tteI5InThFpmVny_uB9P30ZpYrwE3rySiDAaLfOGXXRkUumfDqy01E3mWlhn44x0x0"/>
+<img alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="close up of a young woman with curly hair smiling in a bright environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDl6V_rRdjxuEm2QgWlJ2OQPKsR1pI5P5hoFk2LK8ltgVuglXC5USD12k5dZp2n-hwaWlimtVuHc5WWarWtdnpS63HTBB-pLsykf6nBQBB2ww4irNahIo6TwTatbhHtcBF6hOFSGeTJaLDwzloHXC2bmIib1ksAcQsJydKCfr46s9NrwpayOIxlYPdowlVeFbAx9JbeqDsHcvRjO7sqHJCdO31dAKnZ-KRigrji6FIhfAw_E8xmdJ7oX9isuv3WxAIYk4kfeHxEPUE"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-white flex items-center justify-center text-[10px] font-bold text-on-surface-variant">+154</div>
+</div>
+<button class="text-sm font-bold text-primary hover:underline underline-offset-4">Manage Members</button>
+</div>
+</div>
+<!-- Ministry Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10 group hover:shadow-md transition-all duration-300">
+<div class="flex justify-between items-start mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">handyman</span>
+</div>
+<button class="p-2 text-outline hover:text-primary rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="mb-6">
+<h4 class="text-xl font-bold text-primary mb-1">Facilities Team</h4>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-base">person</span>
+<span>Leader: <span class="text-on-surface font-semibold">Robert Miller</span></span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low/50 p-3 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Members</p>
+<p class="text-lg font-bold text-primary">12</p>
+</div>
+<div class="bg-surface-container-low/50 p-3 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Next Meeting</p>
+<p class="text-sm font-bold text-primary">Sat, 8:00 AM</p>
+</div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-50">
+<div class="flex -space-x-2">
+<img alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="professional woman in her 50s with grey hair smiling gently in a soft lit office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9UEx5aP9uBzLqZu9qFxSH9Bxgh8ID-iEB1-sXrLjBI6OpqkI-Jsplb9dTkelStojzJVSugGg6xE3CQCSBUDMtUq9d160cgjQ3HplFV54IF_ZQaqfT0M5FVaZ5M0ls3kw44-xcAXN_h_vDyiRUJNOj7ZVp6_hS6kx4xx3_DNgT72pqLaXleafETUg4eKxxrAJW8xzoeSiezbs8HsPcdff_8dvMypCY_Jnhauh8dYwhjo_gI3YEudG36UEbt6guUdk0KyEVLwFyA0E"/>
+<img alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="man with beard looking confidently into camera in urban setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBAoP4hF55zYPrQSrZoxo1XDLBmWJXFXOvz0UmI0ceIRXs2olNZHZzqwStZDqtcutWyeyNzhoM_GSIQiUaTCXA_1zQKqCGWORgnuV-78r0QmGBbi5mgWv8wRRpJr9qvsZxibbA0zflHU7xM1ty4XVrXixEoubNMNtWJBjYLmJdFOHYf2UVIZiuKyvfYroRumNlRLETvPcZ1YwUCHGz5WzI9K8P7G6Nxa78Q5DjElQe03eOH5HbtmEWkGVOsekpxKHChnr4HZy3MPc"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-white flex items-center justify-center text-[10px] font-bold text-on-surface-variant">+10</div>
+</div>
+<button class="text-sm font-bold text-primary hover:underline underline-offset-4">Manage Members</button>
+</div>
+</div>
+<!-- Ministry Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10 group hover:shadow-md transition-all duration-300">
+<div class="flex justify-between items-start mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">menu_book</span>
+</div>
+<button class="p-2 text-outline hover:text-primary rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="mb-6">
+<h4 class="text-xl font-bold text-primary mb-1">Tuesday Bible Study</h4>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-base">person</span>
+<span>Leader: <span class="text-on-surface font-semibold">Pastor Thomas</span></span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low/50 p-3 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Members</p>
+<p class="text-lg font-bold text-primary">28</p>
+</div>
+<div class="bg-surface-container-low/50 p-3 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Next Meeting</p>
+<p class="text-sm font-bold text-primary">Tue, 10:00 AM</p>
+</div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-50">
+<div class="flex -space-x-2">
+<img alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="young woman laughing naturally in a sunlit room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF4DlEbO2zIT0S-zw3N9cGBHd-1RWK_u8rPWMMoAY3tEKATbG1o5S7HbSyRt1b8Licg3i0zz2xaamCiwdg3K49QushheT_vxa0riFO9NsrfUabs4ep0_-sTCjplS5K79-3yJ0xOXmqFYa49U-eCQoOqpR2rX2ncD2AIZXhEsrgB66nd93-oHonCiGXsOmjvE83ujEmU0aygNbl2iTmR0EXmpHM6L2NMGiW3qvuoqie4NdgKJwU59cyeKfLsGS6hQK_sG85TRb6YbE"/>
+<img alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="rugged portrait of a man in casual attire in front of a textured wall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVSuO_naHPJMSzGi8B9BiNUWzt8FyzAdouwvxBzMXgt8W3CWl-laDHHPtDgzE6CDI8EozSKzgsjN5N-4nhToQKvaH7HRKjexGmU0UjLNIxmLibyWCJtsyp6Aaj_LTJF7NSzdVg4VRoTKiTPRKBh46ClqB_iFH6C-NC1lOcYHC6e1HEll7xgiN0nGewU7-oVXR--52I5H4l4rpb9zB_j8GflmWW0L5YzsDvi4OXL90_SePkWhdQxAfAGWeiWa2oJB-kFa_DPO9oBTg"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-white flex items-center justify-center text-[10px] font-bold text-on-surface-variant">+26</div>
+</div>
+<button class="text-sm font-bold text-primary hover:underline underline-offset-4">Manage Members</button>
+</div>
+</div>
+<!-- Ministry Card 5 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10 group hover:shadow-md transition-all duration-300">
+<div class="flex justify-between items-start mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-low flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">volunteer_activism</span>
+</div>
+<button class="p-2 text-outline hover:text-primary rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="mb-6">
+<h4 class="text-xl font-bold text-primary mb-1">Community Outreach</h4>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-base">person</span>
+<span>Leader: <span class="text-on-surface font-semibold">Emily Zhang</span></span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-low/50 p-3 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Members</p>
+<p class="text-lg font-bold text-primary">64</p>
+</div>
+<div class="bg-surface-container-low/50 p-3 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Next Meeting</p>
+<p class="text-sm font-bold text-primary">Sun, 12:30 PM</p>
+</div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-50">
+<div class="flex -space-x-2">
+<img alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="professional man of East Asian descent smiling warmly in an office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCcVMXdfH8rKz_hUWxaTxmdflI2vbCk890gUqlKoNIzwHXeqhH0EqsUbkisByod5B_hV0JuG5Ep0hSb4Zp-6XjQxUdo6af8vf7gogz9jFQTtIF2ajohHElaLxNEqLtuddVHrkq0woluNcIPeYBoJLcWQvZjBREyfZaLVEgFiWxo3nIdrG1nJu8MTkmihzqa9Co_owEUz3Qf5WdXXOHJ2wmSintwuMNZONa1DDEE_ZBDoaKpSQydOHqG03YVf_g9U5w0XTKPpc8ytQ"/>
+<img alt="Avatar" class="w-8 h-8 rounded-full border-2 border-white" data-alt="confident woman in a professional blazer smiling toward the camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATbvJscbNudNxvcmnZksz5kX21Vtof_FfspGIAAt5gK8n-ULAtQgbNKoIDMZ0n1-LiJEt_rOtP_PZSSziLqMfZRLLzHBHQZOPTFa2g3dUhN_zBQK4En-ZEuxYlHcFSN-ddRZ4jxSXbcSZdJqYhi6MdpkbjzWmL1p37Y9vh2c0aH2rWES4dXNYtpdf0_1FiDIPugI_4UgBLYIHDvFjKrtAUwwSKw0RXW3dm2yyCm3z4k6-TO3qx3GKf0nZoBaVAqylIg3QIDPvZyHg"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-white flex items-center justify-center text-[10px] font-bold text-on-surface-variant">+62</div>
+</div>
+<button class="text-sm font-bold text-primary hover:underline underline-offset-4">Manage Members</button>
+</div>
+</div>
+<!-- Add New Card -->
+<button class="border-2 border-dashed border-outline-variant/30 rounded-xl p-6 flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:border-primary/20 transition-all group">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary">add</span>
+</div>
+<span class="font-bold text-primary">New Ministry</span>
+<span class="text-xs mt-1">Initialize group structure</span>
+</button>
+</div>
+</div>
+<!-- Recent Activity Ticker -->
+<section class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/5">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Live Engagement Activity</h3>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+<span class="text-[10px] font-bold text-emerald-600">LIVE</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between bg-surface-container-lowest/40 p-3 rounded-lg">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-blue-500"></div>
+<span class="text-sm font-medium">New member joined <span class="text-primary font-bold">Youth Fellowship</span></span>
+</div>
+<span class="text-[10px] font-medium text-outline">2 mins ago</span>
+</div>
+<div class="flex items-center justify-between p-3">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-slate-300"></div>
+<span class="text-sm font-medium text-on-surface-variant">Meeting room booked for <span class="font-bold">Sanctuary Choir</span></span>
+</div>
+<span class="text-[10px] font-medium text-outline">14 mins ago</span>
+</div>
+<div class="flex items-center justify-between p-3">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-slate-300"></div>
+<span class="text-sm font-medium text-on-surface-variant">Budget approved for <span class="font-bold">Community Outreach</span></span>
+</div>
+<span class="text-[10px] font-medium text-outline">1 hour ago</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer Space -->
+<footer class="mt-12 p-8 border-t border-slate-100 dark:border-slate-800 text-center">
+<p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Ekklesia Clerical Systems • Session Validated</p>
+</footer>
+</main>
+<!-- Floating Action Button - Only for contextual actions -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-2xl">chat_bubble</span>
+</button>
+</body></html>

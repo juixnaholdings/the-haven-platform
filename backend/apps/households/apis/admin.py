@@ -2,6 +2,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status, views
 from rest_framework.exceptions import NotFound
 
+from apps.common.pagination import get_optional_paginated_response
 from apps.common.responses import CustomResponse
 from apps.households import selectors, services
 from apps.households.permissions import (
@@ -13,6 +14,8 @@ from apps.households.serializers import (
     HouseholdListSerializer,
     HouseholdListFilterSerializer,
     HouseholdMembershipCreateSerializer,
+    HouseholdMemberDetailSerializer,
+    HouseholdMembershipUpdateSerializer,
     HouseholdWriteSerializer,
 )
 from apps.members import selectors as member_selectors
@@ -29,11 +32,24 @@ class HouseholdListCreateAdminApi(views.APIView):
     @extend_schema(
         tags=["Admin - Households"],
         summary="List households",
+        description=(
+            "Supports optional pagination. Provide `page` or `page_size` query params "
+            "to receive a paginated payload."
+        ),
         parameters=[HouseholdListFilterSerializer],
         responses=HouseholdListSerializer(many=True),
     )
     def get(self, request):
         households = selectors.list_households(filters=_get_validated_filters(request.query_params))
+        paginated_response = get_optional_paginated_response(
+            request=request,
+            queryset=households,
+            serializer_class=HouseholdListSerializer,
+            message="Households fetched successfully.",
+        )
+        if paginated_response is not None:
+            return paginated_response
+
         serializer = HouseholdListSerializer(households, many=True)
         return CustomResponse(data=serializer.data, message="Households fetched successfully.")
 
@@ -139,4 +155,36 @@ class HouseholdMemberCreateAdminApi(views.APIView):
             data=response_serializer.data,
             message="Member added to household successfully.",
             status_code=status.HTTP_201_CREATED,
+        )
+
+
+class HouseholdMembershipDetailAdminApi(views.APIView):
+    permission_classes = [HouseholdMembershipAdminPermission]
+
+    @extend_schema(
+        tags=["Admin - Households"],
+        summary="Update household membership",
+        request=HouseholdMembershipUpdateSerializer,
+        responses=HouseholdMemberDetailSerializer,
+    )
+    def patch(self, request, household_id: int, membership_id: int):
+        membership = selectors.get_household_membership_by_id(
+            household_id=household_id,
+            membership_id=membership_id,
+        )
+        if membership is None:
+            raise NotFound("Household membership not found.")
+
+        serializer = HouseholdMembershipUpdateSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        membership = services.update_household_membership(
+            membership=membership,
+            data=serializer.validated_data,
+            actor=request.user,
+        )
+        response_serializer = HouseholdMemberDetailSerializer(membership)
+        return CustomResponse(
+            data=response_serializer.data,
+            message="Household membership updated successfully.",
         )

@@ -29,12 +29,12 @@ COMPOSE="docker compose --env-file $ENV_FILE -f $COMPOSE_FILE"
 
 cd "$ROOT_DIR"
 
-$COMPOSE build backend nginx
+$COMPOSE build backend frontend nginx
 $COMPOSE up -d db
 $COMPOSE run --rm backend python manage.py migrate --settings="$DJANGO_SETTINGS_MODULE"
 $COMPOSE run --rm backend python manage.py collectstatic --noinput --settings="$DJANGO_SETTINGS_MODULE"
 $COMPOSE run --rm backend python manage.py check --deploy --settings="$DJANGO_SETTINGS_MODULE"
 $COMPOSE run --rm backend python manage.py setup_roles --settings="$DJANGO_SETTINGS_MODULE"
 $COMPOSE run --rm backend python manage.py seed_fund_accounts --settings="$DJANGO_SETTINGS_MODULE"
-$COMPOSE up -d backend nginx
+$COMPOSE up -d backend frontend nginx
 $COMPOSE ps

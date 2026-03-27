@@ -44,6 +44,7 @@ FINANCE_REPORT_READ_ROLES = (
 ROLE_PERMISSION_MAP = {
     SUPER_ADMIN_ROLE: ALL_AVAILABLE_PERMISSIONS,
     CHURCH_ADMIN_ROLE: (
+        "common.view_auditevent",
         "auth.view_group",
         "auth.add_group",
         "auth.change_group",
