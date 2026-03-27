@@ -23,8 +23,8 @@ The Next.js migration exists to establish a durable App Router foundation for fu
 
 ## Milestone sequence
 
-1. Milestone 0 (this change): foundation scaffold
-2. Milestone 1: auth/session wiring and protected-shell enforcement
+1. Milestone 0: foundation scaffold
+2. Milestone 1 (this change): shell parity + auth entry parity + dashboard parity
 3. Milestone 2: migrate members + households surfaces
 4. Milestone 3: migrate groups + events + attendance
 5. Milestone 4: migrate finance + reports + settings surfaces
@@ -32,7 +32,7 @@ The Next.js migration exists to establish a durable App Router foundation for fu
 
 ## Route migration plan
 
-Milestone 0 routes in `frontend-next`:
+Milestone 1 active routes in `frontend-next`:
 
 - `/login`
 - `/dashboard`
@@ -81,10 +81,28 @@ Planned migration order after auth/session wiring:
 - Added local usage notes:
   - `frontend-next/README.md`
 
-## Milestone 1 next actions
+## Milestone 1 completed
 
-- Port auth API client semantics from Vite app into `frontend-next`
-- Implement session bootstrap (`/api/auth/me/` + refresh flow) in provider layer
-- Enforce dashboard protection in `(dashboard)/layout.tsx`
-- Replace preview-mode login with real login mutation handling
-- Add shared request/error primitives for upcoming domain migrations
+- Implemented a reusable Next auth API client aligned to existing backend contracts:
+  - `POST /api/auth/login/`
+  - `POST /api/auth/logout/`
+  - `POST /api/auth/token/refresh/`
+  - `GET /api/auth/me/`
+- Added refresh-cookie-aware session bootstrap in the provider layer.
+- Added protected dashboard shell behavior in `(dashboard)/layout.tsx` with unauthenticated redirect to `/login?next=...`.
+- Replaced preview login with a real backend login flow.
+- Replaced scaffold dashboard with a real backend-backed dashboard view using `GET /api/reports/dashboard/`.
+- Added migration-ready shared modules for API errors, request handling, loading/error UI states, and basic dashboard presentation primitives.
+
+## Milestone 2 next actions
+
+- Migrate members routes:
+  - `/members`
+  - `/members/new`
+  - `/members/:memberId`
+  - `/members/:memberId/edit`
+- Migrate households routes:
+  - `/households`
+  - `/households/:householdId`
+- Port reusable list/detail/form/state primitives from Vite only when needed by migrated routes.
+- Keep backend contract parity and avoid route-by-route divergence during migration.

@@ -7,8 +7,9 @@ This map ties the current frontend architecture to the real backend readiness st
 ## Next Migration Note
 
 - The active feature-complete frontend remains the Vite app under `frontend/`.
-- A parallel Next.js App Router scaffold now exists under `frontend-next/` on `feat/nextjs-migration`.
-- Milestone 0 is foundation-only (layouts, route groups, providers, login/dashboard starter surfaces) and does not replace any current production/staging frontend flow yet.
+- A parallel Next.js App Router migration app exists under `frontend-next/` on `feat/nextjs-migration`.
+- Milestone 1 now provides real login + session bootstrap + protected dashboard behavior against Django backend auth/reporting endpoints.
+- Current migrated Next routes are intentionally limited to `/login` and `/dashboard`; all other product routes remain in the Vite app until later milestones.
 
 ## Current Frontend Architecture
 
