@@ -4,6 +4,12 @@ Date: 2026-03-26
 
 This map ties the current frontend architecture to the real backend readiness state and the Stitch screen inventory supplied for The Haven.
 
+## Next Migration Note
+
+- The active feature-complete frontend remains the Vite app under `frontend/`.
+- A parallel Next.js App Router scaffold now exists under `frontend-next/` on `feat/nextjs-migration`.
+- Milestone 0 is foundation-only (layouts, route groups, providers, login/dashboard starter surfaces) and does not replace any current production/staging frontend flow yet.
+
 ## Current Frontend Architecture
 
 The existing repo direction should be preserved:
