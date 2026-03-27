@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { ProtectedRoute } from "../auth/ProtectedRoute";
 import { AttendancePage } from "../pages/AttendancePage";
+import { AuditPage } from "../pages/AuditPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { EventAttendancePage } from "../pages/EventAttendancePage";
 import { EventDetailPage } from "../pages/EventDetailPage";
@@ -50,6 +51,7 @@ export function App() {
             <Route path="/finance/transfers/new" element={<FinanceTransferPage />} />
             <Route path="/finance/transactions/:transactionId" element={<TransactionDetailPage />} />
             <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/audit" element={<AuditPage />} />
             <Route path="/settings/roles" element={<SettingsRolesPage />} />
             <Route path="/settings/staff" element={<SettingsStaffPage />} />
           </Route>

@@ -160,6 +160,7 @@ SPECTACULAR_SETTINGS = {
         {"name": "Admin - Finance", "description": "Administrative finance ledger APIs."},
         {"name": "Admin - Reporting", "description": "Administrative reporting and dashboard APIs."},
         {"name": "Admin - Settings", "description": "Administrative staff-user and role-management APIs."},
+        {"name": "Admin - Audit", "description": "Administrative audit-trail read APIs."},
     ],
 }
 

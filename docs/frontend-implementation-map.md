@@ -37,6 +37,7 @@ Current implemented routes:
 - `/finance/transfers/new`
 - `/finance/transactions/:transactionId`
 - `/reports`
+- `/audit`
 - `/settings/roles`
 - `/settings/staff`
 
@@ -74,6 +75,7 @@ Current alignment status:
 - finance, reports, and settings now also follow the same Stitch-aligned visual system and route composition
 - settings staff management now supports backend-backed create/update and role assignment flows
 - role-definition edits remain intentionally blocked because role definitions are seed-governed
+- audit trail now has a backend-backed `/audit` activity feed with list filters and admin-only visibility
 - members detail now consumes the richer backend payload (household context, group affiliations, attendance summary), and key list screens now consume optional pagination with a shared UI control pattern
 
 ## Route Map
@@ -102,7 +104,7 @@ Current alignment status:
 | `/reports` | Reports dashboard | Ready | Implemented | Wave 3 complete |
 | `/settings/roles` | Settings / Roles | Ready with caveats | Implemented (role definitions read-only) | Wave 4 complete |
 | `/settings/staff` | Staff user management | Ready with caveats | Implemented (create/update + role assignment) | Wave 4 complete |
-| `/audit` | Audit trail | Not ready | Not started | Blocked |
+| `/audit` | Audit trail | Ready with caveats | Implemented (list/detail feed with filters) | Wave 5 complete |
 | `/ui/states` | Functional states gallery | No backend dependency | Not started | Wave 0.5 |
 
 ## Screen-to-Endpoint Map
@@ -128,7 +130,7 @@ Current alignment status:
 | Reports dashboard | `GET /api/reports/members/`, `GET /api/reports/households/`, `GET /api/reports/groups/`, `GET /api/reports/attendance/`, `GET /api/reports/finance/` | `GET /api/reports/dashboard/` | Reports are backend-ready. |
 | Settings / Roles | `GET /api/settings/roles/` | `GET /api/settings/staff-users/` | API-backed role and permission summary; role-definition mutation remains blocked by design. |
 | Staff user management | `GET /api/settings/staff-users/`, `POST /api/settings/staff-users/`, `GET /api/settings/staff-users/{staff_user_id}/`, `PATCH /api/settings/staff-users/{staff_user_id}/` | `GET /api/settings/roles/` | API-backed staff-user management now supports create/update and role assignment. Invite lifecycle remains out of scope. |
-| Audit trail | none | model audit fields only | Requires backend API work. |
+| Audit trail | `GET /api/audit/events/`, `GET /api/audit/events/{audit_event_id}/` | existing domain mutation services | Implemented as a first-wave admin audit feed; export/forensics remain out of scope. |
 
 ## Shared Component Map
 
@@ -209,7 +211,7 @@ Status:
 - Groups / ministries list and detail are now implemented.
 - Services / events list and detail are now implemented.
 - Attendance overview and event attendance recording are now implemented.
-- Finance remains the major unfinished Wave 2 domain.
+- Finance was completed in Wave 3.
 
 ### Wave 3: finance, reporting, and settings foundation
 
@@ -222,26 +224,26 @@ Status:
 - Completed in this implementation wave.
 - Settings now includes staff create/update and role assignment flows while keeping role-definition edits blocked.
 
-### Blocked wave: deeper settings governance and audit
+### Blocked wave: deeper settings governance and advanced audit
 
 - Role-definition editing and permission-map mutation flows
 - Invite/reset-password lifecycle workflows
-- Audit trail
+- Audit exports/forensics/correlation
 
 Blocked by:
 
 - role definitions are currently seed-governed through bootstrap/admin
-- missing audit-log query surface
+- intentionally limited first-wave audit scope
 
 ## Immediate Build Recommendation
 
 The next coding wave should be:
 
-1. implement any remaining audit-trail backend and frontend surfaces
+1. refine the new `/audit` surface with product-prioritized filters/views as operational usage data comes in
 2. decide whether role-definition mutation is needed beyond seeded RBAC governance
 3. adopt the new optional paginated list contracts (`page`, `page_size`) in data-heavy frontend screens as record volumes grow
 
 Backend blockers that still remain outside those waves:
 
 - role-definition mutation APIs are intentionally missing
-- audit trail remains blocked on missing backend query surfaces
+- advanced audit export/forensics remain intentionally missing

@@ -150,6 +150,24 @@ Role-definition caveat:
 - role-definition mutation (renaming roles or changing permission maps) is intentionally not exposed through product APIs
 - role definitions remain bootstrap/admin-governed through `setup_roles` and Django admin
 
+## Audit Admin Endpoints
+
+- `GET /api/audit/events/`
+  Returns audit events for high-value operational mutations. Supports optional filters:
+  `event_type`, `actor_id`, `target_type`, `target_id`, `start_date`, `end_date`, plus optional pagination (`page`, `page_size`).
+- `GET /api/audit/events/{audit_event_id}/`
+  Returns one audit event payload for focused inspection.
+
+Current first-wave coverage includes:
+
+- member create/update
+- household membership create/update
+- group membership create/update
+- attendance summary create/update
+- member attendance create/update
+- finance transaction create/update (income/expense/transfer flows included)
+- staff user create/update and role-assignment changes
+
 ## Reporting Date Filters
 
 - `start_date` and `end_date` are optional query params on the dashboard, attendance, and finance report endpoints.

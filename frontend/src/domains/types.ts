@@ -598,3 +598,29 @@ export interface DashboardOverview {
   attendance: AttendanceReportSummary;
   finance: FinanceSummary;
 }
+
+export interface AuditActor {
+  id: number;
+  username: string;
+  full_name: string;
+}
+
+export interface AuditEvent {
+  id: number;
+  event_type: string;
+  target_type: string;
+  target_id: number | null;
+  summary: string;
+  payload: Record<string, unknown>;
+  created_at: string;
+  actor: AuditActor | null;
+}
+
+export interface AuditEventListFilters extends PaginationParams {
+  event_type?: string;
+  target_type?: string;
+  target_id?: number;
+  actor_id?: number;
+  start_date?: string;
+  end_date?: string;
+}
