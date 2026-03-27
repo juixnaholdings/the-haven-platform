@@ -83,3 +83,19 @@ export function toIsoDateTime(value: string | null | undefined) {
 
   return date.toISOString();
 }
+
+export function formatAmount(value: number | string | null | undefined) {
+  if (value === null || value === undefined || value === "") {
+    return "0.00";
+  }
+
+  const numericValue = Number(value);
+  if (Number.isNaN(numericValue)) {
+    return String(value);
+  }
+
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(numericValue);
+}

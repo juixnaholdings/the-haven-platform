@@ -361,6 +361,125 @@ export interface ReportingDateRange {
   end_date?: string;
 }
 
+export interface ServiceEventReference {
+  id: number;
+  title: string;
+  event_type: string;
+  service_date: string;
+}
+
+export interface FundAccountListItem {
+  id: number;
+  name: string;
+  code: string;
+  description: string;
+  is_active: boolean;
+  current_balance: string;
+}
+
+export interface FundAccountDetail extends FundAccountListItem {
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FundAccountWritePayload {
+  name: string;
+  code: string;
+  description?: string;
+  is_active?: boolean;
+}
+
+export interface FundAccountListFilters {
+  search?: string;
+  is_active?: boolean;
+}
+
+export interface TransactionLine {
+  id: number;
+  fund_account_id: number;
+  fund_account_name: string;
+  fund_account_code: string;
+  direction: string;
+  amount: string;
+  category_name: string;
+  notes: string;
+}
+
+export interface TransactionListItem {
+  id: number;
+  reference_no: string;
+  transaction_type: string;
+  transaction_date: string;
+  description: string;
+  service_event_id: number | null;
+  service_event_title: string | null;
+  posted_at: string;
+  line_count: number;
+  total_in_amount: string;
+  total_out_amount: string;
+}
+
+export interface TransactionDetail {
+  id: number;
+  reference_no: string;
+  transaction_type: string;
+  transaction_date: string;
+  description: string;
+  service_event: ServiceEventReference | null;
+  posted_at: string;
+  total_in_amount: string;
+  total_out_amount: string;
+  lines: TransactionLine[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TransactionListFilters extends PaginationParams {
+  search?: string;
+  transaction_type?: string;
+  fund_account_id?: number;
+  service_event_id?: number | null;
+  transaction_date_from?: string;
+  transaction_date_to?: string;
+}
+
+export interface IncomeTransactionPayload {
+  fund_account_id: number;
+  amount: string | number;
+  transaction_date: string;
+  description: string;
+  service_event_id?: number | null;
+  category_name?: string;
+  notes?: string;
+}
+
+export interface ExpenseTransactionPayload {
+  fund_account_id: number;
+  amount: string | number;
+  transaction_date: string;
+  description: string;
+  service_event_id?: number | null;
+  category_name?: string;
+  notes?: string;
+}
+
+export interface TransferTransactionPayload {
+  source_fund_account_id: number;
+  destination_fund_account_id: number;
+  amount: string | number;
+  transaction_date: string;
+  description: string;
+  service_event_id?: number | null;
+  category_name?: string;
+  notes?: string;
+}
+
+export interface TransactionUpdatePayload {
+  transaction_date?: string;
+  description?: string;
+  service_event_id?: number | null;
+}
+
 export interface MembershipSummary {
   total_members: number;
   active_members: number;

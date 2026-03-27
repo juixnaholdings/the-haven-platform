@@ -19,8 +19,8 @@ const navItems = [
   { label: "Ministries", href: "/groups", activePrefix: "/groups", available: true },
   { label: "Events", href: "/events", activePrefix: "/events", available: true },
   { label: "Attendance", href: "/attendance", activePrefix: "/attendance", available: true },
-  { label: "Finance", href: "", activePrefix: "/finance", available: false },
-  { label: "Reports", href: "", activePrefix: "/reports", available: false },
+  { label: "Finance", href: "/finance", activePrefix: "/finance", available: true },
+  { label: "Reports", href: "/reports", activePrefix: "/reports", available: true },
   { label: "Settings", href: "", activePrefix: "/settings", available: false },
 ];
 
