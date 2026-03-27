@@ -30,10 +30,10 @@ Inspected areas included:
 | Groups / Ministries | Ready with caveats | `apps/groups/apis/admin.py`, `apps/groups/models.py` | Group/ministry list/detail/membership editing exist, but only flat groups are supported. |
 | Events / Services | Ready | `apps/attendance/apis/admin.py`, `apps/attendance/serializers.py` | Service/event CRUD, attendance summary, and member attendance flows are present. |
 | Attendance overview | Ready | `apps/reporting/apis/admin.py`, `apps/attendance/apis/admin.py` | Overview/report and per-event recording screens can use real data. |
-| Finance / Ledger | Ready with caveats | `apps/finance/apis/admin.py`, `apps/finance/services.py` | Core ledger flows work, but there is no reversal/void workflow or dedicated audit trail. |
+| Finance / Ledger | Ready with caveats | `apps/finance/apis/admin.py`, `apps/finance/services.py`, `apps/common/models.py` | Core ledger flows work; audit events now track transaction mutations, but reversal/void workflows remain out of scope. |
 | Reports | Ready | `apps/reporting/apis/admin.py`, `apps/reporting/selectors.py` | Reporting screens can use real summary endpoints now. |
 | Settings / Roles / Users | Ready with caveats | `apps/users/apis/admin.py`, `apps/users/services.py`, `apps/users/urls.py` | Staff-user create/update and role assignment are API-backed; role-definition mutation remains bootstrap/admin-only. |
-| Audit Trail | Not ready | `apps/common/models.py`, no audit-log app/API | Models capture audit fields, but there is no audit timeline/query surface. |
+| Audit Trail | Ready with caveats | `apps/common/models.py`, `apps/common/apis/admin.py`, `apps/common/services.py` | Admin-only audit list/detail and filters are now available for high-value mutations, with limited first-wave coverage scope. |
 
 ## Cross-Cutting Findings
 
@@ -43,7 +43,7 @@ Inspected areas included:
 - Core list endpoints now support optional pagination using `page` and `page_size` query params while preserving unpaginated compatibility for existing consumers.
 - Choice metadata is available through the schema, but there is no dedicated enum/metadata endpoint for frontend forms.
 - Most domains rely on `is_active` and update flows instead of destructive delete endpoints.
-- `AuditModel` provides `created_at`, `updated_at`, `created_by`, and `updated_by`, but there is no dedicated audit trail model or query API.
+- A dedicated `AuditEvent` model and admin-only read API now provide first-wave mutation traceability.
 
 ## Module Audit
 
@@ -179,7 +179,7 @@ What exists:
 Caveats:
 
 - Transactions are posted-ledger records. There is no reversal, void, or deletion workflow.
-- Transaction “audit” is limited to the transaction detail payload and model audit fields; there is no separate audit timeline.
+- Audit events now track transaction create/update actions, but the audit layer is still list-first and not a full forensic subsystem.
 - Transaction and fund-account lists support optional pagination (`page`, `page_size`).
 
 Frontend consequence:
@@ -226,7 +226,7 @@ Caveats:
 
 - Staff-user mutations are intentionally scoped to controlled create/update flows and role assignment.
 - Role definitions and permission maps remain bootstrap-governed and are still not mutable through product APIs.
-- There is still no dedicated settings audit timeline endpoint.
+- Settings events are now visible through the audit list API, but there is no dedicated settings-specific timeline endpoint.
 
 Frontend consequence:
 
@@ -235,22 +235,29 @@ Frontend consequence:
 
 ### Audit Trail
 
-Status: `Not ready`
+Status: `Ready with caveats`
 
 What exists:
 
-- Audit fields on core models through `AuditModel`
+- `AuditEvent` model in `apps.common`
+- `GET /api/audit/events/` with filters:
+  `event_type`, `actor_id`, `target_type`, `target_id`, `start_date`, `end_date`
+- `GET /api/audit/events/{audit_event_id}/`
+- Audit hooks for high-value write operations:
+  member create/update, household membership changes, group membership changes,
+  attendance summary create/update, member attendance create/update,
+  finance transaction create/update, staff user create/update, and role-assignment changes
 
 What is missing:
 
-- Audit log model
-- Audit event query endpoints
-- Timeline/filter/export surfaces
+- Export and long-form forensic workflows
+- Cross-request correlation/tracing metadata
+- Broader coverage beyond first-wave high-value mutations
 
 Frontend consequence:
 
-- Transaction detail can show current record metadata only.
-- A true audit trail screen is blocked on backend implementation.
+- `/audit` can now render a real admin activity feed from backend audit APIs.
+- Advanced audit analytics/export remain out of scope.
 
 ## Low-Risk Readiness Fixes Applied During This Audit
 
@@ -260,6 +267,7 @@ Frontend consequence:
 - Added optional pagination support across high-value list endpoints: members, households, groups, service events, event member-attendance, and finance transactions/fund accounts.
 - Enriched member detail payload with household context, group memberships, and attendance summary counters.
 - Added settings mutation endpoints for staff-user create/update plus role assignment while keeping role-definition edits read-only.
+- Added a first-wave audit trail model, read APIs, and service-layer logging hooks for high-value mutations.
 
 ## Recommended Product Build Order
 
@@ -267,5 +275,5 @@ Frontend consequence:
    login polish, dashboard, members, households, groups, services/events, attendance recording, finance, reports.
 2. Add richer cross-domain read models where the current screens need more than the core CRUD payloads:
    especially member profile aggregation.
-3. Build a dedicated audit trail slice.
+3. Expand audit coverage and add targeted export/forensics features only if product scope requires them.
 4. Consider optional invite/reset-password workflows if product scope requires them.
