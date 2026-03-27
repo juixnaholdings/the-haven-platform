@@ -7,7 +7,7 @@ This app is migration work only and is developed on the long-running branch:
 
 - `feat/nextjs-migration`
 
-## Milestone 1 scope
+## Milestone 2 scope
 
 - App Router + TypeScript parallel migration app
 - route groups for `(auth)` and `(dashboard)`
@@ -16,7 +16,22 @@ This app is migration work only and is developed on the long-running branch:
 - real session bootstrap using secure refresh-cookie flow + access token in memory
 - protected dashboard route behavior with unauthenticated redirect to `/login?next=...`
 - backend-backed dashboard page wired to `/api/reports/dashboard/`
-- migration-ready domain/api/auth/component structure for future route waves
+- migrated members parity routes:
+  - `/members`
+  - `/members/new`
+  - `/members/:memberId`
+  - `/members/:memberId/edit`
+- migrated households parity routes:
+  - `/households`
+  - `/households/:householdId`
+- shared list/detail/form/state primitives for migration waves:
+  - `EntityTable`
+  - `PaginationControls`
+  - `StatusBadge`
+  - `EmptyState`
+  - `DetailPanel`
+  - `FormSection`
+  - `BlockedFeatureCard`
 
 ## Local usage
 
@@ -53,7 +68,13 @@ npm run build
 ## Notes
 
 - Current migrated routes in Next:
-  - `/login`
-  - `/dashboard`
+- `/login`
+- `/dashboard`
+- `/members`
+- `/members/new`
+- `/members/:memberId`
+- `/members/:memberId/edit`
+- `/households`
+- `/households/:householdId`
 - Existing production/staging app remains the Vite frontend in `frontend/`.
-- Domain migrations (members onward) start in Milestone 2.
+- Milestone 3 starts groups, events, and attendance migration.

@@ -24,30 +24,34 @@ The Next.js migration exists to establish a durable App Router foundation for fu
 ## Milestone sequence
 
 1. Milestone 0: foundation scaffold
-2. Milestone 1 (this change): shell parity + auth entry parity + dashboard parity
-3. Milestone 2: migrate members + households surfaces
+2. Milestone 1: shell parity + auth entry parity + dashboard parity
+3. Milestone 2 (this change): migrate members + households surfaces
 4. Milestone 3: migrate groups + events + attendance
 5. Milestone 4: migrate finance + reports + settings surfaces
 6. Milestone 5: parity verification, controlled cutover plan, and rollback strategy
 
 ## Route migration plan
 
-Milestone 1 active routes in `frontend-next`:
+Milestone 2 active routes in `frontend-next`:
 
 - `/login`
 - `/dashboard`
+- `/members`
+- `/members/new`
+- `/members/:memberId`
+- `/members/:memberId/edit`
+- `/households`
+- `/households/:householdId`
 
 Planned migration order after auth/session wiring:
 
-1. `/members`, `/members/new`, `/members/:memberId`, `/members/:memberId/edit`
-2. `/households`, `/households/:householdId`
-3. `/groups`, `/groups/:groupId`
-4. `/events`, `/events/:serviceEventId`, `/events/:serviceEventId/attendance`
-5. `/attendance`
-6. `/finance`, `/finance/entries/income`, `/finance/entries/expense`, `/finance/transfers/new`, `/finance/transactions/:transactionId`
-7. `/reports`
-8. `/settings/roles`, `/settings/staff`
-9. `/audit`
+1. `/groups`, `/groups/:groupId`
+2. `/events`, `/events/:serviceEventId`, `/events/:serviceEventId/attendance`
+3. `/attendance`
+4. `/finance`, `/finance/entries/income`, `/finance/entries/expense`, `/finance/transfers/new`, `/finance/transactions/:transactionId`
+5. `/reports`
+6. `/settings/roles`, `/settings/staff`
+7. `/audit`
 
 ## Cutover philosophy
 
@@ -94,15 +98,29 @@ Planned migration order after auth/session wiring:
 - Replaced scaffold dashboard with a real backend-backed dashboard view using `GET /api/reports/dashboard/`.
 - Added migration-ready shared modules for API errors, request handling, loading/error UI states, and basic dashboard presentation primitives.
 
-## Milestone 2 next actions
+## Milestone 2 completed
 
-- Migrate members routes:
+- Migrated members routes:
   - `/members`
   - `/members/new`
   - `/members/:memberId`
   - `/members/:memberId/edit`
-- Migrate households routes:
+- Migrated households routes:
   - `/households`
   - `/households/:householdId`
-- Port reusable list/detail/form/state primitives from Vite only when needed by migrated routes.
-- Keep backend contract parity and avoid route-by-route divergence during migration.
+- Added reusable parity primitives in `frontend-next` for list/detail/form/state flows:
+  - `EntityTable`, `PaginationControls`, `StatusBadge`, `EmptyState`, `DetailPanel`, `FormSection`, `BlockedFeatureCard`
+- Aligned members and households list handling with backend optional pagination support (`page`, `page_size`) while preserving normalized list parsing.
+- Kept parity with existing backend contracts and did not broaden migration to unrelated route domains.
+
+## Milestone 3 next actions
+
+- Migrate group routes:
+  - `/groups`
+  - `/groups/:groupId`
+- Migrate events and attendance routes:
+  - `/events`
+  - `/events/:serviceEventId`
+  - `/events/:serviceEventId/attendance`
+  - `/attendance`
+- Reuse established Next list/detail/form parity patterns and avoid route-specific duplication.
