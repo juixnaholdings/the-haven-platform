@@ -55,7 +55,10 @@ class StaffUserListCreateAdminApi(views.APIView):
         serializer = StaffUserCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        staff_user = services.create_staff_user(data=serializer.validated_data)
+        staff_user = services.create_staff_user(
+            data=serializer.validated_data,
+            actor=request.user,
+        )
         response_serializer = StaffUserListSerializer(staff_user)
         return CustomResponse(
             data=response_serializer.data,
@@ -101,6 +104,7 @@ class StaffUserDetailAdminApi(views.APIView):
         staff_user = services.update_staff_user(
             user=staff_user,
             data=serializer.validated_data,
+            actor=request.user,
         )
         response_serializer = StaffUserListSerializer(staff_user)
         return CustomResponse(

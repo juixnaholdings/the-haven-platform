@@ -11,6 +11,8 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from apps.common.audit import AuditEventType, AuditTargetType
+from apps.common import services as common_services
 from apps.users.constants import ALL_AVAILABLE_PERMISSIONS
 
 
@@ -130,7 +132,7 @@ def _validate_unique_email(*, email: str, exclude_user_id: int | None = None) ->
 
 
 @transaction.atomic
-def create_staff_user(*, data: dict) -> object:
+def create_staff_user(*, data: dict, actor=None) -> object:
     User = get_user_model()
     payload = data.copy()
 
@@ -156,13 +158,30 @@ def create_staff_user(*, data: dict) -> object:
     )
     user.groups.set(role_groups)
 
-    return User.objects.prefetch_related("groups").get(id=user.id)
+    user = User.objects.prefetch_related("groups").get(id=user.id)
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.STAFF_USER_CREATED,
+        target_type=AuditTargetType.STAFF_USER,
+        target_id=user.id,
+        summary=f"Created staff user '{user.username}'.",
+        payload={
+            "username": user.username,
+            "is_active": user.is_active,
+            "role_names": sorted(user.groups.values_list("name", flat=True)),
+        },
+    )
+
+    return user
 
 
 @transaction.atomic
-def update_staff_user(*, user, data: dict) -> object:
+def update_staff_user(*, user, data: dict, actor=None) -> object:
     payload = data.copy()
     role_groups = payload.pop("role_ids", None)
+    changed_fields = sorted(payload.keys())
+    previous_role_names = sorted(user.groups.values_list("name", flat=True))
 
     if "email" in payload:
         payload["email"] = _normalize_email(payload["email"])
@@ -180,7 +199,37 @@ def update_staff_user(*, user, data: dict) -> object:
         user.groups.set(role_groups)
 
     User = get_user_model()
-    return User.objects.prefetch_related("groups").get(id=user.id)
+    user = User.objects.prefetch_related("groups").get(id=user.id)
+    current_role_names = sorted(user.groups.values_list("name", flat=True))
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.STAFF_USER_UPDATED,
+        target_type=AuditTargetType.STAFF_USER,
+        target_id=user.id,
+        summary=f"Updated staff user '{user.username}'.",
+        payload={
+            "username": user.username,
+            "changed_fields": changed_fields,
+            "is_active": user.is_active,
+        },
+    )
+
+    if role_groups is not None and current_role_names != previous_role_names:
+        common_services.log_audit_event(
+            actor=actor,
+            event_type=AuditEventType.STAFF_ROLE_ASSIGNMENT_UPDATED,
+            target_type=AuditTargetType.STAFF_USER,
+            target_id=user.id,
+            summary=f"Updated role assignments for staff user '{user.username}'.",
+            payload={
+                "username": user.username,
+                "previous_role_names": previous_role_names,
+                "current_role_names": current_role_names,
+            },
+        )
+
+    return user
 
 
 def _permission_label(permission: Permission) -> str:

@@ -1,6 +1,8 @@
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
+from apps.common.audit import AuditEventType, AuditTargetType
+from apps.common import services as common_services
 from apps.attendance.models import AttendanceSummary, MemberAttendance, ServiceEvent
 
 
@@ -94,6 +96,29 @@ def create_or_update_attendance_summary(*, service_event: ServiceEvent, data: di
 
     _set_audit_fields(summary, actor=actor, is_create=is_create)
     summary.save()
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=(
+            AuditEventType.ATTENDANCE_SUMMARY_CREATED
+            if is_create
+            else AuditEventType.ATTENDANCE_SUMMARY_UPDATED
+        ),
+        target_type=AuditTargetType.ATTENDANCE_SUMMARY,
+        target_id=summary.id,
+        summary=(
+            f"{'Created' if is_create else 'Updated'} attendance summary for "
+            f"'{service_event.title}' ({service_event.service_date})."
+        ),
+        payload={
+            "service_event_id": service_event.id,
+            "men_count": summary.men_count,
+            "women_count": summary.women_count,
+            "children_count": summary.children_count,
+            "visitor_count": summary.visitor_count,
+            "total_count": summary.total_count,
+        },
+    )
     return summary
 
 
@@ -118,6 +143,22 @@ def record_member_attendance(
     )
     _set_audit_fields(member_attendance, actor=actor, is_create=True)
     member_attendance.save()
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.MEMBER_ATTENDANCE_CREATED,
+        target_type=AuditTargetType.MEMBER_ATTENDANCE,
+        target_id=member_attendance.id,
+        summary=(
+            f"Recorded member attendance for '{member.full_name}' in "
+            f"'{service_event.title}' ({service_event.service_date})."
+        ),
+        payload={
+            "service_event_id": service_event.id,
+            "member_id": member.id,
+            "status": member_attendance.status,
+        },
+    )
     return member_attendance
 
 
@@ -131,10 +172,30 @@ def update_member_attendance(*, member_attendance: MemberAttendance, data: dict,
         member_attendance=member_attendance,
     )
 
+    changed_fields = sorted(field for field in ("status", "checked_in_at", "notes") if field in data)
+
     for field in ("status", "checked_in_at", "notes"):
         if field in data:
             setattr(member_attendance, field, data[field])
 
     _set_audit_fields(member_attendance, actor=actor)
     member_attendance.save()
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.MEMBER_ATTENDANCE_UPDATED,
+        target_type=AuditTargetType.MEMBER_ATTENDANCE,
+        target_id=member_attendance.id,
+        summary=(
+            f"Updated member attendance for '{member_attendance.member.full_name}' in "
+            f"'{member_attendance.service_event.title}' "
+            f"({member_attendance.service_event.service_date})."
+        ),
+        payload={
+            "service_event_id": member_attendance.service_event_id,
+            "member_id": member_attendance.member_id,
+            "changed_fields": changed_fields,
+            "status": member_attendance.status,
+        },
+    )
     return member_attendance

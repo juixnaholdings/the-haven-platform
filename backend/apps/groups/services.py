@@ -2,6 +2,8 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
+from apps.common.audit import AuditEventType, AuditTargetType
+from apps.common import services as common_services
 from apps.groups.models import Group, GroupMembership
 
 
@@ -84,11 +86,28 @@ def add_member_to_group(
     )
     _set_audit_fields(membership, actor=actor, is_create=True)
     membership.save()
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.GROUP_MEMBERSHIP_CREATED,
+        target_type=AuditTargetType.GROUP_MEMBERSHIP,
+        target_id=membership.id,
+        summary=(
+            f"Added member '{member.full_name}' to group '{group.name}'."
+        ),
+        payload={
+            "group_id": group.id,
+            "member_id": member.id,
+            "role_name": membership.role_name,
+            "is_active": membership.is_active,
+        },
+    )
     return membership
 
 
 @transaction.atomic
 def update_group_membership(*, membership: GroupMembership, data: dict, actor=None) -> GroupMembership:
+    changed_fields = sorted(data.keys())
     target_is_active = data.get("is_active", membership.is_active)
     if target_is_active and "ended_on" in data and data["ended_on"] is not None:
         raise ValidationError({"ended_on": ["Active affiliations cannot have an end date."]})
@@ -115,6 +134,24 @@ def update_group_membership(*, membership: GroupMembership, data: dict, actor=No
 
     _set_audit_fields(membership, actor=actor)
     membership.save()
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.GROUP_MEMBERSHIP_UPDATED,
+        target_type=AuditTargetType.GROUP_MEMBERSHIP,
+        target_id=membership.id,
+        summary=(
+            f"Updated group membership for member '{membership.member.full_name}' "
+            f"in '{membership.group.name}'."
+        ),
+        payload={
+            "group_id": membership.group_id,
+            "member_id": membership.member_id,
+            "changed_fields": changed_fields,
+            "role_name": membership.role_name,
+            "is_active": membership.is_active,
+        },
+    )
     return membership
 
 

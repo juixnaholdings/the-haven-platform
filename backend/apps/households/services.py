@@ -1,6 +1,8 @@
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
+from apps.common.audit import AuditEventType, AuditTargetType
+from apps.common import services as common_services
 from apps.households.models import Household, HouseholdMembership, HouseholdRelationship
 
 
@@ -95,11 +97,28 @@ def add_member_to_household(
     )
     _set_audit_fields(membership, actor=actor, is_create=True)
     membership.save()
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.HOUSEHOLD_MEMBERSHIP_CREATED,
+        target_type=AuditTargetType.HOUSEHOLD_MEMBERSHIP,
+        target_id=membership.id,
+        summary=(
+            f"Added member '{member.full_name}' to household '{household.name}'."
+        ),
+        payload={
+            "household_id": household.id,
+            "member_id": member.id,
+            "is_head": membership.is_head,
+            "is_active": membership.is_active,
+        },
+    )
     return membership
 
 
 @transaction.atomic
 def update_household_membership(*, membership: HouseholdMembership, data: dict, actor=None) -> HouseholdMembership:
+    changed_fields = sorted(data.keys())
     for field in ("relationship_to_head", "is_head", "is_active", "joined_on", "left_on", "notes"):
         if field in data:
             setattr(membership, field, data[field])
@@ -121,6 +140,24 @@ def update_household_membership(*, membership: HouseholdMembership, data: dict, 
 
     _set_audit_fields(membership, actor=actor)
     membership.save()
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.HOUSEHOLD_MEMBERSHIP_UPDATED,
+        target_type=AuditTargetType.HOUSEHOLD_MEMBERSHIP,
+        target_id=membership.id,
+        summary=(
+            f"Updated household membership for member '{membership.member.full_name}' "
+            f"in '{membership.household.name}'."
+        ),
+        payload={
+            "household_id": membership.household_id,
+            "member_id": membership.member_id,
+            "changed_fields": changed_fields,
+            "is_head": membership.is_head,
+            "is_active": membership.is_active,
+        },
+    )
     return membership
 
 
@@ -149,4 +186,21 @@ def set_household_head(*, household: Household, membership: HouseholdMembership,
     membership.relationship_to_head = HouseholdRelationship.HEAD
     _set_audit_fields(membership, actor=actor)
     membership.save()
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.HOUSEHOLD_MEMBERSHIP_UPDATED,
+        target_type=AuditTargetType.HOUSEHOLD_MEMBERSHIP,
+        target_id=membership.id,
+        summary=(
+            f"Set member '{membership.member.full_name}' as head of household "
+            f"'{household.name}'."
+        ),
+        payload={
+            "household_id": household.id,
+            "member_id": membership.member_id,
+            "is_head": True,
+            "is_active": membership.is_active,
+        },
+    )
     return membership
