@@ -14,6 +14,51 @@ export interface User {
   role_names: string[];
 }
 
+export interface UserRoleRef {
+  id: number;
+  name: string;
+}
+
+export interface StaffUserListItem extends User {
+  full_name: string;
+  roles: UserRoleRef[];
+  last_login: string | null;
+  date_joined: string;
+}
+
+export interface StaffUserCreatePayload {
+  username: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  password: string;
+  is_active?: boolean;
+  role_ids?: number[];
+}
+
+export interface StaffUserUpdatePayload {
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  is_active?: boolean;
+  role_ids?: number[];
+}
+
+export interface RolePermissionSummary {
+  id: number;
+  app_label: string;
+  codename: string;
+  name: string;
+  permission_code: string;
+}
+
+export interface RoleSummary {
+  id: number;
+  name: string;
+  user_count: number;
+  permissions: RolePermissionSummary[];
+}
+
 export interface LoginPayload {
   username: string;
   password: string;
@@ -543,4 +588,30 @@ export interface DashboardOverview {
   groups: GroupSummary;
   attendance: AttendanceReportSummary;
   finance: FinanceSummary;
+}
+
+export interface AuditActor {
+  id: number;
+  username: string;
+  full_name: string;
+}
+
+export interface AuditEvent {
+  id: number;
+  event_type: string;
+  target_type: string;
+  target_id: number | null;
+  summary: string;
+  payload: Record<string, unknown>;
+  created_at: string;
+  actor: AuditActor | null;
+}
+
+export interface AuditEventListFilters extends PaginationParams {
+  event_type?: string;
+  target_type?: string;
+  target_id?: number;
+  actor_id?: number;
+  start_date?: string;
+  end_date?: string;
 }

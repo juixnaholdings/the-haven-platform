@@ -13,15 +13,15 @@ interface ProtectedDashboardShellProps {
 }
 
 const navItems = [
-  { label: "Dashboard", href: "/dashboard", activePrefix: "/dashboard", available: true },
-  { label: "Members", href: "/members", activePrefix: "/members", available: true },
-  { label: "Households", href: "/households", activePrefix: "/households", available: true },
-  { label: "Ministries", href: "/groups", activePrefix: "/groups", available: true },
-  { label: "Events", href: "/events", activePrefix: "/events", available: true },
-  { label: "Attendance", href: "/attendance", activePrefix: "/attendance", available: true },
-  { label: "Finance", href: "/finance", activePrefix: "/finance", available: true },
-  { label: "Reports", href: "/reports", activePrefix: "/reports", available: true },
-  { label: "Settings", href: "", activePrefix: "/settings", available: false },
+  { label: "Dashboard", href: "/dashboard", activePrefix: "/dashboard" },
+  { label: "Members", href: "/members", activePrefix: "/members" },
+  { label: "Households", href: "/households", activePrefix: "/households" },
+  { label: "Ministries", href: "/groups", activePrefix: "/groups" },
+  { label: "Events", href: "/events", activePrefix: "/events" },
+  { label: "Attendance", href: "/attendance", activePrefix: "/attendance" },
+  { label: "Finance", href: "/finance", activePrefix: "/finance" },
+  { label: "Reports", href: "/reports", activePrefix: "/reports" },
+  { label: "Settings", href: "/settings/roles", activePrefix: "/settings" },
 ];
 
 function getDisplayName(user: NonNullable<ReturnType<typeof useSession>["user"]>) {
@@ -58,6 +58,13 @@ export function ProtectedDashboardShell({
   const primaryRole = user.role_names?.[0] ?? "Authenticated staff";
   const displayName = getDisplayName(user);
   const initials = displayName.slice(0, 2).toUpperCase();
+  const hasAuditAccess = Boolean(
+    user.is_superuser ||
+      user.role_names?.some((roleName) => roleName === "Super Admin" || roleName === "Church Admin"),
+  );
+  const visibleNavItems = hasAuditAccess
+    ? [...navItems, { label: "Audit", href: "/audit", activePrefix: "/audit" }]
+    : navItems;
 
   return (
     <div className="app-shell">
@@ -76,7 +83,7 @@ export function ProtectedDashboardShell({
         </div>
 
         <nav className="app-nav" aria-label="Primary">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive =
               item.activePrefix === "/dashboard"
                 ? pathname === "/dashboard"
@@ -86,18 +93,10 @@ export function ProtectedDashboardShell({
               ? "app-nav-link app-nav-link-active"
               : "app-nav-link";
 
-            if (item.available) {
-              return (
-                <Link className={className} href={item.href} key={item.label}>
-                  {item.label}
-                </Link>
-              );
-            }
-
             return (
-              <span className="app-nav-link app-nav-link-placeholder" key={item.label}>
+              <Link className={className} href={item.href} key={item.label}>
                 {item.label}
-              </span>
+              </Link>
             );
           })}
         </nav>
