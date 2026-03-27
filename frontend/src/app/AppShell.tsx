@@ -13,6 +13,12 @@ export function AppShell() {
   const primaryRole = user?.role_names?.[0] ?? "Authenticated staff";
   const displayName = user?.first_name || user?.username || "Staff user";
   const initials = displayName.slice(0, 2).toUpperCase();
+  const hasAuditAccess = Boolean(
+    user?.is_superuser ||
+      user?.role_names?.some(
+        (roleName) => roleName === "Super Admin" || roleName === "Church Admin",
+      ),
+  );
 
   const logoutMutation = useMutation({
     mutationFn: logout,
@@ -60,6 +66,11 @@ export function AppShell() {
           <NavLink className={navClassName} to="/reports">
             Reports
           </NavLink>
+          {hasAuditAccess ? (
+            <NavLink className={navClassName} to="/audit">
+              Audit
+            </NavLink>
+          ) : null}
           <NavLink className={navClassName} to="/settings/roles">
             Settings
           </NavLink>
