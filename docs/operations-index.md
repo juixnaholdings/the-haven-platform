@@ -24,13 +24,15 @@ Operational map for deployment, verification, and release controls in The Haven.
 - Staging deploy: `.github/workflows/deploy-staging.yml`
 - Production deploy: `.github/workflows/deploy-production.yml`
 
-## Next frontend replacement references
+## Next frontend adoption references
 
 - `docs/nextjs-migration-plan.md`
 - `docs/nextjs-cutover-readiness.md`
-- `docs/runbooks/nextjs-staged-cutover.md`
 - `docs/runbooks/nextjs-staging-verification-checklist.md`
 - `frontend-next/README.md`
+
+Historical record:
+- `docs/runbooks/nextjs-staged-cutover.md`
 
 ## Deployment/runbooks
 
