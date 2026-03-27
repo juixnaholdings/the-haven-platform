@@ -19,11 +19,11 @@ const fontSerif = Merriweather({
 
 export const metadata: Metadata = {
   title: {
-    default: "The Haven | Next Migration",
+    default: "The Haven Operations",
     template: "%s | The Haven",
   },
   description:
-    "Parallel Next.js App Router migration scaffold for The Haven. Current production frontend remains the Vite app.",
+    "Parallel Next.js App Router migration app for The Haven. Milestone 1 includes shell, login, and dashboard parity.",
 };
 
 export default function RootLayout({

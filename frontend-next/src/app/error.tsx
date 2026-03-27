@@ -14,19 +14,19 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
   }, [error]);
 
   return (
-    <main className="error-shell">
-      <section className="error-card">
+    <main className="centered-state">
+      <section className="state-card state-card-error">
         <p className="auth-eyebrow">System fault boundary</p>
         <h1>Something interrupted this view.</h1>
-        <p className="auth-subtitle">
-          The Next migration scaffold caught a runtime error. You can retry this
-          route or return to login.
+        <p className="muted-text">
+          The Next migration route threw an error. Retry this view or return to
+          login.
         </p>
-        <div className="error-actions">
-          <button className="button-primary" onClick={reset} type="button">
+        <div className="state-actions">
+          <button className="button button-primary" onClick={reset} type="button">
             Retry route
           </button>
-          <Link className="button-secondary" href="/login">
+          <Link className="button button-secondary" href="/login">
             Back to login
           </Link>
         </div>

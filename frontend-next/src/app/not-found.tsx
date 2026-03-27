@@ -2,20 +2,19 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <main className="not-found-shell">
-      <section className="not-found-card">
+    <main className="centered-state">
+      <section className="state-card">
         <p className="auth-eyebrow">Route not found</p>
-        <h1>This route is not part of Milestone 0.</h1>
-        <p className="auth-subtitle">
-          The migration scaffold currently includes login and dashboard starter
-          routes only.
+        <h1>This route is not migrated yet.</h1>
+        <p className="muted-text">
+          Milestone 1 includes login and dashboard parity only in `frontend-next`.
         </p>
-        <div className="error-actions">
-          <Link className="button-primary" href="/dashboard">
-            Open dashboard scaffold
+        <div className="state-actions">
+          <Link className="button button-primary" href="/dashboard">
+            Open dashboard
           </Link>
-          <Link className="button-secondary" href="/login">
-            Open login scaffold
+          <Link className="button button-secondary" href="/login">
+            Open login
           </Link>
         </div>
       </section>

@@ -1,16 +1,14 @@
-export type SessionStatus = "bootstrapping" | "unauthenticated" | "authenticated";
+import type { AuthTokens, LoginPayload, User } from "@/domains/types";
 
-export interface SessionUser {
-  id: number;
-  username: string;
-  email: string;
-  roleNames: string[];
-}
+export type SessionStatus = "bootstrapping" | "authenticated" | "unauthenticated";
 
 export interface SessionContextValue {
   status: SessionStatus;
-  user: SessionUser | null;
+  user: User | null;
+  tokens: AuthTokens | null;
   isAuthenticated: boolean;
-  setAuthenticatedPreview: (user: SessionUser) => void;
+  isBootstrapping: boolean;
+  login: (credentials: LoginPayload) => Promise<User>;
+  logout: () => Promise<void>;
   clearSession: () => void;
 }
