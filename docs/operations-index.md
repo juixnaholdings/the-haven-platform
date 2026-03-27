@@ -1,40 +1,48 @@
 # Operations Index
 
 ## Purpose
+
 This document is the operational map for The Haven.
 
-It provides a single place to find:
+Use it as the entry point for:
 
 - deployment workflows
 - environment templates
-- Compose files
-- Nginx configs
+- infrastructure configs
 - security and rollout runbooks
-- server bootstrap references
-
-Use this as the entry point for engineering operations, deployment work, and release handling.
-
----
+- migration cutover readiness references
 
 ## 1. Branch and environment model
 
 ### Branches
-- `develop` → active integration branch
-- `main` → release branch
+
+- `develop` -> staging/integration
+- `main` -> production
 
 ### Deployment targets
-- `develop` → staging
-- `main` → production
+
+- `develop` -> staging
+- `main` -> production
 
 ### GitHub environments
+
 - `staging`
 - `production`
-
----
 
 ## 2. GitHub Actions workflows
 
 ### CI workflow
-Path:
-```text id="ya3emo"
-.github/workflows/ci.yml
+
+- `.github/workflows/ci.yml`
+
+## 3. Next migration operations references
+
+Use these docs for Next cutover planning and QA/readiness:
+
+- `docs/nextjs-migration-plan.md`
+- `docs/nextjs-cutover-readiness.md`
+- `frontend-next/README.md`
+
+Current rollout rule:
+
+- The Vite app in `frontend/` remains the rollback target until staged cutover is accepted.

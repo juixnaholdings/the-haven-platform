@@ -28,8 +28,9 @@ The Next.js migration exists to establish a durable App Router foundation for fu
 3. Milestone 2: migrate members + households surfaces
 4. Milestone 3: migrate groups + events + attendance
 5. Milestone 4: migrate finance + reports surfaces
-6. Milestone 5 (this change): migrate settings + audit surfaces, then publish cutover-readiness assessment
-7. Milestone 6: execute staged cutover plan after readiness criteria pass in staging
+6. Milestone 5: migrate settings + audit surfaces, then publish cutover-readiness assessment
+7. Milestone 6 (this change): cutover-prep QA, smoke coverage, and readiness hardening
+8. Milestone 7: execute staged cutover plan after readiness criteria pass in staging
 
 ## Route migration plan
 
@@ -183,7 +184,22 @@ Planned migration order after auth/session wiring:
 - Added cutover-readiness assessment document:
   - `docs/nextjs-cutover-readiness.md`
 
-## Milestone 6 next actions
+## Milestone 6 completed
+
+- Added route-level smoke coverage for migrated Next routes:
+  - protected-route redirect behavior
+  - login + dashboard bootstrap flow
+  - full migrated route sweep across members/households/groups/events/attendance/finance/reports/settings/audit
+  - representative member create flow
+  - role-aware audit visibility behavior
+- Fixed cutover-facing copy drift that still referenced Milestone 1 in:
+  - root metadata description
+  - login helper text
+  - not-found messaging
+- Refined cutover-readiness package with explicit blocker/non-blocker classification and staged-cutover verdict:
+  - `docs/nextjs-cutover-readiness.md`
+
+## Milestone 7 next actions
 
 - Run staging cutover rehearsal against `frontend-next` as primary frontend entrypoint.
 - Execute pre-cutover checklist from `docs/nextjs-cutover-readiness.md`.

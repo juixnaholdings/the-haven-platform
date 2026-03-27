@@ -7,7 +7,7 @@ This app is migration work only and is developed on the long-running branch:
 
 - `feat/nextjs-migration`
 
-## Milestone 5 scope
+## Milestone 6 scope
 
 - App Router + TypeScript parallel migration app
 - route groups for `(auth)` and `(dashboard)`
@@ -45,6 +45,12 @@ This app is migration work only and is developed on the long-running branch:
   - `/settings/staff`
 - migrated audit parity route:
   - `/audit`
+- added cutover-prep smoke coverage:
+  - protected-route redirect
+  - login/dashboard bootstrap
+  - migrated route sweep
+  - representative member create flow
+  - role-aware audit visibility
 - shared list/detail/form/state primitives for migration waves:
   - `EntityTable`
   - `PaginationControls`
@@ -84,6 +90,7 @@ Validation commands:
 npm run lint
 npm run typecheck
 npm run build
+npm run test:smoke
 ```
 
 ## Notes
@@ -113,4 +120,4 @@ npm run build
   - `/settings/staff`
   - `/audit`
 - Existing production/staging app remains the Vite frontend in `frontend/`.
-- Milestone 6 focuses on staged cutover rehearsal and rollback verification.
+- Milestone 7 focuses on staged cutover rehearsal and rollback verification.
