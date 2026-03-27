@@ -2,42 +2,29 @@
 
 ## Purpose
 
-This document is the operational map for The Haven.
+Operational map for deployment, verification, and release controls in The Haven.
 
-Use it as the entry point for:
-
-- deployment workflows
-- environment templates
-- infrastructure configs
-- security and rollout runbooks
-- migration cutover readiness references
-
-## 1. Branch and environment model
-
-### Branches
+## Branch and environment model
 
 - `develop` -> staging/integration
 - `main` -> production
+- GitHub environments:
+  - `staging`
+  - `production`
 
-### Deployment targets
+## Active frontend
 
-- `develop` -> staging
-- `main` -> production
+- Primary frontend: `frontend-next/`
+- Legacy snapshot only: `frontend/`
 
-### GitHub environments
+## Core workflows
 
-- `staging`
-- `production`
+- CI: `.github/workflows/ci.yml`
+- Security: `.github/workflows/security.yml`
+- Staging deploy: `.github/workflows/deploy-staging.yml`
+- Production deploy: `.github/workflows/deploy-production.yml`
 
-## 2. GitHub Actions workflows
-
-### CI workflow
-
-- `.github/workflows/ci.yml`
-
-## 3. Next migration operations references
-
-Use these docs for Next cutover planning and QA/readiness:
+## Next frontend replacement references
 
 - `docs/nextjs-migration-plan.md`
 - `docs/nextjs-cutover-readiness.md`
@@ -45,6 +32,15 @@ Use these docs for Next cutover planning and QA/readiness:
 - `docs/runbooks/nextjs-staging-verification-checklist.md`
 - `frontend-next/README.md`
 
-Current rollout rule:
+## Deployment/runbooks
 
-- The Vite app in `frontend/` remains the rollback target until staged cutover is accepted.
+- `docs/runbooks/local-setup.md`
+- `docs/runbooks/deployment.md`
+- `docs/runbooks/release-checklist.md`
+- `docs/runbooks/production-rollout.md`
+- `docs/runbooks/backup-restore.md`
+
+## Rollback posture
+
+- Legacy Vite snapshot in `frontend/` is retained as a rollback reference only.
+- Primary operational path remains `frontend-next/`.

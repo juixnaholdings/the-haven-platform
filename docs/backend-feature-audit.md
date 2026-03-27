@@ -11,7 +11,7 @@ Inspected areas included:
 - `backend/config/urls.py`
 - `backend/apps/*/{models.py,serializers.py,selectors.py,services.py,permissions.py,urls.py,apis/admin.py,apis/public.py}`
 - current backend tests under `backend/apps/*/tests/`
-- current frontend routes and domain API modules under `frontend/src/`
+- current frontend routes and domain API modules under `frontend-next/src/`
 
 ## Status Legend
 
@@ -23,7 +23,7 @@ Inspected areas included:
 
 | Product area | Status | Repo evidence | Frontend implication |
 | --- | --- | --- | --- |
-| Auth / Login / Session bootstrap | Ready | `apps/users/apis/public.py`, `apps/users/serializers.py`, `frontend/src/auth/` | Login, session restore, protected routes, and logout can use real backend flows now. |
+| Auth / Login / Session bootstrap | Ready | `apps/users/apis/public.py`, `apps/users/serializers.py`, `frontend-next/src/auth/` | Login, session restore, protected routes, and logout can use real backend flows now. |
 | Dashboard | Ready | `apps/reporting/apis/admin.py`, `apps/reporting/selectors.py` | Dashboard cards can use real backend aggregates now. |
 | Members | Ready | `apps/members/apis/admin.py`, `apps/members/serializers.py`, `apps/members/selectors.py` | List/detail/create/update exist, and detail now includes household, group, and attendance context. |
 | Households | Ready | `apps/households/apis/admin.py`, `apps/households/services.py` | List/detail/create/update/add-member and membership update are available for a real management screen. |

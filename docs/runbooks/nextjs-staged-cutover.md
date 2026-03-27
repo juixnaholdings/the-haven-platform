@@ -1,7 +1,7 @@
 # Next.js Staged Cutover Runbook
 
 ## Purpose
-This runbook defines the exact staging cutover rehearsal process for moving The Haven frontend entrypoint from the current Vite app (`frontend/`) to the Next.js app (`frontend-next/`).
+This runbook defines the exact staging cutover rehearsal process for confirming and operating the Next.js frontend (`frontend-next/`) as the active frontend.
 
 ## Scope
 - Environment: staging only
@@ -135,7 +135,7 @@ Required sign-off roles:
 If blockers are hit:
 
 1. Identify last known-good frontend reference (pre-cutover SHA/tag).
-2. Restore staging frontend entrypoint to previous Vite target and redeploy previous known-good ref.
+2. Restore staging frontend entrypoint to the previous known-good legacy reference and redeploy that ref.
 3. Re-run immediate health verification.
 4. Confirm login, dashboard, and one representative protected domain page are back to stable behavior.
 5. Record rollback reason and blocker details.
