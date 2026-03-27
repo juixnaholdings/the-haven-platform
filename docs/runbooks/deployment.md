@@ -11,6 +11,7 @@
 ## Environment files
 - Staging env file stays on server and is not committed
 - Production env file stays on server and is not committed
+- Frontend is served through the Next service (`frontend-next` build) behind nginx.
 
 ## Staging deployment
 1. SSH into server
@@ -36,7 +37,7 @@
 
 ### Staging
 - open the staging URL
-- verify login works
+- verify `/login` renders the Next frontend
 - verify reload works
 - verify `/admin/` loads
 - verify one protected API page loads
@@ -44,12 +45,12 @@
 
 ### Production
 - verify HTTP redirects to HTTPS
-- verify login works
+- verify `/login` renders the Next frontend
 - verify reload works
 - verify refresh works
 - verify logout works
 - verify `/admin/` loads
-- verify static files load
+- verify `/_next/` assets load
 - verify no browser requests point to the wrong origin
 
 ## Rollback protocol

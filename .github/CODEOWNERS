@@ -1,6 +1,7 @@
 ﻿# Adjust owners later
 * @your-github-username
 /backend/ @your-github-username
+/frontend-next/ @your-github-username
 /frontend/ @your-github-username
 /infra/ @your-github-username
 /docs/ @your-github-username

@@ -1,64 +1,33 @@
-# Frontend Next (Parallel Migration App)
+# The Haven Frontend (Primary)
 
-This folder contains the parallel Next.js App Router migration frontend for The Haven.
+`frontend-next/` is the canonical frontend for The Haven.
 
-Current production/staging frontend remains the Vite app in `frontend/`.
-This app is migration work only and is developed on the long-running branch:
+The old Vite app in `../frontend/` is kept only as a legacy snapshot for rollback/reference and is no longer the active frontend path.
 
-- `feat/nextjs-migration`
+## Stack
 
-## Milestone 6 scope
+- Next.js App Router
+- TypeScript
+- React Query for domain data flows
+- Backend-driven auth/session using:
+  - `POST /api/auth/login/`
+  - `POST /api/auth/token/refresh/`
+  - `GET /api/auth/me/`
+  - `POST /api/auth/logout/`
 
-- App Router + TypeScript parallel migration app
-- route groups for `(auth)` and `(dashboard)`
-- authenticated shell parity foundation for the dashboard route group
-- real login flow wired to Django auth endpoints
-- real session bootstrap using secure refresh-cookie flow + access token in memory
-- protected dashboard route behavior with unauthenticated redirect to `/login?next=...`
-- backend-backed dashboard page wired to `/api/reports/dashboard/`
-- migrated members parity routes:
-  - `/members`
-  - `/members/new`
-  - `/members/:memberId`
-  - `/members/:memberId/edit`
-- migrated households parity routes:
-  - `/households`
-  - `/households/:householdId`
-- migrated groups parity routes:
-  - `/groups`
-  - `/groups/:groupId`
-- migrated events and attendance parity routes:
-  - `/events`
-  - `/events/:serviceEventId`
-  - `/events/:serviceEventId/attendance`
-  - `/attendance`
-- migrated finance parity routes:
-  - `/finance`
-  - `/finance/entries/income`
-  - `/finance/entries/expense`
-  - `/finance/transfers/new`
-  - `/finance/transactions/:transactionId`
-- migrated reports parity route:
-  - `/reports`
-- migrated settings parity routes:
-  - `/settings/roles`
-  - `/settings/staff`
-- migrated audit parity route:
-  - `/audit`
-- added cutover-prep smoke coverage:
-  - protected-route redirect
-  - login/dashboard bootstrap
-  - migrated route sweep
-  - representative member create flow
-  - role-aware audit visibility
-- shared list/detail/form/state primitives for migration waves:
-  - `EntityTable`
-  - `PaginationControls`
-  - `StatusBadge`
-  - `EmptyState`
-  - `DetailPanel`
-  - `FormSection`
-  - `BlockedFeatureCard`
+## Primary routes
+
+- `/login`
+- `/dashboard`
+- `/members`, `/members/new`, `/members/:memberId`, `/members/:memberId/edit`
+- `/households`, `/households/:householdId`
+- `/groups`, `/groups/:groupId`
+- `/events`, `/events/:serviceEventId`, `/events/:serviceEventId/attendance`
+- `/attendance`
+- `/finance`, `/finance/entries/income`, `/finance/entries/expense`, `/finance/transfers/new`, `/finance/transactions/:transactionId`
+- `/reports`
+- `/settings/roles`, `/settings/staff`
+- `/audit`
 
 ## Local usage
 
@@ -73,18 +42,13 @@ App URL:
 
 - `http://localhost:3000`
 
-Required environment:
+Environment:
 
-- copy `.env.example` to `.env.local`
-- set `NEXT_PUBLIC_API_BASE_URL` to your Django backend (for local: `http://localhost:8000`)
+1. Copy `.env.example` to `.env.local`
+2. Set local backend API URL:
+   - `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`
 
-Example:
-
-```bash
-cp .env.example .env.local
-```
-
-Validation commands:
+## Canonical validation commands
 
 ```bash
 npm run lint
@@ -93,31 +57,9 @@ npm run build
 npm run test:smoke
 ```
 
-## Notes
+## Caveats (intentional)
 
-- Current migrated routes in Next:
-  - `/login`
-  - `/dashboard`
-  - `/members`
-  - `/members/new`
-  - `/members/:memberId`
-  - `/members/:memberId/edit`
-  - `/households`
-  - `/households/:householdId`
-  - `/groups`
-  - `/groups/:groupId`
-  - `/events`
-  - `/events/:serviceEventId`
-  - `/events/:serviceEventId/attendance`
-  - `/attendance`
-  - `/finance`
-  - `/finance/entries/income`
-  - `/finance/entries/expense`
-  - `/finance/transfers/new`
-  - `/finance/transactions/:transactionId`
-  - `/reports`
-  - `/settings/roles`
-  - `/settings/staff`
-  - `/audit`
-- Existing production/staging app remains the Vite frontend in `frontend/`.
-- Milestone 7 focuses on staged cutover rehearsal and rollback verification.
+- Role definitions remain read-only in product UI.
+- Staff invite lifecycle remains out of scope.
+- Audit is list-first and intentionally limited.
+- Finance reversal/void workflows remain out of scope.

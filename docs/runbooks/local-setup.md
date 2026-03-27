@@ -49,23 +49,20 @@ Run these commands from the repo root:
 
 ## 6. Frontend Local Setup
 
-- Install frontend dependencies with `npm install` inside `frontend/`.
-- Copy `frontend/.env.example` to `frontend/.env`.
-- Point `VITE_API_BASE_URL` to the backend you want to use.
-- Run `npm run dev` from `frontend/`.
-- The local backend `.env.example` already allows the default Vite origin at `http://localhost:5173`.
+- Install frontend dependencies with `npm install` inside `frontend-next/`.
+- Copy `frontend-next/.env.example` to `frontend-next/.env.local`.
+- Point `NEXT_PUBLIC_API_BASE_URL` to the backend you want to use.
+- Run `npm run dev` from `frontend-next/`.
+- Primary local frontend URL is `http://localhost:3000`.
 
 ## 7. Frontend Validation Commands
 
+- `npm run lint`
 - `npm run typecheck`
 - `npm run build`
-- `npm run verify:backend`
+- `npm run test:smoke`
 
-`npm run verify:backend` requires:
-
-- `FRONTEND_VERIFY_USERNAME`
-- `FRONTEND_VERIFY_PASSWORD`
-- optional: `VITE_API_BASE_URL`
+Smoke coverage is contract-mocked and should be paired with real-backend manual checks before release decisions.
 
 ## 8. Staging Artifacts
 
