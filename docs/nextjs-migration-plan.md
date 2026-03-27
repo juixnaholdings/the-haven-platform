@@ -202,5 +202,8 @@ Planned migration order after auth/session wiring:
 ## Milestone 7 next actions
 
 - Run staging cutover rehearsal against `frontend-next` as primary frontend entrypoint.
-- Execute pre-cutover checklist from `docs/nextjs-cutover-readiness.md`.
+- Execute the staged cutover runbook:
+  - `docs/runbooks/nextjs-staged-cutover.md`
+- Use the live rehearsal checklist during execution:
+  - `docs/runbooks/nextjs-staging-verification-checklist.md`
 - Validate rollback path to Vite frontend under real release conditions.

@@ -41,6 +41,8 @@ Use these docs for Next cutover planning and QA/readiness:
 
 - `docs/nextjs-migration-plan.md`
 - `docs/nextjs-cutover-readiness.md`
+- `docs/runbooks/nextjs-staged-cutover.md`
+- `docs/runbooks/nextjs-staging-verification-checklist.md`
 - `frontend-next/README.md`
 
 Current rollout rule:

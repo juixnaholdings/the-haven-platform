@@ -91,7 +91,9 @@ Status: `Parity achieved with minor non-blocking polish caveats`
 
 ## Recommended rollout sequence
 
-1. Run staging rehearsal with `frontend-next` as active frontend entrypoint.
+1. Run staging rehearsal with `frontend-next` as active frontend entrypoint using:
+   - `docs/runbooks/nextjs-staged-cutover.md`
+   - `docs/runbooks/nextjs-staging-verification-checklist.md`
 2. Execute internal canary release (admin/staff cohort) with active monitoring.
 3. Complete full cutover after canary acceptance window passes.
 
@@ -102,6 +104,8 @@ Status: `Parity achieved with minor non-blocking polish caveats`
 - Keep backend contracts unchanged; rollback is frontend-target switching only.
 
 ## Post-cutover verification checklist
+
+Use `docs/runbooks/nextjs-staging-verification-checklist.md` as the live checklist baseline, then confirm:
 
 1. Confirm login/logout and session refresh work on the target domain.
 2. Confirm protected-route redirect behavior for unauthenticated users.
