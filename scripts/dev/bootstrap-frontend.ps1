@@ -1,2 +1,2 @@
-﻿Set-Location "$PSScriptRoot/../../frontend"
+Set-Location "$PSScriptRoot/../../frontend-next"
 npm install
