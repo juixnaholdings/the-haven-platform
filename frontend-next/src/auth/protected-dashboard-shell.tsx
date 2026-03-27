@@ -12,15 +12,16 @@ interface ProtectedDashboardShellProps {
   children: React.ReactNode;
 }
 
-const futureRoutes = [
-  "Members",
-  "Households",
-  "Ministries",
-  "Events",
-  "Attendance",
-  "Finance",
-  "Reports",
-  "Settings",
+const navItems = [
+  { label: "Dashboard", href: "/dashboard", activePrefix: "/dashboard", available: true },
+  { label: "Members", href: "/members", activePrefix: "/members", available: true },
+  { label: "Households", href: "/households", activePrefix: "/households", available: true },
+  { label: "Ministries", href: "", activePrefix: "/groups", available: false },
+  { label: "Events", href: "", activePrefix: "/events", available: false },
+  { label: "Attendance", href: "", activePrefix: "/attendance", available: false },
+  { label: "Finance", href: "", activePrefix: "/finance", available: false },
+  { label: "Reports", href: "", activePrefix: "/reports", available: false },
+  { label: "Settings", href: "", activePrefix: "/settings", available: false },
 ];
 
 function getDisplayName(user: NonNullable<ReturnType<typeof useSession>["user"]>) {
@@ -75,14 +76,30 @@ export function ProtectedDashboardShell({
         </div>
 
         <nav className="app-nav" aria-label="Primary">
-          <Link className="app-nav-link app-nav-link-active" href="/dashboard">
-            Dashboard
-          </Link>
-          {futureRoutes.map((label) => (
-            <span className="app-nav-link app-nav-link-placeholder" key={label}>
-              {label}
-            </span>
-          ))}
+          {navItems.map((item) => {
+            const isActive =
+              item.activePrefix === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname.startsWith(item.activePrefix);
+
+            const className = isActive
+              ? "app-nav-link app-nav-link-active"
+              : "app-nav-link";
+
+            if (item.available) {
+              return (
+                <Link className={className} href={item.href} key={item.label}>
+                  {item.label}
+                </Link>
+              );
+            }
+
+            return (
+              <span className="app-nav-link app-nav-link-placeholder" key={item.label}>
+                {item.label}
+              </span>
+            );
+          })}
         </nav>
 
         <div className="app-sidebar-footer">

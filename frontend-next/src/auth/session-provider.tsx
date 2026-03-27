@@ -3,6 +3,7 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 
 import { setUnauthorizedHandler } from "@/api/client";
+import { queryClient } from "@/api/queryClient";
 import { authApi } from "@/domains/auth/api";
 
 import { clearAccessToken, getAccessToken, setAccessToken } from "./storage";
@@ -29,6 +30,7 @@ export function AuthSessionProvider({
       setTokens(null);
       setUser(null);
       setStatus("unauthenticated");
+      queryClient.clear();
     });
 
     return () => {
@@ -90,6 +92,7 @@ export function AuthSessionProvider({
         setTokens({ access: response.tokens.access });
         setUser(response.user);
         setStatus("authenticated");
+        await queryClient.invalidateQueries();
 
         return response.user;
       },
@@ -104,12 +107,14 @@ export function AuthSessionProvider({
         setTokens(null);
         setUser(null);
         setStatus("unauthenticated");
+        queryClient.clear();
       },
       clearSession() {
         clearAccessToken();
         setTokens(null);
         setUser(null);
         setStatus("unauthenticated");
+        queryClient.clear();
       },
     }),
     [status, tokens, user],

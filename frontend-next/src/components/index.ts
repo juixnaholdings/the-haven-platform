@@ -1,5 +1,12 @@
+export { BlockedFeatureCard } from "./BlockedFeatureCard";
+export { DetailPanel } from "./DetailPanel";
+export { EmptyState } from "./EmptyState";
 export { ErrorAlert } from "./ErrorAlert";
 export { ErrorState } from "./ErrorState";
+export { EntityTable } from "./EntityTable";
+export { FormSection } from "./FormSection";
 export { LoadingState } from "./LoadingState";
 export { PageHeader } from "./PageHeader";
+export { PaginationControls } from "./PaginationControls";
 export { StatCard } from "./StatCard";
+export { StatusBadge } from "./StatusBadge";

@@ -1,8 +1,12 @@
 interface LoadingStateProps {
   title?: string;
+  description?: string;
 }
 
-export function LoadingState({ title = "Loading..." }: LoadingStateProps) {
+export function LoadingState({
+  title = "Loading...",
+  description = "Please wait while the latest data is loaded.",
+}: LoadingStateProps) {
   return (
     <section className="centered-state">
       <article className="state-card">
@@ -11,7 +15,7 @@ export function LoadingState({ title = "Loading..." }: LoadingStateProps) {
         </div>
         <div className="state-copy">
           <h3>{title}</h3>
-          <p className="muted-text">Please wait while the latest data is loaded.</p>
+          <p className="muted-text">{description}</p>
         </div>
       </article>
     </section>
