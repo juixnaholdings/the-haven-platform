@@ -1,0 +1,206 @@
+# Next.js Migration Plan
+
+Date: 2026-03-27  
+Branch: `feat/nextjs-migration`
+
+## Why this migration exists
+
+The current Vite frontend has broad product coverage and should remain stable during active operations.  
+The Next.js migration exists to establish a durable App Router foundation for future growth (routing, layout composition, server/client boundaries, and deployment flexibility) without disrupting the current app.
+
+## Branch strategy
+
+- Use one long-running migration branch: `feat/nextjs-migration`
+- Keep milestone commits grouped and reviewable on that branch
+- Do not merge to `develop` or `main` until migration milestones are explicitly approved
+
+## Parallel-app strategy
+
+- Existing app remains at `frontend/` (Vite, current source of truth for active product use)
+- New migration app lives at `frontend-next/` (Next.js App Router)
+- Backend remains Django API source of truth
+- No backend contract redesign is part of migration scaffolding
+
+## Milestone sequence
+
+1. Milestone 0: foundation scaffold
+2. Milestone 1: shell parity + auth entry parity + dashboard parity
+3. Milestone 2: migrate members + households surfaces
+4. Milestone 3: migrate groups + events + attendance
+5. Milestone 4: migrate finance + reports surfaces
+6. Milestone 5: migrate settings + audit surfaces, then publish cutover-readiness assessment
+7. Milestone 6 (this change): cutover-prep QA, smoke coverage, and readiness hardening
+8. Milestone 7: execute staged cutover plan after readiness criteria pass in staging
+
+## Route migration plan
+
+Milestone 5 active routes in `frontend-next`:
+
+- `/login`
+- `/dashboard`
+- `/members`
+- `/members/new`
+- `/members/:memberId`
+- `/members/:memberId/edit`
+- `/households`
+- `/households/:householdId`
+- `/groups`
+- `/groups/:groupId`
+- `/events`
+- `/events/:serviceEventId`
+- `/events/:serviceEventId/attendance`
+- `/attendance`
+- `/finance`
+- `/finance/entries/income`
+- `/finance/entries/expense`
+- `/finance/transfers/new`
+- `/finance/transactions/:transactionId`
+- `/reports`
+- `/settings/roles`
+- `/settings/staff`
+- `/audit`
+
+Planned migration order after auth/session wiring:
+
+1. complete parity hardening and QA checks on migrated routes
+2. perform controlled staging cutover rehearsal with rollback verification
+3. execute production cutover only after the readiness checklist is fully green
+
+## Cutover philosophy
+
+- Keep migration incremental and reversible.
+- Preserve behavior parity with backend contracts before switching traffic.
+- Delay deployment-infra cutover until route parity, auth parity, and test parity are verified.
+- Maintain rollback option to Vite frontend until Next.js app is validated in staging.
+
+## Milestone 0 completed
+
+- Created `frontend-next/` with Next.js App Router + TypeScript
+- Added route groups:
+  - `src/app/(auth)/login/page.tsx`
+  - `src/app/(dashboard)/layout.tsx`
+  - `src/app/(dashboard)/dashboard/page.tsx`
+- Added app-level foundation:
+  - `src/app/layout.tsx`
+  - `src/app/globals.css`
+  - `src/app/error.tsx`
+  - `src/app/not-found.tsx`
+- Added migration-ready folders:
+  - `src/components/`
+  - `src/auth/`
+  - `src/domains/`
+  - `src/lib/`
+  - `src/providers/`
+  - `src/styles/`
+  - `src/types/`
+- Added environment template:
+  - `frontend-next/.env.example`
+- Added local usage notes:
+  - `frontend-next/README.md`
+
+## Milestone 1 completed
+
+- Implemented a reusable Next auth API client aligned to existing backend contracts:
+  - `POST /api/auth/login/`
+  - `POST /api/auth/logout/`
+  - `POST /api/auth/token/refresh/`
+  - `GET /api/auth/me/`
+- Added refresh-cookie-aware session bootstrap in the provider layer.
+- Added protected dashboard shell behavior in `(dashboard)/layout.tsx` with unauthenticated redirect to `/login?next=...`.
+- Replaced preview login with a real backend login flow.
+- Replaced scaffold dashboard with a real backend-backed dashboard view using `GET /api/reports/dashboard/`.
+- Added migration-ready shared modules for API errors, request handling, loading/error UI states, and basic dashboard presentation primitives.
+
+## Milestone 2 completed
+
+- Migrated members routes:
+  - `/members`
+  - `/members/new`
+  - `/members/:memberId`
+  - `/members/:memberId/edit`
+- Migrated households routes:
+  - `/households`
+  - `/households/:householdId`
+- Added reusable parity primitives in `frontend-next` for list/detail/form/state flows:
+  - `EntityTable`, `PaginationControls`, `StatusBadge`, `EmptyState`, `DetailPanel`, `FormSection`, `BlockedFeatureCard`
+- Aligned members and households list handling with backend optional pagination support (`page`, `page_size`) while preserving normalized list parsing.
+- Kept parity with existing backend contracts and did not broaden migration to unrelated route domains.
+
+## Milestone 3 completed
+
+- Migrated groups/ministry routes:
+  - `/groups`
+  - `/groups/:groupId`
+- Migrated event and attendance routes:
+  - `/events`
+  - `/events/:serviceEventId`
+  - `/events/:serviceEventId/attendance`
+  - `/attendance`
+- Added groups and attendance domain API modules in `frontend-next` using the same backend contracts and response normalization patterns already used for members/households.
+- Reused and extended existing shared parity primitives (`PageHeader`, `EntityTable`, `FormSection`, `StatusBadge`, `PaginationControls`, `Error/Loading/EmptyState`) instead of creating route-specific components.
+- Kept backend contract alignment explicit:
+  - groups remain a flat ministry analogue (no hierarchy behavior added)
+  - attendance summary and member attendance are handled as distinct flows
+  - no unsupported reconciliation logic was introduced.
+
+## Milestone 4 completed
+
+- Migrated finance routes:
+  - `/finance`
+  - `/finance/entries/income`
+  - `/finance/entries/expense`
+  - `/finance/transfers/new`
+  - `/finance/transactions/:transactionId`
+- Migrated reports route:
+  - `/reports`
+- Added finance domain API module and options for transactions/ledger direction in `frontend-next`.
+- Extended shared typing and formatter foundations for finance/report contracts:
+  - fund accounts
+  - transactions and transaction lines
+  - income/expense/transfer payloads
+  - amount formatting helpers
+- Kept finance/reporting caveats explicit and unchanged:
+  - no reversal/void workflows
+  - no fabricated transaction audit timeline
+  - no fake export flows from reports.
+
+## Milestone 5 completed
+
+- Migrated settings routes:
+  - `/settings/roles`
+  - `/settings/staff`
+- Migrated audit route:
+  - `/audit`
+- Added users and audit domain API modules in `frontend-next` aligned to existing backend contracts:
+  - `GET /api/settings/roles/`
+  - `GET|POST /api/settings/staff-users/`
+  - `GET|PATCH /api/settings/staff-users/{staff_user_id}/`
+  - `GET /api/audit/events/`
+  - `GET /api/audit/events/{audit_event_id}/`
+- Preserved backend caveats in-product:
+  - role definitions remain static/read-only in UI
+  - staff management supports controlled create/update + role assignment
+  - audit feed is operational and filterable but not a forensic export subsystem
+- Added cutover-readiness assessment document:
+  - `docs/nextjs-cutover-readiness.md`
+
+## Milestone 6 completed
+
+- Added route-level smoke coverage for migrated Next routes:
+  - protected-route redirect behavior
+  - login + dashboard bootstrap flow
+  - full migrated route sweep across members/households/groups/events/attendance/finance/reports/settings/audit
+  - representative member create flow
+  - role-aware audit visibility behavior
+- Fixed cutover-facing copy drift that still referenced Milestone 1 in:
+  - root metadata description
+  - login helper text
+  - not-found messaging
+- Refined cutover-readiness package with explicit blocker/non-blocker classification and staged-cutover verdict:
+  - `docs/nextjs-cutover-readiness.md`
+
+## Milestone 7 next actions
+
+- Run staging cutover rehearsal against `frontend-next` as primary frontend entrypoint.
+- Execute pre-cutover checklist from `docs/nextjs-cutover-readiness.md`.
+- Validate rollback path to Vite frontend under real release conditions.

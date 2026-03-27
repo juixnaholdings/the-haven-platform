@@ -1,8 +1,40 @@
 # Frontend Implementation Map
 
-Date: 2026-03-26
+Date: 2026-03-27
 
 This map ties the current frontend architecture to the real backend readiness state and the Stitch screen inventory supplied for The Haven.
+
+## Next Migration Note
+
+- The active feature-complete frontend remains the Vite app under `frontend/`.
+- A parallel Next.js App Router migration app exists under `frontend-next/` on `feat/nextjs-migration`.
+- Milestone 5 now provides real login + session bootstrap + protected dashboard behavior plus members, households, groups, events, attendance, finance, reports, settings, and audit parity routes.
+- Milestone 6 adds cutover-prep QA smoke coverage for auth behavior and full migrated-route sweep in `frontend-next`.
+- Current migrated Next routes are:
+  - `/login`
+  - `/dashboard`
+  - `/members`
+  - `/members/new`
+  - `/members/:memberId`
+  - `/members/:memberId/edit`
+  - `/households`
+  - `/households/:householdId`
+  - `/groups`
+  - `/groups/:groupId`
+  - `/events`
+  - `/events/:serviceEventId`
+  - `/events/:serviceEventId/attendance`
+  - `/attendance`
+  - `/finance`
+  - `/finance/entries/income`
+  - `/finance/entries/expense`
+  - `/finance/transfers/new`
+  - `/finance/transactions/:transactionId`
+  - `/reports`
+  - `/settings/roles`
+  - `/settings/staff`
+  - `/audit`
+- Vite remains the active frontend until the staged cutover plan is executed, even though route parity now exists in `frontend-next`.
 
 ## Current Frontend Architecture
 
