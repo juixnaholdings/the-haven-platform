@@ -27,12 +27,13 @@ The Next.js migration exists to establish a durable App Router foundation for fu
 2. Milestone 1: shell parity + auth entry parity + dashboard parity
 3. Milestone 2: migrate members + households surfaces
 4. Milestone 3: migrate groups + events + attendance
-5. Milestone 4 (this change): migrate finance + reports surfaces
-6. Milestone 5: migrate settings + audit surfaces, then run parity verification and controlled cutover planning
+5. Milestone 4: migrate finance + reports surfaces
+6. Milestone 5 (this change): migrate settings + audit surfaces, then publish cutover-readiness assessment
+7. Milestone 6: execute staged cutover plan after readiness criteria pass in staging
 
 ## Route migration plan
 
-Milestone 4 active routes in `frontend-next`:
+Milestone 5 active routes in `frontend-next`:
 
 - `/login`
 - `/dashboard`
@@ -54,12 +55,15 @@ Milestone 4 active routes in `frontend-next`:
 - `/finance/transfers/new`
 - `/finance/transactions/:transactionId`
 - `/reports`
+- `/settings/roles`
+- `/settings/staff`
+- `/audit`
 
 Planned migration order after auth/session wiring:
 
-1. `/settings/roles`, `/settings/staff`
-2. `/audit`
-3. final parity verification and staged cutover planning
+1. complete parity hardening and QA checks on migrated routes
+2. perform controlled staging cutover rehearsal with rollback verification
+3. execute production cutover only after the readiness checklist is fully green
 
 ## Cutover philosophy
 
@@ -159,11 +163,28 @@ Planned migration order after auth/session wiring:
   - no fabricated transaction audit timeline
   - no fake export flows from reports.
 
-## Milestone 5 next actions
+## Milestone 5 completed
 
-- Migrate settings routes with current backend caveats:
+- Migrated settings routes:
   - `/settings/roles`
   - `/settings/staff`
-- Migrate audit route:
+- Migrated audit route:
   - `/audit`
-- Complete final parity verification checklist and controlled cutover/rollback documentation.
+- Added users and audit domain API modules in `frontend-next` aligned to existing backend contracts:
+  - `GET /api/settings/roles/`
+  - `GET|POST /api/settings/staff-users/`
+  - `GET|PATCH /api/settings/staff-users/{staff_user_id}/`
+  - `GET /api/audit/events/`
+  - `GET /api/audit/events/{audit_event_id}/`
+- Preserved backend caveats in-product:
+  - role definitions remain static/read-only in UI
+  - staff management supports controlled create/update + role assignment
+  - audit feed is operational and filterable but not a forensic export subsystem
+- Added cutover-readiness assessment document:
+  - `docs/nextjs-cutover-readiness.md`
+
+## Milestone 6 next actions
+
+- Run staging cutover rehearsal against `frontend-next` as primary frontend entrypoint.
+- Execute pre-cutover checklist from `docs/nextjs-cutover-readiness.md`.
+- Validate rollback path to Vite frontend under real release conditions.
