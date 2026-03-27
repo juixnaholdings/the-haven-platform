@@ -7,7 +7,7 @@ This app is migration work only and is developed on the long-running branch:
 
 - `feat/nextjs-migration`
 
-## Milestone 2 scope
+## Milestone 3 scope
 
 - App Router + TypeScript parallel migration app
 - route groups for `(auth)` and `(dashboard)`
@@ -24,6 +24,14 @@ This app is migration work only and is developed on the long-running branch:
 - migrated households parity routes:
   - `/households`
   - `/households/:householdId`
+- migrated groups parity routes:
+  - `/groups`
+  - `/groups/:groupId`
+- migrated events and attendance parity routes:
+  - `/events`
+  - `/events/:serviceEventId`
+  - `/events/:serviceEventId/attendance`
+  - `/attendance`
 - shared list/detail/form/state primitives for migration waves:
   - `EntityTable`
   - `PaginationControls`
@@ -68,13 +76,19 @@ npm run build
 ## Notes
 
 - Current migrated routes in Next:
-- `/login`
-- `/dashboard`
-- `/members`
-- `/members/new`
-- `/members/:memberId`
-- `/members/:memberId/edit`
-- `/households`
-- `/households/:householdId`
+  - `/login`
+  - `/dashboard`
+  - `/members`
+  - `/members/new`
+  - `/members/:memberId`
+  - `/members/:memberId/edit`
+  - `/households`
+  - `/households/:householdId`
+  - `/groups`
+  - `/groups/:groupId`
+  - `/events`
+  - `/events/:serviceEventId`
+  - `/events/:serviceEventId/attendance`
+  - `/attendance`
 - Existing production/staging app remains the Vite frontend in `frontend/`.
-- Milestone 3 starts groups, events, and attendance migration.
+- Milestone 4 starts finance, reports, and settings migration.
