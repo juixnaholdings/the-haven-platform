@@ -26,13 +26,13 @@ The Next.js migration exists to establish a durable App Router foundation for fu
 1. Milestone 0: foundation scaffold
 2. Milestone 1: shell parity + auth entry parity + dashboard parity
 3. Milestone 2: migrate members + households surfaces
-4. Milestone 3 (this change): migrate groups + events + attendance
-5. Milestone 4: migrate finance + reports + settings surfaces
-6. Milestone 5: parity verification, controlled cutover plan, and rollback strategy
+4. Milestone 3: migrate groups + events + attendance
+5. Milestone 4 (this change): migrate finance + reports surfaces
+6. Milestone 5: migrate settings + audit surfaces, then run parity verification and controlled cutover planning
 
 ## Route migration plan
 
-Milestone 3 active routes in `frontend-next`:
+Milestone 4 active routes in `frontend-next`:
 
 - `/login`
 - `/dashboard`
@@ -48,13 +48,18 @@ Milestone 3 active routes in `frontend-next`:
 - `/events/:serviceEventId`
 - `/events/:serviceEventId/attendance`
 - `/attendance`
+- `/finance`
+- `/finance/entries/income`
+- `/finance/entries/expense`
+- `/finance/transfers/new`
+- `/finance/transactions/:transactionId`
+- `/reports`
 
 Planned migration order after auth/session wiring:
 
-1. `/finance`, `/finance/entries/income`, `/finance/entries/expense`, `/finance/transfers/new`, `/finance/transactions/:transactionId`
-2. `/reports`
-3. `/settings/roles`, `/settings/staff`
-4. `/audit`
+1. `/settings/roles`, `/settings/staff`
+2. `/audit`
+3. final parity verification and staged cutover planning
 
 ## Cutover philosophy
 
@@ -133,17 +138,32 @@ Planned migration order after auth/session wiring:
   - attendance summary and member attendance are handled as distinct flows
   - no unsupported reconciliation logic was introduced.
 
-## Milestone 4 next actions
+## Milestone 4 completed
 
-- Migrate finance routes:
+- Migrated finance routes:
   - `/finance`
   - `/finance/entries/income`
   - `/finance/entries/expense`
   - `/finance/transfers/new`
   - `/finance/transactions/:transactionId`
-- Migrate reports route:
+- Migrated reports route:
   - `/reports`
+- Added finance domain API module and options for transactions/ledger direction in `frontend-next`.
+- Extended shared typing and formatter foundations for finance/report contracts:
+  - fund accounts
+  - transactions and transaction lines
+  - income/expense/transfer payloads
+  - amount formatting helpers
+- Kept finance/reporting caveats explicit and unchanged:
+  - no reversal/void workflows
+  - no fabricated transaction audit timeline
+  - no fake export flows from reports.
+
+## Milestone 5 next actions
+
 - Migrate settings routes with current backend caveats:
   - `/settings/roles`
   - `/settings/staff`
-- Keep `/audit` as the final migration route after Milestone 4 parity is stable.
+- Migrate audit route:
+  - `/audit`
+- Complete final parity verification checklist and controlled cutover/rollback documentation.

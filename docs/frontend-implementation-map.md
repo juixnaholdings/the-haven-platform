@@ -8,7 +8,7 @@ This map ties the current frontend architecture to the real backend readiness st
 
 - The active feature-complete frontend remains the Vite app under `frontend/`.
 - A parallel Next.js App Router migration app exists under `frontend-next/` on `feat/nextjs-migration`.
-- Milestone 3 now provides real login + session bootstrap + protected dashboard behavior plus members, households, groups, events, and attendance parity routes.
+- Milestone 4 now provides real login + session bootstrap + protected dashboard behavior plus members, households, groups, events, attendance, finance, and reports parity routes.
 - Current migrated Next routes are:
   - `/login`
   - `/dashboard`
@@ -24,6 +24,12 @@ This map ties the current frontend architecture to the real backend readiness st
   - `/events/:serviceEventId`
   - `/events/:serviceEventId/attendance`
   - `/attendance`
+  - `/finance`
+  - `/finance/entries/income`
+  - `/finance/entries/expense`
+  - `/finance/transfers/new`
+  - `/finance/transactions/:transactionId`
+  - `/reports`
 - All remaining product routes still run in the Vite app until later migration milestones.
 
 ## Current Frontend Architecture

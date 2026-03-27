@@ -7,7 +7,7 @@ This app is migration work only and is developed on the long-running branch:
 
 - `feat/nextjs-migration`
 
-## Milestone 3 scope
+## Milestone 4 scope
 
 - App Router + TypeScript parallel migration app
 - route groups for `(auth)` and `(dashboard)`
@@ -32,6 +32,14 @@ This app is migration work only and is developed on the long-running branch:
   - `/events/:serviceEventId`
   - `/events/:serviceEventId/attendance`
   - `/attendance`
+- migrated finance parity routes:
+  - `/finance`
+  - `/finance/entries/income`
+  - `/finance/entries/expense`
+  - `/finance/transfers/new`
+  - `/finance/transactions/:transactionId`
+- migrated reports parity route:
+  - `/reports`
 - shared list/detail/form/state primitives for migration waves:
   - `EntityTable`
   - `PaginationControls`
@@ -90,5 +98,11 @@ npm run build
   - `/events/:serviceEventId`
   - `/events/:serviceEventId/attendance`
   - `/attendance`
+  - `/finance`
+  - `/finance/entries/income`
+  - `/finance/entries/expense`
+  - `/finance/transfers/new`
+  - `/finance/transactions/:transactionId`
+  - `/reports`
 - Existing production/staging app remains the Vite frontend in `frontend/`.
-- Milestone 4 starts finance, reports, and settings migration.
+- Milestone 5 starts settings and audit migration plus final parity/cutover verification.
