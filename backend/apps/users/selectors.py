@@ -52,6 +52,14 @@ def list_staff_users():
     )
 
 
+def get_staff_user_by_id(*, staff_user_id: int):
+    return (
+        User.objects.filter(id=staff_user_id, is_staff=True)
+        .prefetch_related("groups")
+        .first()
+    )
+
+
 def list_role_summaries():
     return Group.objects.order_by("name").prefetch_related(
         "user_set",

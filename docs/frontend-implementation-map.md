@@ -71,8 +71,9 @@ Current alignment status:
 
 - the authenticated shell, login page, dashboard, members, households, groups, events, and attendance screens have now received a Stitch-aligned polish pass
 - shared UI primitives have been visually unified around the same spacing, card, badge, table, and state language
-- finance, reports, and read-only settings now also follow the same Stitch-aligned visual system and route composition
-- settings remains intentionally read-only on `/settings/roles` and `/settings/staff` because mutation APIs are still not available
+- finance, reports, and settings now also follow the same Stitch-aligned visual system and route composition
+- settings staff management now supports backend-backed create/update and role assignment flows
+- role-definition edits remain intentionally blocked because role definitions are seed-governed
 - members detail now consumes the richer backend payload (household context, group affiliations, attendance summary), and key list screens now consume optional pagination with a shared UI control pattern
 
 ## Route Map
@@ -99,8 +100,8 @@ Current alignment status:
 | `/finance/transfers/new` | Fund transfer | Ready | Implemented | Wave 3 complete |
 | `/finance/transactions/:transactionId` | Transaction detail / audit | Ready with caveats | Implemented | Wave 3 complete |
 | `/reports` | Reports dashboard | Ready | Implemented | Wave 3 complete |
-| `/settings/roles` | Settings / Roles | Ready with caveats | Implemented (read-only) | Wave 3 complete |
-| `/settings/staff` | Staff user management | Ready with caveats | Implemented (read-only) | Wave 3 complete |
+| `/settings/roles` | Settings / Roles | Ready with caveats | Implemented (role definitions read-only) | Wave 4 complete |
+| `/settings/staff` | Staff user management | Ready with caveats | Implemented (create/update + role assignment) | Wave 4 complete |
 | `/audit` | Audit trail | Not ready | Not started | Blocked |
 | `/ui/states` | Functional states gallery | No backend dependency | Not started | Wave 0.5 |
 
@@ -125,8 +126,8 @@ Current alignment status:
 | Fund transfer | `POST /api/finance/transactions/transfer/` | `GET /api/finance/fund-accounts/` | Validates source/destination separation server-side. |
 | Transaction detail / audit | `GET /api/finance/transactions/{transaction_id}/`, `PATCH /api/finance/transactions/{transaction_id}/` | none | Record detail exists, but no dedicated audit timeline endpoint exists. |
 | Reports dashboard | `GET /api/reports/members/`, `GET /api/reports/households/`, `GET /api/reports/groups/`, `GET /api/reports/attendance/`, `GET /api/reports/finance/` | `GET /api/reports/dashboard/` | Reports are backend-ready. |
-| Settings / Roles | `GET /api/settings/roles/` | existing role commands/admin | API-backed read-only role and permission summary with explicit mutation blocked-state messaging. |
-| Staff user management | `GET /api/settings/staff-users/` | `GET /api/settings/roles/` | API-backed read-only staff directory with explicit invite/access-mutation blocked-state messaging. |
+| Settings / Roles | `GET /api/settings/roles/` | `GET /api/settings/staff-users/` | API-backed role and permission summary; role-definition mutation remains blocked by design. |
+| Staff user management | `GET /api/settings/staff-users/`, `POST /api/settings/staff-users/`, `GET /api/settings/staff-users/{staff_user_id}/`, `PATCH /api/settings/staff-users/{staff_user_id}/` | `GET /api/settings/roles/` | API-backed staff-user management now supports create/update and role assignment. Invite lifecycle remains out of scope. |
 | Audit trail | none | model audit fields only | Requires backend API work. |
 
 ## Shared Component Map
@@ -210,37 +211,37 @@ Status:
 - Attendance overview and event attendance recording are now implemented.
 - Finance remains the major unfinished Wave 2 domain.
 
-### Wave 3: finance, reporting, and read-only settings
+### Wave 3: finance, reporting, and settings foundation
 
 - Finance ledger, entry, transfer, and transaction detail
 - Reports dashboard
-- Read-only settings roles and staff-user surfaces
+- Settings roles and staff-user foundations
 
 Status:
 
 - Completed in this implementation wave.
-- Settings is intentionally limited to read-only role and staff-user summaries, which keeps the frontend honest to current backend readiness.
+- Settings now includes staff create/update and role assignment flows while keeping role-definition edits blocked.
 
-### Blocked wave: settings mutations and audit
+### Blocked wave: deeper settings governance and audit
 
-- Staff user create/update flows
-- Role assignment and permission management flows
+- Role-definition editing and permission-map mutation flows
+- Invite/reset-password lifecycle workflows
 - Audit trail
 
 Blocked by:
 
-- missing backend mutation APIs for users/roles
+- role definitions are currently seed-governed through bootstrap/admin
 - missing audit-log query surface
 
 ## Immediate Build Recommendation
 
 The next coding wave should be:
 
-1. decide whether settings needs a dedicated mutation slice beyond the new read-only summaries
-2. implement any remaining audit-trail backend and frontend surfaces
+1. implement any remaining audit-trail backend and frontend surfaces
+2. decide whether role-definition mutation is needed beyond seeded RBAC governance
 3. adopt the new optional paginated list contracts (`page`, `page_size`) in data-heavy frontend screens as record volumes grow
 
 Backend blockers that still remain outside those waves:
 
-- staff-user and role mutation APIs are still missing
+- role-definition mutation APIs are intentionally missing
 - audit trail remains blocked on missing backend query surfaces

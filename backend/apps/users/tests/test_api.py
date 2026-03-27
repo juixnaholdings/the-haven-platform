@@ -129,6 +129,7 @@ class SettingsApiTests(APITestCase):
     def setUp(self):
         self.church_admin_group = Group.objects.create(name="Church Admin")
         self.finance_secretary_group = Group.objects.create(name="Finance Secretary")
+        self.membership_secretary_group = Group.objects.create(name="Membership Secretary")
         self.church_admin_group.permissions.add(
             Permission.objects.get(codename="view_user", content_type__app_label="users")
         )
@@ -175,6 +176,10 @@ class SettingsApiTests(APITestCase):
         self.assertEqual(response.data["data"][0]["username"], "staffuser")
         self.assertEqual(response.data["data"][0]["full_name"], "Grace Adewale")
         self.assertEqual(response.data["data"][0]["role_names"], ["Finance Secretary"])
+        self.assertEqual(
+            response.data["data"][0]["roles"],
+            [{"id": self.finance_secretary_group.id, "name": "Finance Secretary"}],
+        )
 
     def test_roles_returns_role_permissions_and_user_counts(self):
         self.client.force_authenticate(user=self.admin_user)
@@ -195,3 +200,91 @@ class SettingsApiTests(APITestCase):
             "users.view_user",
             [permission["permission_code"] for permission in church_admin_role["permissions"]],
         )
+
+    def test_create_staff_user_requires_admin_settings_write_access(self):
+        self.client.force_authenticate(user=self.regular_user)
+
+        response = self.client.post(
+            "/api/settings/staff-users/",
+            {
+                "username": "staffnew",
+                "email": "staffnew@example.com",
+                "password": "StrongPass123",
+                "role_ids": [self.finance_secretary_group.id],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["status"], "error")
+
+    def test_create_staff_user_creates_staff_user_and_assigns_roles(self):
+        self.client.force_authenticate(user=self.admin_user)
+
+        response = self.client.post(
+            "/api/settings/staff-users/",
+            {
+                "username": "staffnew",
+                "email": "staffnew@example.com",
+                "first_name": "Samuel",
+                "last_name": "Okoro",
+                "password": "StrongPass123",
+                "role_ids": [
+                    self.finance_secretary_group.id,
+                    self.membership_secretary_group.id,
+                ],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(response.data["data"]["username"], "staffnew")
+        self.assertTrue(response.data["data"]["is_staff"])
+        self.assertEqual(
+            response.data["data"]["role_names"],
+            ["Finance Secretary", "Membership Secretary"],
+        )
+
+        created_user = User.objects.get(username="staffnew")
+        self.assertTrue(created_user.is_staff)
+        self.assertEqual(
+            set(created_user.groups.values_list("name", flat=True)),
+            {"Finance Secretary", "Membership Secretary"},
+        )
+
+    def test_update_staff_user_updates_status_and_roles(self):
+        self.client.force_authenticate(user=self.admin_user)
+
+        response = self.client.patch(
+            f"/api/settings/staff-users/{self.staff_user.id}/",
+            {
+                "is_active": False,
+                "role_ids": [self.membership_secretary_group.id],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], "success")
+        self.assertFalse(response.data["data"]["is_active"])
+        self.assertEqual(response.data["data"]["role_names"], ["Membership Secretary"])
+
+        self.staff_user.refresh_from_db()
+        self.assertFalse(self.staff_user.is_active)
+        self.assertEqual(
+            list(self.staff_user.groups.order_by("name").values_list("name", flat=True)),
+            ["Membership Secretary"],
+        )
+
+    def test_update_staff_user_returns_not_found_for_non_staff_user(self):
+        self.client.force_authenticate(user=self.admin_user)
+
+        response = self.client.patch(
+            f"/api/settings/staff-users/{self.regular_user.id}/",
+            {"is_active": False},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["status"], "error")

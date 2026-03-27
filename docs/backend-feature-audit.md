@@ -32,7 +32,7 @@ Inspected areas included:
 | Attendance overview | Ready | `apps/reporting/apis/admin.py`, `apps/attendance/apis/admin.py` | Overview/report and per-event recording screens can use real data. |
 | Finance / Ledger | Ready with caveats | `apps/finance/apis/admin.py`, `apps/finance/services.py` | Core ledger flows work, but there is no reversal/void workflow or dedicated audit trail. |
 | Reports | Ready | `apps/reporting/apis/admin.py`, `apps/reporting/selectors.py` | Reporting screens can use real summary endpoints now. |
-| Settings / Roles / Users | Ready with caveats | `apps/users/apis/admin.py`, `apps/users/urls.py` | Read-only staff-user and role summary screens are feasible now, but mutations still belong to admin/bootstrap flows. |
+| Settings / Roles / Users | Ready with caveats | `apps/users/apis/admin.py`, `apps/users/services.py`, `apps/users/urls.py` | Staff-user create/update and role assignment are API-backed; role-definition mutation remains bootstrap/admin-only. |
 | Audit Trail | Not ready | `apps/common/models.py`, no audit-log app/API | Models capture audit fields, but there is no audit timeline/query surface. |
 
 ## Cross-Cutting Findings
@@ -217,18 +217,21 @@ What exists:
 - Superuser seeding command
 - Django admin for manual ops
 - `GET /api/settings/staff-users/`
+- `POST /api/settings/staff-users/`
+- `GET /api/settings/staff-users/{staff_user_id}/`
+- `PATCH /api/settings/staff-users/{staff_user_id}/`
 - `GET /api/settings/roles/`
 
 Caveats:
 
-- The new settings endpoints are intentionally read-only.
-- There is still no UI-safe mutation surface for staff-user creation, user-role assignment, or permission editing.
-- The operational write paths remain Django admin plus management commands such as `setup_roles` and `seed_superuser`.
+- Staff-user mutations are intentionally scoped to controlled create/update flows and role assignment.
+- Role definitions and permission maps remain bootstrap-governed and are still not mutable through product APIs.
+- There is still no dedicated settings audit timeline endpoint.
 
 Frontend consequence:
 
-- Read-only staff user and role-summary screens are feasible now.
-- Full settings/user-management workflows should still not be scheduled without a dedicated mutation slice.
+- Staff-user management screens can now support create/update and role assignment workflows.
+- Role definition editing should remain blocked in product UI.
 
 ### Audit Trail
 
@@ -256,6 +259,7 @@ Frontend consequence:
 - Exposed `PATCH /api/households/{household_id}/memberships/{membership_id}/` to support real household management instead of add-only membership flows.
 - Added optional pagination support across high-value list endpoints: members, households, groups, service events, event member-attendance, and finance transactions/fund accounts.
 - Enriched member detail payload with household context, group memberships, and attendance summary counters.
+- Added settings mutation endpoints for staff-user create/update plus role assignment while keeping role-definition edits read-only.
 
 ## Recommended Product Build Order
 
@@ -263,5 +267,5 @@ Frontend consequence:
    login polish, dashboard, members, households, groups, services/events, attendance recording, finance, reports.
 2. Add richer cross-domain read models where the current screens need more than the core CRUD payloads:
    especially member profile aggregation.
-3. Build the mutation half of settings/users/roles management.
-4. Build a dedicated audit trail slice.
+3. Build a dedicated audit trail slice.
+4. Consider optional invite/reset-password workflows if product scope requires them.

@@ -63,15 +63,15 @@ export function SettingsRolesPage() {
       <PageHeader
         eyebrow="Settings / roles"
         title="Roles"
-        description="API-backed read-only role and permission visibility. Role assignment and permission mutations still live in bootstrap commands and Django admin."
+        description="Role definitions and permission scopes are visible here, while assignment workflows are managed from the staff-user settings page."
         actions={
           <Link className="button button-secondary" to="/settings/staff">
-            View staff users
+            Manage staff users
           </Link>
         }
         meta={
           <>
-            <StatusBadge label="Read-only settings surface" tone="info" />
+            <StatusBadge label="Role definitions are seeded/static" tone="info" />
             <StatusBadge label="API-backed" tone="success" />
           </>
         }
@@ -85,9 +85,9 @@ export function SettingsRolesPage() {
       </section>
 
       <BlockedFeatureCard
-        title="Role mutation workflows"
-        description="Role assignment, permission edits, and governance/audit workflows are intentionally not exposed in this release."
-        reason="Use Django admin and existing bootstrap commands until dedicated settings mutation APIs are introduced."
+        title="Role-definition mutation workflows"
+        description="Renaming roles, editing role permissions, and governance/audit workflows are intentionally not exposed in product UI."
+        reason="Role definitions remain bootstrap-governed. Use setup commands and Django admin for role-definition changes."
       />
 
       {roles.length === 0 ? (

@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.models import Group, Permission
 from django.db import transaction
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -99,6 +100,87 @@ def clear_refresh_cookie(*, response: Response) -> None:
         cookie_kwargs["domain"] = settings.AUTH_REFRESH_COOKIE_DOMAIN
 
     response.delete_cookie(**cookie_kwargs)
+
+
+def _normalize_email(value: str) -> str:
+    return value.strip().lower()
+
+
+def _validate_unique_username(*, username: str, exclude_user_id: int | None = None) -> None:
+    User = get_user_model()
+    queryset = User.objects.filter(username__iexact=username)
+    if exclude_user_id is not None:
+        queryset = queryset.exclude(id=exclude_user_id)
+
+    if queryset.exists():
+        raise ValidationError({"username": ["A user with this username already exists."]})
+
+
+def _validate_unique_email(*, email: str, exclude_user_id: int | None = None) -> None:
+    if not email:
+        return
+
+    User = get_user_model()
+    queryset = User.objects.filter(email__iexact=email)
+    if exclude_user_id is not None:
+        queryset = queryset.exclude(id=exclude_user_id)
+
+    if queryset.exists():
+        raise ValidationError({"email": ["A user with this email already exists."]})
+
+
+@transaction.atomic
+def create_staff_user(*, data: dict) -> object:
+    User = get_user_model()
+    payload = data.copy()
+
+    role_groups = payload.pop("role_ids", [])
+    raw_username = payload.pop("username")
+    raw_email = payload.pop("email")
+    password = payload.pop("password")
+
+    username = raw_username.strip()
+    email = _normalize_email(raw_email)
+
+    _validate_unique_username(username=username)
+    _validate_unique_email(email=email)
+
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password,
+        first_name=payload.get("first_name", ""),
+        last_name=payload.get("last_name", ""),
+        is_active=payload.get("is_active", True),
+        is_staff=True,
+    )
+    user.groups.set(role_groups)
+
+    return User.objects.prefetch_related("groups").get(id=user.id)
+
+
+@transaction.atomic
+def update_staff_user(*, user, data: dict) -> object:
+    payload = data.copy()
+    role_groups = payload.pop("role_ids", None)
+
+    if "email" in payload:
+        payload["email"] = _normalize_email(payload["email"])
+        _validate_unique_email(email=payload["email"], exclude_user_id=user.id)
+
+    for field in ("first_name", "last_name", "email", "is_active"):
+        if field in payload:
+            setattr(user, field, payload[field])
+
+    # Staff management endpoints are intentionally scoped to staff users only.
+    user.is_staff = True
+    user.save()
+
+    if role_groups is not None:
+        user.groups.set(role_groups)
+
+    User = get_user_model()
+    return User.objects.prefetch_related("groups").get(id=user.id)
 
 
 def _permission_label(permission: Permission) -> str:
