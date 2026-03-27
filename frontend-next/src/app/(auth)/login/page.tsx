@@ -102,8 +102,8 @@ export default function LoginPage() {
           <ErrorAlert error={submitError} fallbackMessage="Unable to sign in." />
 
           <p className="muted-text helper-text">
-            Migration scope: only login and dashboard are active in `frontend-next`
-            for Milestone 1.
+            Next migration status: Phase 1 routes are migrated in `frontend-next`.
+            Cutover follows staged QA and rollback-ready deployment checks.
           </p>
           <Link className="button button-ghost" href="/dashboard">
             Continue to dashboard route

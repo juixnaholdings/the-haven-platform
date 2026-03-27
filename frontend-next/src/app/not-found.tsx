@@ -5,9 +5,9 @@ export default function NotFound() {
     <main className="centered-state">
       <section className="state-card">
         <p className="auth-eyebrow">Route not found</p>
-        <h1>This route is not migrated yet.</h1>
+        <h1>This route does not exist.</h1>
         <p className="muted-text">
-          Milestone 1 includes login and dashboard parity only in `frontend-next`.
+          `frontend-next` now covers the full Phase 1 product route set. This URL is outside that mapped surface.
         </p>
         <div className="state-actions">
           <Link className="button button-primary" href="/dashboard">

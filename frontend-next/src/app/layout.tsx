@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s | The Haven",
   },
   description:
-    "Parallel Next.js App Router migration app for The Haven. Milestone 1 includes shell, login, and dashboard parity.",
+    "Parallel Next.js App Router migration app for The Haven with full Phase 1 route parity and staged cutover readiness.",
 };
 
 export default function RootLayout({
