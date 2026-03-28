@@ -9,7 +9,7 @@ import {
   EmptyState,
   EntityTable,
   ErrorState,
-  FormSection,
+  FilterActionStrip,
   LoadingState,
   PageHeader,
   PaginationControls,
@@ -260,24 +260,25 @@ export function FinancePageScreen() {
         title="Reversal and void workflow"
       />
 
-      <form className="page-stack">
-        <FormSection
-          description="Filter the posted transaction ledger by description, type, fund, or date range."
-          title="Ledger filters"
-        >
-          <div className="form-grid form-grid-3">
-            <label className="field">
-              <span>Search transactions</span>
-              <input
-                onChange={(event) => {
-                  setSearch(event.target.value);
-                  setPage(1);
-                }}
-                placeholder="Search by reference or description"
-                value={search}
-              />
-            </label>
-
+      <FilterActionStrip
+        actions={
+          <button
+            className="button button-secondary"
+            onClick={() => {
+              setSearch("");
+              setTransactionTypeFilter("all");
+              setFundAccountFilter("all");
+              setStartDate("");
+              setEndDate("");
+              setPage(1);
+            }}
+            type="button"
+          >
+            Reset filters
+          </button>
+        }
+        filters={
+          <>
             <label className="field">
               <span>Transaction type</span>
               <select
@@ -337,26 +338,22 @@ export function FinancePageScreen() {
                 value={endDate}
               />
             </label>
-
-            <div className="inline-actions inline-actions-bottom">
-              <button
-                className="button button-secondary"
-                onClick={() => {
-                  setSearch("");
-                  setTransactionTypeFilter("all");
-                  setFundAccountFilter("all");
-                  setStartDate("");
-                  setEndDate("");
-                  setPage(1);
-                }}
-                type="button"
-              >
-                Reset filters
-              </button>
-            </div>
-          </div>
-        </FormSection>
-      </form>
+          </>
+        }
+        search={
+          <label className="field">
+            <span>Search transactions</span>
+            <input
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search by reference or description"
+              value={search}
+            />
+          </label>
+        }
+      />
 
       {transactions.length === 0 ? (
         <EmptyState

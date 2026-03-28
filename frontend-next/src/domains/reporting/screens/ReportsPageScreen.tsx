@@ -9,7 +9,7 @@ import {
   EmptyState,
   EntityTable,
   ErrorState,
-  FormSection,
+  FilterActionStrip,
   LoadingState,
   PageHeader,
   StatCard,
@@ -146,37 +146,32 @@ export function ReportsPageScreen() {
         title="Reports"
       />
 
-      <form className="page-stack">
-        <FormSection
-          description="Attendance, finance, and dashboard overview metrics respond to the selected reporting range."
-          title="Date range"
-        >
-          <div className="form-grid form-grid-3">
-            <label className="field">
-              <span>Start date</span>
-              <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
-            </label>
-
-            <label className="field">
-              <span>End date</span>
-              <input onChange={(event) => setEndDate(event.target.value)} type="date" value={endDate} />
-            </label>
-
-            <div className="inline-actions inline-actions-bottom">
-              <button
-                className="button button-secondary"
-                onClick={() => {
-                  setStartDate("");
-                  setEndDate("");
-                }}
-                type="button"
-              >
-                Reset range
-              </button>
-            </div>
-          </div>
-        </FormSection>
-      </form>
+      <FilterActionStrip
+        actions={
+          <button
+            className="button button-secondary"
+            onClick={() => {
+              setStartDate("");
+              setEndDate("");
+            }}
+            type="button"
+          >
+            Reset range
+          </button>
+        }
+        filters={
+          <label className="field">
+            <span>End date</span>
+            <input onChange={(event) => setEndDate(event.target.value)} type="date" value={endDate} />
+          </label>
+        }
+        search={
+          <label className="field">
+            <span>Start date</span>
+            <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
+          </label>
+        }
+      />
 
       <section className="metrics-grid">
         <StatCard label="Total members" tone="accent" value={membership.total_members} />

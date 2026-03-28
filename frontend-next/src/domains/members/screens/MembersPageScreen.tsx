@@ -8,6 +8,7 @@ import {
   EmptyState,
   EntityTable,
   ErrorState,
+  FilterActionStrip,
   LoadingState,
   PageHeader,
   PaginationControls,
@@ -72,20 +73,23 @@ export function MembersPageScreen() {
         <StatCard label="Contact ready in view" value={contactReadyMembers} />
       </section>
 
-      <section className="panel">
-        <div className="filters-grid filters-grid-2">
-          <label className="field">
-            <span>Search members</span>
-            <input
-              onChange={(event) => {
-                setSearch(event.target.value);
+      <FilterActionStrip
+        actions={
+          hasFilters ? (
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("all");
                 setPage(1);
               }}
-              placeholder="Search by name, email, or phone"
-              value={search}
-            />
-          </label>
-
+              type="button"
+            >
+              Clear filters
+            </button>
+          ) : null
+        }
+        filters={
           <label className="field">
             <span>Status</span>
             <select
@@ -100,8 +104,21 @@ export function MembersPageScreen() {
               <option value="inactive">Inactive members</option>
             </select>
           </label>
-        </div>
-      </section>
+        }
+        search={
+          <label className="field">
+            <span>Search members</span>
+            <input
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search by name, email, or phone"
+              value={search}
+            />
+          </label>
+        }
+      />
 
       {membersQuery.isLoading ? (
         <LoadingState

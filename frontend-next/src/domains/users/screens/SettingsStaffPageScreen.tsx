@@ -11,6 +11,7 @@ import {
   EntityTable,
   ErrorAlert,
   ErrorState,
+  FilterActionStrip,
   FormSection,
   LoadingState,
   PageHeader,
@@ -391,17 +392,22 @@ export function SettingsStaffPageScreen() {
         </form>
       ) : null}
 
-      <section className="panel">
-        <div className="filters-grid filters-grid-2">
-          <label className="field">
-            <span>Search staff users</span>
-            <input
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by name, username, email, or role"
-              value={search}
-            />
-          </label>
-
+      <FilterActionStrip
+        actions={
+          hasFilters ? (
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("all");
+              }}
+              type="button"
+            >
+              Clear filters
+            </button>
+          ) : null
+        }
+        filters={
           <label className="field">
             <span>Status</span>
             <select
@@ -413,8 +419,18 @@ export function SettingsStaffPageScreen() {
               <option value="inactive">Inactive users</option>
             </select>
           </label>
-        </div>
-      </section>
+        }
+        search={
+          <label className="field">
+            <span>Search staff users</span>
+            <input
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search by name, username, email, or role"
+              value={search}
+            />
+          </label>
+        }
+      />
 
       {filteredStaffUsers.length === 0 ? (
         <EmptyState

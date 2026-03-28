@@ -88,7 +88,7 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow="Protected reporting surface"
         title="Operational dashboard"
-        description="A calm operational snapshot across members, households, ministries, attendance, and finance using the protected reporting backend."
+        description="A structured snapshot of church operations across people, ministries, attendance, and finance using the protected reporting backend."
       />
 
       <section className="metrics-grid">
@@ -100,7 +100,7 @@ export default function DashboardPage() {
         <StatCard label="Net flow" value={formatAmount(dashboard.finance.net_flow)} />
       </section>
 
-      <section className="panel-grid">
+      <div className="content-grid">
         <article className="panel">
           <h3>Attendance snapshot</h3>
           <dl className="definition-list">
@@ -133,7 +133,9 @@ export default function DashboardPage() {
             ))}
           </ul>
         </article>
+      </div>
 
+      <section className="panel-grid">
         <article className="panel">
           <h3>People and ministry snapshot</h3>
           <dl className="definition-list">
@@ -148,6 +150,24 @@ export default function DashboardPage() {
             <div>
               <dt>Active group memberships</dt>
               <dd>{dashboard.groups.total_active_affiliations}</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article className="panel">
+          <h3>Household stability</h3>
+          <dl className="definition-list">
+            <div>
+              <dt>Total households</dt>
+              <dd>{dashboard.households.total_households}</dd>
+            </div>
+            <div>
+              <dt>Households with active head</dt>
+              <dd>{dashboard.households.households_with_active_head}</dd>
+            </div>
+            <div>
+              <dt>Average household size</dt>
+              <dd>{dashboard.households.average_household_size}</dd>
             </div>
           </dl>
         </article>

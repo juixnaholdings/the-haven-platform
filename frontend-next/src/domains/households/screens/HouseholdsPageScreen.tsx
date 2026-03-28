@@ -11,6 +11,7 @@ import {
   EntityTable,
   ErrorAlert,
   ErrorState,
+  FilterActionStrip,
   FormSection,
   LoadingState,
   PageHeader,
@@ -129,20 +130,23 @@ export function HouseholdsPageScreen() {
         <StatCard label="Linked members in view" value={linkedMembers} />
       </section>
 
-      <section className="panel">
-        <div className="filters-grid filters-grid-2">
-          <label className="field">
-            <span>Search households</span>
-            <input
-              onChange={(event) => {
-                setSearch(event.target.value);
+      <FilterActionStrip
+        actions={
+          hasFilters ? (
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("all");
                 setPage(1);
               }}
-              placeholder="Search by household name, phone, or city"
-              value={search}
-            />
-          </label>
-
+              type="button"
+            >
+              Clear filters
+            </button>
+          ) : null
+        }
+        filters={
           <label className="field">
             <span>Status</span>
             <select
@@ -157,8 +161,21 @@ export function HouseholdsPageScreen() {
               <option value="inactive">Inactive households</option>
             </select>
           </label>
-        </div>
-      </section>
+        }
+        search={
+          <label className="field">
+            <span>Search households</span>
+            <input
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search by household name, phone, or city"
+              value={search}
+            />
+          </label>
+        }
+      />
 
       {showCreateForm ? (
         <form
