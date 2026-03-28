@@ -779,7 +779,9 @@ test.describe("frontend-next parity smoke", () => {
   });
 
   test("loads all migrated routes for admin users", async ({ page }) => {
-    test.setTimeout(120000);
+    // This sweep touches every migrated route and compiles multiple pages in dev mode.
+    // Keep assertions strict, but allow enough budget to avoid false failures on slower filesystems.
+    test.setTimeout(240000);
     await installApiMocks(page, "authenticated-admin");
     await page.goto("/dashboard");
 
