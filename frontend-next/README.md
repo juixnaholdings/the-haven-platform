@@ -57,6 +57,21 @@ npm run build
 npm run test:smoke
 ```
 
+## UI system conventions
+
+- Page-level screens use a shared `PageHeader` pattern:
+  - title + short supporting copy + right-side action area
+- List-heavy screens use the shared `FilterActionStrip`:
+  - left: search
+  - middle: supported filters
+  - right: primary reset/action control
+- Data tables and pagination use `EntityTable` + `PaginationControls` with the shared list-card styling.
+- Detail pages compose sections in this order:
+  - summary/metrics first
+  - metadata and related records next
+  - supporting and blocked-capability notes last
+- Status indicators should use `StatusBadge` tones for consistent cross-page state treatment.
+
 ## Caveats (intentional)
 
 - Role definitions remain read-only in product UI.
