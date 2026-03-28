@@ -1,27 +1,23 @@
-# Next.js Migration Plan
+# Next.js Migration Plan (Completed)
 
 Date: 2026-03-27  
-Branch: `feat/nextjs-migration`
+Status: Completed
 
 ## Objective
 
 Replace the old Vite frontend with `frontend-next` as the canonical frontend without changing backend API contracts.
 
-## Branch strategy
+## Outcome
 
-- Long-running migration branch: `feat/nextjs-migration`
-- Target integration branch: `develop`
-- Production branch: `main`
+The migration has been completed and adopted:
 
-## Current status
+- Active frontend: `frontend-next/`
+- Legacy snapshot only: `frontend/`
+- CI frontend checks target `frontend-next`
+- Infra/deployment frontend path targets `frontend-next`
+- Runbooks and local setup docs now default to `frontend-next`
 
-`frontend-next` is now the primary frontend in repo structure, CI defaults, local runbooks, and deployment references.
-
-Legacy status:
-- `frontend/` is retained as a legacy snapshot for rollback/reference only.
-- It is no longer the active frontend path.
-
-## Milestone history
+## Milestone record
 
 1. Milestone 0: Next scaffold and App Router foundation
 2. Milestone 1: shell/auth/dashboard parity
@@ -31,18 +27,9 @@ Legacy status:
 6. Milestone 5: settings + audit parity
 7. Milestone 6: cutover-prep QA and smoke coverage
 8. Milestone 7: staged cutover runbook/checklist execution path
-9. Milestone 8: full replacement in repo/tooling/docs (this wave)
+9. Milestone 8: repo/tooling/docs replacement finalization
 
-## Canonical frontend path (effective now)
-
-- Active app: `frontend-next/`
-- Canonical checks:
-  - `npm run lint`
-  - `npm run typecheck`
-  - `npm run build`
-  - `npm run test:smoke`
-
-## Route coverage in primary frontend
+## Primary frontend routes (post-cutover)
 
 - `/login`
 - `/dashboard`
@@ -56,17 +43,23 @@ Legacy status:
 - `/settings/roles`, `/settings/staff`
 - `/audit`
 
-## Deployment direction
+## Canonical frontend checks
 
-- Staging/production frontend path is now aligned to `frontend-next` in compose/nginx references.
-- Backend remains Django source of truth under existing API contracts.
-- Staged cutover execution remains runbook-driven:
-  - `docs/runbooks/nextjs-staged-cutover.md`
-  - `docs/runbooks/nextjs-staging-verification-checklist.md`
+Run from `frontend-next/`:
 
-## Honest caveats (unchanged)
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build`
+- `npm run test:smoke`
+
+## Legacy policy
+
+- `frontend/` remains in-repo as a legacy snapshot for rollback/reference.
+- It is not part of active CI/deploy defaults.
+
+## Remaining product caveats (not migration blockers)
 
 - Role definitions remain read-only in product UI.
 - Staff invite lifecycle remains out of scope.
-- Audit remains list-first and limited in scope.
+- Audit remains list-first and limited.
 - Finance reversal/void workflows remain out of scope.
