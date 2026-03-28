@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -16,6 +17,7 @@ import {
   StatusBadge,
 } from "@/components";
 import { membersApi } from "@/domains/members/api";
+import { MemberFormScreen } from "@/domains/members/screens/MemberFormScreen";
 import { formatDate, formatDateTime } from "@/lib/formatters";
 
 function getMemberInitials(fullName: string) {
@@ -28,6 +30,7 @@ function getMemberInitials(fullName: string) {
 }
 
 export function MemberDetailPageScreen() {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const params = useParams<{ memberId: string }>();
   const numericMemberId = Number(params.memberId);
 
@@ -81,9 +84,13 @@ export function MemberDetailPageScreen() {
             <Link className="button button-secondary" href="/members">
               Back to members
             </Link>
-            <Link className="button button-primary" href={`/members/${member.id}/edit`}>
+            <button
+              className="button button-primary"
+              onClick={() => setIsEditModalOpen(true)}
+              type="button"
+            >
               Edit member
-            </Link>
+            </button>
           </div>
         }
         description="Member profile, household context, ministry affiliations, and attendance summary in one operational detail surface."
@@ -322,6 +329,18 @@ export function MemberDetailPageScreen() {
         title="Finance and giving summary"
         tone="info"
       />
+
+      {isEditModalOpen ? (
+        <MemberFormScreen
+          key={member.id}
+          memberId={member.id}
+          mode="modal"
+          onCancel={() => setIsEditModalOpen(false)}
+          onSuccess={() => {
+            setIsEditModalOpen(false);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
