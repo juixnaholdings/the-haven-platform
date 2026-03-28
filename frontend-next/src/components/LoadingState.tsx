@@ -8,8 +8,8 @@ export function LoadingState({
   description = "Please wait while the latest data is loaded.",
 }: LoadingStateProps) {
   return (
-    <section className="centered-state">
-      <article className="state-card">
+    <section className="centered-state centered-state-loading">
+      <article className="state-card state-card-loading">
         <div className="state-icon" aria-hidden="true">
           <span className="loading-spinner" />
         </div>

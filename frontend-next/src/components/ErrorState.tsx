@@ -19,7 +19,7 @@ export function ErrorState({
     (error instanceof Error ? error.message : "An unexpected error occurred.");
 
   return (
-    <section className="centered-state">
+    <section className="centered-state centered-state-error">
       <article className="state-card state-card-error">
         <div className="state-icon" aria-hidden="true">
           !

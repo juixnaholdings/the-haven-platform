@@ -4,6 +4,7 @@ export { EmptyState } from "./EmptyState";
 export { ErrorAlert } from "./ErrorAlert";
 export { ErrorState } from "./ErrorState";
 export { EntityTable } from "./EntityTable";
+export { FilterActionStrip } from "./FilterActionStrip";
 export { FormSection } from "./FormSection";
 export { LoadingState } from "./LoadingState";
 export { PageHeader } from "./PageHeader";

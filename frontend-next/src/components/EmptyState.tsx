@@ -8,7 +8,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <div className="state-card">
+    <div className="state-card state-card-empty">
       <div className="state-icon" aria-hidden="true">
         ○
       </div>
