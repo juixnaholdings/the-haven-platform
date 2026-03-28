@@ -1,3 +1,4 @@
+export { AppModal } from "./AppModal";
 export { BlockedFeatureCard } from "./BlockedFeatureCard";
 export { DetailPanel } from "./DetailPanel";
 export { EmptyState } from "./EmptyState";
@@ -6,6 +7,7 @@ export { ErrorState } from "./ErrorState";
 export { EntityTable } from "./EntityTable";
 export { FilterActionStrip } from "./FilterActionStrip";
 export { FormSection } from "./FormSection";
+export { FormModalShell } from "./FormModalShell";
 export { LoadingState } from "./LoadingState";
 export { PageHeader } from "./PageHeader";
 export { PaginationControls } from "./PaginationControls";

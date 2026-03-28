@@ -78,3 +78,10 @@ npm run test:smoke
 - Staff invite lifecycle remains out of scope.
 - Audit is list-first and intentionally limited.
 - Finance reversal/void workflows remain out of scope.
+
+## Shell and form interaction rules
+
+- Sidebar is collapsible by default on desktop and uses drawer behavior on smaller screens.
+- Global settings entry lives in the top bar gear button (top-right).
+- Active navigation uses stronger visual emphasis than hover/inactive states.
+- Create/edit operational forms are modal-first where implemented (members list/detail), while route form pages remain as fallback paths.

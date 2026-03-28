@@ -3,6 +3,7 @@
 import { useDeferredValue, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
   EmptyState,
@@ -16,14 +17,18 @@ import {
   StatusBadge,
 } from "@/components";
 import { membersApi } from "@/domains/members/api";
+import { MemberFormScreen } from "@/domains/members/screens/MemberFormScreen";
 
 type MemberStatusFilter = "all" | "active" | "inactive";
 
 export function MembersPageScreen() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
   const deferredSearch = useDeferredValue(search);
 
   const membersQuery = useQuery({
@@ -51,9 +56,13 @@ export function MembersPageScreen() {
     <div className="page-stack">
       <PageHeader
         actions={
-          <Link className="button button-primary" href="/members/new">
+          <button
+            className="button button-primary"
+            onClick={() => setIsCreateModalOpen(true)}
+            type="button"
+          >
             Add member
-          </Link>
+          </button>
         }
         description="A calm directory surface for member profiles, contact readiness, and profile-oriented create and edit workflows."
         eyebrow="People operations"
@@ -153,9 +162,13 @@ export function MembersPageScreen() {
                 Clear filters
               </button>
             ) : (
-              <Link className="button button-primary" href="/members/new">
+              <button
+                className="button button-primary"
+                onClick={() => setIsCreateModalOpen(true)}
+                type="button"
+              >
                 Add member
-              </Link>
+              </button>
             )
           }
           description={
@@ -209,9 +222,13 @@ export function MembersPageScreen() {
                     <Link className="button button-secondary button-compact" href={`/members/${member.id}`}>
                       View
                     </Link>
-                    <Link className="button button-ghost button-compact" href={`/members/${member.id}/edit`}>
+                    <button
+                      className="button button-ghost button-compact"
+                      onClick={() => setEditingMemberId(member.id)}
+                      type="button"
+                    >
                       Edit
-                    </Link>
+                    </button>
                   </div>
                 ),
               },
@@ -228,6 +245,30 @@ export function MembersPageScreen() {
             pagination={pagination}
           />
         </section>
+      ) : null}
+
+      {isCreateModalOpen ? (
+        <MemberFormScreen
+          mode="modal"
+          onCancel={() => setIsCreateModalOpen(false)}
+          onSuccess={(member) => {
+            setIsCreateModalOpen(false);
+            void router.push(`/members/${member.id}`);
+          }}
+        />
+      ) : null}
+
+      {editingMemberId ? (
+        <MemberFormScreen
+          key={editingMemberId}
+          memberId={editingMemberId}
+          mode="modal"
+          onCancel={() => setEditingMemberId(null)}
+          onSuccess={(member) => {
+            setEditingMemberId(null);
+            void router.push(`/members/${member.id}`);
+          }}
+        />
       ) : null}
     </div>
   );
