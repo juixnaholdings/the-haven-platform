@@ -44,28 +44,10 @@ export default function LoginPage() {
   return (
     <div className="auth-layout">
       <div className="auth-stack">
-        <div className="auth-brand">
-          <div className="auth-brand-mark" aria-hidden="true">
-            TH
-          </div>
-          <div className="auth-brand-copy">
-            <p className="app-eyebrow">Refined clerical minimalism</p>
-            <h1>The Haven</h1>
-            <p className="muted-text">
-              Calm, trustworthy church administration for members, households,
-              ministries, services, and attendance.
-            </p>
-          </div>
-        </div>
-
+        
         <div className="auth-card">
           <div className="auth-card-header">
-            <p className="app-eyebrow">Secure sign in</p>
             <h2>Welcome back</h2>
-            <p className="muted-text">
-              Sign in with your backend credentials. Access tokens remain in
-              memory and the session restores from the secure refresh cookie.
-            </p>
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>
@@ -99,15 +81,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <ErrorAlert error={submitError} fallbackMessage="Unable to sign in." />
-
-          <p className="muted-text helper-text">
-            Next migration status: Phase 1 routes are migrated in `frontend-next`.
-            Cutover follows staged QA and rollback-ready deployment checks.
-          </p>
-          <Link className="button button-ghost" href="/dashboard">
-            Continue to dashboard route
-          </Link>
+          <ErrorAlert error={submitError} fallbackMessage="Server Error. Please Try Again." />
         </div>
       </div>
     </div>

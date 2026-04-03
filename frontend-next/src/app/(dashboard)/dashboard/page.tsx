@@ -9,6 +9,7 @@ import { StatCard } from "@/components/StatCard";
 import { ApiError } from "@/api/errors";
 import { reportingApi } from "@/domains/reporting/api";
 import type { DashboardOverview } from "@/domains/types";
+import Image from "next/image";
 
 function formatAmount(amount: string | number) {
   const numeric = typeof amount === "number" ? amount : Number(amount);
@@ -18,7 +19,7 @@ function formatAmount(amount: string | number) {
 
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: "GHS",
     maximumFractionDigits: 2,
   }).format(numeric);
 }
@@ -85,91 +86,70 @@ export default function DashboardPage() {
 
   return (
     <div className="page-stack">
-      <PageHeader
-        eyebrow="Protected reporting surface"
-        title="Operational dashboard"
-        description="A structured snapshot of church operations across people, ministries, attendance, and finance using the protected reporting backend."
-      />
-
-      <section className="metrics-grid">
-        <StatCard label="Total members" tone="accent" value={dashboard.members.total_members} />
-        <StatCard label="Active members" value={dashboard.members.active_members} />
-        <StatCard label="Households" value={dashboard.households.total_households} />
-        <StatCard label="Groups" value={dashboard.groups.total_groups} />
-        <StatCard label="Events" value={dashboard.attendance.total_events} />
-        <StatCard label="Net flow" value={formatAmount(dashboard.finance.net_flow)} />
-      </section>
-
-      <div className="content-grid">
-        <article className="panel">
-          <h3>Attendance snapshot</h3>
-          <dl className="definition-list">
-            <div>
-              <dt>Total attendance</dt>
-              <dd>{dashboard.attendance.aggregate_total_attendance}</dd>
-            </div>
-            <div>
-              <dt>Visitors</dt>
-              <dd>{dashboard.attendance.aggregate_visitor_count}</dd>
-            </div>
-            <div>
-              <dt>Member attendance rows</dt>
-              <dd>{dashboard.attendance.total_member_attendance_records}</dd>
-            </div>
-          </dl>
-        </article>
-
-        <article className="panel">
-          <h3>Finance balances</h3>
-          <ul className="item-list">
-            {dashboard.finance.balances_by_fund.map((fund) => (
-              <li className="item-row" key={fund.id}>
-                <div>
-                  <strong>{fund.name}</strong>
-                  <span>{fund.code}</span>
-                </div>
-                <strong>{formatAmount(fund.current_balance)}</strong>
-              </li>
-            ))}
-          </ul>
-        </article>
+      <div className="flex justify-between gap-2.5 h-16">
+        <div className="app-header-copy flex-1 w-[60%] items-start">
+          <h2>Dashboard</h2>
+        </div>
+        <div className="flex items-end gap-5">
+          <div className="flex-col">
+            <a href="#_" className="relative rounded px-5 py-2.5 overflow-hidden group bg-green-500 hover:bg-gradient-to-r hover:from-green-500 hover:to-green-400 text-white hover:ring-2 hover:ring-offset-2 hover:ring-green-400 transition-all ease-out duration-300">
+              <span className="absolute right-0 w-8 h-32 -mt-12 transition-all duration-1000 transform translate-x-12 bg-white opacity-10 rotate-12 group-hover:-translate-x-40 ease"></span>
+              <span className="relative">Add Event</span>
+            </a>
+          </div>
+          <div className="flex-col">
+            <a href="#_" className="relative rounded px-5 py-2.5 overflow-hidden group bg-green-500 hover:bg-gradient-to-r hover:from-green-500 hover:to-green-400 text-white hover:ring-2 hover:ring-offset-2 hover:ring-green-400 transition-all ease-out duration-300">
+              <span className="absolute right-0 w-8 h-32 -mt-12 transition-all duration-1000 transform translate-x-12 bg-white opacity-10 rotate-12 group-hover:-translate-x-40 ease"></span>
+              <span className="relative">Record Attendance</span>
+            </a>
+          </div>
+        </div>
       </div>
 
-      <section className="panel-grid">
-        <article className="panel">
-          <h3>People and ministry snapshot</h3>
-          <dl className="definition-list">
-            <div>
-              <dt>Active members</dt>
-              <dd>{dashboard.members.active_members}</dd>
-            </div>
-            <div>
-              <dt>Households</dt>
-              <dd>{dashboard.households.total_households}</dd>
-            </div>
-            <div>
-              <dt>Active group memberships</dt>
-              <dd>{dashboard.groups.total_active_affiliations}</dd>
-            </div>
-          </dl>
-        </article>
+      <section className="flex gap-5 h-48 top-0">
+        <div className="flex-1 w-1/3">
+          <StatCard
+            label="Total members"
+            value={dashboard.members.total_members}
+            icon={<Image width="25" height="25" src="https://img.icons8.com/windows/32/conference-call.png" alt="conference-call" />}
+          />
+        </div>
+        <div className="flex-1 w-1/3">
+          <StatCard
+            label="Last Sunday's Attendance"
+            value={dashboard.attendance.total_events}
+            icon={<Image width="25" height="25" src="https://img.icons8.com/parakeet-line/48/checked-user-male.png" alt="checked-user-male" />}
+          />
+        </div>
+        <div className="flex-1 w-1/3">
+          <StatCard
+            label="Current Balance"
+            value={formatAmount(dashboard.finance.net_flow)}
+            icon={<Image width="25" height="25" src="https://img.icons8.com/nolan/64/wallet.png" alt="wallet" />}
+          />
+        </div>
+      </section>
 
-        <article className="panel">
-          <h3>Household stability</h3>
-          <dl className="definition-list">
+      <section className="flex gap-5 h-96 my-2.5">
+        <div className="flex-auto w-[70%]">
+          <article className="metric-card h-full">
             <div>
-              <dt>Total households</dt>
-              <dd>{dashboard.households.total_households}</dd>
+              <h3>Attendance Trends</h3>
             </div>
+          </article>
+        </div>
+        <div className="flex-none w-[32%]">
+          <article className="metric-card h-full">
             <div>
-              <dt>Households with active head</dt>
-              <dd>{dashboard.households.households_with_active_head}</dd>
+              <h3>Upcoming Events</h3>
             </div>
-            <div>
-              <dt>Average household size</dt>
-              <dd>{dashboard.households.average_household_size}</dd>
-            </div>
-          </dl>
+          </article>
+        </div>
+      </section>
+
+      <section className="h-96 my-2.5">
+        <article className="metric-card w-full h-full">
+          <h3>Recent Transactions</h3>
         </article>
       </section>
     </div>
