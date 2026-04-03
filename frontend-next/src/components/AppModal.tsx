@@ -17,6 +17,13 @@ export function AppModal({
   labelledBy,
   size = "medium",
 }: AppModalProps) {
+  const shellSizeClassName =
+    size === "small"
+      ? "max-w-xl"
+      : size === "large"
+        ? "max-w-5xl"
+        : "max-w-3xl";
+
   useEffect(() => {
     if (!isOpen) {
       return;
@@ -52,17 +59,17 @@ export function AppModal({
   }
 
   return (
-    <div className="app-modal-root" role="presentation">
+    <div className="fixed inset-0 z-[80] grid place-items-center p-4 sm:p-5" role="presentation">
       <button
         aria-label="Close modal"
-        className="app-modal-backdrop"
+        className="absolute inset-0 border-0 bg-slate-950/45 backdrop-blur-[1px]"
         onClick={onClose}
         type="button"
       />
       <div
         aria-labelledby={labelledBy}
         aria-modal="true"
-        className={`app-modal-shell app-modal-shell-${size}`}
+        className={`relative w-full overflow-hidden rounded-3xl border border-slate-200/80 bg-[#fffdfa] shadow-[0_28px_68px_rgba(15,23,42,0.24)] ${shellSizeClassName}`}
         role="dialog"
       >
         {children}

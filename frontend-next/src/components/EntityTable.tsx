@@ -21,15 +21,20 @@ export function EntityTable<TRow>({
   emptyFallback,
   className,
 }: EntityTableProps<TRow>) {
-  const tableWrapClassName = className ? `table-wrap ${className}` : "table-wrap";
+  const tableWrapClassName = className
+    ? `overflow-x-auto rounded-2xl border border-slate-200/80 bg-white ${className}`
+    : "overflow-x-auto rounded-2xl border border-slate-200/80 bg-white";
 
   return (
     <div className={tableWrapClassName}>
-      <table className="data-table">
-        <thead>
+      <table className="min-w-[760px] w-full border-separate border-spacing-0">
+        <thead className="bg-[#f7f2e9]/70">
           <tr>
             {columns.map((column) => (
-              <th className={column.className} key={column.header}>
+              <th
+                className={`border-b border-slate-200/70 px-4 py-3 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate-500 ${column.className ?? ""}`}
+                key={column.header}
+              >
                 {column.header}
               </th>
             ))}
@@ -38,9 +43,12 @@ export function EntityTable<TRow>({
         <tbody>
           {rows.length > 0 ? (
             rows.map((row) => (
-              <tr key={getRowKey(row)}>
+              <tr className="transition hover:bg-slate-50/80" key={getRowKey(row)}>
                 {columns.map((column) => (
-                  <td className={column.className} key={column.header}>
+                  <td
+                    className={`border-b border-slate-100 px-4 py-3 align-top text-sm text-slate-700 last:border-b-0 ${column.className ?? ""}`}
+                    key={column.header}
+                  >
                     {column.cell(row)}
                   </td>
                 ))}
@@ -48,7 +56,10 @@ export function EntityTable<TRow>({
             ))
           ) : (
             <tr>
-              <td className="empty-cell" colSpan={columns.length}>
+              <td
+                className="px-4 py-6 text-center text-sm text-slate-500"
+                colSpan={columns.length}
+              >
                 {emptyFallback ?? "No records found."}
               </td>
             </tr>

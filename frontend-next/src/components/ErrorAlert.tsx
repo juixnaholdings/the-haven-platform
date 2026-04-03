@@ -16,10 +16,13 @@ export function ErrorAlert({
   const details = formatApiErrors(error);
 
   return (
-    <section className="alert alert-error" role="alert">
-      <strong>{fallbackMessage}</strong>
+    <section
+      className="rounded-2xl border border-red-200/80 bg-red-50 px-4 py-3 text-sm text-red-800"
+      role="alert"
+    >
+      <strong className="font-semibold">{fallbackMessage}</strong>
       {details.length ? (
-        <ul className="alert-list">
+        <ul className="mt-2 list-disc space-y-1 pl-5">
           {details.map((detail) => (
             <li key={detail}>{detail}</li>
           ))}
