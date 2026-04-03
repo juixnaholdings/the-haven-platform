@@ -38,6 +38,13 @@ npm install
 npm run dev
 ```
 
+`npm run dev` is intentionally pinned to webpack mode for local stability on current Next 16 builds.
+If you need to test Turbopack explicitly, use:
+
+```bash
+npm run dev:turbo
+```
+
 App URL:
 
 - `http://localhost:3000`
@@ -71,6 +78,12 @@ npm run test:smoke
   - metadata and related records next
   - supporting and blocked-capability notes last
 - Status indicators should use `StatusBadge` tones for consistent cross-page state treatment.
+
+## Tailwind usage
+
+- Tailwind CSS is enabled in `frontend-next` and can be used directly in `className` strings.
+- To avoid disrupting the existing design system, preflight reset is intentionally disabled.
+- Use utility classes for incremental enhancements while preserving the shared CSS primitives.
 
 ## Caveats (intentional)
 
