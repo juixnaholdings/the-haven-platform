@@ -8,7 +8,7 @@ export function LoadingState({
   description = "Please wait while the latest data is loaded.",
 }: LoadingStateProps) {
   return (
-    <section className="grid min-h-[60vh] place-items-center px-4 py-10">
+    <section className="grid min-h-[42vh] place-items-center px-4 py-10">
       <article className="grid w-full max-w-2xl gap-4 rounded-3xl border border-slate-200/80 bg-white/90 p-8 shadow-sm">
         <div
           aria-hidden="true"
@@ -17,8 +17,8 @@ export function LoadingState({
           <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-[#16335f]/20 border-t-[#16335f]" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-xl font-semibold tracking-tight text-slate-900">{title}</h3>
-          <p className="text-sm text-slate-600">{description}</p>
+          <h3 className="m-0 text-xl font-semibold tracking-tight text-slate-900">{title}</h3>
+          <p className="m-0 text-sm leading-6 text-slate-600">{description}</p>
         </div>
       </article>
     </section>

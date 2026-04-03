@@ -22,17 +22,17 @@ export function EntityTable<TRow>({
   className,
 }: EntityTableProps<TRow>) {
   const tableWrapClassName = className
-    ? `overflow-x-auto rounded-2xl border border-slate-200/80 bg-white ${className}`
-    : "overflow-x-auto rounded-2xl border border-slate-200/80 bg-white";
+    ? `overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/80 bg-white ${className}`
+    : "overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/80 bg-white";
 
   return (
     <div className={tableWrapClassName}>
       <table className="min-w-[760px] w-full border-separate border-spacing-0">
-        <thead className="bg-[#f7f2e9]/70">
+        <thead className="bg-[#f7f2e9]/75">
           <tr>
             {columns.map((column) => (
               <th
-                className={`border-b border-slate-200/70 px-4 py-3 text-left text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate-500 ${column.className ?? ""}`}
+                className={`border-b border-slate-200/70 px-4 py-3.5 text-left text-[0.69rem] font-semibold uppercase tracking-[0.12em] text-slate-500 ${column.className ?? ""}`}
                 key={column.header}
               >
                 {column.header}
@@ -43,10 +43,10 @@ export function EntityTable<TRow>({
         <tbody>
           {rows.length > 0 ? (
             rows.map((row) => (
-              <tr className="transition hover:bg-slate-50/80" key={getRowKey(row)}>
+              <tr className="group transition hover:bg-slate-50/70" key={getRowKey(row)}>
                 {columns.map((column) => (
                   <td
-                    className={`border-b border-slate-100 px-4 py-3 align-top text-sm text-slate-700 last:border-b-0 ${column.className ?? ""}`}
+                    className={`border-b border-slate-100 px-4 py-3.5 align-top text-sm text-slate-700 last:border-b-0 ${column.className ?? ""}`}
                     key={column.header}
                   >
                     {column.cell(row)}
@@ -57,7 +57,7 @@ export function EntityTable<TRow>({
           ) : (
             <tr>
               <td
-                className="px-4 py-6 text-center text-sm text-slate-500"
+                className="px-4 py-7 text-center text-sm text-slate-500"
                 colSpan={columns.length}
               >
                 {emptyFallback ?? "No records found."}

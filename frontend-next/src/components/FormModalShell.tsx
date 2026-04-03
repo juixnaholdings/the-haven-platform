@@ -27,13 +27,13 @@ export function FormModalShell({
 
   return (
     <AppModal isOpen={isOpen} labelledBy={headingId} onClose={onClose} size={size}>
-      <div className="grid max-h-[calc(100vh-2.5rem)] grid-rows-[auto,minmax(0,1fr),auto]">
-        <header className="flex items-start justify-between gap-3 border-b border-slate-200 bg-[#f8f4eb]/80 px-5 py-4">
+      <div className="grid max-h-[calc(100vh-2rem)] grid-rows-[auto,minmax(0,1fr),auto]">
+        <header className="flex items-start justify-between gap-3 border-b border-slate-200 bg-[#f8f4eb]/85 px-6 py-5">
           <div className="space-y-2">
             <h3 className="text-xl font-semibold tracking-tight text-slate-900" id={headingId}>
               {title}
             </h3>
-            {description ? <p className="text-sm text-slate-600">{description}</p> : null}
+            {description ? <p className="m-0 text-sm leading-6 text-slate-600">{description}</p> : null}
           </div>
           <button
             aria-label="Close form modal"
@@ -44,9 +44,9 @@ export function FormModalShell({
             Close
           </button>
         </header>
-        <div className="overflow-auto px-5 py-5">{children}</div>
+        <div className="overflow-auto px-6 py-6">{children}</div>
         {footer ? (
-          <footer className="flex flex-wrap justify-end gap-2 border-t border-slate-200 bg-[#f8f4eb]/60 px-5 py-4">
+          <footer className="flex flex-wrap justify-end gap-2 border-t border-slate-200 bg-[#f8f4eb]/75 px-6 py-4">
             {footer}
           </footer>
         ) : null}
