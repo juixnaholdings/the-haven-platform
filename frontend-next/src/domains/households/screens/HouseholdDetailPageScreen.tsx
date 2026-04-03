@@ -291,10 +291,10 @@ export function HouseholdDetailPageScreen() {
   ).length;
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href="/households">
               Back to households
             </Link>
@@ -317,65 +317,65 @@ export function HouseholdDetailPageScreen() {
         title={household.name}
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Active members" tone="accent" value={activeMembershipCount} />
         <StatCard label="Household heads" value={headCount} />
         <StatCard label="City" value={household.city || "Not set"} />
         <StatCard label="Created" value={formatDate(household.created_at)} />
       </section>
 
-      <div className="content-grid">
-        <section className="page-stack">
-          <section className="panel">
-            <div className="panel-header">
+      <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
+        <section className="space-y-6">
+          <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <h3>Profile</h3>
-                <p className="muted-text">
+                <p className="m-0 text-sm text-slate-500">
                   Core household fields from the current backend payload.
                 </p>
               </div>
             </div>
-            <dl className="detail-grid detail-grid-2">
-              <div className="detail-item">
+            <dl className="grid gap-3.5 md:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Primary phone</dt>
                 <dd>{household.primary_phone || "Not set"}</dd>
               </div>
-              <div className="detail-item">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>City</dt>
                 <dd>{household.city || "Not set"}</dd>
               </div>
-              <div className="detail-item">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Address line 1</dt>
                 <dd>{household.address_line_1 || "Not set"}</dd>
               </div>
-              <div className="detail-item">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Address line 2</dt>
                 <dd>{household.address_line_2 || "Not set"}</dd>
               </div>
             </dl>
           </section>
 
-          <section className="panel">
-            <div className="panel-header">
+          <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <h3>Notes</h3>
-                <p className="muted-text">Household-level operational notes only.</p>
+                <p className="m-0 text-sm text-slate-500">Household-level operational notes only.</p>
               </div>
             </div>
-            <p className="panel-copy">{household.notes || "No notes recorded for this household."}</p>
+            <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">{household.notes || "No notes recorded for this household."}</p>
           </section>
         </section>
 
-        <section className="page-stack">
-          <section className="panel">
-            <div className="panel-header">
+        <section className="space-y-6">
+          <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <h3>Record metadata</h3>
-                <p className="muted-text">Current household status and audit timestamps.</p>
+                <p className="m-0 text-sm text-slate-500">Current household status and audit timestamps.</p>
               </div>
             </div>
-            <dl className="detail-grid detail-grid-1">
-              <div className="detail-item">
+            <dl className="grid gap-3.5 grid-cols-1">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Status</dt>
                 <dd>
                   <StatusBadge
@@ -384,11 +384,11 @@ export function HouseholdDetailPageScreen() {
                   />
                 </dd>
               </div>
-              <div className="detail-item">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Created</dt>
                 <dd>{formatDateTime(household.created_at)}</dd>
               </div>
-              <div className="detail-item">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Last updated</dt>
                 <dd>{formatDateTime(household.updated_at)}</dd>
               </div>
@@ -398,7 +398,7 @@ export function HouseholdDetailPageScreen() {
       </div>
 
       <form
-        className="page-stack"
+        className="space-y-6"
         onSubmit={(event) => {
           event.preventDefault();
           updateHouseholdMutation.mutate(toHouseholdPayload(householdFormState));
@@ -408,8 +408,8 @@ export function HouseholdDetailPageScreen() {
           description="This edit form writes directly to the current household patch endpoint."
           title="Update household"
         >
-          <div className="form-grid form-grid-2">
-            <label className="field">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2">
               <span>Household name</span>
               <input
                 onChange={(event) =>
@@ -423,7 +423,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Primary phone</span>
               <input
                 onChange={(event) =>
@@ -436,7 +436,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>City</span>
               <input
                 onChange={(event) =>
@@ -449,7 +449,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Address line 1</span>
               <input
                 onChange={(event) =>
@@ -462,7 +462,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Address line 2</span>
               <input
                 onChange={(event) =>
@@ -475,7 +475,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="checkbox-field checkbox-field-inline">
+            <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
               <input
                 checked={householdFormState.is_active}
                 onChange={(event) =>
@@ -490,7 +490,7 @@ export function HouseholdDetailPageScreen() {
             </label>
           </div>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Notes</span>
             <textarea
               onChange={(event) =>
@@ -510,7 +510,7 @@ export function HouseholdDetailPageScreen() {
           fallbackMessage="The household could not be updated."
         />
 
-        <div className="inline-actions">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             className="button button-primary"
             disabled={updateHouseholdMutation.isPending}
@@ -521,11 +521,11 @@ export function HouseholdDetailPageScreen() {
         </div>
       </form>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3>Household members</h3>
-            <p className="muted-text">
+            <p className="m-0 text-sm text-slate-500">
               Existing memberships can be updated below. Destructive removal is intentionally not
               exposed; use active state and dates instead.
             </p>
@@ -543,11 +543,11 @@ export function HouseholdDetailPageScreen() {
               {
                 header: "Member",
                 cell: (membership) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/members/${membership.member_id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/members/${membership.member_id}`}>
                       {getMemberDisplayName(membership)}
                     </Link>
-                    <span className="table-subtext">
+                    <span className="block text-xs text-slate-500">
                       {membership.email || membership.phone_number || "Profile-only record"}
                     </span>
                   </div>
@@ -556,7 +556,7 @@ export function HouseholdDetailPageScreen() {
               {
                 header: "Relationship",
                 cell: (membership) => (
-                  <div className="cell-stack">
+                  <div className="grid gap-1">
                     <span>{membership.relationship_to_head}</span>
                     {membership.is_head ? <StatusBadge label="Head" tone="info" /> : null}
                   </div>
@@ -579,7 +579,7 @@ export function HouseholdDetailPageScreen() {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (membership) => (
-                  <div className="inline-actions">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <button
                       className={
                         selectedMembershipId === membership.id
@@ -605,7 +605,7 @@ export function HouseholdDetailPageScreen() {
       </section>
 
       <form
-        className="page-stack"
+        className="space-y-6"
         onSubmit={(event) => {
           event.preventDefault();
           addMemberMutation.mutate(toAddMemberPayload(addMemberFormState));
@@ -615,8 +615,8 @@ export function HouseholdDetailPageScreen() {
           description="Use the live member directory to assign an active member. The backend still enforces conflicting active household rules."
           title="Add member to household"
         >
-          <div className="form-grid form-grid-2">
-            <label className="field">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2">
               <span>Search member directory</span>
               <input
                 onChange={(event) => setMemberSearch(event.target.value)}
@@ -625,7 +625,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Choose member</span>
               <select
                 onChange={(event) =>
@@ -651,7 +651,7 @@ export function HouseholdDetailPageScreen() {
               </select>
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Relationship to head</span>
               <select
                 onChange={(event) =>
@@ -670,7 +670,7 @@ export function HouseholdDetailPageScreen() {
               </select>
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Joined on</span>
               <input
                 onChange={(event) =>
@@ -684,7 +684,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Left on</span>
               <input
                 onChange={(event) =>
@@ -698,7 +698,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="checkbox-field checkbox-field-inline">
+            <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
               <input
                 checked={addMemberFormState.is_head}
                 onChange={(event) =>
@@ -717,7 +717,7 @@ export function HouseholdDetailPageScreen() {
             </label>
           </div>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Membership notes</span>
             <textarea
               onChange={(event) =>
@@ -731,7 +731,7 @@ export function HouseholdDetailPageScreen() {
             />
           </label>
 
-          <p className="muted-text helper-text">
+          <p className="m-0 text-sm text-slate-500">
             {candidateMembersQuery.isLoading
               ? "Loading candidate members..."
               : candidateMembers.length > 0
@@ -745,7 +745,7 @@ export function HouseholdDetailPageScreen() {
           fallbackMessage="The member could not be linked to this household."
         />
 
-        <div className="inline-actions">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             className="button button-primary"
             disabled={addMemberMutation.isPending}
@@ -768,7 +768,7 @@ export function HouseholdDetailPageScreen() {
 
       {selectedMembership ? (
         <form
-          className="page-stack"
+          className="space-y-6"
           onSubmit={(event) => {
             event.preventDefault();
             updateMembershipMutation.mutate(toMembershipPayload(membershipFormState));
@@ -778,8 +778,8 @@ export function HouseholdDetailPageScreen() {
             description="Use this panel to keep household membership status, dates, and notes current."
             title={`Edit membership: ${getMemberDisplayName(selectedMembership)}`}
           >
-            <div className="form-grid form-grid-2">
-              <label className="field">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2">
                 <span>Relationship to head</span>
                 <select
                   onChange={(event) =>
@@ -798,7 +798,7 @@ export function HouseholdDetailPageScreen() {
                 </select>
               </label>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Joined on</span>
                 <input
                   onChange={(event) =>
@@ -812,7 +812,7 @@ export function HouseholdDetailPageScreen() {
                 />
               </label>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Left on</span>
                 <input
                   onChange={(event) =>
@@ -827,7 +827,7 @@ export function HouseholdDetailPageScreen() {
               </label>
 
               <div className="checkbox-group">
-                <label className="checkbox-field checkbox-field-inline">
+                <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
                   <input
                     checked={membershipFormState.is_head}
                     onChange={(event) =>
@@ -845,7 +845,7 @@ export function HouseholdDetailPageScreen() {
                   <span>Household head</span>
                 </label>
 
-                <label className="checkbox-field checkbox-field-inline">
+                <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
                   <input
                     checked={membershipFormState.is_active}
                     onChange={(event) =>
@@ -861,7 +861,7 @@ export function HouseholdDetailPageScreen() {
               </div>
             </div>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Membership notes</span>
               <textarea
               onChange={(event) =>
@@ -881,7 +881,7 @@ export function HouseholdDetailPageScreen() {
             fallbackMessage="The household membership could not be updated."
           />
 
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               className="button button-primary"
               disabled={updateMembershipMutation.isPending}

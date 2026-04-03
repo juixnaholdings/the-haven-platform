@@ -117,10 +117,10 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
   }
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href="/finance">
               Back to ledger
             </Link>
@@ -153,9 +153,9 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
           title="No active fund accounts are available"
         />
       ) : (
-        <div className="content-grid content-grid-form">
+        <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)] 2xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.75fr)]">
           <form
-            className="page-stack"
+            className="space-y-6"
             onSubmit={(event) => {
               event.preventDefault();
               submitMutation.mutate(toEntryPayload(formState));
@@ -165,8 +165,8 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
               description="Use the posted finance endpoints directly. There is no draft staging layer in the current backend contract."
               title="Entry details"
             >
-              <div className="form-grid form-grid-2">
-                <label className="field">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="grid gap-2">
                   <span>Fund account</span>
                   <select
                     onChange={(event) =>
@@ -187,7 +187,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   </select>
                 </label>
 
-                <label className="field">
+                <label className="grid gap-2">
                   <span>Amount</span>
                   <input
                     min="0.01"
@@ -204,7 +204,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   />
                 </label>
 
-                <label className="field">
+                <label className="grid gap-2">
                   <span>Transaction date</span>
                   <input
                     onChange={(event) =>
@@ -219,7 +219,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   />
                 </label>
 
-                <label className="field">
+                <label className="grid gap-2">
                   <span>Category</span>
                   <input
                     onChange={(event) =>
@@ -233,7 +233,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   />
                 </label>
 
-                <label className="field">
+                <label className="grid gap-2">
                   <span>Description</span>
                   <input
                     onChange={(event) =>
@@ -247,7 +247,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   />
                 </label>
 
-                <label className="field">
+                <label className="grid gap-2">
                   <span>Linked service/event</span>
                   <select
                     onChange={(event) =>
@@ -268,7 +268,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                 </label>
               </div>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Notes</span>
                 <textarea
                   onChange={(event) =>
@@ -288,7 +288,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
               fallbackMessage={`${isIncome ? "Income" : "Expense"} could not be recorded.`}
             />
 
-            <div className="inline-actions">
+            <div className="flex flex-wrap items-center gap-2.5">
               <button className="button button-primary" disabled={submitMutation.isPending} type="submit">
                 {submitMutation.isPending ? "Saving..." : submitLabel}
               </button>
@@ -298,22 +298,22 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
             </div>
           </form>
 
-          <aside className="page-stack">
-            <section className="panel sticky-panel">
-              <div className="panel-header">
+          <aside className="space-y-6">
+            <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm sticky top-6">
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
                 <div>
                   <h3>Current fund status</h3>
-                  <p className="muted-text">Use these balances to validate entry destination and amount context.</p>
+                  <p className="m-0 text-sm text-slate-500">Use these balances to validate entry destination and amount context.</p>
                 </div>
               </div>
               {selectedFund ? (
-                <section className="metrics-grid">
+                <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
                   <StatCard label={selectedFund.name} tone="accent" value={formatAmount(selectedFund.current_balance)} />
                 </section>
               ) : null}
-              <ul className="item-list">
+              <ul className="m-0 grid list-none gap-3 p-0">
                 {highlightedFunds.map((fundAccount) => (
-                  <li className="item-row" key={fundAccount.id}>
+                  <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3" key={fundAccount.id}>
                     <div>
                       <strong>{fundAccount.name}</strong>
                       <span>{fundAccount.code}</span>
@@ -324,14 +324,14 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
               </ul>
             </section>
 
-            <section className="panel">
-              <div className="panel-header">
+            <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
                 <div>
                   <h3>Journal context</h3>
-                  <p className="muted-text">Operational context for this single posted transaction.</p>
+                  <p className="m-0 text-sm text-slate-500">Operational context for this single posted transaction.</p>
                 </div>
               </div>
-              <dl className="definition-list">
+              <dl className="m-0 grid gap-3.5">
                 <div>
                   <dt>Entry flow</dt>
                   <dd>{isIncome ? "Income posting" : "Expense posting"}</dd>
@@ -347,13 +347,13 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
               </dl>
             </section>
 
-            <section className="panel panel-accent">
-              <div className="panel-header">
+            <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm panel-accent">
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
                 <div>
                   <h3>Audit tip</h3>
                 </div>
               </div>
-              <p className="panel-copy">
+              <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">
                 Use explicit descriptions and category labels so posted records remain traceable without a separate
                 transaction revision timeline.
               </p>

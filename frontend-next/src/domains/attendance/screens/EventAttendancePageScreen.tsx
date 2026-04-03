@@ -289,10 +289,10 @@ export function EventAttendancePageScreen() {
   const summaryPayload = toSummaryPayload(summaryFormState);
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href={`/events/${serviceEvent.id}`}>
               Back to event
             </Link>
@@ -315,22 +315,22 @@ export function EventAttendancePageScreen() {
         title={serviceEvent.title}
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Service date" tone="accent" value={formatDate(serviceEvent.service_date)} />
         <StatCard label="Summary total" value={summaryPayload.total_count} />
         <StatCard label="Visitors" value={summaryPayload.visitor_count} />
         <StatCard label="Member records" value={serviceEvent.member_attendances.length} />
       </section>
 
-      <div className="panel-grid">
-        <section className="panel">
-          <div className="panel-header">
+      <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Event context</h3>
-              <p className="muted-text">Operational event context for the current attendance session.</p>
+              <p className="m-0 text-sm text-slate-500">Operational event context for the current attendance session.</p>
             </div>
           </div>
-          <dl className="definition-list">
+          <dl className="m-0 grid gap-3.5">
             <div>
               <dt>Type</dt>
               <dd>{getServiceEventTypeLabel(serviceEvent.event_type)}</dd>
@@ -346,21 +346,21 @@ export function EventAttendancePageScreen() {
           </dl>
         </section>
 
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Current distinction</h3>
-              <p className="muted-text">This is the important backend caveat for attendance screens.</p>
+              <p className="m-0 text-sm text-slate-500">This is the important backend caveat for attendance screens.</p>
             </div>
           </div>
-          <ul className="item-list">
-            <li className="item-row">
+          <ul className="m-0 grid list-none gap-3 p-0">
+            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
               <div>
                 <strong>Anonymous summary attendance</strong>
                 <span>Aggregate men, women, children, and visitors.</span>
               </div>
             </li>
-            <li className="item-row">
+            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
               <div>
                 <strong>Member attendance records</strong>
                 <span>Per-member status, check-in time, and notes.</span>
@@ -371,7 +371,7 @@ export function EventAttendancePageScreen() {
       </div>
 
       <form
-        className="page-stack"
+        className="space-y-6"
         onSubmit={(event) => {
           event.preventDefault();
           saveSummaryMutation.mutate(summaryPayload);
@@ -381,8 +381,8 @@ export function EventAttendancePageScreen() {
           description="Total attendance is derived from men + women + children because that is the backend validation rule."
           title="Summary attendance"
         >
-          <div className="form-grid form-grid-3">
-            <label className="field">
+          <div className="grid gap-4 xl:grid-cols-3">
+            <label className="grid gap-2">
               <span>Men</span>
               <input
                 min="0"
@@ -397,7 +397,7 @@ export function EventAttendancePageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Women</span>
               <input
                 min="0"
@@ -412,7 +412,7 @@ export function EventAttendancePageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Children</span>
               <input
                 min="0"
@@ -427,7 +427,7 @@ export function EventAttendancePageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Visitors</span>
               <input
                 min="0"
@@ -442,13 +442,13 @@ export function EventAttendancePageScreen() {
               />
             </label>
 
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Derived total attendance</dt>
               <dd>{summaryPayload.total_count}</dd>
             </div>
           </div>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Summary notes</span>
             <textarea
               onChange={(event) =>
@@ -468,23 +468,23 @@ export function EventAttendancePageScreen() {
           fallbackMessage="The attendance summary could not be saved."
         />
 
-        <div className="inline-actions">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button className="button button-primary" disabled={saveSummaryMutation.isPending} type="submit">
             {saveSummaryMutation.isPending ? "Saving..." : "Save summary attendance"}
           </button>
         </div>
       </form>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3>Member attendance records</h3>
-            <p className="muted-text">Filter and manage per-member attendance records for this event.</p>
+            <p className="m-0 text-sm text-slate-500">Filter and manage per-member attendance records for this event.</p>
           </div>
         </div>
 
-        <div className="filters-grid filters-grid-2">
-          <label className="field">
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2">
             <span>Search records</span>
             <input
               onChange={(event) => setMemberSearch(event.target.value)}
@@ -493,7 +493,7 @@ export function EventAttendancePageScreen() {
             />
           </label>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Status</span>
             <select onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
               <option value="all">All statuses</option>
@@ -517,11 +517,11 @@ export function EventAttendancePageScreen() {
               {
                 header: "Member",
                 cell: (memberAttendance) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/members/${memberAttendance.member_id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/members/${memberAttendance.member_id}`}>
                       {formatMemberName(memberAttendance)}
                     </Link>
-                    <span className="table-subtext">{memberAttendance.email || "Profile-only record"}</span>
+                    <span className="block text-xs text-slate-500">{memberAttendance.email || "Profile-only record"}</span>
                   </div>
                 ),
               },
@@ -542,7 +542,7 @@ export function EventAttendancePageScreen() {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (memberAttendance) => (
-                  <div className="inline-actions">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <button
                       className={
                         selectedMemberAttendanceId === memberAttendance.id
@@ -568,7 +568,7 @@ export function EventAttendancePageScreen() {
       </section>
 
       <form
-        className="page-stack"
+        className="space-y-6"
         onSubmit={(event) => {
           event.preventDefault();
           createMemberAttendanceMutation.mutate(toMemberAttendancePayload(addFormState));
@@ -578,8 +578,8 @@ export function EventAttendancePageScreen() {
           description="Use the active member directory for member-level attendance. The backend enforces one record per member per event."
           title="Add member attendance"
         >
-          <div className="form-grid form-grid-2">
-            <label className="field">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2">
               <span>Search member directory</span>
               <input
                 onChange={(event) => setCandidateSearch(event.target.value)}
@@ -588,7 +588,7 @@ export function EventAttendancePageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Choose member</span>
               <select
                 onChange={(event) =>
@@ -614,7 +614,7 @@ export function EventAttendancePageScreen() {
               </select>
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Status</span>
               <select
                 onChange={(event) =>
@@ -633,7 +633,7 @@ export function EventAttendancePageScreen() {
               </select>
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Checked in at</span>
               <input
                 onChange={(event) =>
@@ -648,7 +648,7 @@ export function EventAttendancePageScreen() {
             </label>
           </div>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Attendance notes</span>
             <textarea
               onChange={(event) =>
@@ -662,7 +662,7 @@ export function EventAttendancePageScreen() {
             />
           </label>
 
-          <p className="muted-text helper-text">
+          <p className="m-0 text-sm text-slate-500">
             {candidateMembersQuery.isLoading
               ? "Loading candidate members..."
               : candidateMembers.length > 0
@@ -676,7 +676,7 @@ export function EventAttendancePageScreen() {
           fallbackMessage="The member attendance record could not be created."
         />
 
-        <div className="inline-actions">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             className="button button-primary"
             disabled={createMemberAttendanceMutation.isPending}
@@ -699,7 +699,7 @@ export function EventAttendancePageScreen() {
 
       {selectedMemberAttendance ? (
         <form
-          className="page-stack"
+          className="space-y-6"
           onSubmit={(event) => {
             event.preventDefault();
             updateMemberAttendanceMutation.mutate(toMemberAttendanceUpdatePayload(editFormState));
@@ -709,8 +709,8 @@ export function EventAttendancePageScreen() {
             description="Update the current member attendance status, check-in timestamp, and notes."
             title={`Edit attendance record: ${formatMemberName(selectedMemberAttendance)}`}
           >
-            <div className="form-grid form-grid-2">
-              <label className="field">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2">
                 <span>Status</span>
                 <select
                   onChange={(event) =>
@@ -729,7 +729,7 @@ export function EventAttendancePageScreen() {
                 </select>
               </label>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Checked in at</span>
                 <input
                   onChange={(event) =>
@@ -744,7 +744,7 @@ export function EventAttendancePageScreen() {
               </label>
             </div>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Attendance notes</span>
               <textarea
                 onChange={(event) =>
@@ -764,7 +764,7 @@ export function EventAttendancePageScreen() {
             fallbackMessage="The member attendance record could not be updated."
           />
 
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               className="button button-primary"
               disabled={updateMemberAttendanceMutation.isPending}

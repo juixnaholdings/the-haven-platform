@@ -84,7 +84,7 @@ export function GroupsPageScreen() {
   const activeGroupMembers = groups.reduce((count, group) => count + group.active_member_count, 0);
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
           <button
@@ -106,7 +106,7 @@ export function GroupsPageScreen() {
         title="Ministries"
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Ministries" tone="accent" value={totalGroups} />
         <StatCard label="Active in view" value={activeGroups} />
         <StatCard label="Inactive in view" value={inactiveGroups} />
@@ -130,7 +130,7 @@ export function GroupsPageScreen() {
           ) : null
         }
         filters={
-          <label className="field">
+          <label className="grid gap-2">
             <span>Status</span>
             <select
               onChange={(event) => {
@@ -146,7 +146,7 @@ export function GroupsPageScreen() {
           </label>
         }
         search={
-          <label className="field">
+          <label className="grid gap-2">
             <span>Search ministries</span>
             <input
               onChange={(event) => {
@@ -162,7 +162,7 @@ export function GroupsPageScreen() {
 
       {showCreateForm ? (
         <form
-          className="page-stack"
+          className="space-y-6"
           onSubmit={(event) => {
             event.preventDefault();
             createGroupMutation.mutate(toGroupPayload(formState));
@@ -172,8 +172,8 @@ export function GroupsPageScreen() {
             description="This writes directly to the current flat group model used as the ministry analogue."
             title="Create ministry"
           >
-            <div className="form-grid form-grid-2">
-              <label className="field">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2">
                 <span>Ministry name</span>
                 <input
                   onChange={(event) =>
@@ -187,7 +187,7 @@ export function GroupsPageScreen() {
                 />
               </label>
 
-              <label className="checkbox-field checkbox-field-inline">
+              <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
                 <input
                   checked={formState.is_active}
                   onChange={(event) =>
@@ -202,7 +202,7 @@ export function GroupsPageScreen() {
               </label>
             </div>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Description</span>
               <textarea
                 onChange={(event) =>
@@ -222,7 +222,7 @@ export function GroupsPageScreen() {
             fallbackMessage="The ministry could not be created."
           />
 
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button className="button button-primary" disabled={createGroupMutation.isPending} type="submit">
               {createGroupMutation.isPending ? "Creating..." : "Create ministry"}
             </button>
@@ -290,17 +290,17 @@ export function GroupsPageScreen() {
       ) : null}
 
       {!groupsQuery.isLoading && !groupsQuery.error && groups.length > 0 ? (
-        <section className="panel">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <EntityTable
             columns={[
               {
                 header: "Ministry",
                 cell: (group) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/groups/${group.id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/groups/${group.id}`}>
                       {group.name}
                     </Link>
-                    <span className="table-subtext">{group.description || "No ministry description yet"}</span>
+                    <span className="block text-xs text-slate-500">{group.description || "No ministry description yet"}</span>
                   </div>
                 ),
               },
@@ -321,7 +321,7 @@ export function GroupsPageScreen() {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (group) => (
-                  <div className="inline-actions">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <Link className="button button-secondary button-compact" href={`/groups/${group.id}`}>
                       Manage
                     </Link>

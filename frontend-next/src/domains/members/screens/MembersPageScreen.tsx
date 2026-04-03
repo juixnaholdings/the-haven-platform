@@ -53,7 +53,7 @@ export function MembersPageScreen() {
   ).length;
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
           <button
@@ -75,7 +75,7 @@ export function MembersPageScreen() {
         title="Members"
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Directory records" value={totalRecords} tone="accent" />
         <StatCard label="Active in view" value={activeMembers} />
         <StatCard label="Inactive in view" value={inactiveMembers} />
@@ -99,7 +99,7 @@ export function MembersPageScreen() {
           ) : null
         }
         filters={
-          <label className="field">
+          <label className="grid gap-2">
             <span>Status</span>
             <select
               onChange={(event) => {
@@ -115,7 +115,7 @@ export function MembersPageScreen() {
           </label>
         }
         search={
-          <label className="field">
+          <label className="grid gap-2">
             <span>Search members</span>
             <input
               onChange={(event) => {
@@ -181,17 +181,17 @@ export function MembersPageScreen() {
       ) : null}
 
       {!membersQuery.isLoading && !membersQuery.error && members.length > 0 ? (
-        <section className="panel">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <EntityTable
             columns={[
               {
                 header: "Member",
                 cell: (member) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/members/${member.id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/members/${member.id}`}>
                       {member.full_name}
                     </Link>
-                    <span className="table-subtext">
+                    <span className="block text-xs text-slate-500">
                       {member.email || member.phone_number || "Profile-only record"}
                     </span>
                   </div>
@@ -218,7 +218,7 @@ export function MembersPageScreen() {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (member) => (
-                  <div className="inline-actions">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <Link className="button button-secondary button-compact" href={`/members/${member.id}`}>
                       View
                     </Link>

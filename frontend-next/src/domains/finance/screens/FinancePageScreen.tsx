@@ -105,10 +105,10 @@ export function FinancePageScreen() {
   }
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-primary" href="/finance/entries/income">
               Record income
             </Link>
@@ -134,19 +134,19 @@ export function FinancePageScreen() {
         title="Ledger"
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Fund accounts" tone="accent" value={financeSummary.total_fund_accounts} />
         <StatCard label="Income in range" value={formatAmount(financeSummary.total_income)} />
         <StatCard label="Expense in range" value={formatAmount(financeSummary.total_expense)} />
         <StatCard label="Net flow" value={formatAmount(financeSummary.net_flow)} />
       </section>
 
-      <div className="panel-grid">
-        <section className="panel">
-          <div className="panel-header">
+      <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Fund balances</h3>
-              <p className="muted-text">Current balances derived from posted ledger lines.</p>
+              <p className="m-0 text-sm text-slate-500">Current balances derived from posted ledger lines.</p>
             </div>
           </div>
 
@@ -161,9 +161,9 @@ export function FinancePageScreen() {
                 {
                   header: "Fund",
                   cell: (fundAccount) => (
-                    <div className="cell-stack">
+                    <div className="grid gap-1">
                       <strong>{fundAccount.name}</strong>
-                      <span className="table-subtext">{fundAccount.code}</span>
+                      <span className="block text-xs text-slate-500">{fundAccount.code}</span>
                     </div>
                   ),
                 },
@@ -187,27 +187,27 @@ export function FinancePageScreen() {
           )}
         </section>
 
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Posting behavior</h3>
-              <p className="muted-text">Operational expectations for this finance wave.</p>
+              <p className="m-0 text-sm text-slate-500">Operational expectations for this finance wave.</p>
             </div>
           </div>
-          <ul className="item-list">
-            <li className="item-row">
+          <ul className="m-0 grid list-none gap-3 p-0">
+            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
               <div>
                 <strong>Transactions post immediately</strong>
                 <span>There is no draft or approval workflow on the current backend contract.</span>
               </div>
             </li>
-            <li className="item-row">
+            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
               <div>
                 <strong>Transfers stay balanced</strong>
                 <span>Each transfer creates one OUT line and one IN line under the same transaction.</span>
               </div>
             </li>
-            <li className="item-row">
+            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
               <div>
                 <strong>Transaction detail is honest</strong>
                 <span>
@@ -219,15 +219,15 @@ export function FinancePageScreen() {
           </ul>
         </section>
 
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Latest posting</h3>
-              <p className="muted-text">A quick checkpoint from the most recent posted record.</p>
+              <p className="m-0 text-sm text-slate-500">A quick checkpoint from the most recent posted record.</p>
             </div>
           </div>
           {latestTransaction ? (
-            <dl className="definition-list">
+            <dl className="m-0 grid gap-3.5">
               <div>
                 <dt>Reference</dt>
                 <dd>{latestTransaction.reference_no}</dd>
@@ -279,7 +279,7 @@ export function FinancePageScreen() {
         }
         filters={
           <>
-            <label className="field">
+            <label className="grid gap-2">
               <span>Transaction type</span>
               <select
                 onChange={(event) => {
@@ -297,7 +297,7 @@ export function FinancePageScreen() {
               </select>
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Fund account</span>
               <select
                 onChange={(event) => {
@@ -315,7 +315,7 @@ export function FinancePageScreen() {
               </select>
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Start date</span>
               <input
                 onChange={(event) => {
@@ -327,7 +327,7 @@ export function FinancePageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>End date</span>
               <input
                 onChange={(event) => {
@@ -341,7 +341,7 @@ export function FinancePageScreen() {
           </>
         }
         search={
-          <label className="field">
+          <label className="grid gap-2">
             <span>Search transactions</span>
             <input
               onChange={(event) => {
@@ -389,11 +389,11 @@ export function FinancePageScreen() {
           }
         />
       ) : (
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Posted transactions</h3>
-              <p className="muted-text">
+              <p className="m-0 text-sm text-slate-500">
                 Use transaction detail to inspect ledger lines and update safe metadata only.
               </p>
             </div>
@@ -408,11 +408,11 @@ export function FinancePageScreen() {
               {
                 header: "Transaction",
                 cell: (transaction) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/finance/transactions/${transaction.id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/finance/transactions/${transaction.id}`}>
                       {transaction.reference_no}
                     </Link>
-                    <span className="table-subtext">{transaction.description}</span>
+                    <span className="block text-xs text-slate-500">{transaction.description}</span>
                   </div>
                 ),
               },
@@ -438,9 +438,9 @@ export function FinancePageScreen() {
               {
                 header: "Movement",
                 cell: (transaction) => (
-                  <div className="cell-stack">
+                  <div className="grid gap-1">
                     <span>In: {formatAmount(transaction.total_in_amount)}</span>
-                    <span className="table-subtext">Out: {formatAmount(transaction.total_out_amount)}</span>
+                    <span className="block text-xs text-slate-500">Out: {formatAmount(transaction.total_out_amount)}</span>
                   </div>
                 ),
               },
