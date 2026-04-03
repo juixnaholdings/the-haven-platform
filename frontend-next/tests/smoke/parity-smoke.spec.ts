@@ -218,6 +218,66 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
       return;
     }
 
+    if (path === "/api/auth/signup/" && method === "POST") {
+      const payload = JSON.parse(request.postData() || "{}") as {
+        username?: string;
+        email?: string;
+      };
+      await fulfillJson(
+        route,
+        successEnvelope(
+          {
+            user: {
+              id: 3,
+              username: payload.username || "new-user",
+              first_name: "",
+              last_name: "",
+              email: payload.email || "new-user@example.com",
+              is_active: true,
+              is_staff: false,
+              is_superuser: false,
+              role_names: [],
+            },
+          },
+          "Account created successfully.",
+        ),
+        201,
+      );
+      return;
+    }
+
+    if (path === "/api/auth/availability/username/" && method === "GET") {
+      const username = url.searchParams.get("username") || "";
+      const unavailableUsernames = new Set(["church-admin", "attendance-officer"]);
+      await fulfillJson(
+        route,
+        successEnvelope(
+          {
+            username,
+            available: Boolean(username) && !unavailableUsernames.has(username.toLowerCase()),
+          },
+          "Username availability fetched successfully.",
+        ),
+      );
+      return;
+    }
+
+    if (path === "/api/auth/availability/email/" && method === "GET") {
+      const email = url.searchParams.get("email") || "";
+      const unavailableEmails = new Set(["admin@example.com", "attendance@example.com"]);
+      await fulfillJson(
+        route,
+        successEnvelope(
+          {
+            email,
+            available: Boolean(email) && !unavailableEmails.has(email.toLowerCase()),
+          },
+          "Email availability fetched successfully.",
+        ),
+      );
+      return;
+    }
+
     if (path === "/api/auth/logout/" && method === "POST") {
       await fulfillJson(route, successEnvelope({}, "Logout successful."));
       return;
@@ -776,6 +836,25 @@ test.describe("frontend-next parity smoke", () => {
       timeout: 15000,
     });
     await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/, { timeout: 15000 });
+  });
+
+  test("supports public signup flow", async ({ page }) => {
+    await installApiMocks(page, "unauthenticated");
+    await page.goto("/signup");
+    const signupResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes("/api/auth/signup/") &&
+        response.request().method() === "POST",
+    );
+    await page.getByLabel("Username").fill("new-basic-user");
+    await page.getByLabel("Email").fill("new-basic-user@example.com");
+    await page.getByLabel("Password").fill("StrongPass123!");
+    await page.getByLabel("Confirm password").fill("StrongPass123!");
+    await page.getByRole("button", { name: "Create account" }).click();
+    const signupResponse = await signupResponsePromise;
+    expect(signupResponse.ok()).toBeTruthy();
+    await expect(page.getByRole("heading", { name: "Account created" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Continue to sign in" })).toBeVisible();
   });
 
   test("loads all migrated routes for admin users", async ({ page }) => {

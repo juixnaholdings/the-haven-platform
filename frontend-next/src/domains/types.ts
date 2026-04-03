@@ -69,6 +69,27 @@ export interface LoginResponse {
   tokens: AuthTokens;
 }
 
+export interface SignupPayload {
+  username: string;
+  email: string;
+  password: string;
+  confirm_password: string;
+}
+
+export interface SignupResponse {
+  user: User;
+}
+
+export interface UsernameAvailabilityResponse {
+  username: string;
+  available: boolean;
+}
+
+export interface EmailAvailabilityResponse {
+  email: string;
+  available: boolean;
+}
+
 export interface PaginationParams {
   page?: number;
   page_size?: number;
