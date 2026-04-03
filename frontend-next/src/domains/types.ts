@@ -26,6 +26,13 @@ export interface StaffUserListItem extends User {
   date_joined: string;
 }
 
+export interface BasicUserListItem extends User {
+  full_name: string;
+  roles: UserRoleRef[];
+  last_login: string | null;
+  date_joined: string;
+}
+
 export interface StaffUserCreatePayload {
   username: string;
   email: string;
@@ -42,6 +49,65 @@ export interface StaffUserUpdatePayload {
   last_name?: string;
   is_active?: boolean;
   role_ids?: number[];
+}
+
+export interface BasicUserElevationPayload {
+  role_ids: number[];
+  is_active?: boolean;
+}
+
+export type StaffInviteLifecycleStatus = "PENDING" | "ACCEPTED" | "REVOKED" | "EXPIRED";
+
+export interface StaffInviteAcceptedUserRef {
+  id: number;
+  username: string;
+  email: string;
+}
+
+export interface StaffInviteListItem {
+  id: number;
+  email: string;
+  status: StaffInviteLifecycleStatus;
+  expires_at: string;
+  accepted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  invited_by_username: string;
+  accepted_user: StaffInviteAcceptedUserRef | null;
+  role_names: string[];
+  roles: UserRoleRef[];
+  invite_path: string;
+  is_expired: boolean;
+}
+
+export interface StaffInviteCreatePayload {
+  email: string;
+  role_ids: number[];
+  expires_in_days?: number;
+}
+
+export interface StaffInviteListFilters {
+  status?: StaffInviteLifecycleStatus;
+  search?: string;
+  include_expired?: boolean;
+}
+
+export interface StaffInviteValidationResponse {
+  id: number;
+  email: string;
+  status: StaffInviteLifecycleStatus;
+  expires_at: string;
+  role_names: string[];
+  invite_is_active: boolean;
+}
+
+export interface StaffInviteAcceptPayload {
+  token: string;
+  username: string;
+  first_name?: string;
+  last_name?: string;
+  password: string;
+  confirm_password: string;
 }
 
 export interface RolePermissionSummary {

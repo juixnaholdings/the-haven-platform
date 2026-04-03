@@ -4,6 +4,8 @@ import type {
   EmailAvailabilityResponse,
   LoginPayload,
   LoginResponse,
+  StaffInviteAcceptPayload,
+  StaffInviteValidationResponse,
   SignupPayload,
   SignupResponse,
   User,
@@ -22,6 +24,26 @@ export const authApi = {
       auth: false,
       retryOnUnauthorized: false,
     });
+  },
+  validateStaffInvite(staffInviteId: number, token: string) {
+    return apiClient.get<StaffInviteValidationResponse>(
+      `/api/auth/staff-invites/${staffInviteId}/validate/`,
+      {
+        auth: false,
+        retryOnUnauthorized: false,
+        params: { token },
+      },
+    );
+  },
+  acceptStaffInvite(staffInviteId: number, payload: StaffInviteAcceptPayload) {
+    return apiClient.post<SignupResponse, StaffInviteAcceptPayload>(
+      `/api/auth/staff-invites/${staffInviteId}/accept/`,
+      payload,
+      {
+        auth: false,
+        retryOnUnauthorized: false,
+      },
+    );
   },
   checkUsernameAvailability(username: string) {
     return apiClient.get<UsernameAvailabilityResponse>("/api/auth/availability/username/", {
