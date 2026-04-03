@@ -353,9 +353,9 @@ export default function SignupPage() {
 
   if (isSignupComplete) {
     return (
-      <div className="grid min-h-screen place-items-center bg-gradient-to-b from-amber-50 via-slate-50 to-slate-100 px-6 py-8">
-        <div className="w-full max-w-[520px] space-y-6">
-          <div className="grid w-full gap-6 rounded-[1.65rem] border border-slate-200/80 bg-white/95 p-8 shadow-sm">
+      <div className="auth-layout">
+        <div className="auth-stack">
+          <div className="auth-card">
             <div className="grid gap-2">
               <h2>Account created</h2>
               <p className="muted-text helper-text">
@@ -364,7 +364,7 @@ export default function SignupPage() {
             </div>
 
             <Link
-              className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-br from-[#16335f] to-[#27497d] px-4 py-2.5 font-semibold text-white shadow-[0_10px_24px_rgba(22,51,95,0.18)] transition hover:-translate-y-px hover:from-[#102748] hover:to-[#1e3f6e]"
+              className="button button-primary button-block"
               href="/login"
             >
               Continue to sign in
@@ -376,9 +376,9 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center bg-gradient-to-b from-amber-50 via-slate-50 to-slate-100 px-6 py-8">
-      <div className="w-full max-w-[520px] space-y-6">
-        <div className="grid w-full gap-6 rounded-[1.65rem] border border-slate-200/80 bg-white/95 p-8 shadow-sm">
+    <div className="auth-layout">
+      <div className="auth-stack">
+        <div className="auth-card">
           <div className="grid gap-2">
             <h2>Create your account</h2>
             <p className="muted-text helper-text">
@@ -496,11 +496,7 @@ export default function SignupPage() {
               <p className="field-feedback field-feedback-error">{getFieldError("confirmPassword")}</p>
             ) : null}
 
-            <button
-              className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-br from-[#16335f] to-[#27497d] px-4 py-2.5 font-semibold text-white shadow-[0_10px_24px_rgba(22,51,95,0.18)] transition hover:-translate-y-px hover:from-[#102748] hover:to-[#1e3f6e] disabled:cursor-not-allowed disabled:opacity-70"
-              disabled={isSubmitting || isSubmitGuarded}
-              type="submit"
-            >
+            <button className="button button-primary button-block" disabled={isSubmitting || isSubmitGuarded} type="submit">
               {isSubmitting ? "Creating account..." : "Create account"}
             </button>
           </form>

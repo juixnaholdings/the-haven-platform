@@ -22,7 +22,7 @@ export function PaginationControls({
   );
 
   return (
-    <div className="mt-5 flex flex-wrap items-end justify-between gap-3 border-t border-slate-200/80 pt-5">
+    <div className="mt-6 flex flex-wrap items-end justify-between gap-3 border-t border-slate-200/80 pt-5">
       <div className="grid gap-1">
         <strong className="text-sm font-semibold text-slate-800">
           Page {pagination.page} of {pagination.totalPages}

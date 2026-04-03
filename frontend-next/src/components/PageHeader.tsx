@@ -31,7 +31,11 @@ export function PageHeader({
         ) : null}
         {meta ? <div className="mt-0.5 flex flex-wrap items-center gap-2">{meta}</div> : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center justify-end gap-2.5">{actions}</div> : null}
+      {actions ? (
+        <div className="flex w-full flex-wrap items-start justify-start gap-2.5 sm:w-auto sm:justify-end">
+          {actions}
+        </div>
+      ) : null}
     </header>
   );
 }

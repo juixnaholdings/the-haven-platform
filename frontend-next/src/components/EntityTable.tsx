@@ -32,7 +32,7 @@ export function EntityTable<TRow>({
           <tr>
             {columns.map((column) => (
               <th
-                className={`border-b border-slate-200/70 px-4 py-3.5 text-left text-[0.69rem] font-semibold uppercase tracking-[0.12em] text-slate-500 ${column.className ?? ""}`}
+                className={`border-b border-slate-200/70 px-4 py-3 text-left text-[0.69rem] font-semibold uppercase tracking-[0.12em] text-slate-500 ${column.className ?? ""}`}
                 key={column.header}
               >
                 {column.header}
@@ -43,10 +43,10 @@ export function EntityTable<TRow>({
         <tbody>
           {rows.length > 0 ? (
             rows.map((row) => (
-              <tr className="group transition hover:bg-slate-50/70" key={getRowKey(row)}>
+              <tr className="group transition hover:bg-slate-50/75" key={getRowKey(row)}>
                 {columns.map((column) => (
                   <td
-                    className={`border-b border-slate-100 px-4 py-3.5 align-top text-sm text-slate-700 last:border-b-0 ${column.className ?? ""}`}
+                    className={`border-b border-slate-100 px-4 py-3 align-top text-sm text-slate-700 last:border-b-0 ${column.className ?? ""}`}
                     key={column.header}
                   >
                     {column.cell(row)}
