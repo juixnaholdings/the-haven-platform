@@ -40,14 +40,14 @@
 }
 
 * {
-  box-sizing: border-box;
+  /* box-sizing: border-box; */
 }
 
 html {
-  background:
+  /* background:
     radial-gradient(circle at top left, rgba(183, 138, 84, 0.16), transparent 26%),
     radial-gradient(circle at top right, rgba(22, 51, 95, 0.08), transparent 24%),
-    linear-gradient(180deg, #fcfaf5 0%, #f4efe5 100%);
+    linear-gradient(180deg, #fcfaf5 0%, #f4efe5 100%); */
 }
 
 body {
