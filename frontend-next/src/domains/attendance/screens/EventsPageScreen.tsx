@@ -60,6 +60,22 @@ function toEventPayload(formState: EventFormState): ServiceEventWritePayload {
   };
 }
 
+function getAttendanceProgressLabel({
+  hasSummary,
+  memberAttendanceCount,
+}: {
+  hasSummary: boolean;
+  memberAttendanceCount: number;
+}) {
+  if (hasSummary && memberAttendanceCount > 0) {
+    return "Summary and member records captured";
+  }
+  if (hasSummary || memberAttendanceCount > 0) {
+    return "Attendance in progress";
+  }
+  return "Attendance not started";
+}
+
 export function EventsPageScreen() {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -100,6 +116,11 @@ export function EventsPageScreen() {
   const serviceEvents = serviceEventsQuery.data?.items ?? [];
   const pagination = serviceEventsQuery.data?.pagination ?? null;
   const sundayService = sundayServiceQuery.data ?? null;
+  const sundayActionLabel = sundayService
+    ? sundayService.has_attendance_summary || sundayService.member_attendance_count > 0
+      ? "Continue Sunday attendance"
+      : "Take Sunday attendance"
+    : "Sunday attendance";
   const totalServiceEvents = pagination?.count ?? serviceEvents.length;
   const hasFilters = Boolean(search.trim()) || eventTypeFilter !== "all" || statusFilter !== "all";
   const activeEvents = serviceEvents.filter((serviceEvent) => serviceEvent.is_active).length;
@@ -115,7 +136,7 @@ export function EventsPageScreen() {
           <div className="flex flex-wrap items-center gap-2.5">
             {sundayService ? (
               <Link className="button button-secondary" href={`/events/${sundayService.id}/attendance`}>
-                Sunday attendance
+                {sundayActionLabel}
               </Link>
             ) : null}
             <button
@@ -454,6 +475,12 @@ export function EventsPageScreen() {
                     <span>{serviceEvent.member_attendance_count} member records</span>
                     <span className="block text-xs text-slate-500">
                       {serviceEvent.has_attendance_summary ? "Summary recorded" : "No summary yet"}
+                    </span>
+                    <span className="block text-xs text-slate-500">
+                      {getAttendanceProgressLabel({
+                        hasSummary: serviceEvent.has_attendance_summary,
+                        memberAttendanceCount: serviceEvent.member_attendance_count,
+                      })}
                     </span>
                   </div>
                 ),

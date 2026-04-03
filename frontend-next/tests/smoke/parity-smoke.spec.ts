@@ -115,6 +115,38 @@ const dashboardSummary = {
     aggregate_total_attendance: 227,
     total_member_attendance_records: 65,
     event_type_counts: [{ event_type: "SUNDAY_SERVICE", count: 4 }],
+    sunday_services: {
+      total_services: 4,
+      with_summary_count: 3,
+      with_member_records_count: 3,
+      fully_recorded_count: 3,
+      partially_recorded_count: 0,
+      not_started_count: 1,
+      latest_service: {
+        id: 1,
+        title: "Sunday Morning Service",
+        service_date: "2026-03-22",
+        is_active: true,
+        has_attendance_summary: true,
+        member_attendance_count: 1,
+        summary_total_count: 122,
+        attendance_state: "RECORDED",
+        updated_at: "2026-03-22T12:30:00Z",
+      },
+      recent_services: [
+        {
+          id: 1,
+          title: "Sunday Morning Service",
+          service_date: "2026-03-22",
+          is_active: true,
+          has_attendance_summary: true,
+          member_attendance_count: 1,
+          summary_total_count: 122,
+          attendance_state: "RECORDED",
+          updated_at: "2026-03-22T12:30:00Z",
+        },
+      ],
+    },
   },
   finance: {
     total_fund_accounts: 3,
@@ -842,7 +874,7 @@ test.describe("frontend-next parity smoke", () => {
     await page.getByRole("button", { name: "Sign in" }).click();
     const loginResponse = await loginResponsePromise;
     expect(loginResponse.ok()).toBeTruthy();
-    await expect(page.getByRole("heading", { name: "Operational dashboard" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible({
       timeout: 15000,
     });
     await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/, { timeout: 15000 });
@@ -858,7 +890,7 @@ test.describe("frontend-next parity smoke", () => {
     );
     await page.getByLabel("Username").fill("new-basic-user");
     await page.getByLabel("Email").fill("new-basic-user@example.com");
-    await page.getByLabel("Password").fill("StrongPass123!");
+    await page.getByLabel("Password", { exact: true }).fill("StrongPass123!");
     await page.getByLabel("Confirm password").fill("StrongPass123!");
     await page.getByRole("button", { name: "Create account" }).click();
     const signupResponse = await signupResponsePromise;
@@ -875,7 +907,7 @@ test.describe("frontend-next parity smoke", () => {
     await page.goto("/dashboard");
 
     await expect(page.getByRole("link", { name: "Audit" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Operational dashboard" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 
     const routeChecks: Array<{ path: string; heading: string }> = [
       { path: "/members", heading: "Members" },
