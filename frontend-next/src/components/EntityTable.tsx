@@ -11,6 +11,7 @@ interface EntityTableProps<TRow> {
   rows: TRow[];
   getRowKey: (row: TRow) => string | number;
   emptyFallback?: ReactNode;
+  className?: string;
 }
 
 export function EntityTable<TRow>({
@@ -18,9 +19,12 @@ export function EntityTable<TRow>({
   rows,
   getRowKey,
   emptyFallback,
+  className,
 }: EntityTableProps<TRow>) {
+  const tableWrapClassName = className ? `table-wrap ${className}` : "table-wrap";
+
   return (
-    <div className="table-wrap">
+    <div className={tableWrapClassName}>
       <table className="data-table">
         <thead>
           <tr>

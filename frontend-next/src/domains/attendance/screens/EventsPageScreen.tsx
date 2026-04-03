@@ -11,6 +11,7 @@ import {
   EntityTable,
   ErrorAlert,
   ErrorState,
+  FilterActionStrip,
   FormSection,
   LoadingState,
   PageHeader,
@@ -133,8 +134,60 @@ export function EventsPageScreen() {
         <StatCard label="Next in view" value={nextEvent ? formatDate(nextEvent.service_date) : "Not scheduled"} />
       </section>
 
-      <section className="panel">
-        <div className="filters-grid filters-grid-3">
+      <FilterActionStrip
+        actions={
+          hasFilters ? (
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setSearch("");
+                setEventTypeFilter("all");
+                setStatusFilter("all");
+                setPage(1);
+              }}
+              type="button"
+            >
+              Clear filters
+            </button>
+          ) : null
+        }
+        filters={
+          <>
+            <label className="field">
+              <span>Event type</span>
+              <select
+                onChange={(event) => {
+                  setEventTypeFilter(event.target.value);
+                  setPage(1);
+                }}
+                value={eventTypeFilter}
+              >
+                <option value="all">All event types</option>
+                {SERVICE_EVENT_TYPE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="field">
+              <span>Status</span>
+              <select
+                onChange={(event) => {
+                  setStatusFilter(event.target.value as EventStatusFilter);
+                  setPage(1);
+                }}
+                value={statusFilter}
+              >
+                <option value="all">All events</option>
+                <option value="active">Active events</option>
+                <option value="inactive">Inactive events</option>
+              </select>
+            </label>
+          </>
+        }
+        search={
           <label className="field">
             <span>Search events</span>
             <input
@@ -146,41 +199,8 @@ export function EventsPageScreen() {
               value={search}
             />
           </label>
-
-          <label className="field">
-            <span>Event type</span>
-            <select
-              onChange={(event) => {
-                setEventTypeFilter(event.target.value);
-                setPage(1);
-              }}
-              value={eventTypeFilter}
-            >
-              <option value="all">All event types</option>
-              {SERVICE_EVENT_TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="field">
-            <span>Status</span>
-            <select
-              onChange={(event) => {
-                setStatusFilter(event.target.value as EventStatusFilter);
-                setPage(1);
-              }}
-              value={statusFilter}
-            >
-              <option value="all">All events</option>
-              <option value="active">Active events</option>
-              <option value="inactive">Inactive events</option>
-            </select>
-          </label>
-        </div>
-      </section>
+        }
+      />
 
       {showCreateForm ? (
         <form

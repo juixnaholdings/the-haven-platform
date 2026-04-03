@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
-import { EmptyState, EntityTable, ErrorState, FormSection, LoadingState, PageHeader, StatCard, StatusBadge } from "@/components";
+import { EmptyState, EntityTable, ErrorState, FilterActionStrip, LoadingState, PageHeader, StatCard, StatusBadge } from "@/components";
 import { attendanceApi } from "@/domains/attendance/api";
 import { getServiceEventTypeLabel } from "@/domains/attendance/options";
 import { reportingApi } from "@/domains/reporting/api";
@@ -72,37 +72,32 @@ export function AttendanceOverviewPageScreen() {
       />
 
       <div className="panel-grid">
-        <form className="page-stack">
-          <FormSection
-            description="Use a reporting range for attendance summary cards and the event list below."
-            title="Date range"
-          >
-            <div className="form-grid form-grid-3">
-              <label className="field">
-                <span>Start date</span>
-                <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
-              </label>
-
-              <label className="field">
-                <span>End date</span>
-                <input onChange={(event) => setEndDate(event.target.value)} type="date" value={endDate} />
-              </label>
-
-              <div className="inline-actions inline-actions-bottom">
-                <button
-                  className="button button-secondary"
-                  onClick={() => {
-                    setStartDate("");
-                    setEndDate("");
-                  }}
-                  type="button"
-                >
-                  Reset range
-                </button>
-              </div>
-            </div>
-          </FormSection>
-        </form>
+        <FilterActionStrip
+          actions={
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setStartDate("");
+                setEndDate("");
+              }}
+              type="button"
+            >
+              Reset range
+            </button>
+          }
+          filters={
+            <label className="field">
+              <span>End date</span>
+              <input onChange={(event) => setEndDate(event.target.value)} type="date" value={endDate} />
+            </label>
+          }
+          search={
+            <label className="field">
+              <span>Start date</span>
+              <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
+            </label>
+          }
+        />
 
         <section className="panel">
           <div className="panel-header">
