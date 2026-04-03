@@ -145,6 +145,10 @@ System-managed Sunday behavior:
   Returns group and affiliation summary metrics.
 - `GET /api/reports/attendance/`
   Returns attendance summary metrics, with optional `start_date` and `end_date`.
+  Includes a `sunday_services` operational block for system-managed Sunday services in the selected range:
+  - coverage counts (`total_services`, `with_summary_count`, `with_member_records_count`)
+  - workflow status counts (`fully_recorded_count`, `partially_recorded_count`, `not_started_count`)
+  - `latest_service` snapshot and `recent_services` list with per-service attendance state (`RECORDED`, `IN_PROGRESS`, `NOT_STARTED`)
 - `GET /api/reports/finance/`
   Returns finance summary metrics, with optional `start_date` and `end_date`.
 

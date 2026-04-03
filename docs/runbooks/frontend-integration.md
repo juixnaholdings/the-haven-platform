@@ -50,6 +50,15 @@ Recommended values:
 - The backend ensures system-managed Sunday service records before returning this payload.
 - `frontend-next` attendance and events screens use this to surface a direct "Sunday attendance" action without requiring manual weekly event creation.
 
+## Attendance reporting Sunday metrics
+
+- `GET /api/reports/attendance/` now includes `sunday_services` in addition to aggregate attendance totals.
+- The `sunday_services` block provides:
+  - operational counts (`total_services`, `with_summary_count`, `with_member_records_count`)
+  - workflow status counts (`fully_recorded_count`, `partially_recorded_count`, `not_started_count`)
+  - `latest_service` and `recent_services` snapshots with `attendance_state` (`RECORDED`, `IN_PROGRESS`, `NOT_STARTED`).
+- `frontend-next` uses this block on attendance/reporting screens to show "take vs continue" Sunday attendance workflows.
+
 ## Verification commands
 
 Run from `frontend-next/`:

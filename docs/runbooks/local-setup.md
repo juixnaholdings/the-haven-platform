@@ -27,6 +27,7 @@ Canonical demo-data path:
 - Sunday services are system-managed in this flow:
   - past horizon: `--sunday-weeks-back` (default `8`)
   - future horizon: `--sunday-weeks-forward` (default `12`)
+- Seeded attendance includes both summary and member-level records across those Sunday services so attendance/reporting Sunday status cards are immediately testable in `frontend-next`.
 - For Sunday-service-only refreshes without reseeding all product data, use:
   - `python backend/manage.py ensure_sunday_services`
 
