@@ -767,7 +767,7 @@ test.describe("frontend-next parity smoke", () => {
         response.url().includes("/api/auth/login/") &&
         response.request().method() === "POST",
     );
-    await page.getByLabel("Username").fill("church-admin");
+    await page.getByLabel("Username or email").fill("church-admin");
     await page.getByLabel("Password").fill("P@ssw0rd!");
     await page.getByRole("button", { name: "Sign in" }).click();
     const loginResponse = await loginResponsePromise;

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -10,7 +9,7 @@ import { useSession } from "@/auth/use-session";
 export default function LoginPage() {
   const router = useRouter();
   const { isAuthenticated, isBootstrapping, login } = useSession();
-  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown>(null);
@@ -33,7 +32,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login({ username, password });
+      await login({ identifier, password });
       router.replace(nextPath);
     } catch (error) {
       setSubmitError(error);
@@ -52,12 +51,13 @@ export default function LoginPage() {
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <label className="field">
-              <span>Username</span>
+              <span>Username or email</span>
               <input
                 autoComplete="username"
-                onChange={(event) => setUsername(event.target.value)}
+                onChange={(event) => setIdentifier(event.target.value)}
+                placeholder="Enter username or email"
                 required
-                value={username}
+                value={identifier}
               />
             </label>
 

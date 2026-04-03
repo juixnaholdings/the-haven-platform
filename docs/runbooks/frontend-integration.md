@@ -22,6 +22,8 @@ Recommended values:
 ## Auth/session flow (active behavior)
 
 1. `POST /api/auth/login/`
+   - Canonical request body: `{ identifier, password }`, where `identifier` can be username or email.
+   - Legacy `{ username, password }` remains accepted for compatibility.
 2. Access token stored in memory for active browser session.
 3. Session bootstrap calls `POST /api/auth/token/refresh/` when needed (refresh cookie path), then `GET /api/auth/me/`.
 4. Protected requests attach `Authorization: Bearer <access>`.

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Group, Permission
 from django.conf import settings
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
@@ -9,6 +10,8 @@ from apps.users.models import User
 
 class AuthApiTests(APITestCase):
     def setUp(self):
+        cache.clear()
+        self.login_url = "/api/auth/login/"
         self.user = User.objects.create_user(
             username="admin1",
             email="admin1@example.com",
@@ -16,10 +19,12 @@ class AuthApiTests(APITestCase):
         )
         self.user.groups.add(Group.objects.create(name="Church Admin"))
 
-    def test_login_success_sets_refresh_cookie_and_returns_access_only(self):
+    def test_login_success_with_identifier_username_sets_refresh_cookie_and_returns_access_only(
+        self,
+    ):
         response = self.client.post(
-            "/api/auth/login/",
-            {"username": "admin1", "password": "StrongPass123"},
+            self.login_url,
+            {"identifier": "admin1", "password": "StrongPass123"},
             format="json",
         )
 
@@ -36,6 +41,87 @@ class AuthApiTests(APITestCase):
         self.assertIsNotNone(refresh_cookie)
         self.assertTrue(refresh_cookie["httponly"])
 
+    def test_login_success_with_identifier_email_sets_refresh_cookie_and_returns_access_only(
+        self,
+    ):
+        response = self.client.post(
+            self.login_url,
+            {"identifier": "  ADMIN1@example.com  ", "password": "StrongPass123"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["code"], 1)
+        self.assertEqual(response.data["status"], "success")
+        self.assertIn("tokens", response.data["data"])
+        self.assertIn("access", response.data["data"]["tokens"])
+        self.assertNotIn("refresh", response.data["data"]["tokens"])
+        self.assertEqual(response.data["data"]["user"]["username"], "admin1")
+        self.assertEqual(response.data["data"]["user"]["role_names"], ["Church Admin"])
+
+        refresh_cookie = response.cookies.get(settings.AUTH_REFRESH_COOKIE_NAME)
+        self.assertIsNotNone(refresh_cookie)
+        self.assertTrue(refresh_cookie["httponly"])
+
+    def test_login_success_with_legacy_username_payload_remains_supported(self):
+        response = self.client.post(
+            self.login_url,
+            {"username": "admin1", "password": "StrongPass123"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["code"], 1)
+        self.assertEqual(response.data["status"], "success")
+        self.assertIn("tokens", response.data["data"])
+        self.assertIn("access", response.data["data"]["tokens"])
+        self.assertEqual(response.data["data"]["user"]["username"], "admin1")
+
+    def test_login_fails_for_invalid_identifier(self):
+        response = self.client.post(
+            self.login_url,
+            {"identifier": "not-a-user", "password": "StrongPass123"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], 0)
+        self.assertEqual(response.data["status"], "error")
+        self.assertEqual(response.data["message"], "Validation failed.")
+        self.assertEqual(response.data["errors"], {"detail": ["Invalid credentials."]})
+
+    def test_login_fails_for_wrong_password(self):
+        response = self.client.post(
+            self.login_url,
+            {"identifier": "admin1", "password": "WrongPass123"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], 0)
+        self.assertEqual(response.data["status"], "error")
+        self.assertEqual(response.data["message"], "Validation failed.")
+        self.assertEqual(response.data["errors"], {"detail": ["Invalid credentials."]})
+
+    def test_login_rejects_ambiguous_identifier_between_username_and_email(self):
+        User.objects.create_user(
+            username="admin1@example.com",
+            email="different-admin@example.com",
+            password="AnotherStrongPass123",
+        )
+
+        response = self.client.post(
+            self.login_url,
+            {"identifier": "admin1@example.com", "password": "StrongPass123"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], 0)
+        self.assertEqual(response.data["status"], "error")
+        self.assertEqual(response.data["message"], "Validation failed.")
+        self.assertEqual(response.data["errors"], {"detail": ["Invalid credentials."]})
+
     def test_me_requires_auth(self):
         response = self.client.get("/api/auth/me/")
 
@@ -49,8 +135,8 @@ class AuthApiTests(APITestCase):
 
     def test_me_with_access_token(self):
         login_response = self.client.post(
-            "/api/auth/login/",
-            {"username": "admin1", "password": "StrongPass123"},
+            self.login_url,
+            {"identifier": "admin1", "password": "StrongPass123"},
             format="json",
         )
 
@@ -64,8 +150,8 @@ class AuthApiTests(APITestCase):
 
     def test_refresh_token_uses_cookie(self):
         login_response = self.client.post(
-            "/api/auth/login/",
-            {"username": "admin1", "password": "StrongPass123"},
+            self.login_url,
+            {"identifier": "admin1@example.com", "password": "StrongPass123"},
             format="json",
         )
 
@@ -86,8 +172,8 @@ class AuthApiTests(APITestCase):
 
     def test_verify_token(self):
         login_response = self.client.post(
-            "/api/auth/login/",
-            {"username": "admin1", "password": "StrongPass123"},
+            self.login_url,
+            {"identifier": "admin1", "password": "StrongPass123"},
             format="json",
         )
 
@@ -106,8 +192,8 @@ class AuthApiTests(APITestCase):
 
     def test_logout_blacklists_refresh_token_from_cookie(self):
         login_response = self.client.post(
-            "/api/auth/login/",
-            {"username": "admin1", "password": "StrongPass123"},
+            self.login_url,
+            {"identifier": "admin1", "password": "StrongPass123"},
             format="json",
         )
 
