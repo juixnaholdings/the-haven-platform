@@ -16,7 +16,8 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 ## Public Auth Endpoints
 
 - `POST /api/auth/login/`
-  Returns the authenticated user payload plus `access` and `refresh` tokens in the standard response envelope.
+  Accepts `{ "identifier": "<username-or-email>", "password": "<password>" }` as the canonical payload and also supports legacy `{ "username": "...", "password": "..." }` clients.
+  Returns the authenticated user payload plus an `access` token in the standard response envelope and sets the refresh token in the secure HTTP-only cookie.
 - `POST /api/auth/logout/`
   Requires bearer authentication and accepts a refresh token to blacklist.
 - `POST /api/auth/token/refresh/`
