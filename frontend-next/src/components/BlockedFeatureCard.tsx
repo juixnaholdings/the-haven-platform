@@ -24,14 +24,14 @@ export function BlockedFeatureCard({
     <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
       <div className="section-header">
         <div>
-          <h3 className="text-lg font-semibold tracking-tight text-slate-900">{title}</h3>
-          <p className="mt-1 text-sm text-slate-600">{description}</p>
+          <h3 className="m-0 text-lg font-semibold tracking-tight text-slate-900">{title}</h3>
+          <p className="mt-1 max-w-[72ch] text-sm leading-6 text-slate-600">{description}</p>
         </div>
         <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${toneClassName}`}>
           Not yet available
         </span>
       </div>
-      {reason ? <p className="text-sm text-slate-600">{reason}</p> : null}
+      {reason ? <p className="m-0 text-sm leading-6 text-slate-600">{reason}</p> : null}
       {action ? <div className="mt-4 flex flex-wrap items-center gap-2.5">{action}</div> : null}
     </section>
   );

@@ -8,7 +8,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <div className="grid gap-4 rounded-3xl border border-dashed border-slate-300/80 bg-slate-50/70 p-8">
+    <div className="grid gap-5 rounded-3xl border border-dashed border-slate-300/80 bg-slate-50/70 p-8">
       <div
         aria-hidden="true"
         className="grid h-11 w-11 place-items-center rounded-2xl bg-white ring-1 ring-slate-300/80"
@@ -19,7 +19,7 @@ export function EmptyState({ title, description, action }: EmptyStateProps) {
         <h3 className="m-0 text-lg font-semibold tracking-tight text-slate-900">{title}</h3>
         <p className="m-0 max-w-[68ch] text-sm leading-6 text-slate-600">{description}</p>
       </div>
-      {action ? <div className="flex flex-wrap items-center gap-2.5">{action}</div> : null}
+      {action ? <div className="mt-1 flex flex-wrap items-center gap-2.5">{action}</div> : null}
     </div>
   );
 }
