@@ -83,9 +83,11 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 ## Attendance Admin Endpoints
 
 - `GET /api/attendance/`
-  Lists service and event records with optional search, event type, date range, and active-state filters.
+  Lists service and event records with optional search, event type, date range, active-state filters, and optional `is_system_managed` filter.
 - `POST /api/attendance/`
   Creates a service or event record.
+- `GET /api/attendance/sunday-service/current/`
+  Ensures system-managed Sunday services exist for the default window and returns the current-or-upcoming Sunday service shortcut record for attendance workflows.
 - `GET /api/attendance/{service_event_id}/`
   Returns service/event detail including the attendance summary and member attendance records.
 - `PATCH /api/attendance/{service_event_id}/`
@@ -100,6 +102,12 @@ All API routes are mounted under the configured API prefix, which defaults to `/
   Records member attendance for the event.
 - `PATCH /api/attendance/{service_event_id}/member-attendance/{member_attendance_id}/`
   Updates an existing member attendance record.
+
+System-managed Sunday behavior:
+
+- Sunday services are represented as normal `ServiceEvent` rows with `event_type="SUNDAY_SERVICE"` and `is_system_managed=true`.
+- The backend guarantees at most one system-managed Sunday service per Sunday date.
+- These events remain usable with the standard detail and attendance-recording endpoints.
 
 ## Finance Admin Endpoints
 

@@ -44,6 +44,12 @@ Recommended values:
 - `frontend-next/src/domains/users/`
 - `frontend-next/src/domains/audit/`
 
+## Attendance Sunday-service shortcut
+
+- `GET /api/attendance/sunday-service/current/` is the frontend shortcut endpoint for Sunday attendance flows.
+- The backend ensures system-managed Sunday service records before returning this payload.
+- `frontend-next` attendance and events screens use this to surface a direct "Sunday attendance" action without requiring manual weekly event creation.
+
 ## Verification commands
 
 Run from `frontend-next/`:
