@@ -2,7 +2,10 @@ from collections.abc import Iterable
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
-from django.db.models import Prefetch
+from django.db.models import Count, Prefetch, Q
+from django.utils import timezone
+
+from apps.users.models import StaffInvite, StaffInviteStatus
 
 User = get_user_model()
 
@@ -72,6 +75,85 @@ def get_staff_user_by_id(*, staff_user_id: int):
     return (
         User.objects.filter(id=staff_user_id, is_staff=True)
         .prefetch_related("groups")
+        .first()
+    )
+
+
+def list_basic_users(*, filters: dict | None = None):
+    filters = filters or {}
+    queryset = User.objects.filter(is_staff=False, is_superuser=False).prefetch_related("groups")
+
+    search = filters.get("search")
+    if search:
+        queryset = queryset.filter(
+            Q(username__icontains=search)
+            | Q(email__icontains=search)
+            | Q(first_name__icontains=search)
+            | Q(last_name__icontains=search)
+        )
+
+    is_active = filters.get("is_active")
+    if is_active is not None:
+        queryset = queryset.filter(is_active=is_active)
+
+    unassigned_only = filters.get("unassigned_only")
+    if unassigned_only is None or unassigned_only:
+        queryset = queryset.annotate(role_count=Count("groups", distinct=True)).filter(role_count=0)
+
+    return queryset.order_by("first_name", "last_name", "username")
+
+
+def get_basic_user_by_id(*, user_id: int):
+    return (
+        User.objects.filter(id=user_id, is_staff=False, is_superuser=False)
+        .prefetch_related("groups")
+        .first()
+    )
+
+
+def list_staff_invites(*, filters: dict | None = None):
+    filters = filters or {}
+    queryset = StaffInvite.objects.select_related(
+        "accepted_user",
+        "created_by",
+    ).prefetch_related("role_groups")
+
+    status = filters.get("status")
+    if status:
+        queryset = queryset.filter(status=status)
+
+    search = filters.get("search")
+    if search:
+        queryset = queryset.filter(
+            Q(email__icontains=search)
+            | Q(accepted_user__username__icontains=search)
+            | Q(accepted_user__email__icontains=search)
+        )
+
+    include_expired = filters.get("include_expired")
+    if include_expired is False:
+        queryset = queryset.exclude(
+            status=StaffInviteStatus.PENDING,
+            expires_at__lt=timezone.now(),
+        )
+
+    return queryset.order_by("-created_at", "-id")
+
+
+def get_staff_invite_by_id(*, staff_invite_id: int):
+    return (
+        StaffInvite.objects.select_related("accepted_user", "created_by")
+        .prefetch_related("role_groups")
+        .filter(id=staff_invite_id)
+        .first()
+    )
+
+
+def get_staff_invite_for_token(*, staff_invite_id: int, token: str):
+    return (
+        StaffInvite.objects.select_related("accepted_user", "created_by")
+        .prefetch_related("role_groups")
+        .filter(id=staff_invite_id, token=token)
         .first()
     )
 
