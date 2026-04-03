@@ -130,7 +130,7 @@ export function GroupsPageScreen() {
           ) : null
         }
         filters={
-          <label className="grid gap-2">
+          <label className="field">
             <span>Status</span>
             <select
               onChange={(event) => {
@@ -146,7 +146,7 @@ export function GroupsPageScreen() {
           </label>
         }
         search={
-          <label className="grid gap-2">
+          <label className="field">
             <span>Search ministries</span>
             <input
               onChange={(event) => {
@@ -173,7 +173,7 @@ export function GroupsPageScreen() {
             title="Create ministry"
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Ministry name</span>
                 <input
                   onChange={(event) =>
@@ -187,7 +187,7 @@ export function GroupsPageScreen() {
                 />
               </label>
 
-              <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
+              <label className="checkbox-field checkbox-field-inline">
                 <input
                   checked={formState.is_active}
                   onChange={(event) =>
@@ -202,7 +202,7 @@ export function GroupsPageScreen() {
               </label>
             </div>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Description</span>
               <textarea
                 onChange={(event) =>

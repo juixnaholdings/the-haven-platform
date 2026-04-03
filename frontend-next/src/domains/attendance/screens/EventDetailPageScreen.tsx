@@ -164,7 +164,7 @@ export function EventDetailPageScreen() {
 
       <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>Event profile</h3>
               <p className="m-0 text-sm text-slate-500">Core service-event fields from the backend payload.</p>
@@ -195,7 +195,7 @@ export function EventDetailPageScreen() {
         </section>
 
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>Attendance snapshot</h3>
               <p className="m-0 text-sm text-slate-500">Anonymous summary and member records remain distinct.</p>
@@ -224,7 +224,7 @@ export function EventDetailPageScreen() {
       </div>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="section-header">
           <div>
             <h3>Notes</h3>
             <p className="m-0 text-sm text-slate-500">Event-level notes only. Attendance notes are handled in the recording workflow.</p>
@@ -245,7 +245,7 @@ export function EventDetailPageScreen() {
           title="Update event"
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2">
+            <label className="field">
               <span>Title</span>
               <input
                 onChange={(event) =>
@@ -259,7 +259,7 @@ export function EventDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Event type</span>
               <select
                 onChange={(event) =>
@@ -278,7 +278,7 @@ export function EventDetailPageScreen() {
               </select>
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Service date</span>
               <input
                 onChange={(event) =>
@@ -293,7 +293,7 @@ export function EventDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Location</span>
               <input
                 onChange={(event) =>
@@ -306,7 +306,7 @@ export function EventDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Start time</span>
               <input
                 onChange={(event) =>
@@ -320,7 +320,7 @@ export function EventDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>End time</span>
               <input
                 onChange={(event) =>
@@ -334,7 +334,7 @@ export function EventDetailPageScreen() {
               />
             </label>
 
-            <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
+            <label className="checkbox-field checkbox-field-inline">
               <input
                 checked={formState.is_active}
                 onChange={(event) =>
@@ -349,7 +349,7 @@ export function EventDetailPageScreen() {
             </label>
           </div>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Notes</span>
             <textarea
               onChange={(event) =>

@@ -147,7 +147,7 @@ export function HouseholdsPageScreen() {
           ) : null
         }
         filters={
-          <label className="grid gap-2">
+          <label className="field">
             <span>Status</span>
             <select
               onChange={(event) => {
@@ -163,7 +163,7 @@ export function HouseholdsPageScreen() {
           </label>
         }
         search={
-          <label className="grid gap-2">
+          <label className="field">
             <span>Search households</span>
             <input
               onChange={(event) => {
@@ -190,7 +190,7 @@ export function HouseholdsPageScreen() {
             title="Create household"
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Household name</span>
                 <input
                   onChange={(event) =>
@@ -204,7 +204,7 @@ export function HouseholdsPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Primary phone</span>
                 <input
                   onChange={(event) =>
@@ -217,7 +217,7 @@ export function HouseholdsPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>City</span>
                 <input
                   onChange={(event) =>
@@ -230,7 +230,7 @@ export function HouseholdsPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Address line 1</span>
                 <input
                   onChange={(event) =>
@@ -243,7 +243,7 @@ export function HouseholdsPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Address line 2</span>
                 <input
                   onChange={(event) =>
@@ -256,7 +256,7 @@ export function HouseholdsPageScreen() {
                 />
               </label>
 
-              <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
+              <label className="checkbox-field checkbox-field-inline">
                 <input
                   checked={formState.is_active}
                   onChange={(event) =>
@@ -271,7 +271,7 @@ export function HouseholdsPageScreen() {
               </label>
             </div>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Notes</span>
               <textarea
                 onChange={(event) =>

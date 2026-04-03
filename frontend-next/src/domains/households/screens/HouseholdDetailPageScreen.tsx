@@ -327,7 +327,7 @@ export function HouseholdDetailPageScreen() {
       <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
         <section className="space-y-6">
           <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+            <div className="section-header">
               <div>
                 <h3>Profile</h3>
                 <p className="m-0 text-sm text-slate-500">
@@ -356,7 +356,7 @@ export function HouseholdDetailPageScreen() {
           </section>
 
           <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+            <div className="section-header">
               <div>
                 <h3>Notes</h3>
                 <p className="m-0 text-sm text-slate-500">Household-level operational notes only.</p>
@@ -368,7 +368,7 @@ export function HouseholdDetailPageScreen() {
 
         <section className="space-y-6">
           <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+            <div className="section-header">
               <div>
                 <h3>Record metadata</h3>
                 <p className="m-0 text-sm text-slate-500">Current household status and audit timestamps.</p>
@@ -409,7 +409,7 @@ export function HouseholdDetailPageScreen() {
           title="Update household"
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2">
+            <label className="field">
               <span>Household name</span>
               <input
                 onChange={(event) =>
@@ -423,7 +423,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Primary phone</span>
               <input
                 onChange={(event) =>
@@ -436,7 +436,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>City</span>
               <input
                 onChange={(event) =>
@@ -449,7 +449,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Address line 1</span>
               <input
                 onChange={(event) =>
@@ -462,7 +462,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Address line 2</span>
               <input
                 onChange={(event) =>
@@ -475,7 +475,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
+            <label className="checkbox-field checkbox-field-inline">
               <input
                 checked={householdFormState.is_active}
                 onChange={(event) =>
@@ -490,7 +490,7 @@ export function HouseholdDetailPageScreen() {
             </label>
           </div>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Notes</span>
             <textarea
               onChange={(event) =>
@@ -522,7 +522,7 @@ export function HouseholdDetailPageScreen() {
       </form>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="section-header">
           <div>
             <h3>Household members</h3>
             <p className="m-0 text-sm text-slate-500">
@@ -616,7 +616,7 @@ export function HouseholdDetailPageScreen() {
           title="Add member to household"
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2">
+            <label className="field">
               <span>Search member directory</span>
               <input
                 onChange={(event) => setMemberSearch(event.target.value)}
@@ -625,7 +625,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Choose member</span>
               <select
                 onChange={(event) =>
@@ -651,7 +651,7 @@ export function HouseholdDetailPageScreen() {
               </select>
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Relationship to head</span>
               <select
                 onChange={(event) =>
@@ -670,7 +670,7 @@ export function HouseholdDetailPageScreen() {
               </select>
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Joined on</span>
               <input
                 onChange={(event) =>
@@ -684,7 +684,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Left on</span>
               <input
                 onChange={(event) =>
@@ -698,7 +698,7 @@ export function HouseholdDetailPageScreen() {
               />
             </label>
 
-            <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
+            <label className="checkbox-field checkbox-field-inline">
               <input
                 checked={addMemberFormState.is_head}
                 onChange={(event) =>
@@ -717,7 +717,7 @@ export function HouseholdDetailPageScreen() {
             </label>
           </div>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Membership notes</span>
             <textarea
               onChange={(event) =>
@@ -779,7 +779,7 @@ export function HouseholdDetailPageScreen() {
             title={`Edit membership: ${getMemberDisplayName(selectedMembership)}`}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Relationship to head</span>
                 <select
                   onChange={(event) =>
@@ -798,7 +798,7 @@ export function HouseholdDetailPageScreen() {
                 </select>
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Joined on</span>
                 <input
                   onChange={(event) =>
@@ -812,7 +812,7 @@ export function HouseholdDetailPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Left on</span>
                 <input
                   onChange={(event) =>
@@ -827,7 +827,7 @@ export function HouseholdDetailPageScreen() {
               </label>
 
               <div className="checkbox-group">
-                <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
+                <label className="checkbox-field checkbox-field-inline">
                   <input
                     checked={membershipFormState.is_head}
                     onChange={(event) =>
@@ -845,7 +845,7 @@ export function HouseholdDetailPageScreen() {
                   <span>Household head</span>
                 </label>
 
-                <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
+                <label className="checkbox-field checkbox-field-inline">
                   <input
                     checked={membershipFormState.is_active}
                     onChange={(event) =>
@@ -861,7 +861,7 @@ export function HouseholdDetailPageScreen() {
               </div>
             </div>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Membership notes</span>
               <textarea
               onChange={(event) =>

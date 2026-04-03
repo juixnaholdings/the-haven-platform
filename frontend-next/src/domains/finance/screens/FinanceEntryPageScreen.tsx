@@ -166,7 +166,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
               title="Entry details"
             >
               <div className="grid gap-4 md:grid-cols-2">
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Fund account</span>
                   <select
                     onChange={(event) =>
@@ -187,7 +187,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   </select>
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Amount</span>
                   <input
                     min="0.01"
@@ -204,7 +204,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   />
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Transaction date</span>
                   <input
                     onChange={(event) =>
@@ -219,7 +219,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   />
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Category</span>
                   <input
                     onChange={(event) =>
@@ -233,7 +233,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   />
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Description</span>
                   <input
                     onChange={(event) =>
@@ -247,7 +247,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   />
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Linked service/event</span>
                   <select
                     onChange={(event) =>
@@ -268,7 +268,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                 </label>
               </div>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Notes</span>
                 <textarea
                   onChange={(event) =>
@@ -300,7 +300,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
 
           <aside className="space-y-6">
             <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm sticky top-6">
-              <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+              <div className="section-header">
                 <div>
                   <h3>Current fund status</h3>
                   <p className="m-0 text-sm text-slate-500">Use these balances to validate entry destination and amount context.</p>
@@ -311,9 +311,9 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                   <StatCard label={selectedFund.name} tone="accent" value={formatAmount(selectedFund.current_balance)} />
                 </section>
               ) : null}
-              <ul className="m-0 grid list-none gap-3 p-0">
+              <ul className="item-list">
                 {highlightedFunds.map((fundAccount) => (
-                  <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3" key={fundAccount.id}>
+                  <li className="item-row" key={fundAccount.id}>
                     <div>
                       <strong>{fundAccount.name}</strong>
                       <span>{fundAccount.code}</span>
@@ -325,13 +325,13 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
             </section>
 
             <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-              <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+              <div className="section-header">
                 <div>
                   <h3>Journal context</h3>
                   <p className="m-0 text-sm text-slate-500">Operational context for this single posted transaction.</p>
                 </div>
               </div>
-              <dl className="m-0 grid gap-3.5">
+              <dl className="definition-list">
                 <div>
                   <dt>Entry flow</dt>
                   <dd>{isIncome ? "Income posting" : "Expense posting"}</dd>
@@ -348,7 +348,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
             </section>
 
             <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm panel-accent">
-              <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+              <div className="section-header">
                 <div>
                   <h3>Audit tip</h3>
                 </div>

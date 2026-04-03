@@ -174,7 +174,7 @@ export function MemberDetailPageScreen() {
       </div>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="section-header">
           <div>
             <h3>Household context</h3>
             <p className="m-0 text-sm text-slate-500">
@@ -252,7 +252,7 @@ export function MemberDetailPageScreen() {
       </section>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="section-header">
           <div>
             <h3>Ministry affiliations</h3>
             <p className="m-0 text-sm text-slate-500">
@@ -304,14 +304,14 @@ export function MemberDetailPageScreen() {
       </section>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="section-header">
           <div>
             <h3>Notes and metadata</h3>
             <p className="m-0 text-sm text-slate-500">Profile notes plus record timestamps.</p>
           </div>
         </div>
         <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">{member.notes || "No notes recorded for this member."}</p>
-        <dl className="m-0 grid gap-3.5">
+        <dl className="definition-list">
           <div>
             <dt>Created</dt>
             <dd>{formatDateTime(member.created_at)}</dd>
