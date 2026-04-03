@@ -139,7 +139,7 @@ export function FinanceTransferPageScreen() {
               title="Transfer details"
             >
               <div className="grid gap-4 md:grid-cols-2">
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Source fund</span>
                   <select
                     onChange={(event) =>
@@ -160,7 +160,7 @@ export function FinanceTransferPageScreen() {
                   </select>
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Destination fund</span>
                   <select
                     onChange={(event) =>
@@ -181,7 +181,7 @@ export function FinanceTransferPageScreen() {
                   </select>
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Amount</span>
                   <input
                     min="0.01"
@@ -198,7 +198,7 @@ export function FinanceTransferPageScreen() {
                   />
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Transaction date</span>
                   <input
                     onChange={(event) =>
@@ -213,7 +213,7 @@ export function FinanceTransferPageScreen() {
                   />
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Description</span>
                   <input
                     onChange={(event) =>
@@ -227,7 +227,7 @@ export function FinanceTransferPageScreen() {
                   />
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Category</span>
                   <input
                     onChange={(event) =>
@@ -241,7 +241,7 @@ export function FinanceTransferPageScreen() {
                   />
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Linked service/event</span>
                   <select
                     onChange={(event) =>
@@ -262,7 +262,7 @@ export function FinanceTransferPageScreen() {
                 </label>
               </div>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Notes</span>
                 <textarea
                   onChange={(event) =>
@@ -291,7 +291,7 @@ export function FinanceTransferPageScreen() {
 
           <aside className="space-y-6">
             <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm sticky top-6">
-              <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+              <div className="section-header">
                 <div>
                   <h3>Transfer outlook</h3>
                   <p className="m-0 text-sm text-slate-500">Preview impact before posting the transfer.</p>
@@ -309,7 +309,7 @@ export function FinanceTransferPageScreen() {
                 />
               </section>
               {sourceFund && destinationFund && parsedAmount > 0 ? (
-                <dl className="m-0 grid gap-3.5">
+                <dl className="definition-list">
                   <div>
                     <dt>Projected source balance</dt>
                     <dd>{formatAmount(Number(sourceFund.current_balance) - parsedAmount)}</dd>
@@ -323,26 +323,26 @@ export function FinanceTransferPageScreen() {
             </section>
 
             <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-              <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+              <div className="section-header">
                 <div>
                   <h3>Transfer logic</h3>
                   <p className="m-0 text-sm text-slate-500">Server-side checks that protect posted transfer integrity.</p>
                 </div>
               </div>
-              <ul className="m-0 grid list-none gap-3 p-0">
-                <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+              <ul className="item-list">
+                <li className="item-row">
                   <div>
                     <strong>Balanced double line</strong>
                     <span>Each transfer posts one OUT line and one matching IN line.</span>
                   </div>
                 </li>
-                <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+                <li className="item-row">
                   <div>
                     <strong>Distinct accounts required</strong>
                     <span>Source and destination cannot be the same fund account.</span>
                   </div>
                 </li>
-                <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+                <li className="item-row">
                   <div>
                     <strong>Immediate durability</strong>
                     <span>Transfers are posted immediately; no draft review stage exists.</span>

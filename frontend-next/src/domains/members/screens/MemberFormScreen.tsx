@@ -203,7 +203,7 @@ export function MemberFormScreen({
         title="Core profile"
       >
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2">
+          <label className="field">
             <span>First name</span>
             <input
               onChange={(event) =>
@@ -214,7 +214,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Middle name</span>
             <input
               onChange={(event) =>
@@ -224,7 +224,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Last name</span>
             <input
               onChange={(event) =>
@@ -235,7 +235,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Email</span>
             <input
               onChange={(event) =>
@@ -246,7 +246,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Phone number</span>
             <input
               onChange={(event) =>
@@ -256,7 +256,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Date of birth</span>
             <input
               onChange={(event) =>
@@ -274,7 +274,7 @@ export function MemberFormScreen({
         title="Operational notes"
       >
         <div className="grid gap-4">
-          <label className="grid gap-2">
+          <label className="field">
             <span>Notes</span>
             <textarea
               onChange={(event) =>
@@ -285,7 +285,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="flex items-start gap-2.5 font-medium text-slate-700">
+          <label className="checkbox-field">
             <input
               checked={formState.is_active}
               onChange={(event) =>
@@ -300,7 +300,7 @@ export function MemberFormScreen({
 
       {!isModal ? (
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>Record status</h3>
               <p className="m-0 text-sm text-slate-500">A quick summary of what this form controls today.</p>
@@ -311,14 +311,14 @@ export function MemberFormScreen({
               label={formState.is_active ? "Active member" : "Inactive member"}
               tone={formState.is_active ? "success" : "muted"}
             />
-            <ul className="m-0 grid list-none gap-3 p-0">
-              <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+            <ul className="item-list">
+              <li className="item-row">
                 <div>
                   <strong>Included on this form</strong>
                   <span>Identity, contact fields, birth date, notes, and active state.</span>
                 </div>
               </li>
-              <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+              <li className="item-row">
                 <div>
                   <strong>Not included here</strong>
                   <span>

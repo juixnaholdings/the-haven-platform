@@ -86,13 +86,13 @@ export function AttendanceOverviewPageScreen() {
             </button>
           }
           filters={
-            <label className="grid gap-2">
+            <label className="field">
               <span>End date</span>
               <input onChange={(event) => setEndDate(event.target.value)} type="date" value={endDate} />
             </label>
           }
           search={
-            <label className="grid gap-2">
+            <label className="field">
               <span>Start date</span>
               <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
             </label>
@@ -100,20 +100,20 @@ export function AttendanceOverviewPageScreen() {
         />
 
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>How to read this page</h3>
               <p className="m-0 text-sm text-slate-500">The backend intentionally keeps the two attendance surfaces separate.</p>
             </div>
           </div>
-          <ul className="m-0 grid list-none gap-3 p-0">
-            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+          <ul className="item-list">
+            <li className="item-row">
               <div>
                 <strong>Anonymous summary</strong>
                 <span>Aggregate headcounts across men, women, children, and visitors.</span>
               </div>
             </li>
-            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+            <li className="item-row">
               <div>
                 <strong>Member attendance rows</strong>
                 <span>Per-member status records used during the event attendance workflow.</span>
@@ -132,13 +132,13 @@ export function AttendanceOverviewPageScreen() {
 
       <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>Attendance breakdown</h3>
               <p className="m-0 text-sm text-slate-500">Anonymous summary totals across the selected date range.</p>
             </div>
           </div>
-          <dl className="m-0 grid gap-3.5">
+          <dl className="definition-list">
             <div>
               <dt>Men</dt>
               <dd>{summary.aggregate_men_count}</dd>
@@ -159,7 +159,7 @@ export function AttendanceOverviewPageScreen() {
         </section>
 
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>Event type counts</h3>
               <p className="m-0 text-sm text-slate-500">Counts of events by current backend event-type classification.</p>
@@ -171,9 +171,9 @@ export function AttendanceOverviewPageScreen() {
               title="No event-type counts yet"
             />
           ) : (
-            <ul className="m-0 grid list-none gap-3 p-0">
+            <ul className="item-list">
               {summary.event_type_counts.map((eventTypeCount) => (
-                <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3" key={eventTypeCount.event_type}>
+                <li className="item-row" key={eventTypeCount.event_type}>
                   <div>
                     <strong>{getServiceEventTypeLabel(eventTypeCount.event_type)}</strong>
                   </div>
@@ -201,7 +201,7 @@ export function AttendanceOverviewPageScreen() {
         />
       ) : (
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>Recent events</h3>
               <p className="m-0 text-sm text-slate-500">Open the event detail or direct attendance recording workflow from here.</p>

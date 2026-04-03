@@ -153,7 +153,7 @@ export function EventsPageScreen() {
         }
         filters={
           <>
-            <label className="grid gap-2">
+            <label className="field">
               <span>Event type</span>
               <select
                 onChange={(event) => {
@@ -171,7 +171,7 @@ export function EventsPageScreen() {
               </select>
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Status</span>
               <select
                 onChange={(event) => {
@@ -188,7 +188,7 @@ export function EventsPageScreen() {
           </>
         }
         search={
-          <label className="grid gap-2">
+          <label className="field">
             <span>Search events</span>
             <input
               onChange={(event) => {
@@ -215,7 +215,7 @@ export function EventsPageScreen() {
             title="Create event"
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Title</span>
                 <input
                   onChange={(event) =>
@@ -229,7 +229,7 @@ export function EventsPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Event type</span>
                 <select
                   onChange={(event) =>
@@ -248,7 +248,7 @@ export function EventsPageScreen() {
                 </select>
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Service date</span>
                 <input
                   onChange={(event) =>
@@ -263,7 +263,7 @@ export function EventsPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Location</span>
                 <input
                   onChange={(event) =>
@@ -276,7 +276,7 @@ export function EventsPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Start time</span>
                 <input
                   onChange={(event) =>
@@ -290,7 +290,7 @@ export function EventsPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>End time</span>
                 <input
                   onChange={(event) =>
@@ -304,7 +304,7 @@ export function EventsPageScreen() {
                 />
               </label>
 
-              <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
+              <label className="checkbox-field checkbox-field-inline">
                 <input
                   checked={formState.is_active}
                   onChange={(event) =>
@@ -319,7 +319,7 @@ export function EventsPageScreen() {
               </label>
             </div>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Notes</span>
               <textarea
                 onChange={(event) =>

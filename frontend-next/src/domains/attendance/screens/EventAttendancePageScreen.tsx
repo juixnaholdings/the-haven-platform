@@ -324,13 +324,13 @@ export function EventAttendancePageScreen() {
 
       <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>Event context</h3>
               <p className="m-0 text-sm text-slate-500">Operational event context for the current attendance session.</p>
             </div>
           </div>
-          <dl className="m-0 grid gap-3.5">
+          <dl className="definition-list">
             <div>
               <dt>Type</dt>
               <dd>{getServiceEventTypeLabel(serviceEvent.event_type)}</dd>
@@ -347,20 +347,20 @@ export function EventAttendancePageScreen() {
         </section>
 
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>Current distinction</h3>
               <p className="m-0 text-sm text-slate-500">This is the important backend caveat for attendance screens.</p>
             </div>
           </div>
-          <ul className="m-0 grid list-none gap-3 p-0">
-            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+          <ul className="item-list">
+            <li className="item-row">
               <div>
                 <strong>Anonymous summary attendance</strong>
                 <span>Aggregate men, women, children, and visitors.</span>
               </div>
             </li>
-            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+            <li className="item-row">
               <div>
                 <strong>Member attendance records</strong>
                 <span>Per-member status, check-in time, and notes.</span>
@@ -382,7 +382,7 @@ export function EventAttendancePageScreen() {
           title="Summary attendance"
         >
           <div className="grid gap-4 xl:grid-cols-3">
-            <label className="grid gap-2">
+            <label className="field">
               <span>Men</span>
               <input
                 min="0"
@@ -397,7 +397,7 @@ export function EventAttendancePageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Women</span>
               <input
                 min="0"
@@ -412,7 +412,7 @@ export function EventAttendancePageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Children</span>
               <input
                 min="0"
@@ -427,7 +427,7 @@ export function EventAttendancePageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Visitors</span>
               <input
                 min="0"
@@ -448,7 +448,7 @@ export function EventAttendancePageScreen() {
             </div>
           </div>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Summary notes</span>
             <textarea
               onChange={(event) =>
@@ -476,7 +476,7 @@ export function EventAttendancePageScreen() {
       </form>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="section-header">
           <div>
             <h3>Member attendance records</h3>
             <p className="m-0 text-sm text-slate-500">Filter and manage per-member attendance records for this event.</p>
@@ -484,7 +484,7 @@ export function EventAttendancePageScreen() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2">
+          <label className="field">
             <span>Search records</span>
             <input
               onChange={(event) => setMemberSearch(event.target.value)}
@@ -493,7 +493,7 @@ export function EventAttendancePageScreen() {
             />
           </label>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Status</span>
             <select onChange={(event) => setStatusFilter(event.target.value)} value={statusFilter}>
               <option value="all">All statuses</option>
@@ -579,7 +579,7 @@ export function EventAttendancePageScreen() {
           title="Add member attendance"
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2">
+            <label className="field">
               <span>Search member directory</span>
               <input
                 onChange={(event) => setCandidateSearch(event.target.value)}
@@ -588,7 +588,7 @@ export function EventAttendancePageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Choose member</span>
               <select
                 onChange={(event) =>
@@ -614,7 +614,7 @@ export function EventAttendancePageScreen() {
               </select>
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Status</span>
               <select
                 onChange={(event) =>
@@ -633,7 +633,7 @@ export function EventAttendancePageScreen() {
               </select>
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Checked in at</span>
               <input
                 onChange={(event) =>
@@ -648,7 +648,7 @@ export function EventAttendancePageScreen() {
             </label>
           </div>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Attendance notes</span>
             <textarea
               onChange={(event) =>
@@ -710,7 +710,7 @@ export function EventAttendancePageScreen() {
             title={`Edit attendance record: ${formatMemberName(selectedMemberAttendance)}`}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Status</span>
                 <select
                   onChange={(event) =>
@@ -729,7 +729,7 @@ export function EventAttendancePageScreen() {
                 </select>
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Checked in at</span>
                 <input
                   onChange={(event) =>
@@ -744,7 +744,7 @@ export function EventAttendancePageScreen() {
               </label>
             </div>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Attendance notes</span>
               <textarea
                 onChange={(event) =>

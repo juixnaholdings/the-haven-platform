@@ -24,6 +24,12 @@ This frontend now uses Tailwind utility classes as the primary styling path.
 - Status badges: tonal chips with readable contrast.
 - Modals: rounded shell, dim backdrop, clear header/body/footer regions.
 - Empty/loading/error states: compact, clear, and actionable.
+- Prefer shared helpers for consistency:
+  - `field` for label + control rhythm (including disabled styles).
+  - `checkbox-field` and `checkbox-field-inline` for checkbox alignment.
+  - `section-header` for card header hierarchy.
+  - `item-list` + `item-row` for explanatory bullets/checklists inside cards.
+  - `definition-list` for compact metadata rows.
 
 ## Product Screen Patterns
 - Prefer route-level Tailwind utility composition in screen files (`*PageScreen.tsx`) over adding new global CSS.

@@ -99,7 +99,7 @@ export function MembersPageScreen() {
           ) : null
         }
         filters={
-          <label className="grid gap-2">
+          <label className="field">
             <span>Status</span>
             <select
               onChange={(event) => {
@@ -115,7 +115,7 @@ export function MembersPageScreen() {
           </label>
         }
         search={
-          <label className="grid gap-2">
+          <label className="field">
             <span>Search members</span>
             <input
               onChange={(event) => {

@@ -285,7 +285,7 @@ export function GroupDetailPageScreen() {
 
       <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>Ministry profile</h3>
               <p className="m-0 text-sm text-slate-500">Current name and description from the backend group record.</p>
@@ -300,7 +300,7 @@ export function GroupDetailPageScreen() {
         </section>
 
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="section-header">
             <div>
               <h3>Record metadata</h3>
               <p className="m-0 text-sm text-slate-500">Ministry status and audit timestamps.</p>
@@ -340,7 +340,7 @@ export function GroupDetailPageScreen() {
           title="Update ministry"
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2">
+            <label className="field">
               <span>Ministry name</span>
               <input
                 onChange={(event) =>
@@ -354,7 +354,7 @@ export function GroupDetailPageScreen() {
               />
             </label>
 
-            <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
+            <label className="checkbox-field checkbox-field-inline">
               <input
                 checked={groupFormState.is_active}
                 onChange={(event) =>
@@ -369,7 +369,7 @@ export function GroupDetailPageScreen() {
             </label>
           </div>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Description</span>
             <textarea
               onChange={(event) =>
@@ -397,7 +397,7 @@ export function GroupDetailPageScreen() {
       </form>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="section-header">
           <div>
             <h3>Ministry members</h3>
             <p className="m-0 text-sm text-slate-500">
@@ -484,7 +484,7 @@ export function GroupDetailPageScreen() {
           title="Add member to ministry"
         >
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2">
+            <label className="field">
               <span>Search member directory</span>
               <input
                 onChange={(event) => setMemberSearch(event.target.value)}
@@ -493,7 +493,7 @@ export function GroupDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Choose member</span>
               <select
                 onChange={(event) =>
@@ -519,7 +519,7 @@ export function GroupDetailPageScreen() {
               </select>
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Role name</span>
               <input
                 onChange={(event) =>
@@ -533,7 +533,7 @@ export function GroupDetailPageScreen() {
               />
             </label>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Started on</span>
               <input
                 onChange={(event) =>
@@ -548,7 +548,7 @@ export function GroupDetailPageScreen() {
             </label>
           </div>
 
-          <label className="grid gap-2">
+          <label className="field">
             <span>Membership notes</span>
             <textarea
               onChange={(event) =>
@@ -606,7 +606,7 @@ export function GroupDetailPageScreen() {
             title={`Edit membership: ${formatMemberName(selectedMembership)}`}
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Role name</span>
                 <input
                   onChange={(event) =>
@@ -619,7 +619,7 @@ export function GroupDetailPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Started on</span>
                 <input
                   onChange={(event) =>
@@ -633,7 +633,7 @@ export function GroupDetailPageScreen() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Ended on</span>
                 <input
                   onChange={(event) =>
@@ -647,7 +647,7 @@ export function GroupDetailPageScreen() {
                 />
               </label>
 
-              <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
+              <label className="checkbox-field checkbox-field-inline">
                 <input
                   checked={membershipFormState.is_active}
                   onChange={(event) =>
@@ -662,7 +662,7 @@ export function GroupDetailPageScreen() {
               </label>
             </div>
 
-            <label className="grid gap-2">
+            <label className="field">
               <span>Membership notes</span>
               <textarea
                 onChange={(event) =>

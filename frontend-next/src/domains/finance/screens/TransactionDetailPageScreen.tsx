@@ -165,7 +165,7 @@ export function TransactionDetailPageScreen() {
       <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)] 2xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.75fr)]">
         <div className="space-y-6">
           <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+            <div className="section-header">
               <div>
                 <h3>Record metadata</h3>
                 <p className="m-0 text-sm text-slate-500">Current transaction-level metadata exposed by the backend.</p>
@@ -203,7 +203,7 @@ export function TransactionDetailPageScreen() {
               title="Update transaction metadata"
             >
               <div className="grid gap-4 md:grid-cols-2">
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Transaction date</span>
                   <input
                     onChange={(event) =>
@@ -218,7 +218,7 @@ export function TransactionDetailPageScreen() {
                   />
                 </label>
 
-                <label className="grid gap-2">
+                <label className="field">
                   <span>Linked service/event</span>
                   <select
                     onChange={(event) =>
@@ -239,7 +239,7 @@ export function TransactionDetailPageScreen() {
                 </label>
               </div>
 
-              <label className="grid gap-2">
+              <label className="field">
                 <span>Description</span>
                 <textarea
                   onChange={(event) =>
@@ -273,7 +273,7 @@ export function TransactionDetailPageScreen() {
             />
           ) : (
             <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-              <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+              <div className="section-header">
                 <div>
                   <h3>Ledger lines</h3>
                   <p className="m-0 text-sm text-slate-500">
@@ -324,14 +324,14 @@ export function TransactionDetailPageScreen() {
 
         <aside className="space-y-6">
           <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+            <div className="section-header">
               <div>
                 <h3>Record posture</h3>
                 <p className="m-0 text-sm text-slate-500">What is available in this release-ready finance surface.</p>
               </div>
             </div>
-            <ul className="m-0 grid list-none gap-3 p-0">
-              <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+            <ul className="item-list">
+              <li className="item-row">
                 <div>
                   <strong>Safe metadata edits only</strong>
                   <span>
@@ -339,7 +339,7 @@ export function TransactionDetailPageScreen() {
                   </span>
                 </div>
               </li>
-              <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
+              <li className="item-row">
                 <div>
                   <strong>No revision timeline</strong>
                   <span>
@@ -364,13 +364,13 @@ export function TransactionDetailPageScreen() {
       />
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="section-header">
           <div>
             <h3>Available timeline fields</h3>
             <p className="m-0 text-sm text-slate-500">Current record timestamps exposed by the API.</p>
           </div>
         </div>
-        <dl className="m-0 grid gap-3.5">
+        <dl className="definition-list">
           <div>
             <dt>Created at</dt>
             <dd>{formatDateTime(transaction.created_at)}</dd>
