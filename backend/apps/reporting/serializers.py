@@ -45,6 +45,29 @@ class AttendanceEventTypeCountSerializer(serializers.Serializer):
     count = serializers.IntegerField()
 
 
+class SundayServiceSnapshotSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    service_date = serializers.DateField()
+    is_active = serializers.BooleanField()
+    has_attendance_summary = serializers.BooleanField()
+    member_attendance_count = serializers.IntegerField()
+    summary_total_count = serializers.IntegerField()
+    attendance_state = serializers.CharField()
+    updated_at = serializers.DateTimeField()
+
+
+class SundayServiceSummarySerializer(serializers.Serializer):
+    total_services = serializers.IntegerField()
+    with_summary_count = serializers.IntegerField()
+    with_member_records_count = serializers.IntegerField()
+    fully_recorded_count = serializers.IntegerField()
+    partially_recorded_count = serializers.IntegerField()
+    not_started_count = serializers.IntegerField()
+    latest_service = SundayServiceSnapshotSerializer(allow_null=True)
+    recent_services = SundayServiceSnapshotSerializer(many=True)
+
+
 class AttendanceSummarySerializer(serializers.Serializer):
     total_events = serializers.IntegerField()
     aggregate_men_count = serializers.IntegerField()
@@ -54,6 +77,7 @@ class AttendanceSummarySerializer(serializers.Serializer):
     aggregate_total_attendance = serializers.IntegerField()
     total_member_attendance_records = serializers.IntegerField()
     event_type_counts = AttendanceEventTypeCountSerializer(many=True)
+    sunday_services = SundayServiceSummarySerializer()
 
 
 class FundBalanceSerializer(serializers.Serializer):

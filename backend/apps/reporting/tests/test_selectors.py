@@ -169,6 +169,85 @@ class ReportingSelectorTests(TestCase):
         self.assertEqual(summary["aggregate_total_attendance"], 30)
         self.assertEqual(summary["total_member_attendance_records"], 2)
 
+    def test_get_attendance_summary_includes_sunday_service_operational_metrics(self):
+        sunday_not_started = attendance_services.create_service_event(
+            data={
+                "title": "System Sunday 1",
+                "event_type": ServiceEventType.SUNDAY_SERVICE,
+                "service_date": date(2026, 3, 8),
+                "location": "Main Auditorium",
+                "is_active": True,
+                "is_system_managed": True,
+            }
+        )
+        sunday_partial = attendance_services.create_service_event(
+            data={
+                "title": "System Sunday 2",
+                "event_type": ServiceEventType.SUNDAY_SERVICE,
+                "service_date": date(2026, 3, 15),
+                "location": "Main Auditorium",
+                "is_active": True,
+                "is_system_managed": True,
+            }
+        )
+        sunday_recorded = attendance_services.create_service_event(
+            data={
+                "title": "System Sunday 3",
+                "event_type": ServiceEventType.SUNDAY_SERVICE,
+                "service_date": date(2026, 3, 22),
+                "location": "Main Auditorium",
+                "is_active": True,
+                "is_system_managed": True,
+            }
+        )
+
+        attendance_services.create_or_update_attendance_summary(
+            service_event=sunday_partial,
+            data={
+                "men_count": 8,
+                "women_count": 10,
+                "children_count": 5,
+                "visitor_count": 3,
+                "total_count": 23,
+            },
+        )
+        attendance_services.create_or_update_attendance_summary(
+            service_event=sunday_recorded,
+            data={
+                "men_count": 12,
+                "women_count": 14,
+                "children_count": 6,
+                "visitor_count": 4,
+                "total_count": 32,
+            },
+        )
+        attendance_services.record_member_attendance(
+            service_event=sunday_recorded,
+            member=self.member_1,
+            status="PRESENT",
+        )
+
+        summary = selectors.get_attendance_summary(
+            filters={"start_date": date(2026, 3, 1), "end_date": date(2026, 3, 31)}
+        )
+
+        sunday_summary = summary["sunday_services"]
+        self.assertEqual(sunday_summary["total_services"], 3)
+        self.assertEqual(sunday_summary["with_summary_count"], 2)
+        self.assertEqual(sunday_summary["with_member_records_count"], 1)
+        self.assertEqual(sunday_summary["fully_recorded_count"], 1)
+        self.assertEqual(sunday_summary["partially_recorded_count"], 1)
+        self.assertEqual(sunday_summary["not_started_count"], 1)
+        self.assertEqual(sunday_summary["latest_service"]["id"], sunday_recorded.id)
+
+        state_by_service_id = {
+            row["id"]: row["attendance_state"]
+            for row in sunday_summary["recent_services"]
+        }
+        self.assertEqual(state_by_service_id[sunday_not_started.id], "NOT_STARTED")
+        self.assertEqual(state_by_service_id[sunday_partial.id], "IN_PROGRESS")
+        self.assertEqual(state_by_service_id[sunday_recorded.id], "RECORDED")
+
     def test_get_finance_summary_returns_balances_and_range_totals(self):
         summary = selectors.get_finance_summary(
             filters={"start_date": date(2026, 3, 1), "end_date": date(2026, 3, 31)}

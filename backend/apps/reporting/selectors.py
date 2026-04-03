@@ -1,9 +1,21 @@
 from decimal import Decimal
 
-from django.db.models import Avg, Count, DecimalField, ExpressionWrapper, F, Q, Sum, Value
+from django.db.models import (
+    Avg,
+    Count,
+    DecimalField,
+    Exists,
+    ExpressionWrapper,
+    F,
+    OuterRef,
+    Q,
+    Sum,
+    Value,
+)
 from django.db.models.functions import Coalesce
 
 from apps.attendance.models import AttendanceSummary, MemberAttendance, ServiceEvent
+from apps.attendance.models import ServiceEventType
 from apps.finance.models import FundAccount, LedgerDirection, Transaction, TransactionType
 from apps.groups.models import Group, GroupMembership
 from apps.households.models import Household
@@ -12,6 +24,9 @@ from apps.members.models import Member
 
 DECIMAL_OUTPUT_FIELD = DecimalField(max_digits=14, decimal_places=2)
 ZERO_DECIMAL = Value(Decimal("0.00"), output_field=DECIMAL_OUTPUT_FIELD)
+SUNDAY_ATTENDANCE_RECORDED = "RECORDED"
+SUNDAY_ATTENDANCE_IN_PROGRESS = "IN_PROGRESS"
+SUNDAY_ATTENDANCE_NOT_STARTED = "NOT_STARTED"
 
 
 def _apply_date_range(queryset, *, field_name: str, filters: dict | None = None):
@@ -52,6 +67,79 @@ def _annotate_fund_balances(*, end_date=None):
             output_field=DECIMAL_OUTPUT_FIELD,
         )
     )
+
+
+def _get_sunday_attendance_state(*, has_attendance_summary: bool, member_attendance_count: int):
+    if has_attendance_summary and member_attendance_count > 0:
+        return SUNDAY_ATTENDANCE_RECORDED
+    if has_attendance_summary or member_attendance_count > 0:
+        return SUNDAY_ATTENDANCE_IN_PROGRESS
+    return SUNDAY_ATTENDANCE_NOT_STARTED
+
+
+def _serialize_sunday_service_snapshot(*, service_event):
+    member_attendance_count = service_event.member_attendance_count or 0
+    has_attendance_summary = bool(service_event.has_attendance_summary)
+    return {
+        "id": service_event.id,
+        "title": service_event.title,
+        "service_date": service_event.service_date,
+        "is_active": service_event.is_active,
+        "has_attendance_summary": has_attendance_summary,
+        "member_attendance_count": member_attendance_count,
+        "summary_total_count": service_event.summary_total_count or 0,
+        "attendance_state": _get_sunday_attendance_state(
+            has_attendance_summary=has_attendance_summary,
+            member_attendance_count=member_attendance_count,
+        ),
+        "updated_at": service_event.updated_at,
+    }
+
+
+def _get_sunday_service_attendance_summary(*, service_events):
+    summary_exists = AttendanceSummary.objects.filter(service_event_id=OuterRef("pk"))
+    sunday_services = service_events.filter(
+        event_type=ServiceEventType.SUNDAY_SERVICE,
+        is_system_managed=True,
+    ).annotate(
+        has_attendance_summary=Exists(summary_exists),
+        member_attendance_count=Count("member_attendances", distinct=True),
+        summary_total_count=Coalesce(F("attendance_summary__total_count"), Value(0)),
+    )
+
+    total_services = sunday_services.count()
+    with_summary = sunday_services.filter(has_attendance_summary=True).count()
+    with_member_records = sunday_services.filter(member_attendance_count__gt=0).count()
+    fully_recorded = sunday_services.filter(
+        has_attendance_summary=True,
+        member_attendance_count__gt=0,
+    ).count()
+    partially_recorded = sunday_services.filter(
+        Q(has_attendance_summary=True, member_attendance_count=0)
+        | Q(has_attendance_summary=False, member_attendance_count__gt=0)
+    ).count()
+
+    ordered_sunday_services = sunday_services.order_by("-service_date", "-start_time", "title", "id")
+    latest_sunday_service = ordered_sunday_services.first()
+    recent_sunday_services = [
+        _serialize_sunday_service_snapshot(service_event=service_event)
+        for service_event in ordered_sunday_services[:6]
+    ]
+
+    return {
+        "total_services": total_services,
+        "with_summary_count": with_summary,
+        "with_member_records_count": with_member_records,
+        "fully_recorded_count": fully_recorded,
+        "partially_recorded_count": partially_recorded,
+        "not_started_count": max(total_services - fully_recorded - partially_recorded, 0),
+        "latest_service": (
+            _serialize_sunday_service_snapshot(service_event=latest_sunday_service)
+            if latest_sunday_service
+            else None
+        ),
+        "recent_services": recent_sunday_services,
+    }
 
 
 def get_membership_summary(*, filters: dict | None = None):
@@ -132,6 +220,7 @@ def get_attendance_summary(*, filters: dict | None = None):
         visitor_count=Sum("visitor_count"),
         total_count=Sum("total_count"),
     )
+    sunday_summary = _get_sunday_service_attendance_summary(service_events=service_events)
 
     return {
         "total_events": service_events.count(),
@@ -146,6 +235,7 @@ def get_attendance_summary(*, filters: dict | None = None):
             .annotate(count=Count("id"))
             .order_by("event_type")
         ),
+        "sunday_services": sunday_summary,
     }
 
 
