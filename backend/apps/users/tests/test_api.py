@@ -12,6 +12,9 @@ class AuthApiTests(APITestCase):
     def setUp(self):
         cache.clear()
         self.login_url = "/api/auth/login/"
+        self.signup_url = "/api/auth/signup/"
+        self.username_availability_url = "/api/auth/availability/username/"
+        self.email_availability_url = "/api/auth/availability/email/"
         self.user = User.objects.create_user(
             username="admin1",
             email="admin1@example.com",
@@ -121,6 +124,179 @@ class AuthApiTests(APITestCase):
         self.assertEqual(response.data["status"], "error")
         self.assertEqual(response.data["message"], "Validation failed.")
         self.assertEqual(response.data["errors"], {"detail": ["Invalid credentials."]})
+
+    def test_signup_success_creates_basic_user_with_no_roles_or_privileges(self):
+        response = self.client.post(
+            self.signup_url,
+            {
+                "username": "newbasicuser",
+                "email": "newbasicuser@example.com",
+                "password": "StrongPass123!",
+                "confirm_password": "StrongPass123!",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["code"], 1)
+        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(response.data["data"]["user"]["username"], "newbasicuser")
+        self.assertEqual(response.data["data"]["user"]["email"], "newbasicuser@example.com")
+        self.assertEqual(response.data["data"]["user"]["role_names"], [])
+        self.assertFalse(response.data["data"]["user"]["is_staff"])
+        self.assertFalse(response.data["data"]["user"]["is_superuser"])
+        self.assertTrue(response.data["data"]["user"]["is_active"])
+
+        created_user = User.objects.get(username="newbasicuser")
+        self.assertFalse(created_user.is_staff)
+        self.assertFalse(created_user.is_superuser)
+        self.assertTrue(created_user.is_active)
+        self.assertEqual(created_user.groups.count(), 0)
+        self.assertFalse(created_user.has_perm("users.view_user"))
+
+    def test_signup_rejects_duplicate_username(self):
+        response = self.client.post(
+            self.signup_url,
+            {
+                "username": "admin1",
+                "email": "new-duplicate-username@example.com",
+                "password": "StrongPass123!",
+                "confirm_password": "StrongPass123!",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], 0)
+        self.assertEqual(response.data["status"], "error")
+        self.assertEqual(response.data["message"], "Validation failed.")
+        self.assertEqual(
+            response.data["errors"],
+            {"username": ["A user with this username already exists."]},
+        )
+
+    def test_signup_rejects_duplicate_email(self):
+        response = self.client.post(
+            self.signup_url,
+            {
+                "username": "newduplicateemailuser",
+                "email": "admin1@example.com",
+                "password": "StrongPass123!",
+                "confirm_password": "StrongPass123!",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], 0)
+        self.assertEqual(response.data["status"], "error")
+        self.assertEqual(response.data["message"], "Validation failed.")
+        self.assertEqual(
+            response.data["errors"],
+            {"email": ["A user with this email already exists."]},
+        )
+
+    def test_signup_rejects_weak_password(self):
+        response = self.client.post(
+            self.signup_url,
+            {
+                "username": "weakpassworduser",
+                "email": "weakpassworduser@example.com",
+                "password": "weakpass",
+                "confirm_password": "weakpass",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], 0)
+        self.assertEqual(response.data["status"], "error")
+        self.assertEqual(response.data["message"], "Validation failed.")
+        self.assertIn(
+            "Password must include at least one uppercase letter.",
+            response.data["errors"]["password"],
+        )
+        self.assertIn(
+            "Password must include at least one number.",
+            response.data["errors"]["password"],
+        )
+        self.assertIn(
+            "Password must include at least one symbol.",
+            response.data["errors"]["password"],
+        )
+
+    def test_signup_rejects_password_confirmation_mismatch(self):
+        response = self.client.post(
+            self.signup_url,
+            {
+                "username": "mismatchuser",
+                "email": "mismatchuser@example.com",
+                "password": "StrongPass123!",
+                "confirm_password": "StrongPass123?",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], 0)
+        self.assertEqual(response.data["status"], "error")
+        self.assertEqual(response.data["message"], "Validation failed.")
+        self.assertEqual(
+            response.data["errors"],
+            {"confirm_password": ["Password confirmation does not match."]},
+        )
+
+    def test_username_availability_reports_true_when_available(self):
+        response = self.client.get(
+            self.username_availability_url,
+            {"username": "still-available-user"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["code"], 1)
+        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(response.data["data"]["username"], "still-available-user")
+        self.assertTrue(response.data["data"]["available"])
+
+    def test_username_availability_reports_false_when_taken(self):
+        response = self.client.get(
+            self.username_availability_url,
+            {"username": "admin1"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["code"], 1)
+        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(response.data["data"]["username"], "admin1")
+        self.assertFalse(response.data["data"]["available"])
+
+    def test_email_availability_reports_false_when_taken(self):
+        response = self.client.get(
+            self.email_availability_url,
+            {"email": "admin1@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["code"], 1)
+        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(response.data["data"]["email"], "admin1@example.com")
+        self.assertFalse(response.data["data"]["available"])
+
+    def test_email_availability_reports_true_when_available(self):
+        response = self.client.get(
+            self.email_availability_url,
+            {"email": "still.available@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["code"], 1)
+        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(response.data["data"]["email"], "still.available@example.com")
+        self.assertTrue(response.data["data"]["available"])
 
     def test_me_requires_auth(self):
         response = self.client.get("/api/auth/me/")

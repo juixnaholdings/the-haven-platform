@@ -1,14 +1,19 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status, views
-from rest_framework_simplejwt.serializers import TokenVerifySerializer
 
 from apps.common.responses import CustomResponse
 from apps.users import selectors, services
 from apps.users.serializers import (
+    EmailAvailabilityResponseSerializer,
+    EmailAvailabilitySerializer,
     EmptyPayloadSerializer,
     JwtLoginResponseSerializer,
     JwtLoginSerializer,
     JwtRefreshResponseSerializer,
+    PublicSignupResponseSerializer,
+    PublicSignupSerializer,
+    UsernameAvailabilityResponseSerializer,
+    UsernameAvailabilitySerializer,
     JwtVerifyRequestSerializer,
     UserMeSerializer,
 )
@@ -48,6 +53,83 @@ class PublicLoginJwtApi(views.APIView):
         )
 
         return response
+
+
+class PublicSignupApi(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_signup"
+
+    @extend_schema(
+        tags=["Public - Auth"],
+        summary="Register a new basic user account",
+        request=PublicSignupSerializer,
+        responses=PublicSignupResponseSerializer,
+    )
+    def post(self, request):
+        serializer = PublicSignupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = services.create_public_user(
+            username=serializer.validated_data["username"],
+            email=serializer.validated_data["email"],
+            password=serializer.validated_data["password"],
+        )
+
+        return CustomResponse(
+            data={"user": UserMeSerializer(user).data},
+            message="Account created successfully. Please sign in.",
+            status_code=status.HTTP_201_CREATED,
+        )
+
+
+class PublicUsernameAvailabilityApi(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_availability"
+
+    @extend_schema(
+        tags=["Public - Auth"],
+        summary="Check username availability",
+        request=None,
+        responses=UsernameAvailabilityResponseSerializer,
+    )
+    def get(self, request):
+        serializer = UsernameAvailabilitySerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data["username"]
+
+        return CustomResponse(
+            data={
+                "username": username,
+                "available": selectors.is_username_available(username=username),
+            },
+            message="Username availability fetched successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class PublicEmailAvailabilityApi(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_availability"
+
+    @extend_schema(
+        tags=["Public - Auth"],
+        summary="Check email availability",
+        request=None,
+        responses=EmailAvailabilityResponseSerializer,
+    )
+    def get(self, request):
+        serializer = EmailAvailabilitySerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+
+        return CustomResponse(
+            data={
+                "email": email,
+                "available": selectors.is_email_available(email=email),
+            },
+            message="Email availability fetched successfully.",
+            status_code=status.HTTP_200_OK,
+        )
 
 
 class PublicLogoutJwtApi(views.APIView):

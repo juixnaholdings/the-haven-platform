@@ -219,6 +219,61 @@ h2 {
   border-color: rgba(22, 51, 95, 0.24);
 }
 
+.field-invalid input,
+.field-invalid select,
+.field-invalid textarea {
+  border-color: rgba(158, 64, 63, 0.55);
+}
+
+.field-feedback {
+  margin: -10px 0 2px;
+  font-size: 0.88rem;
+}
+
+.field-feedback-error {
+  color: var(--color-danger);
+}
+
+.field-feedback-success {
+  color: var(--color-success);
+}
+
+.field-feedback-info {
+  color: var(--color-info);
+}
+
+.password-requirements {
+  margin: -10px 0 4px;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.password-requirements li {
+  font-size: 0.86rem;
+}
+
+.password-requirement-met {
+  color: var(--color-success);
+}
+
+.password-requirement-unmet {
+  color: var(--color-muted);
+}
+
+.auth-switch {
+  margin: 0;
+}
+
+.auth-switch-link {
+  color: var(--color-navy);
+  font-weight: 700;
+}
+
+.auth-switch-link:hover {
+  text-decoration: underline;
+}
+
 .button {
   display: inline-flex;
   align-items: center;

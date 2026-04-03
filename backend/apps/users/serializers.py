@@ -1,10 +1,30 @@
-from django.contrib.auth import authenticate
+import re
+
+from django.contrib.auth import authenticate, password_validation
 from django.contrib.auth.models import Group, Permission
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenVerifySerializer
 
-from apps.users import selectors
+from apps.users import selectors, services
 from apps.users.models import User
+
+
+def _password_strength_errors(password: str) -> list[str]:
+    errors = []
+
+    if len(password) < 8:
+        errors.append("Password must contain at least 8 characters.")
+    if not re.search(r"[A-Z]", password):
+        errors.append("Password must include at least one uppercase letter.")
+    if not re.search(r"[a-z]", password):
+        errors.append("Password must include at least one lowercase letter.")
+    if not re.search(r"[0-9]", password):
+        errors.append("Password must include at least one number.")
+    if not re.search(r"[^A-Za-z0-9]", password):
+        errors.append("Password must include at least one symbol.")
+
+    return errors
 
 
 class JwtLoginSerializer(serializers.Serializer):
@@ -50,6 +70,85 @@ class JwtLoginSerializer(serializers.Serializer):
         return attrs
 
 
+class PublicSignupSerializer(serializers.Serializer):
+    username = serializers.CharField(
+        max_length=User._meta.get_field("username").max_length,
+        validators=User._meta.get_field("username").validators,
+    )
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    def validate_username(self, value):
+        normalized_username = value.strip()
+        if not normalized_username:
+            raise serializers.ValidationError("Username is required.")
+
+        if not selectors.is_username_available(username=normalized_username):
+            raise serializers.ValidationError("A user with this username already exists.")
+
+        return normalized_username
+
+    def validate_email(self, value):
+        normalized_email = services.normalize_email(value)
+        if not selectors.is_email_available(email=normalized_email):
+            raise serializers.ValidationError("A user with this email already exists.")
+
+        return normalized_email
+
+    def validate_password(self, value):
+        errors = _password_strength_errors(value)
+
+        try:
+            password_validation.validate_password(value)
+        except DjangoValidationError as exc:
+            errors.extend(str(message) for message in exc.messages)
+
+        unique_errors = list(dict.fromkeys(errors))
+        if unique_errors:
+            raise serializers.ValidationError(unique_errors)
+
+        return value
+
+    def validate(self, attrs):
+        if attrs.get("password") != attrs.get("confirm_password"):
+            raise serializers.ValidationError(
+                {"confirm_password": ["Password confirmation does not match."]}
+            )
+
+        return attrs
+
+
+class UsernameAvailabilitySerializer(serializers.Serializer):
+    username = serializers.CharField(
+        max_length=User._meta.get_field("username").max_length,
+        validators=User._meta.get_field("username").validators,
+    )
+
+    def validate_username(self, value):
+        normalized_username = value.strip()
+        if not normalized_username:
+            raise serializers.ValidationError("Username is required.")
+        return normalized_username
+
+
+class UsernameAvailabilityResponseSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    available = serializers.BooleanField()
+
+
+class EmailAvailabilitySerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        return services.normalize_email(value)
+
+
+class EmailAvailabilityResponseSerializer(serializers.Serializer):
+    email = serializers.CharField()
+    available = serializers.BooleanField()
+
+
 class EmptyPayloadSerializer(serializers.Serializer):
     pass
 
@@ -77,6 +176,10 @@ class UserMeSerializer(serializers.ModelSerializer):
             "is_superuser",
             "role_names",
         ]
+
+
+class PublicSignupResponseSerializer(serializers.Serializer):
+    user = UserMeSerializer()
 
 
 class JwtLoginTokenSerializer(serializers.Serializer):

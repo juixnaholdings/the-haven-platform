@@ -11,6 +11,22 @@ def get_user_by_email(*, email: str):
     return User.objects.filter(email=email).first()
 
 
+def is_username_available(*, username: str) -> bool:
+    normalized_username = username.strip()
+    if not normalized_username:
+        return False
+
+    return not User.objects.filter(username__iexact=normalized_username).exists()
+
+
+def is_email_available(*, email: str) -> bool:
+    normalized_email = email.strip().lower()
+    if not normalized_email:
+        return False
+
+    return not User.objects.filter(email__iexact=normalized_email).exists()
+
+
 def get_current_user(user):
     return user
 

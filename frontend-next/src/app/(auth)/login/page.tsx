@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -82,6 +83,13 @@ export default function LoginPage() {
           </form>
 
           <ErrorAlert error={submitError} fallbackMessage="Server Error. Please Try Again." />
+          <p className="auth-switch muted-text helper-text">
+            New to The Haven?{" "}
+            <Link className="auth-switch-link" href="/signup">
+              Create an account
+            </Link>
+            .
+          </p>
         </div>
       </div>
     </div>

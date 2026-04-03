@@ -18,6 +18,7 @@ The old Vite app in `../frontend/` is kept only as a legacy snapshot for rollbac
 ## Primary routes
 
 - `/login`
+- `/signup`
 - `/dashboard`
 - `/members`, `/members/new`, `/members/:memberId`, `/members/:memberId/edit`
 - `/households`, `/households/:householdId`
