@@ -353,17 +353,20 @@ export default function SignupPage() {
 
   if (isSignupComplete) {
     return (
-      <div className="auth-layout">
-        <div className="auth-stack">
-          <div className="auth-card">
-            <div className="auth-card-header">
+      <div className="grid min-h-screen place-items-center bg-gradient-to-b from-amber-50 via-slate-50 to-slate-100 px-6 py-8">
+        <div className="w-full max-w-[520px] space-y-6">
+          <div className="grid w-full gap-6 rounded-[1.65rem] border border-slate-200/80 bg-white/95 p-8 shadow-sm">
+            <div className="grid gap-2">
               <h2>Account created</h2>
               <p className="muted-text helper-text">
                 @{createdUsername} was created as a basic user. Sign in to continue.
               </p>
             </div>
 
-            <Link className="button button-primary button-block" href="/login">
+            <Link
+              className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-br from-[#16335f] to-[#27497d] px-4 py-2.5 font-semibold text-white shadow-[0_10px_24px_rgba(22,51,95,0.18)] transition hover:-translate-y-px hover:from-[#102748] hover:to-[#1e3f6e]"
+              href="/login"
+            >
               Continue to sign in
             </Link>
           </div>
@@ -373,17 +376,17 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="auth-layout">
-      <div className="auth-stack">
-        <div className="auth-card">
-          <div className="auth-card-header">
+    <div className="grid min-h-screen place-items-center bg-gradient-to-b from-amber-50 via-slate-50 to-slate-100 px-6 py-8">
+      <div className="w-full max-w-[520px] space-y-6">
+        <div className="grid w-full gap-6 rounded-[1.65rem] border border-slate-200/80 bg-white/95 p-8 shadow-sm">
+          <div className="grid gap-2">
             <h2>Create your account</h2>
             <p className="muted-text helper-text">
               New accounts start with basic access and no assigned roles.
             </p>
           </div>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <form className="grid gap-5" onSubmit={handleSubmit}>
             <label
               className={`field ${shouldShowFieldMessage("username") && getFieldError("username") ? "field-invalid" : ""}`}
             >
@@ -494,7 +497,7 @@ export default function SignupPage() {
             ) : null}
 
             <button
-              className="button button-primary button-block"
+              className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-br from-[#16335f] to-[#27497d] px-4 py-2.5 font-semibold text-white shadow-[0_10px_24px_rgba(22,51,95,0.18)] transition hover:-translate-y-px hover:from-[#102748] hover:to-[#1e3f6e] disabled:cursor-not-allowed disabled:opacity-70"
               disabled={isSubmitting || isSubmitGuarded}
               type="submit"
             >
@@ -504,9 +507,9 @@ export default function SignupPage() {
 
           <ErrorAlert error={submitError} fallbackMessage="Sign-up failed. Please try again." />
 
-          <p className="auth-switch muted-text helper-text">
+          <p className="m-0 text-sm text-slate-500">
             Already have an account?{" "}
-            <Link className="auth-switch-link" href="/login">
+            <Link className="font-semibold text-[#16335f] hover:underline" href="/login">
               Sign in
             </Link>
             .
