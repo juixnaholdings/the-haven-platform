@@ -72,6 +72,7 @@ Canonical demo-data path:
 - Point `NEXT_PUBLIC_API_BASE_URL` to the backend you want to use.
 - Run `npm run dev` from `frontend-next/`.
 - Primary local frontend URL is `http://localhost:3000`.
+- Dashboard quick actions (`Add Event`, `Record Attendance`) now launch modal-first workflows using existing attendance APIs.
 
 ## 7. Frontend Validation Commands
 

@@ -48,11 +48,29 @@ Recommended values:
 - `frontend-next/src/domains/users/`
 - `frontend-next/src/domains/audit/`
 
+## Modal-first form rule (current wave)
+
+- Product forms in protected areas are now modal-first where practical; public auth pages (`/login`, `/signup`) remain page forms by design.
+- Shared attendance modals live in `frontend-next/src/domains/attendance/components/`.
+- Dashboard quick actions are now wired:
+  - `Add Event` opens the shared create-event modal.
+  - `Record Attendance` opens the shared record-attendance modal.
+
 ## Attendance Sunday-service shortcut
 
 - `GET /api/attendance/sunday-service/current/` is the frontend shortcut endpoint for Sunday attendance flows.
 - The backend ensures system-managed Sunday service records before returning this payload.
-- `frontend-next` attendance and events screens use this to surface a direct "Sunday attendance" action without requiring manual weekly event creation.
+- `frontend-next` still exposes Sunday shortcuts, but Sunday is no longer the dominant primary CTA.
+- Primary attendance capture is now the modal-first "Record Attendance" flow, with Sunday links as operational shortcuts.
+
+## Attendance modal workflow (current behavior)
+
+- The shared "Record Attendance" modal captures event details and attendance details in one user activity.
+- Submission sequence is frontend-orchestrated:
+  1. create event
+  2. save summary attendance
+  3. save member attendance rows
+- If summary/member writes fail after event creation, the UI reports the partial state and links directly to `/events/{id}/attendance` to continue safely.
 
 ## Attendance reporting Sunday metrics
 

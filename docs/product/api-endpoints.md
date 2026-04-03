@@ -108,6 +108,14 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 - `PATCH /api/attendance/{service_event_id}/member-attendance/{member_attendance_id}/`
   Updates an existing member attendance record.
 
+Frontend record-attendance workflow note:
+
+- The modal-first "Record Attendance" UX in `frontend-next` currently uses the existing endpoints in sequence:
+  1. `POST /api/attendance/` (create event)
+  2. `PUT /api/attendance/{service_event_id}/summary/` (upsert anonymous summary)
+  3. `POST /api/attendance/{service_event_id}/member-attendance/` (zero-or-more member rows)
+- No dedicated orchestration endpoint is required for this product wave; partial-failure handling is surfaced in the modal with a direct "continue in event attendance" link.
+
 System-managed Sunday behavior:
 
 - Sunday services are represented as normal `ServiceEvent` rows with `event_type="SUNDAY_SERVICE"` and `is_system_managed=true`.
