@@ -8,14 +8,38 @@ from apps.users.models import User
 
 
 class JwtLoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    identifier = serializers.CharField(
+        required=False,
+        help_text="Username or email address.",
+    )
+    username = serializers.CharField(
+        required=False,
+        write_only=True,
+        help_text="Legacy username field. Use identifier instead.",
+    )
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        username = attrs.get("username")
+        identifier = attrs.get("identifier")
+        legacy_username = attrs.get("username")
         password = attrs.get("password")
 
-        user = authenticate(username=username, password=password)
+        raw_identifier = identifier if identifier is not None else legacy_username
+        if not raw_identifier or not raw_identifier.strip():
+            raise serializers.ValidationError(
+                {"detail": ["Username or email is required."]}
+            )
+
+        normalized_identifier = raw_identifier.strip()
+        username_user = User.objects.filter(username=normalized_identifier).first()
+        email_user = User.objects.filter(email__iexact=normalized_identifier).first()
+        if username_user and email_user and username_user.id != email_user.id:
+            raise serializers.ValidationError({"detail": ["Invalid credentials."]})
+
+        user = authenticate(username=normalized_identifier, password=password)
+        if not user and email_user:
+            user = authenticate(username=email_user.username, password=password)
+
         if not user:
             raise serializers.ValidationError({"detail": ["Invalid credentials."]})
 
