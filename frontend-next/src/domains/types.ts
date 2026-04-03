@@ -60,7 +60,7 @@ export interface RoleSummary {
 }
 
 export interface LoginPayload {
-  username: string;
+  identifier: string;
   password: string;
 }
 
