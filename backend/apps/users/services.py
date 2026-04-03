@@ -108,6 +108,10 @@ def _normalize_email(value: str) -> str:
     return value.strip().lower()
 
 
+def normalize_email(value: str) -> str:
+    return _normalize_email(value)
+
+
 def _validate_unique_username(*, username: str, exclude_user_id: int | None = None) -> None:
     User = get_user_model()
     queryset = User.objects.filter(username__iexact=username)
@@ -129,6 +133,34 @@ def _validate_unique_email(*, email: str, exclude_user_id: int | None = None) ->
 
     if queryset.exists():
         raise ValidationError({"email": ["A user with this email already exists."]})
+
+
+@transaction.atomic
+def create_public_user(
+    *,
+    username: str,
+    email: str,
+    password: str,
+    is_active: bool = True,
+) -> object:
+    User = get_user_model()
+
+    normalized_username = username.strip()
+    normalized_email = _normalize_email(email)
+
+    _validate_unique_username(username=normalized_username)
+    _validate_unique_email(email=normalized_email)
+
+    user = User.objects.create_user(
+        username=normalized_username,
+        email=normalized_email,
+        password=password,
+        is_active=is_active,
+        is_staff=False,
+        is_superuser=False,
+    )
+    user.groups.clear()
+    return User.objects.prefetch_related("groups").get(id=user.id)
 
 
 @transaction.atomic
