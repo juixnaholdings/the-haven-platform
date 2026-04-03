@@ -11,6 +11,7 @@ import {
   EntityTable,
   ErrorAlert,
   ErrorState,
+  FormModalShell,
   FormSection,
   LoadingState,
   PageHeader,
@@ -123,6 +124,9 @@ export function EventAttendancePageScreen() {
   const [addFormState, setAddFormState] = useState<MemberAttendanceFormState>(emptyMemberAttendanceForm);
   const [selectedMemberAttendanceId, setSelectedMemberAttendanceId] = useState<number | null>(null);
   const [editFormOverrides, setEditFormOverrides] = useState<Partial<MemberAttendanceEditFormState>>({});
+  const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [isEditMemberModalOpen, setIsEditMemberModalOpen] = useState(false);
   const deferredMemberSearch = useDeferredValue(memberSearch);
   const deferredCandidateSearch = useDeferredValue(candidateSearch);
 
@@ -220,6 +224,7 @@ export function EventAttendancePageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["service-events"] });
       await queryClient.invalidateQueries({ queryKey: ["attendance-overview"] });
       setSummaryFormOverrides({});
+      setIsSummaryModalOpen(false);
     },
   });
 
@@ -233,6 +238,7 @@ export function EventAttendancePageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["attendance-overview"] });
       setAddFormState(emptyMemberAttendanceForm);
       setCandidateSearch("");
+      setIsAddMemberModalOpen(false);
     },
   });
 
@@ -249,6 +255,7 @@ export function EventAttendancePageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["member-attendance", numericServiceEventId] });
       await queryClient.invalidateQueries({ queryKey: ["attendance-overview"] });
       setEditFormOverrides({});
+      setIsEditMemberModalOpen(false);
     },
   });
 
@@ -296,6 +303,20 @@ export function EventAttendancePageScreen() {
             <Link className="button button-secondary" href={`/events/${serviceEvent.id}`}>
               Back to event
             </Link>
+            <button
+              className="button button-ghost"
+              onClick={() => setIsSummaryModalOpen(true)}
+              type="button"
+            >
+              Edit summary
+            </button>
+            <button
+              className="button button-primary"
+              onClick={() => setIsAddMemberModalOpen(true)}
+              type="button"
+            >
+              Add member attendance
+            </button>
             <Link className="button button-ghost" href="/attendance">
               Attendance overview
             </Link>
@@ -373,110 +394,45 @@ export function EventAttendancePageScreen() {
         </section>
       </div>
 
-      <form
-        className="space-y-6"
-        onSubmit={(event) => {
-          event.preventDefault();
-          saveSummaryMutation.mutate(summaryPayload);
-        }}
-      >
-        <FormSection
-          description="Total attendance is derived from men + women + children because that is the backend validation rule."
-          title="Summary attendance"
-        >
-          <div className="grid gap-4 xl:grid-cols-3">
-            <label className="field">
-              <span>Men</span>
-              <input
-                min="0"
-                onChange={(event) =>
-                  setSummaryFormOverrides((current) => ({
-                    ...current,
-                    men_count: event.target.value,
-                  }))
-                }
-                type="number"
-                value={summaryFormState.men_count}
-              />
-            </label>
-
-            <label className="field">
-              <span>Women</span>
-              <input
-                min="0"
-                onChange={(event) =>
-                  setSummaryFormOverrides((current) => ({
-                    ...current,
-                    women_count: event.target.value,
-                  }))
-                }
-                type="number"
-                value={summaryFormState.women_count}
-              />
-            </label>
-
-            <label className="field">
-              <span>Children</span>
-              <input
-                min="0"
-                onChange={(event) =>
-                  setSummaryFormOverrides((current) => ({
-                    ...current,
-                    children_count: event.target.value,
-                  }))
-                }
-                type="number"
-                value={summaryFormState.children_count}
-              />
-            </label>
-
-            <label className="field">
-              <span>Visitors</span>
-              <input
-                min="0"
-                onChange={(event) =>
-                  setSummaryFormOverrides((current) => ({
-                    ...current,
-                    visitor_count: event.target.value,
-                  }))
-                }
-                type="number"
-                value={summaryFormState.visitor_count}
-              />
-            </label>
-
-            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
-              <dt>Derived total attendance</dt>
-              <dd>{summaryPayload.total_count}</dd>
-            </div>
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="section-header">
+          <div>
+            <h3>Summary attendance</h3>
+            <p className="m-0 text-sm text-slate-500">
+              Anonymous summary counts remain separate from member rows in the current backend model.
+            </p>
           </div>
-
-          <label className="field">
-            <span>Summary notes</span>
-            <textarea
-              onChange={(event) =>
-                setSummaryFormOverrides((current) => ({
-                  ...current,
-                  notes: event.target.value,
-                }))
-              }
-              rows={4}
-              value={summaryFormState.notes}
-            />
-          </label>
-        </FormSection>
-
-        <ErrorAlert
-          error={saveSummaryMutation.error}
-          fallbackMessage="The attendance summary could not be saved."
-        />
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button className="button button-primary" disabled={saveSummaryMutation.isPending} type="submit">
-            {saveSummaryMutation.isPending ? "Saving..." : "Save summary attendance"}
+          <button
+            className="button button-secondary"
+            onClick={() => setIsSummaryModalOpen(true)}
+            type="button"
+          >
+            Edit summary
           </button>
         </div>
-      </form>
+        <dl className="definition-list">
+          <div>
+            <dt>Men</dt>
+            <dd>{summaryPayload.men_count}</dd>
+          </div>
+          <div>
+            <dt>Women</dt>
+            <dd>{summaryPayload.women_count}</dd>
+          </div>
+          <div>
+            <dt>Children</dt>
+            <dd>{summaryPayload.children_count}</dd>
+          </div>
+          <div>
+            <dt>Visitors</dt>
+            <dd>{summaryPayload.visitor_count}</dd>
+          </div>
+          <div>
+            <dt>Derived total</dt>
+            <dd>{summaryPayload.total_count}</dd>
+          </div>
+        </dl>
+      </section>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
         <div className="section-header">
@@ -547,18 +503,15 @@ export function EventAttendancePageScreen() {
                 cell: (memberAttendance) => (
                   <div className="flex flex-wrap items-center gap-2.5">
                     <button
-                      className={
-                        selectedMemberAttendanceId === memberAttendance.id
-                          ? "button button-secondary button-compact"
-                          : "button button-ghost button-compact"
-                      }
+                      className="button button-ghost button-compact"
                       onClick={() => {
                         setSelectedMemberAttendanceId(memberAttendance.id);
                         setEditFormOverrides({});
+                        setIsEditMemberModalOpen(true);
                       }}
                       type="button"
                     >
-                      {selectedMemberAttendanceId === memberAttendance.id ? "Editing" : "Edit record"}
+                      Edit record
                     </button>
                   </div>
                 ),
@@ -570,148 +523,339 @@ export function EventAttendancePageScreen() {
         )}
       </section>
 
-      <form
-        className="space-y-6"
-        onSubmit={(event) => {
-          event.preventDefault();
-          createMemberAttendanceMutation.mutate(toMemberAttendancePayload(addFormState));
-        }}
-      >
-        <FormSection
-          description="Use the active member directory for member-level attendance. The backend enforces one record per member per event."
-          title="Add member attendance"
-        >
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="field">
-              <span>Search member directory</span>
-              <input
-                onChange={(event) => setCandidateSearch(event.target.value)}
-                placeholder="Search by name, email, or phone"
-                value={candidateSearch}
-              />
-            </label>
-
-            <label className="field">
-              <span>Choose member</span>
-              <select
-                onChange={(event) =>
-                  setAddFormState((current) => ({
-                    ...current,
-                    member_id: event.target.value,
-                  }))
-                }
-                required
-                value={addFormState.member_id}
-              >
-                <option value="">Select a member</option>
-                {candidateMembers.map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.full_name}
-                    {member.email
-                      ? ` · ${member.email}`
-                      : member.phone_number
-                        ? ` · ${member.phone_number}`
-                        : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="field">
-              <span>Status</span>
-              <select
-                onChange={(event) =>
-                  setAddFormState((current) => ({
-                    ...current,
-                    status: event.target.value,
-                  }))
-                }
-                value={addFormState.status}
-              >
-                {ATTENDANCE_STATUS_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="field">
-              <span>Checked in at</span>
-              <input
-                onChange={(event) =>
-                  setAddFormState((current) => ({
-                    ...current,
-                    checked_in_at: event.target.value,
-                  }))
-                }
-                type="datetime-local"
-                value={addFormState.checked_in_at}
-              />
-            </label>
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="section-header">
+          <div>
+            <h3>Member attendance actions</h3>
+            <p className="m-0 text-sm text-slate-500">
+              Add new records or edit existing rows in modal workflows.
+            </p>
           </div>
-
-          <label className="field">
-            <span>Attendance notes</span>
-            <textarea
-              onChange={(event) =>
-                setAddFormState((current) => ({
-                  ...current,
-                  notes: event.target.value,
-                }))
-              }
-              rows={4}
-              value={addFormState.notes}
-            />
-          </label>
-
-          <p className="m-0 text-sm text-slate-500">
-            {candidateMembersQuery.isLoading
-              ? "Loading candidate members..."
-              : candidateMembers.length > 0
-                ? `${candidateMembers.length} eligible member${candidateMembers.length === 1 ? "" : "s"} found.`
-                : "No eligible members match the current search."}
-          </p>
-        </FormSection>
-
-        <ErrorAlert
-          error={createMemberAttendanceMutation.error}
-          fallbackMessage="The member attendance record could not be created."
-        />
-
-        <div className="flex flex-wrap items-center gap-2.5">
           <button
             className="button button-primary"
-            disabled={createMemberAttendanceMutation.isPending}
-            type="submit"
-          >
-            {createMemberAttendanceMutation.isPending ? "Adding..." : "Add member attendance"}
-          </button>
-          <button
-            className="button button-secondary"
-            onClick={() => {
-              setAddFormState(emptyMemberAttendanceForm);
-              setCandidateSearch("");
-            }}
+            onClick={() => setIsAddMemberModalOpen(true)}
             type="button"
           >
-            Reset form
+            Add member attendance
           </button>
         </div>
-      </form>
+        {selectedMemberAttendance ? (
+          <p className="m-0 text-sm text-slate-500">
+            Selected for edit: <strong>{formatMemberName(selectedMemberAttendance)}</strong>
+          </p>
+        ) : (
+          <p className="m-0 text-sm text-slate-500">
+            Choose a row above to edit attendance status, timestamp, or notes.
+          </p>
+        )}
+      </section>
 
-      {selectedMemberAttendance ? (
+      <FormModalShell
+        description="Total attendance is derived from men + women + children because that is the backend validation rule."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => setIsSummaryModalOpen(false)}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={saveSummaryMutation.isPending}
+              form="attendance-summary-modal-form"
+              type="submit"
+            >
+              {saveSummaryMutation.isPending ? "Saving..." : "Save summary attendance"}
+            </button>
+          </>
+        }
+        isOpen={isSummaryModalOpen}
+        onClose={() => setIsSummaryModalOpen(false)}
+        size="large"
+        title="Summary attendance"
+      >
         <form
           className="space-y-6"
+          id="attendance-summary-modal-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            saveSummaryMutation.mutate(summaryPayload);
+          }}
+        >
+          <FormSection title="Summary counts">
+            <div className="grid gap-4 xl:grid-cols-3">
+              <label className="field">
+                <span>Men</span>
+                <input
+                  min="0"
+                  onChange={(event) =>
+                    setSummaryFormOverrides((current) => ({
+                      ...current,
+                      men_count: event.target.value,
+                    }))
+                  }
+                  type="number"
+                  value={summaryFormState.men_count}
+                />
+              </label>
+
+              <label className="field">
+                <span>Women</span>
+                <input
+                  min="0"
+                  onChange={(event) =>
+                    setSummaryFormOverrides((current) => ({
+                      ...current,
+                      women_count: event.target.value,
+                    }))
+                  }
+                  type="number"
+                  value={summaryFormState.women_count}
+                />
+              </label>
+
+              <label className="field">
+                <span>Children</span>
+                <input
+                  min="0"
+                  onChange={(event) =>
+                    setSummaryFormOverrides((current) => ({
+                      ...current,
+                      children_count: event.target.value,
+                    }))
+                  }
+                  type="number"
+                  value={summaryFormState.children_count}
+                />
+              </label>
+
+              <label className="field">
+                <span>Visitors</span>
+                <input
+                  min="0"
+                  onChange={(event) =>
+                    setSummaryFormOverrides((current) => ({
+                      ...current,
+                      visitor_count: event.target.value,
+                    }))
+                  }
+                  type="number"
+                  value={summaryFormState.visitor_count}
+                />
+              </label>
+
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
+                <dt>Derived total attendance</dt>
+                <dd>{summaryPayload.total_count}</dd>
+              </div>
+            </div>
+
+            <label className="field">
+              <span>Summary notes</span>
+              <textarea
+                onChange={(event) =>
+                  setSummaryFormOverrides((current) => ({
+                    ...current,
+                    notes: event.target.value,
+                  }))
+                }
+                rows={4}
+                value={summaryFormState.notes}
+              />
+            </label>
+          </FormSection>
+
+          <ErrorAlert
+            error={saveSummaryMutation.error}
+            fallbackMessage="The attendance summary could not be saved."
+          />
+        </form>
+      </FormModalShell>
+
+      <FormModalShell
+        description="Use the active member directory for member-level attendance. The backend enforces one record per member per event."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => setIsAddMemberModalOpen(false)}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={createMemberAttendanceMutation.isPending}
+              form="add-member-attendance-modal-form"
+              type="submit"
+            >
+              {createMemberAttendanceMutation.isPending ? "Adding..." : "Add member attendance"}
+            </button>
+          </>
+        }
+        isOpen={isAddMemberModalOpen}
+        onClose={() => setIsAddMemberModalOpen(false)}
+        size="large"
+        title="Add member attendance"
+      >
+        <form
+          className="space-y-6"
+          id="add-member-attendance-modal-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            createMemberAttendanceMutation.mutate(toMemberAttendancePayload(addFormState));
+          }}
+        >
+          <FormSection title="Member attendance record">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="field">
+                <span>Search member directory</span>
+                <input
+                  onChange={(event) => setCandidateSearch(event.target.value)}
+                  placeholder="Search by name, email, or phone"
+                  value={candidateSearch}
+                />
+              </label>
+
+              <label className="field">
+                <span>Choose member</span>
+                <select
+                  onChange={(event) =>
+                    setAddFormState((current) => ({
+                      ...current,
+                      member_id: event.target.value,
+                    }))
+                  }
+                  required
+                  value={addFormState.member_id}
+                >
+                  <option value="">Select a member</option>
+                  {candidateMembers.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.full_name}
+                      {member.email
+                        ? ` | ${member.email}`
+                        : member.phone_number
+                          ? ` | ${member.phone_number}`
+                          : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Status</span>
+                <select
+                  onChange={(event) =>
+                    setAddFormState((current) => ({
+                      ...current,
+                      status: event.target.value,
+                    }))
+                  }
+                  value={addFormState.status}
+                >
+                  {ATTENDANCE_STATUS_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Checked in at</span>
+                <input
+                  onChange={(event) =>
+                    setAddFormState((current) => ({
+                      ...current,
+                      checked_in_at: event.target.value,
+                    }))
+                  }
+                  type="datetime-local"
+                  value={addFormState.checked_in_at}
+                />
+              </label>
+            </div>
+
+            <label className="field">
+              <span>Attendance notes</span>
+              <textarea
+                onChange={(event) =>
+                  setAddFormState((current) => ({
+                    ...current,
+                    notes: event.target.value,
+                  }))
+                }
+                rows={4}
+                value={addFormState.notes}
+              />
+            </label>
+
+            <p className="m-0 text-sm text-slate-500">
+              {candidateMembersQuery.isLoading
+                ? "Loading candidate members..."
+                : candidateMembers.length > 0
+                  ? `${candidateMembers.length} eligible member${candidateMembers.length === 1 ? "" : "s"} found.`
+                  : "No eligible members match the current search."}
+            </p>
+          </FormSection>
+
+          <ErrorAlert
+            error={createMemberAttendanceMutation.error}
+            fallbackMessage="The member attendance record could not be created."
+          />
+        </form>
+      </FormModalShell>
+
+      <FormModalShell
+        description="Update the selected member attendance status, check-in timestamp, and notes."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setIsEditMemberModalOpen(false);
+                setSelectedMemberAttendanceId(null);
+                setEditFormOverrides({});
+              }}
+              type="button"
+            >
+              Close
+            </button>
+            <button
+              className="button button-primary"
+              disabled={updateMemberAttendanceMutation.isPending || !selectedMemberAttendance}
+              form="edit-member-attendance-modal-form"
+              type="submit"
+            >
+              {updateMemberAttendanceMutation.isPending ? "Saving..." : "Save attendance record"}
+            </button>
+          </>
+        }
+        isOpen={isEditMemberModalOpen && Boolean(selectedMemberAttendance)}
+        onClose={() => {
+          setIsEditMemberModalOpen(false);
+          setSelectedMemberAttendanceId(null);
+          setEditFormOverrides({});
+        }}
+        size="large"
+        title={
+          selectedMemberAttendance
+            ? `Edit attendance record: ${formatMemberName(selectedMemberAttendance)}`
+            : "Edit attendance record"
+        }
+      >
+        <form
+          className="space-y-6"
+          id="edit-member-attendance-modal-form"
           onSubmit={(event) => {
             event.preventDefault();
             updateMemberAttendanceMutation.mutate(toMemberAttendanceUpdatePayload(editFormState));
           }}
         >
-          <FormSection
-            description="Update the current member attendance status, check-in timestamp, and notes."
-            title={`Edit attendance record: ${formatMemberName(selectedMemberAttendance)}`}
-          >
+          <FormSection title="Attendance status">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="field">
                 <span>Status</span>
@@ -766,33 +910,8 @@ export function EventAttendancePageScreen() {
             error={updateMemberAttendanceMutation.error}
             fallbackMessage="The member attendance record could not be updated."
           />
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              className="button button-primary"
-              disabled={updateMemberAttendanceMutation.isPending}
-              type="submit"
-            >
-              {updateMemberAttendanceMutation.isPending ? "Saving..." : "Save attendance record"}
-            </button>
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setSelectedMemberAttendanceId(null);
-                setEditFormOverrides({});
-              }}
-              type="button"
-            >
-              Close editor
-            </button>
-          </div>
         </form>
-      ) : (
-        <EmptyState
-          description="Choose a row above to edit the attendance status, timestamp, or notes."
-          title="No member attendance record selected"
-        />
-      )}
+      </FormModalShell>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import {
   ErrorAlert,
   ErrorState,
   FilterActionStrip,
+  FormModalShell,
   FormSection,
   LoadingState,
   PageHeader,
@@ -50,7 +51,7 @@ export function GroupsPageScreen() {
   const [statusFilter, setStatusFilter] = useState<GroupStatusFilter>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [formState, setFormState] = useState<GroupFormState>(emptyGroupForm);
   const deferredSearch = useDeferredValue(search);
 
@@ -70,7 +71,7 @@ export function GroupsPageScreen() {
     onSuccess: async (group) => {
       await queryClient.invalidateQueries({ queryKey: ["groups"] });
       setFormState(emptyGroupForm);
-      setShowCreateForm(false);
+      setIsCreateModalOpen(false);
       router.push(`/groups/${group.id}`);
     },
   });
@@ -88,11 +89,11 @@ export function GroupsPageScreen() {
       <PageHeader
         actions={
           <button
-            className={showCreateForm ? "button button-secondary" : "button button-primary"}
-            onClick={() => setShowCreateForm((current) => !current)}
+            className="button button-primary"
+            onClick={() => setIsCreateModalOpen(true)}
             type="button"
           >
-            {showCreateForm ? "Close form" : "New ministry"}
+            New ministry
           </button>
         }
         description="The current backend models ministries as flat groups. Use this screen to manage those group records and open each ministry detail workflow."
@@ -160,18 +161,47 @@ export function GroupsPageScreen() {
         }
       />
 
-      {showCreateForm ? (
+      <FormModalShell
+        description="This writes directly to the current flat group model used as the ministry analogue."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setFormState(emptyGroupForm);
+                setIsCreateModalOpen(false);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={createGroupMutation.isPending}
+              form="create-ministry-modal-form"
+              type="submit"
+            >
+              {createGroupMutation.isPending ? "Creating..." : "Create ministry"}
+            </button>
+          </>
+        }
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setFormState(emptyGroupForm);
+          setIsCreateModalOpen(false);
+        }}
+        size="large"
+        title="Create ministry"
+      >
         <form
           className="space-y-6"
+          id="create-ministry-modal-form"
           onSubmit={(event) => {
             event.preventDefault();
             createGroupMutation.mutate(toGroupPayload(formState));
           }}
         >
-          <FormSection
-            description="This writes directly to the current flat group model used as the ministry analogue."
-            title="Create ministry"
-          >
+          <FormSection title="Ministry details">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="field">
                 <span>Ministry name</span>
@@ -221,24 +251,8 @@ export function GroupsPageScreen() {
             error={createGroupMutation.error}
             fallbackMessage="The ministry could not be created."
           />
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button className="button button-primary" disabled={createGroupMutation.isPending} type="submit">
-              {createGroupMutation.isPending ? "Creating..." : "Create ministry"}
-            </button>
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setFormState(emptyGroupForm);
-                setShowCreateForm(false);
-              }}
-              type="button"
-            >
-              Cancel
-            </button>
-          </div>
         </form>
-      ) : null}
+      </FormModalShell>
 
       {groupsQuery.isLoading ? (
         <LoadingState
@@ -273,7 +287,7 @@ export function GroupsPageScreen() {
                 Clear filters
               </button>
             ) : (
-              <button className="button button-primary" onClick={() => setShowCreateForm(true)} type="button">
+              <button className="button button-primary" onClick={() => setIsCreateModalOpen(true)} type="button">
                 Create ministry
               </button>
             )

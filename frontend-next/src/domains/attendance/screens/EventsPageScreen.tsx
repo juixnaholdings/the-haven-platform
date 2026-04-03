@@ -1,18 +1,15 @@
 "use client";
 
 import { useDeferredValue, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { queryClient } from "@/api/queryClient";
 import {
   EmptyState,
   EntityTable,
-  ErrorAlert,
   ErrorState,
   FilterActionStrip,
-  FormSection,
   LoadingState,
   PageHeader,
   PaginationControls,
@@ -20,45 +17,11 @@ import {
   StatusBadge,
 } from "@/components";
 import { attendanceApi } from "@/domains/attendance/api";
+import { CreateServiceEventModal, RecordAttendanceModal } from "@/domains/attendance/components";
 import { getServiceEventTypeLabel, SERVICE_EVENT_TYPE_OPTIONS } from "@/domains/attendance/options";
-import type { ServiceEventWritePayload } from "@/domains/types";
 import { formatDate, formatTime } from "@/lib/formatters";
 
 type EventStatusFilter = "all" | "active" | "inactive";
-
-interface EventFormState {
-  title: string;
-  event_type: string;
-  service_date: string;
-  start_time: string;
-  end_time: string;
-  location: string;
-  notes: string;
-  is_active: boolean;
-}
-const emptyEventForm: EventFormState = {
-  title: "",
-  event_type: "OTHER",
-  service_date: "",
-  start_time: "",
-  end_time: "",
-  location: "",
-  notes: "",
-  is_active: true,
-};
-
-function toEventPayload(formState: EventFormState): ServiceEventWritePayload {
-  return {
-    title: formState.title,
-    event_type: formState.event_type,
-    service_date: formState.service_date,
-    start_time: formState.start_time || null,
-    end_time: formState.end_time || null,
-    location: formState.location || undefined,
-    notes: formState.notes || undefined,
-    is_active: formState.is_active,
-  };
-}
 
 function getAttendanceProgressLabel({
   hasSummary,
@@ -83,8 +46,8 @@ export function EventsPageScreen() {
   const [statusFilter, setStatusFilter] = useState<EventStatusFilter>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [formState, setFormState] = useState<EventFormState>(emptyEventForm);
+  const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
+  const [isRecordAttendanceModalOpen, setIsRecordAttendanceModalOpen] = useState(false);
   const deferredSearch = useDeferredValue(search);
 
   const serviceEventsQuery = useQuery({
@@ -103,24 +66,10 @@ export function EventsPageScreen() {
     queryFn: () => attendanceApi.getCurrentOrUpcomingSundayService(),
   });
 
-  const createEventMutation = useMutation({
-    mutationFn: (payload: ServiceEventWritePayload) => attendanceApi.createServiceEvent(payload),
-    onSuccess: async (serviceEvent) => {
-      await queryClient.invalidateQueries({ queryKey: ["service-events"] });
-      setFormState(emptyEventForm);
-      setShowCreateForm(false);
-      router.push(`/events/${serviceEvent.id}`);
-    },
-  });
-
   const serviceEvents = serviceEventsQuery.data?.items ?? [];
   const pagination = serviceEventsQuery.data?.pagination ?? null;
   const sundayService = sundayServiceQuery.data ?? null;
-  const sundayActionLabel = sundayService
-    ? sundayService.has_attendance_summary || sundayService.member_attendance_count > 0
-      ? "Continue Sunday attendance"
-      : "Take Sunday attendance"
-    : "Sunday attendance";
+  const sundayActionLabel = sundayService ? "Open Sunday service" : "Sunday service unavailable";
   const totalServiceEvents = pagination?.count ?? serviceEvents.length;
   const hasFilters = Boolean(search.trim()) || eventTypeFilter !== "all" || statusFilter !== "all";
   const activeEvents = serviceEvents.filter((serviceEvent) => serviceEvent.is_active).length;
@@ -134,18 +83,25 @@ export function EventsPageScreen() {
       <PageHeader
         actions={
           <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              className="button button-primary"
+              onClick={() => setIsRecordAttendanceModalOpen(true)}
+              type="button"
+            >
+              Record attendance
+            </button>
+            <button
+              className="button button-secondary"
+              onClick={() => setIsCreateEventModalOpen(true)}
+              type="button"
+            >
+              New event
+            </button>
             {sundayService ? (
-              <Link className="button button-secondary" href={`/events/${sundayService.id}/attendance`}>
+              <Link className="button button-ghost" href={`/events/${sundayService.id}`}>
                 {sundayActionLabel}
               </Link>
             ) : null}
-            <button
-              className={showCreateForm ? "button button-secondary" : "button button-primary"}
-              onClick={() => setShowCreateForm((current) => !current)}
-              type="button"
-            >
-              {showCreateForm ? "Close form" : "New event"}
-            </button>
           </div>
         }
         description="Manage church services and events, then move into the detail and attendance recording workflows."
@@ -234,161 +190,6 @@ export function EventsPageScreen() {
         }
       />
 
-      {showCreateForm ? (
-        <form
-          className="space-y-6"
-          onSubmit={(event) => {
-            event.preventDefault();
-            createEventMutation.mutate(toEventPayload(formState));
-          }}
-        >
-          <FormSection
-            description="This form uses the real service-event create endpoint and opens the saved detail workflow."
-            title="Create event"
-          >
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="field">
-                <span>Title</span>
-                <input
-                  onChange={(event) =>
-                    setFormState((current) => ({
-                      ...current,
-                      title: event.target.value,
-                    }))
-                  }
-                  required
-                  value={formState.title}
-                />
-              </label>
-
-              <label className="field">
-                <span>Event type</span>
-                <select
-                  onChange={(event) =>
-                    setFormState((current) => ({
-                      ...current,
-                      event_type: event.target.value,
-                    }))
-                  }
-                  value={formState.event_type}
-                >
-                  {SERVICE_EVENT_TYPE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="field">
-                <span>Service date</span>
-                <input
-                  onChange={(event) =>
-                    setFormState((current) => ({
-                      ...current,
-                      service_date: event.target.value,
-                    }))
-                  }
-                  required
-                  type="date"
-                  value={formState.service_date}
-                />
-              </label>
-
-              <label className="field">
-                <span>Location</span>
-                <input
-                  onChange={(event) =>
-                    setFormState((current) => ({
-                      ...current,
-                      location: event.target.value,
-                    }))
-                  }
-                  value={formState.location}
-                />
-              </label>
-
-              <label className="field">
-                <span>Start time</span>
-                <input
-                  onChange={(event) =>
-                    setFormState((current) => ({
-                      ...current,
-                      start_time: event.target.value,
-                    }))
-                  }
-                  type="time"
-                  value={formState.start_time}
-                />
-              </label>
-
-              <label className="field">
-                <span>End time</span>
-                <input
-                  onChange={(event) =>
-                    setFormState((current) => ({
-                      ...current,
-                      end_time: event.target.value,
-                    }))
-                  }
-                  type="time"
-                  value={formState.end_time}
-                />
-              </label>
-
-              <label className="checkbox-field checkbox-field-inline">
-                <input
-                  checked={formState.is_active}
-                  onChange={(event) =>
-                    setFormState((current) => ({
-                      ...current,
-                      is_active: event.target.checked,
-                    }))
-                  }
-                  type="checkbox"
-                />
-                <span>Event is active</span>
-              </label>
-            </div>
-
-            <label className="field">
-              <span>Notes</span>
-              <textarea
-                onChange={(event) =>
-                  setFormState((current) => ({
-                    ...current,
-                    notes: event.target.value,
-                  }))
-                }
-                rows={4}
-                value={formState.notes}
-              />
-            </label>
-          </FormSection>
-
-          <ErrorAlert
-            error={createEventMutation.error}
-            fallbackMessage="The service event could not be created."
-          />
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button className="button button-primary" disabled={createEventMutation.isPending} type="submit">
-              {createEventMutation.isPending ? "Creating..." : "Create event"}
-            </button>
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setFormState(emptyEventForm);
-                setShowCreateForm(false);
-              }}
-              type="button"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      ) : null}
-
       {serviceEventsQuery.isLoading ? (
         <LoadingState
           description="Fetching service events and attendance flags from the backend."
@@ -423,7 +224,11 @@ export function EventsPageScreen() {
                 Clear filters
               </button>
             ) : (
-              <button className="button button-primary" onClick={() => setShowCreateForm(true)} type="button">
+              <button
+                className="button button-primary"
+                onClick={() => setIsCreateEventModalOpen(true)}
+                type="button"
+              >
                 Create event
               </button>
             )
@@ -525,6 +330,21 @@ export function EventsPageScreen() {
           />
         </section>
       ) : null}
+
+      <CreateServiceEventModal
+        isOpen={isCreateEventModalOpen}
+        onClose={() => setIsCreateEventModalOpen(false)}
+        onCreated={(serviceEvent) => {
+          router.push(`/events/${serviceEvent.id}`);
+        }}
+      />
+      <RecordAttendanceModal
+        isOpen={isRecordAttendanceModalOpen}
+        onClose={() => setIsRecordAttendanceModalOpen(false)}
+        onCompleted={(serviceEvent) => {
+          router.push(`/events/${serviceEvent.id}/attendance`);
+        }}
+      />
     </div>
   );
 }

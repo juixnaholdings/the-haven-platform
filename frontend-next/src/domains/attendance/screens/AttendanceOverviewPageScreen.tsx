@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { EmptyState, EntityTable, ErrorState, FilterActionStrip, LoadingState, PageHeader, StatCard, StatusBadge } from "@/components";
 import { attendanceApi } from "@/domains/attendance/api";
+import { RecordAttendanceModal } from "@/domains/attendance/components";
 import { getServiceEventTypeLabel } from "@/domains/attendance/options";
 import type { SundayAttendanceState } from "@/domains/types";
 import { reportingApi } from "@/domains/reporting/api";
@@ -34,8 +36,10 @@ function getSundayAttendanceStateMeta(state: SundayAttendanceState) {
 }
 
 export function AttendanceOverviewPageScreen() {
+  const router = useRouter();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [isRecordAttendanceModalOpen, setIsRecordAttendanceModalOpen] = useState(false);
 
   const attendanceSummaryQuery = useQuery({
     queryKey: ["attendance-overview", { startDate, endDate }],
@@ -95,12 +99,11 @@ export function AttendanceOverviewPageScreen() {
   const serviceEvents = serviceEventsQuery.data ?? [];
   const sundayService = sundayServiceQuery.data ?? null;
   const hasDateFilter = Boolean(startDate || endDate);
-  const sundayServiceHasRecords = sundayService
+  const sundayActionLabel = sundayService
     ? sundayService.has_attendance_summary || sundayService.member_attendance_count > 0
-    : false;
-  const sundayActionLabel = sundayServiceHasRecords
-    ? "Continue Sunday attendance"
-    : "Take Sunday attendance";
+      ? "Continue Sunday attendance"
+      : "Take Sunday attendance"
+    : "Sunday attendance";
 
   if (!summary) {
     return null;
@@ -111,6 +114,20 @@ export function AttendanceOverviewPageScreen() {
   return (
     <div className="space-y-6">
       <PageHeader
+        actions={
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              className="button button-primary"
+              onClick={() => setIsRecordAttendanceModalOpen(true)}
+              type="button"
+            >
+              Record attendance
+            </button>
+            <Link className="button button-secondary" href="/events">
+              View events
+            </Link>
+          </div>
+        }
         description="This overview keeps anonymous summary attendance and member-level attendance explicit as separate but related operational surfaces."
         eyebrow="Attendance overview"
         meta={<StatusBadge label={hasDateFilter ? "Filtered range" : "All-time overview"} tone="info" />}
@@ -118,7 +135,7 @@ export function AttendanceOverviewPageScreen() {
       />
 
       {sundayService ? (
-        <section className="rounded-3xl border border-blue-200/80 bg-blue-50/60 p-6 shadow-sm">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="grid gap-2">
               <div className="flex flex-wrap items-center gap-2">
@@ -147,10 +164,17 @@ export function AttendanceOverviewPageScreen() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <Link className="button button-primary" href={`/events/${sundayService.id}/attendance`}>
+              <button
+                className="button button-primary"
+                onClick={() => setIsRecordAttendanceModalOpen(true)}
+                type="button"
+              >
+                Record attendance
+              </button>
+              <Link className="button button-secondary" href={`/events/${sundayService.id}/attendance`}>
                 {sundayActionLabel}
               </Link>
-              <Link className="button button-secondary" href={`/events/${sundayService.id}`}>
+              <Link className="button button-ghost" href={`/events/${sundayService.id}`}>
                 View Sunday event
               </Link>
             </div>
@@ -339,9 +363,13 @@ export function AttendanceOverviewPageScreen() {
       {serviceEvents.length === 0 ? (
         <EmptyState
           action={
-            <Link className="button button-primary" href="/events">
-              Go to events
-            </Link>
+            <button
+              className="button button-primary"
+              onClick={() => setIsRecordAttendanceModalOpen(true)}
+              type="button"
+            >
+              Record attendance
+            </button>
           }
           description={
             hasDateFilter
@@ -414,6 +442,14 @@ export function AttendanceOverviewPageScreen() {
           />
         </section>
       )}
+
+      <RecordAttendanceModal
+        isOpen={isRecordAttendanceModalOpen}
+        onClose={() => setIsRecordAttendanceModalOpen(false)}
+        onCompleted={(serviceEvent) => {
+          router.push(`/events/${serviceEvent.id}/attendance`);
+        }}
+      />
     </div>
   );
 }

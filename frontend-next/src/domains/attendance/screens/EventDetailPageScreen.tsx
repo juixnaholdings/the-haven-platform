@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
-import { ErrorAlert, ErrorState, FormSection, LoadingState, PageHeader, StatCard, StatusBadge } from "@/components";
+import { ErrorAlert, ErrorState, FormModalShell, FormSection, LoadingState, PageHeader, StatCard, StatusBadge } from "@/components";
 import { attendanceApi } from "@/domains/attendance/api";
 import { getServiceEventTypeLabel, SERVICE_EVENT_TYPE_OPTIONS } from "@/domains/attendance/options";
 import type { ServiceEventWritePayload } from "@/domains/types";
@@ -51,6 +51,7 @@ export function EventDetailPageScreen() {
   const params = useParams<{ serviceEventId: string }>();
   const numericServiceEventId = Number(params.serviceEventId);
   const [formOverrides, setFormOverrides] = useState<Partial<EventFormState>>({});
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const serviceEventQuery = useQuery({
     enabled: Number.isFinite(numericServiceEventId),
@@ -91,6 +92,7 @@ export function EventDetailPageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["service-event", numericServiceEventId] });
       await queryClient.invalidateQueries({ queryKey: ["attendance-overview"] });
       setFormOverrides({});
+      setIsEditModalOpen(false);
     },
   });
 
@@ -136,6 +138,13 @@ export function EventDetailPageScreen() {
             <Link className="button button-secondary" href="/events">
               Back to events
             </Link>
+            <button
+              className="button button-ghost"
+              onClick={() => setIsEditModalOpen(true)}
+              type="button"
+            >
+              Edit event
+            </button>
             <Link className="button button-primary" href={`/events/${serviceEvent.id}/attendance`}>
               Record attendance
             </Link>
@@ -240,148 +249,167 @@ export function EventDetailPageScreen() {
         <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">{serviceEvent.notes || "No event notes recorded."}</p>
       </section>
 
-      <form
-        className="space-y-6"
-        onSubmit={(event) => {
-          event.preventDefault();
-          updateServiceEventMutation.mutate(toEventPayload(formState));
-        }}
+      <FormModalShell
+        description="Update the current service-event record through the existing patch endpoint."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => setIsEditModalOpen(false)}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={updateServiceEventMutation.isPending}
+              form="update-event-modal-form"
+              type="submit"
+            >
+              {updateServiceEventMutation.isPending ? "Saving..." : "Save event changes"}
+            </button>
+          </>
+        }
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        size="large"
+        title="Update event"
       >
-        <FormSection
-          description="Update the current service-event record through the existing patch endpoint."
-          title="Update event"
+        <form
+          className="space-y-6"
+          id="update-event-modal-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            updateServiceEventMutation.mutate(toEventPayload(formState));
+          }}
         >
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="field">
-              <span>Title</span>
-              <input
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    title: event.target.value,
-                  }))
-                }
-                required
-                value={formState.title}
-              />
-            </label>
+          <FormSection title="Event details">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="field">
+                <span>Title</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      title: event.target.value,
+                    }))
+                  }
+                  required
+                  value={formState.title}
+                />
+              </label>
+
+              <label className="field">
+                <span>Event type</span>
+                <select
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      event_type: event.target.value,
+                    }))
+                  }
+                  value={formState.event_type}
+                >
+                  {SERVICE_EVENT_TYPE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Service date</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      service_date: event.target.value,
+                    }))
+                  }
+                  required
+                  type="date"
+                  value={formState.service_date}
+                />
+              </label>
+
+              <label className="field">
+                <span>Location</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      location: event.target.value,
+                    }))
+                  }
+                  value={formState.location}
+                />
+              </label>
+
+              <label className="field">
+                <span>Start time</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      start_time: event.target.value,
+                    }))
+                  }
+                  type="time"
+                  value={formState.start_time}
+                />
+              </label>
+
+              <label className="field">
+                <span>End time</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      end_time: event.target.value,
+                    }))
+                  }
+                  type="time"
+                  value={formState.end_time}
+                />
+              </label>
+
+              <label className="checkbox-field checkbox-field-inline">
+                <input
+                  checked={formState.is_active}
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      is_active: event.target.checked,
+                    }))
+                  }
+                  type="checkbox"
+                />
+                <span>Event is active</span>
+              </label>
+            </div>
 
             <label className="field">
-              <span>Event type</span>
-              <select
+              <span>Notes</span>
+              <textarea
                 onChange={(event) =>
                   setFormOverrides((current) => ({
                     ...current,
-                    event_type: event.target.value,
+                    notes: event.target.value,
                   }))
                 }
-                value={formState.event_type}
-              >
-                {SERVICE_EVENT_TYPE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="field">
-              <span>Service date</span>
-              <input
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    service_date: event.target.value,
-                  }))
-                }
-                required
-                type="date"
-                value={formState.service_date}
+                rows={4}
+                value={formState.notes}
               />
             </label>
+          </FormSection>
 
-            <label className="field">
-              <span>Location</span>
-              <input
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    location: event.target.value,
-                  }))
-                }
-                value={formState.location}
-              />
-            </label>
-
-            <label className="field">
-              <span>Start time</span>
-              <input
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    start_time: event.target.value,
-                  }))
-                }
-                type="time"
-                value={formState.start_time}
-              />
-            </label>
-
-            <label className="field">
-              <span>End time</span>
-              <input
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    end_time: event.target.value,
-                  }))
-                }
-                type="time"
-                value={formState.end_time}
-              />
-            </label>
-
-            <label className="checkbox-field checkbox-field-inline">
-              <input
-                checked={formState.is_active}
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    is_active: event.target.checked,
-                  }))
-                }
-                type="checkbox"
-              />
-              <span>Event is active</span>
-            </label>
-          </div>
-
-          <label className="field">
-            <span>Notes</span>
-            <textarea
-              onChange={(event) =>
-                setFormOverrides((current) => ({
-                  ...current,
-                  notes: event.target.value,
-                }))
-              }
-              rows={4}
-              value={formState.notes}
-            />
-          </label>
-        </FormSection>
-
-        <ErrorAlert
-          error={updateServiceEventMutation.error}
-          fallbackMessage="The service event could not be updated."
-        />
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button className="button button-primary" disabled={updateServiceEventMutation.isPending} type="submit">
-            {updateServiceEventMutation.isPending ? "Saving..." : "Save event changes"}
-          </button>
-        </div>
-      </form>
+          <ErrorAlert
+            error={updateServiceEventMutation.error}
+            fallbackMessage="The service event could not be updated."
+          />
+        </form>
+      </FormModalShell>
     </div>
   );
 }
