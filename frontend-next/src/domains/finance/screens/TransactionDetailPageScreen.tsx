@@ -130,10 +130,10 @@ export function TransactionDetailPageScreen() {
   const serviceEvents = serviceEventsQuery.data ?? [];
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href="/finance">
               Back to ledger
             </Link>
@@ -155,36 +155,36 @@ export function TransactionDetailPageScreen() {
         title={transaction.reference_no}
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Total in" tone="accent" value={formatAmount(transaction.total_in_amount)} />
         <StatCard label="Total out" value={formatAmount(transaction.total_out_amount)} />
         <StatCard label="Ledger lines" value={lineCount} />
         <StatCard label="Posted at" value={formatDate(transaction.posted_at)} />
       </section>
 
-      <div className="content-grid content-grid-form">
-        <div className="page-stack">
-          <section className="panel">
-            <div className="panel-header">
+      <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)] 2xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.75fr)]">
+        <div className="space-y-6">
+          <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <h3>Record metadata</h3>
-                <p className="muted-text">Current transaction-level metadata exposed by the backend.</p>
+                <p className="m-0 text-sm text-slate-500">Current transaction-level metadata exposed by the backend.</p>
               </div>
             </div>
-            <dl className="detail-grid detail-grid-2">
-              <div className="detail-item">
+            <dl className="grid gap-3.5 md:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Description</dt>
                 <dd>{transaction.description}</dd>
               </div>
-              <div className="detail-item">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Transaction date</dt>
                 <dd>{formatDate(transaction.transaction_date)}</dd>
               </div>
-              <div className="detail-item">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Linked event</dt>
                 <dd>{transaction.service_event?.title || "Not linked"}</dd>
               </div>
-              <div className="detail-item">
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Last updated</dt>
                 <dd>{formatDateTime(transaction.updated_at)}</dd>
               </div>
@@ -192,7 +192,7 @@ export function TransactionDetailPageScreen() {
           </section>
 
           <form
-            className="page-stack"
+            className="space-y-6"
             onSubmit={(event) => {
               event.preventDefault();
               updateMutation.mutate(toMetadataPayload(formState));
@@ -202,8 +202,8 @@ export function TransactionDetailPageScreen() {
               description="Use this only for safe operational metadata changes. Posted ledger lines themselves are not editable here."
               title="Update transaction metadata"
             >
-              <div className="form-grid form-grid-2">
-                <label className="field">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="grid gap-2">
                   <span>Transaction date</span>
                   <input
                     onChange={(event) =>
@@ -218,7 +218,7 @@ export function TransactionDetailPageScreen() {
                   />
                 </label>
 
-                <label className="field">
+                <label className="grid gap-2">
                   <span>Linked service/event</span>
                   <select
                     onChange={(event) =>
@@ -239,7 +239,7 @@ export function TransactionDetailPageScreen() {
                 </label>
               </div>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Description</span>
                 <textarea
                   onChange={(event) =>
@@ -259,7 +259,7 @@ export function TransactionDetailPageScreen() {
               fallbackMessage="The transaction metadata could not be updated."
             />
 
-            <div className="inline-actions">
+            <div className="flex flex-wrap items-center gap-2.5">
               <button className="button button-primary" disabled={updateMutation.isPending} type="submit">
                 {updateMutation.isPending ? "Saving..." : "Save metadata changes"}
               </button>
@@ -272,11 +272,11 @@ export function TransactionDetailPageScreen() {
               title="No ledger lines are attached"
             />
           ) : (
-            <section className="panel">
-              <div className="panel-header">
+            <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
                 <div>
                   <h3>Ledger lines</h3>
-                  <p className="muted-text">
+                  <p className="m-0 text-sm text-slate-500">
                     Underlying posted lines used to derive balances and transaction totals.
                   </p>
                 </div>
@@ -287,9 +287,9 @@ export function TransactionDetailPageScreen() {
                   {
                     header: "Fund account",
                     cell: (line) => (
-                      <div className="cell-stack">
+                      <div className="grid gap-1">
                         <strong>{line.fund_account_name}</strong>
-                        <span className="table-subtext">{line.fund_account_code}</span>
+                        <span className="block text-xs text-slate-500">{line.fund_account_code}</span>
                       </div>
                     ),
                   },
@@ -322,16 +322,16 @@ export function TransactionDetailPageScreen() {
           )}
         </div>
 
-        <aside className="page-stack">
-          <section className="panel">
-            <div className="panel-header">
+        <aside className="space-y-6">
+          <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <h3>Record posture</h3>
-                <p className="muted-text">What is available in this release-ready finance surface.</p>
+                <p className="m-0 text-sm text-slate-500">What is available in this release-ready finance surface.</p>
               </div>
             </div>
-            <ul className="item-list">
-              <li className="item-row">
+            <ul className="m-0 grid list-none gap-3 p-0">
+              <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
                 <div>
                   <strong>Safe metadata edits only</strong>
                   <span>
@@ -339,7 +339,7 @@ export function TransactionDetailPageScreen() {
                   </span>
                 </div>
               </li>
-              <li className="item-row">
+              <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
                 <div>
                   <strong>No revision timeline</strong>
                   <span>
@@ -363,14 +363,14 @@ export function TransactionDetailPageScreen() {
         title="Reversal requests"
       />
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3>Available timeline fields</h3>
-            <p className="muted-text">Current record timestamps exposed by the API.</p>
+            <p className="m-0 text-sm text-slate-500">Current record timestamps exposed by the API.</p>
           </div>
         </div>
-        <dl className="definition-list">
+        <dl className="m-0 grid gap-3.5">
           <div>
             <dt>Created at</dt>
             <dd>{formatDateTime(transaction.created_at)}</dd>

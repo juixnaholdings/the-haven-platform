@@ -191,7 +191,7 @@ export function MemberFormScreen({
 
   const memberForm = (
     <form
-      className="page-stack"
+      className="space-y-6"
       id={formId}
       onSubmit={(event) => {
         event.preventDefault();
@@ -202,8 +202,8 @@ export function MemberFormScreen({
         description="These fields map directly to the current member profile payload exposed by the backend."
         title="Core profile"
       >
-        <div className="form-grid form-grid-2">
-          <label className="field">
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2">
             <span>First name</span>
             <input
               onChange={(event) =>
@@ -214,7 +214,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Middle name</span>
             <input
               onChange={(event) =>
@@ -224,7 +224,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Last name</span>
             <input
               onChange={(event) =>
@@ -235,7 +235,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Email</span>
             <input
               onChange={(event) =>
@@ -246,7 +246,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Phone number</span>
             <input
               onChange={(event) =>
@@ -256,7 +256,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Date of birth</span>
             <input
               onChange={(event) =>
@@ -273,8 +273,8 @@ export function MemberFormScreen({
         description="The backend currently stores profile notes and active state, but not related household or attendance history on this form."
         title="Operational notes"
       >
-        <div className="form-grid">
-          <label className="field">
+        <div className="grid gap-4">
+          <label className="grid gap-2">
             <span>Notes</span>
             <textarea
               onChange={(event) =>
@@ -285,7 +285,7 @@ export function MemberFormScreen({
             />
           </label>
 
-          <label className="checkbox-field">
+          <label className="flex items-start gap-2.5 font-medium text-slate-700">
             <input
               checked={formState.is_active}
               onChange={(event) =>
@@ -299,26 +299,26 @@ export function MemberFormScreen({
       </FormSection>
 
       {!isModal ? (
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Record status</h3>
-              <p className="muted-text">A quick summary of what this form controls today.</p>
+              <p className="m-0 text-sm text-slate-500">A quick summary of what this form controls today.</p>
             </div>
           </div>
-          <div className="page-stack">
+          <div className="space-y-6">
             <StatusBadge
               label={formState.is_active ? "Active member" : "Inactive member"}
               tone={formState.is_active ? "success" : "muted"}
             />
-            <ul className="item-list">
-              <li className="item-row">
+            <ul className="m-0 grid list-none gap-3 p-0">
+              <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
                 <div>
                   <strong>Included on this form</strong>
                   <span>Identity, contact fields, birth date, notes, and active state.</span>
                 </div>
               </li>
-              <li className="item-row">
+              <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
                 <div>
                   <strong>Not included here</strong>
                   <span>
@@ -337,7 +337,7 @@ export function MemberFormScreen({
       />
 
       {!isModal ? (
-        <div className="inline-actions">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button className="button button-primary" disabled={saveMemberMutation.isPending} type="submit">
             {saveMemberMutation.isPending ? "Saving..." : isEdit ? "Save changes" : "Create member"}
           </button>
@@ -358,7 +358,7 @@ export function MemberFormScreen({
             : "Create a new member profile using the real members API."
         }
         footer={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               className="button button-primary"
               disabled={saveMemberMutation.isPending}
@@ -383,10 +383,10 @@ export function MemberFormScreen({
   }
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href={isEdit ? `/members/${memberId}` : "/members"}>
               Cancel
             </Link>

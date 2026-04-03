@@ -42,15 +42,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-layout">
-      <div className="auth-stack">
-        
-        <div className="auth-card">
-          <div className="auth-card-header">
+    <div className="grid min-h-screen place-items-center bg-gradient-to-b from-amber-50 via-slate-50 to-slate-100 px-6 py-8">
+      <div className="w-full max-w-[520px] space-y-6">
+        <div className="grid w-full gap-6 rounded-[1.65rem] border border-slate-200/80 bg-white/95 p-8 shadow-sm">
+          <div className="grid gap-2">
             <h2>Welcome back</h2>
           </div>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <form className="grid gap-5" onSubmit={handleSubmit}>
             <label className="field">
               <span>Username or email</span>
               <input
@@ -74,7 +73,7 @@ export default function LoginPage() {
             </label>
 
             <button
-              className="button button-primary button-block"
+              className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-br from-[#16335f] to-[#27497d] px-4 py-2.5 font-semibold text-white shadow-[0_10px_24px_rgba(22,51,95,0.18)] transition hover:-translate-y-px hover:from-[#102748] hover:to-[#1e3f6e] disabled:cursor-not-allowed disabled:opacity-70"
               disabled={isSubmitting || isBootstrapping}
               type="submit"
             >
@@ -83,9 +82,9 @@ export default function LoginPage() {
           </form>
 
           <ErrorAlert error={submitError} fallbackMessage="Server Error. Please Try Again." />
-          <p className="auth-switch muted-text helper-text">
+          <p className="m-0 text-sm text-slate-500">
             New to The Haven?{" "}
-            <Link className="auth-switch-link" href="/signup">
+            <Link className="font-semibold text-[#16335f] hover:underline" href="/signup">
               Create an account
             </Link>
             .

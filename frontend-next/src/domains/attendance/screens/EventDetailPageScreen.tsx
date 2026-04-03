@@ -129,10 +129,10 @@ export function EventDetailPageScreen() {
   const summaryTotal = serviceEvent.attendance_summary?.total_count ?? 0;
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href="/events">
               Back to events
             </Link>
@@ -155,54 +155,54 @@ export function EventDetailPageScreen() {
         title={serviceEvent.title}
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Service date" tone="accent" value={formatDate(serviceEvent.service_date)} />
         <StatCard label="Member records" value={serviceEvent.member_attendances.length} />
         <StatCard label="Summary total" value={summaryTotal} />
         <StatCard label="Updated" value={formatDate(serviceEvent.updated_at)} />
       </section>
 
-      <div className="content-grid">
-        <section className="panel">
-          <div className="panel-header">
+      <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Event profile</h3>
-              <p className="muted-text">Core service-event fields from the backend payload.</p>
+              <p className="m-0 text-sm text-slate-500">Core service-event fields from the backend payload.</p>
             </div>
           </div>
-          <dl className="detail-grid detail-grid-2">
-            <div className="detail-item">
+          <dl className="grid gap-3.5 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Type</dt>
               <dd>{getServiceEventTypeLabel(serviceEvent.event_type)}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Service date</dt>
               <dd>{formatDate(serviceEvent.service_date)}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Start time</dt>
               <dd>{formatTime(serviceEvent.start_time)}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>End time</dt>
               <dd>{formatTime(serviceEvent.end_time)}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Location</dt>
               <dd>{serviceEvent.location || "Not set"}</dd>
             </div>
           </dl>
         </section>
 
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Attendance snapshot</h3>
-              <p className="muted-text">Anonymous summary and member records remain distinct.</p>
+              <p className="m-0 text-sm text-slate-500">Anonymous summary and member records remain distinct.</p>
             </div>
           </div>
-          <dl className="detail-grid detail-grid-1">
-            <div className="detail-item">
+          <dl className="grid gap-3.5 grid-cols-1">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Summary status</dt>
               <dd>
                 <StatusBadge
@@ -211,11 +211,11 @@ export function EventDetailPageScreen() {
                 />
               </dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Member attendance rows</dt>
               <dd>{serviceEvent.member_attendances.length}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Last updated</dt>
               <dd>{formatDateTime(serviceEvent.updated_at)}</dd>
             </div>
@@ -223,18 +223,18 @@ export function EventDetailPageScreen() {
         </section>
       </div>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3>Notes</h3>
-            <p className="muted-text">Event-level notes only. Attendance notes are handled in the recording workflow.</p>
+            <p className="m-0 text-sm text-slate-500">Event-level notes only. Attendance notes are handled in the recording workflow.</p>
           </div>
         </div>
-        <p className="panel-copy">{serviceEvent.notes || "No event notes recorded."}</p>
+        <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">{serviceEvent.notes || "No event notes recorded."}</p>
       </section>
 
       <form
-        className="page-stack"
+        className="space-y-6"
         onSubmit={(event) => {
           event.preventDefault();
           updateServiceEventMutation.mutate(toEventPayload(formState));
@@ -244,8 +244,8 @@ export function EventDetailPageScreen() {
           description="Update the current service-event record through the existing patch endpoint."
           title="Update event"
         >
-          <div className="form-grid form-grid-2">
-            <label className="field">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2">
               <span>Title</span>
               <input
                 onChange={(event) =>
@@ -259,7 +259,7 @@ export function EventDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Event type</span>
               <select
                 onChange={(event) =>
@@ -278,7 +278,7 @@ export function EventDetailPageScreen() {
               </select>
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Service date</span>
               <input
                 onChange={(event) =>
@@ -293,7 +293,7 @@ export function EventDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Location</span>
               <input
                 onChange={(event) =>
@@ -306,7 +306,7 @@ export function EventDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Start time</span>
               <input
                 onChange={(event) =>
@@ -320,7 +320,7 @@ export function EventDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>End time</span>
               <input
                 onChange={(event) =>
@@ -334,7 +334,7 @@ export function EventDetailPageScreen() {
               />
             </label>
 
-            <label className="checkbox-field checkbox-field-inline">
+            <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
               <input
                 checked={formState.is_active}
                 onChange={(event) =>
@@ -349,7 +349,7 @@ export function EventDetailPageScreen() {
             </label>
           </div>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Notes</span>
             <textarea
               onChange={(event) =>
@@ -369,7 +369,7 @@ export function EventDetailPageScreen() {
           fallbackMessage="The service event could not be updated."
         />
 
-        <div className="inline-actions">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button className="button button-primary" disabled={updateServiceEventMutation.isPending} type="submit">
             {updateServiceEventMutation.isPending ? "Saving..." : "Save event changes"}
           </button>

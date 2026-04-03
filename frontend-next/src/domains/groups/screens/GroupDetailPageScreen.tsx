@@ -253,7 +253,7 @@ export function GroupDetailPageScreen() {
   const inactiveMembershipCount = group.memberships.length - activeMembershipCount;
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
           <Link className="button button-secondary" href="/groups">
@@ -277,37 +277,37 @@ export function GroupDetailPageScreen() {
         title={group.name}
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Active members" tone="accent" value={activeMembershipCount} />
         <StatCard label="Inactive members" value={inactiveMembershipCount} />
         <StatCard label="Created" value={formatDate(group.created_at)} />
       </section>
 
-      <div className="content-grid">
-        <section className="panel">
-          <div className="panel-header">
+      <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Ministry profile</h3>
-              <p className="muted-text">Current name and description from the backend group record.</p>
+              <p className="m-0 text-sm text-slate-500">Current name and description from the backend group record.</p>
             </div>
           </div>
-          <div className="page-stack">
-            <div className="detail-item">
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Description</dt>
               <dd>{group.description || "No ministry description recorded."}</dd>
             </div>
           </div>
         </section>
 
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Record metadata</h3>
-              <p className="muted-text">Ministry status and audit timestamps.</p>
+              <p className="m-0 text-sm text-slate-500">Ministry status and audit timestamps.</p>
             </div>
           </div>
-          <dl className="detail-grid detail-grid-1">
-            <div className="detail-item">
+          <dl className="grid gap-3.5 grid-cols-1">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Status</dt>
               <dd>
                 <StatusBadge
@@ -316,11 +316,11 @@ export function GroupDetailPageScreen() {
                 />
               </dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Created</dt>
               <dd>{formatDateTime(group.created_at)}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Last updated</dt>
               <dd>{formatDateTime(group.updated_at)}</dd>
             </div>
@@ -329,7 +329,7 @@ export function GroupDetailPageScreen() {
       </div>
 
       <form
-        className="page-stack"
+        className="space-y-6"
         onSubmit={(event) => {
           event.preventDefault();
           updateGroupMutation.mutate(toGroupPayload(groupFormState));
@@ -339,8 +339,8 @@ export function GroupDetailPageScreen() {
           description="This form updates the current flat group record used for ministry management."
           title="Update ministry"
         >
-          <div className="form-grid form-grid-2">
-            <label className="field">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2">
               <span>Ministry name</span>
               <input
                 onChange={(event) =>
@@ -354,7 +354,7 @@ export function GroupDetailPageScreen() {
               />
             </label>
 
-            <label className="checkbox-field checkbox-field-inline">
+            <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
               <input
                 checked={groupFormState.is_active}
                 onChange={(event) =>
@@ -369,7 +369,7 @@ export function GroupDetailPageScreen() {
             </label>
           </div>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Description</span>
             <textarea
               onChange={(event) =>
@@ -389,18 +389,18 @@ export function GroupDetailPageScreen() {
           fallbackMessage="The ministry could not be updated."
         />
 
-        <div className="inline-actions">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button className="button button-primary" disabled={updateGroupMutation.isPending} type="submit">
             {updateGroupMutation.isPending ? "Saving..." : "Save ministry changes"}
           </button>
         </div>
       </form>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3>Ministry members</h3>
-            <p className="muted-text">
+            <p className="m-0 text-sm text-slate-500">
               Roles and active state are managed per membership. The backend currently supports flat
               group memberships only.
             </p>
@@ -418,11 +418,11 @@ export function GroupDetailPageScreen() {
               {
                 header: "Member",
                 cell: (membership) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/members/${membership.member_id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/members/${membership.member_id}`}>
                       {formatMemberName(membership)}
                     </Link>
-                    <span className="table-subtext">{membership.email || "Profile-only record"}</span>
+                    <span className="block text-xs text-slate-500">{membership.email || "Profile-only record"}</span>
                   </div>
                 ),
               },
@@ -447,7 +447,7 @@ export function GroupDetailPageScreen() {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (membership) => (
-                  <div className="inline-actions">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <button
                       className={
                         selectedMembershipId === membership.id
@@ -473,7 +473,7 @@ export function GroupDetailPageScreen() {
       </section>
 
       <form
-        className="page-stack"
+        className="space-y-6"
         onSubmit={(event) => {
           event.preventDefault();
           addMemberMutation.mutate(toAddMemberPayload(addMemberFormState));
@@ -483,8 +483,8 @@ export function GroupDetailPageScreen() {
           description="Use the live member directory to assign a member into this ministry. Duplicate active memberships are still enforced by the backend."
           title="Add member to ministry"
         >
-          <div className="form-grid form-grid-2">
-            <label className="field">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2">
               <span>Search member directory</span>
               <input
                 onChange={(event) => setMemberSearch(event.target.value)}
@@ -493,7 +493,7 @@ export function GroupDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Choose member</span>
               <select
                 onChange={(event) =>
@@ -519,7 +519,7 @@ export function GroupDetailPageScreen() {
               </select>
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Role name</span>
               <input
                 onChange={(event) =>
@@ -533,7 +533,7 @@ export function GroupDetailPageScreen() {
               />
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Started on</span>
               <input
                 onChange={(event) =>
@@ -548,7 +548,7 @@ export function GroupDetailPageScreen() {
             </label>
           </div>
 
-          <label className="field">
+          <label className="grid gap-2">
             <span>Membership notes</span>
             <textarea
               onChange={(event) =>
@@ -562,7 +562,7 @@ export function GroupDetailPageScreen() {
             />
           </label>
 
-          <p className="muted-text helper-text">
+          <p className="m-0 text-sm text-slate-500">
             {candidateMembersQuery.isLoading
               ? "Loading candidate members..."
               : candidateMembers.length > 0
@@ -576,7 +576,7 @@ export function GroupDetailPageScreen() {
           fallbackMessage="The member could not be added to this ministry."
         />
 
-        <div className="inline-actions">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button className="button button-primary" disabled={addMemberMutation.isPending} type="submit">
             {addMemberMutation.isPending ? "Adding..." : "Add member"}
           </button>
@@ -595,7 +595,7 @@ export function GroupDetailPageScreen() {
 
       {selectedMembership ? (
         <form
-          className="page-stack"
+          className="space-y-6"
           onSubmit={(event) => {
             event.preventDefault();
             updateMembershipMutation.mutate(toMembershipPayload(membershipFormState));
@@ -605,8 +605,8 @@ export function GroupDetailPageScreen() {
             description="Update ministry role, dates, notes, and active state through the existing membership patch endpoint."
             title={`Edit membership: ${formatMemberName(selectedMembership)}`}
           >
-            <div className="form-grid form-grid-2">
-              <label className="field">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2">
                 <span>Role name</span>
                 <input
                   onChange={(event) =>
@@ -619,7 +619,7 @@ export function GroupDetailPageScreen() {
                 />
               </label>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Started on</span>
                 <input
                   onChange={(event) =>
@@ -633,7 +633,7 @@ export function GroupDetailPageScreen() {
                 />
               </label>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Ended on</span>
                 <input
                   onChange={(event) =>
@@ -647,7 +647,7 @@ export function GroupDetailPageScreen() {
                 />
               </label>
 
-              <label className="checkbox-field checkbox-field-inline">
+              <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
                 <input
                   checked={membershipFormState.is_active}
                   onChange={(event) =>
@@ -662,7 +662,7 @@ export function GroupDetailPageScreen() {
               </label>
             </div>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Membership notes</span>
               <textarea
                 onChange={(event) =>
@@ -682,7 +682,7 @@ export function GroupDetailPageScreen() {
             fallbackMessage="The ministry membership could not be updated."
           />
 
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               className="button button-primary"
               disabled={updateMembershipMutation.isPending}

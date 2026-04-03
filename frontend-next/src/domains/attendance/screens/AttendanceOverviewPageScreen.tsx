@@ -63,7 +63,7 @@ export function AttendanceOverviewPageScreen() {
   }
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         description="This overview keeps anonymous summary attendance and member-level attendance explicit as separate but related operational surfaces."
         eyebrow="Attendance overview"
@@ -71,7 +71,7 @@ export function AttendanceOverviewPageScreen() {
         title="Attendance"
       />
 
-      <div className="panel-grid">
+      <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
         <FilterActionStrip
           actions={
             <button
@@ -86,34 +86,34 @@ export function AttendanceOverviewPageScreen() {
             </button>
           }
           filters={
-            <label className="field">
+            <label className="grid gap-2">
               <span>End date</span>
               <input onChange={(event) => setEndDate(event.target.value)} type="date" value={endDate} />
             </label>
           }
           search={
-            <label className="field">
+            <label className="grid gap-2">
               <span>Start date</span>
               <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
             </label>
           }
         />
 
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>How to read this page</h3>
-              <p className="muted-text">The backend intentionally keeps the two attendance surfaces separate.</p>
+              <p className="m-0 text-sm text-slate-500">The backend intentionally keeps the two attendance surfaces separate.</p>
             </div>
           </div>
-          <ul className="item-list">
-            <li className="item-row">
+          <ul className="m-0 grid list-none gap-3 p-0">
+            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
               <div>
                 <strong>Anonymous summary</strong>
                 <span>Aggregate headcounts across men, women, children, and visitors.</span>
               </div>
             </li>
-            <li className="item-row">
+            <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3">
               <div>
                 <strong>Member attendance rows</strong>
                 <span>Per-member status records used during the event attendance workflow.</span>
@@ -123,22 +123,22 @@ export function AttendanceOverviewPageScreen() {
         </section>
       </div>
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Events in range" tone="accent" value={summary.total_events} />
         <StatCard label="Aggregate attendance" value={summary.aggregate_total_attendance} />
         <StatCard label="Visitors" value={summary.aggregate_visitor_count} />
         <StatCard label="Member records" value={summary.total_member_attendance_records} />
       </section>
 
-      <div className="panel-grid">
-        <section className="panel">
-          <div className="panel-header">
+      <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Attendance breakdown</h3>
-              <p className="muted-text">Anonymous summary totals across the selected date range.</p>
+              <p className="m-0 text-sm text-slate-500">Anonymous summary totals across the selected date range.</p>
             </div>
           </div>
-          <dl className="definition-list">
+          <dl className="m-0 grid gap-3.5">
             <div>
               <dt>Men</dt>
               <dd>{summary.aggregate_men_count}</dd>
@@ -158,11 +158,11 @@ export function AttendanceOverviewPageScreen() {
           </dl>
         </section>
 
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Event type counts</h3>
-              <p className="muted-text">Counts of events by current backend event-type classification.</p>
+              <p className="m-0 text-sm text-slate-500">Counts of events by current backend event-type classification.</p>
             </div>
           </div>
           {summary.event_type_counts.length === 0 ? (
@@ -171,9 +171,9 @@ export function AttendanceOverviewPageScreen() {
               title="No event-type counts yet"
             />
           ) : (
-            <ul className="item-list">
+            <ul className="m-0 grid list-none gap-3 p-0">
               {summary.event_type_counts.map((eventTypeCount) => (
-                <li className="item-row" key={eventTypeCount.event_type}>
+                <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3" key={eventTypeCount.event_type}>
                   <div>
                     <strong>{getServiceEventTypeLabel(eventTypeCount.event_type)}</strong>
                   </div>
@@ -200,11 +200,11 @@ export function AttendanceOverviewPageScreen() {
           title={hasDateFilter ? "No events in the selected range" : "No events available for attendance yet"}
         />
       ) : (
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Recent events</h3>
-              <p className="muted-text">Open the event detail or direct attendance recording workflow from here.</p>
+              <p className="m-0 text-sm text-slate-500">Open the event detail or direct attendance recording workflow from here.</p>
             </div>
           </div>
           <EntityTable
@@ -212,11 +212,11 @@ export function AttendanceOverviewPageScreen() {
               {
                 header: "Event",
                 cell: (serviceEvent) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/events/${serviceEvent.id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/events/${serviceEvent.id}`}>
                       {serviceEvent.title}
                     </Link>
-                    <span className="table-subtext">
+                    <span className="block text-xs text-slate-500">
                       {getServiceEventTypeLabel(serviceEvent.event_type)} · {formatDate(serviceEvent.service_date)}
                     </span>
                   </div>
@@ -239,7 +239,7 @@ export function AttendanceOverviewPageScreen() {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (serviceEvent) => (
-                  <div className="inline-actions">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <Link className="button button-secondary button-compact" href={`/events/${serviceEvent.id}`}>
                       View
                     </Link>

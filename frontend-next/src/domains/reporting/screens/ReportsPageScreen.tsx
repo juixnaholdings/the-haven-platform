@@ -120,10 +120,10 @@ export function ReportsPageScreen() {
   }
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href="/dashboard">
               Dashboard
             </Link>
@@ -160,20 +160,20 @@ export function ReportsPageScreen() {
           </button>
         }
         filters={
-          <label className="field">
+          <label className="grid gap-2">
             <span>End date</span>
             <input onChange={(event) => setEndDate(event.target.value)} type="date" value={endDate} />
           </label>
         }
         search={
-          <label className="field">
+          <label className="grid gap-2">
             <span>Start date</span>
             <input onChange={(event) => setStartDate(event.target.value)} type="date" value={startDate} />
           </label>
         }
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Total members" tone="accent" value={membership.total_members} />
         <StatCard label="Households" value={households.total_households} />
         <StatCard label="Active groups" value={groups.active_groups} />
@@ -189,15 +189,15 @@ export function ReportsPageScreen() {
         tone="info"
       />
 
-      <div className="panel-grid">
-        <section className="panel">
-          <div className="panel-header">
+      <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Membership summary</h3>
-              <p className="muted-text">Current all-time member counts from the membership reporting endpoint.</p>
+              <p className="m-0 text-sm text-slate-500">Current all-time member counts from the membership reporting endpoint.</p>
             </div>
           </div>
-          <dl className="definition-list">
+          <dl className="m-0 grid gap-3.5">
             <div>
               <dt>Total members</dt>
               <dd>{membership.total_members}</dd>
@@ -213,14 +213,14 @@ export function ReportsPageScreen() {
           </dl>
         </section>
 
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Household summary</h3>
-              <p className="muted-text">Current all-time household structure metrics.</p>
+              <p className="m-0 text-sm text-slate-500">Current all-time household structure metrics.</p>
             </div>
           </div>
-          <dl className="definition-list">
+          <dl className="m-0 grid gap-3.5">
             <div>
               <dt>Total households</dt>
               <dd>{households.total_households}</dd>
@@ -237,18 +237,18 @@ export function ReportsPageScreen() {
         </section>
       </div>
 
-      <div className="panel-grid">
-        <section className="panel">
-          <div className="panel-header">
+      <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Group summary</h3>
-              <p className="muted-text">
+              <p className="m-0 text-sm text-slate-500">
                 Flat group totals and active affiliation counts from the current ministry analogue.
               </p>
             </div>
           </div>
 
-          <dl className="definition-list">
+          <dl className="m-0 grid gap-3.5">
             <div>
               <dt>Total groups</dt>
               <dd>{groups.total_groups}</dd>
@@ -269,9 +269,9 @@ export function ReportsPageScreen() {
               title="No group membership counts are available"
             />
           ) : (
-            <ul className="item-list">
+            <ul className="m-0 grid list-none gap-3 p-0">
               {groups.group_membership_counts.map((groupCount) => (
-                <li className="item-row" key={groupCount.id}>
+                <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3" key={groupCount.id}>
                   <div>
                     <strong>{groupCount.name}</strong>
                     <span>Active affiliations</span>
@@ -283,14 +283,14 @@ export function ReportsPageScreen() {
           )}
         </section>
 
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h3>Attendance summary</h3>
-              <p className="muted-text">Anonymous summary counts and member attendance stay separate by design.</p>
+              <p className="m-0 text-sm text-slate-500">Anonymous summary counts and member attendance stay separate by design.</p>
             </div>
           </div>
-          <dl className="definition-list">
+          <dl className="m-0 grid gap-3.5">
             <div>
               <dt>Events in range</dt>
               <dd>{attendance.total_events}</dd>
@@ -315,9 +315,9 @@ export function ReportsPageScreen() {
               title="No event-type counts are available"
             />
           ) : (
-            <ul className="item-list">
+            <ul className="m-0 grid list-none gap-3 p-0">
               {attendance.event_type_counts.map((eventTypeCount) => (
-                <li className="item-row" key={eventTypeCount.event_type}>
+                <li className="flex justify-between gap-4 border-b border-slate-200/80 pb-3" key={eventTypeCount.event_type}>
                   <div>
                     <strong>{getServiceEventTypeLabel(eventTypeCount.event_type)}</strong>
                   </div>
@@ -329,15 +329,15 @@ export function ReportsPageScreen() {
         </section>
       </div>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3>Finance summary</h3>
-            <p className="muted-text">Posted-ledger totals and current balances by fund across the selected range.</p>
+            <p className="m-0 text-sm text-slate-500">Posted-ledger totals and current balances by fund across the selected range.</p>
           </div>
         </div>
 
-        <dl className="definition-list">
+        <dl className="m-0 grid gap-3.5">
           <div>
             <dt>Total fund accounts</dt>
             <dd>{finance.total_fund_accounts}</dd>
@@ -360,14 +360,14 @@ export function ReportsPageScreen() {
           </div>
         </dl>
 
-        <p className="muted-text">Detailed fund balances are shown in the dedicated table below.</p>
+        <p className="m-0 text-sm text-slate-500">Detailed fund balances are shown in the dedicated table below.</p>
       </section>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3>Balances by fund</h3>
-            <p className="muted-text">Current fund balance table for quick financial posture checks.</p>
+            <p className="m-0 text-sm text-slate-500">Current fund balance table for quick financial posture checks.</p>
           </div>
         </div>
 
@@ -382,9 +382,9 @@ export function ReportsPageScreen() {
               {
                 header: "Fund",
                 cell: (fund) => (
-                  <div className="cell-stack">
+                  <div className="grid gap-1">
                     <strong>{fund.name}</strong>
-                    <span className="table-subtext">{fund.code}</span>
+                    <span className="block text-xs text-slate-500">{fund.code}</span>
                   </div>
                 ),
               },

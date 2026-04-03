@@ -105,7 +105,7 @@ export function EventsPageScreen() {
     .sort((left, right) => left.service_date.localeCompare(right.service_date))[0];
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
           <button
@@ -127,7 +127,7 @@ export function EventsPageScreen() {
         title="Events"
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Events" tone="accent" value={totalServiceEvents} />
         <StatCard label="Active in view" value={activeEvents} />
         <StatCard label="Summary in view" value={eventsWithSummary} />
@@ -153,7 +153,7 @@ export function EventsPageScreen() {
         }
         filters={
           <>
-            <label className="field">
+            <label className="grid gap-2">
               <span>Event type</span>
               <select
                 onChange={(event) => {
@@ -171,7 +171,7 @@ export function EventsPageScreen() {
               </select>
             </label>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Status</span>
               <select
                 onChange={(event) => {
@@ -188,7 +188,7 @@ export function EventsPageScreen() {
           </>
         }
         search={
-          <label className="field">
+          <label className="grid gap-2">
             <span>Search events</span>
             <input
               onChange={(event) => {
@@ -204,7 +204,7 @@ export function EventsPageScreen() {
 
       {showCreateForm ? (
         <form
-          className="page-stack"
+          className="space-y-6"
           onSubmit={(event) => {
             event.preventDefault();
             createEventMutation.mutate(toEventPayload(formState));
@@ -214,8 +214,8 @@ export function EventsPageScreen() {
             description="This form uses the real service-event create endpoint and opens the saved detail workflow."
             title="Create event"
           >
-            <div className="form-grid form-grid-2">
-              <label className="field">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2">
                 <span>Title</span>
                 <input
                   onChange={(event) =>
@@ -229,7 +229,7 @@ export function EventsPageScreen() {
                 />
               </label>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Event type</span>
                 <select
                   onChange={(event) =>
@@ -248,7 +248,7 @@ export function EventsPageScreen() {
                 </select>
               </label>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Service date</span>
                 <input
                   onChange={(event) =>
@@ -263,7 +263,7 @@ export function EventsPageScreen() {
                 />
               </label>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Location</span>
                 <input
                   onChange={(event) =>
@@ -276,7 +276,7 @@ export function EventsPageScreen() {
                 />
               </label>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>Start time</span>
                 <input
                   onChange={(event) =>
@@ -290,7 +290,7 @@ export function EventsPageScreen() {
                 />
               </label>
 
-              <label className="field">
+              <label className="grid gap-2">
                 <span>End time</span>
                 <input
                   onChange={(event) =>
@@ -304,7 +304,7 @@ export function EventsPageScreen() {
                 />
               </label>
 
-              <label className="checkbox-field checkbox-field-inline">
+              <label className="flex items-start gap-2.5 font-medium text-slate-700 pt-8">
                 <input
                   checked={formState.is_active}
                   onChange={(event) =>
@@ -319,7 +319,7 @@ export function EventsPageScreen() {
               </label>
             </div>
 
-            <label className="field">
+            <label className="grid gap-2">
               <span>Notes</span>
               <textarea
                 onChange={(event) =>
@@ -339,7 +339,7 @@ export function EventsPageScreen() {
             fallbackMessage="The service event could not be created."
           />
 
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button className="button button-primary" disabled={createEventMutation.isPending} type="submit">
               {createEventMutation.isPending ? "Creating..." : "Create event"}
             </button>
@@ -406,17 +406,17 @@ export function EventsPageScreen() {
       ) : null}
 
       {!serviceEventsQuery.isLoading && !serviceEventsQuery.error && serviceEvents.length > 0 ? (
-        <section className="panel">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <EntityTable
             columns={[
               {
                 header: "Event",
                 cell: (serviceEvent) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/events/${serviceEvent.id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/events/${serviceEvent.id}`}>
                       {serviceEvent.title}
                     </Link>
-                    <span className="table-subtext">
+                    <span className="block text-xs text-slate-500">
                       {getServiceEventTypeLabel(serviceEvent.event_type)} · {formatDate(serviceEvent.service_date)}
                     </span>
                   </div>
@@ -436,9 +436,9 @@ export function EventsPageScreen() {
               {
                 header: "Attendance",
                 cell: (serviceEvent) => (
-                  <div className="cell-stack">
+                  <div className="grid gap-1">
                     <span>{serviceEvent.member_attendance_count} member records</span>
-                    <span className="table-subtext">
+                    <span className="block text-xs text-slate-500">
                       {serviceEvent.has_attendance_summary ? "Summary recorded" : "No summary yet"}
                     </span>
                   </div>
@@ -457,7 +457,7 @@ export function EventsPageScreen() {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (serviceEvent) => (
-                  <div className="inline-actions">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <Link className="button button-secondary button-compact" href={`/events/${serviceEvent.id}`}>
                       View
                     </Link>

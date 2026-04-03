@@ -77,10 +77,10 @@ export function MemberDetailPageScreen() {
   const attendanceSummary = member.attendance_summary;
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href="/members">
               Back to members
             </Link>
@@ -120,15 +120,15 @@ export function MemberDetailPageScreen() {
             />
           </div>
           <div className="entity-hero-metadata">
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Email</dt>
               <dd>{member.email || "Not set"}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Phone</dt>
               <dd>{member.phone_number || "Not set"}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Date of birth</dt>
               <dd>{formatDate(member.date_of_birth)}</dd>
             </div>
@@ -136,7 +136,7 @@ export function MemberDetailPageScreen() {
         </div>
       </section>
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Current household"
           value={member.active_household_membership?.household_name || "Not assigned"}
@@ -147,7 +147,7 @@ export function MemberDetailPageScreen() {
         <StatCard label="Last attended" value={formatDate(attendanceSummary.last_attended_on)} />
       </section>
 
-      <div className="content-grid">
+      <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
         <DetailPanel
           items={[
             { label: "First name", value: member.first_name || "Not set" },
@@ -173,23 +173,23 @@ export function MemberDetailPageScreen() {
         />
       </div>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3>Household context</h3>
-            <p className="muted-text">
+            <p className="m-0 text-sm text-slate-500">
               Current and historical household memberships returned by the member detail endpoint.
             </p>
           </div>
         </div>
 
         {member.active_household_membership ? (
-          <div className="detail-item">
+          <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
             <dt>Current household</dt>
             <dd>
-              <div className="inline-actions">
+              <div className="flex flex-wrap items-center gap-2.5">
                 <Link
-                  className="table-link"
+                  className="font-semibold text-[#16335f] hover:underline"
                   href={`/households/${member.active_household_membership.household_id}`}
                 >
                   {member.active_household_membership.household_name}
@@ -218,7 +218,7 @@ export function MemberDetailPageScreen() {
               {
                 header: "Household",
                 cell: (membership) => (
-                  <Link className="table-link" href={`/households/${membership.household_id}`}>
+                  <Link className="font-semibold text-[#16335f] hover:underline" href={`/households/${membership.household_id}`}>
                     {membership.household_name}
                   </Link>
                 ),
@@ -251,11 +251,11 @@ export function MemberDetailPageScreen() {
         ) : null}
       </section>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3>Ministry affiliations</h3>
-            <p className="muted-text">
+            <p className="m-0 text-sm text-slate-500">
               Group memberships and roles from the current flat ministry/group model.
             </p>
           </div>
@@ -272,7 +272,7 @@ export function MemberDetailPageScreen() {
               {
                 header: "Ministry",
                 cell: (membership) => (
-                  <span className="table-link">{membership.group_name}</span>
+                  <span className="font-semibold text-[#16335f] hover:underline">{membership.group_name}</span>
                 ),
               },
               {
@@ -303,15 +303,15 @@ export function MemberDetailPageScreen() {
         )}
       </section>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3>Notes and metadata</h3>
-            <p className="muted-text">Profile notes plus record timestamps.</p>
+            <p className="m-0 text-sm text-slate-500">Profile notes plus record timestamps.</p>
           </div>
         </div>
-        <p className="panel-copy">{member.notes || "No notes recorded for this member."}</p>
-        <dl className="definition-list">
+        <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">{member.notes || "No notes recorded for this member."}</p>
+        <dl className="m-0 grid gap-3.5">
           <div>
             <dt>Created</dt>
             <dd>{formatDateTime(member.created_at)}</dd>

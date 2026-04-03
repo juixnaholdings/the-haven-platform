@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ErrorState } from "@/components/ErrorState";
 import { LoadingState } from "@/components/LoadingState";
-import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { ApiError } from "@/api/errors";
 import { reportingApi } from "@/domains/reporting/api";
