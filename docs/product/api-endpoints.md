@@ -18,6 +18,13 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 - `POST /api/auth/login/`
   Accepts `{ "identifier": "<username-or-email>", "password": "<password>" }` as the canonical payload and also supports legacy `{ "username": "...", "password": "..." }` clients.
   Returns the authenticated user payload plus an `access` token in the standard response envelope and sets the refresh token in the secure HTTP-only cookie.
+- `POST /api/auth/signup/`
+  Accepts `{ "username", "email", "password", "confirm_password" }` and creates a basic user account.
+  Signup users are created without staff/admin flags and without assigned role groups by default.
+- `GET /api/auth/availability/username/?username=<value>`
+  Returns whether the submitted username is currently available.
+- `GET /api/auth/availability/email/?email=<value>`
+  Returns whether the submitted email is currently available.
 - `POST /api/auth/logout/`
   Requires bearer authentication and accepts a refresh token to blacklist.
 - `POST /api/auth/token/refresh/`
