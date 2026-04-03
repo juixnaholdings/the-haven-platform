@@ -24,13 +24,17 @@ Recommended values:
 1. Optional public sign-up:
    - `POST /api/auth/signup/` with `{ username, email, password, confirm_password }`
    - `GET /api/auth/availability/username/` and `GET /api/auth/availability/email/` for pre-submit availability checks.
-2. `POST /api/auth/login/`
+2. Optional public staff-invite onboarding:
+   - `GET /api/auth/staff-invites/{staff_invite_id}/validate/?token=...` to validate invite links.
+   - `POST /api/auth/staff-invites/{staff_invite_id}/accept/` to complete onboarding.
+   - Frontend route: `/staff-invite/{staff_invite_id}?token=...`.
+3. `POST /api/auth/login/`
    - Canonical request body: `{ identifier, password }`, where `identifier` can be username or email.
    - Legacy `{ username, password }` remains accepted for compatibility.
-3. Access token stored in memory for active browser session.
-4. Session bootstrap calls `POST /api/auth/token/refresh/` when needed (refresh cookie path), then `GET /api/auth/me/`.
-5. Protected requests attach `Authorization: Bearer <access>`.
-6. If refresh fails, session is cleared and protected routes redirect to `/login`.
+4. Access token stored in memory for active browser session.
+5. Session bootstrap calls `POST /api/auth/token/refresh/` when needed (refresh cookie path), then `GET /api/auth/me/`.
+6. Protected requests attach `Authorization: Bearer <access>`.
+7. If refresh fails, session is cleared and protected routes redirect to `/login`.
 
 ## Domain API modules (active)
 
@@ -58,6 +62,15 @@ Recommended values:
   - workflow status counts (`fully_recorded_count`, `partially_recorded_count`, `not_started_count`)
   - `latest_service` and `recent_services` snapshots with `attendance_state` (`RECORDED`, `IN_PROGRESS`, `NOT_STARTED`).
 - `frontend-next` uses this block on attendance/reporting screens to show "take vs continue" Sunday attendance workflows.
+
+## Staff lifecycle integration
+
+- Admin settings screen (`/settings/staff`) now includes:
+  - active staff directory and role assignment
+  - basic-user elevation candidates from public signup
+  - staff invite lifecycle list (create/copy/revoke)
+- Public signup users remain roleless/basic until explicit admin elevation.
+- Invite onboarding is intentionally link-based in this wave (manual sharing); no outbound email coupling is required.
 
 ## Verification commands
 

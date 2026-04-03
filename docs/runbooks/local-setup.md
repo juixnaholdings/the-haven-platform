@@ -37,6 +37,11 @@ Canonical demo-data path:
 - Django admin uses the normal Django admin login and session flow at `/admin/`.
 - Jazzmin is enabled for the admin UI.
 - API schema and interactive docs are exposed at `/api/schema` and `/api/docs/`.
+- Staff onboarding lifecycle in local/dev:
+  - public signup (`/signup`) creates safe basic users with no staff/admin roles
+  - admins elevate those users in `frontend-next` at `/settings/staff`
+  - admins can also create staff invite links and share them manually
+  - invite acceptance route: `/staff-invite/{staff_invite_id}?token=...`
 
 ## 4. Key Environment Variables
 
