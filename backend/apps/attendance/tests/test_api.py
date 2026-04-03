@@ -1,4 +1,5 @@
 from datetime import date
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -31,7 +32,13 @@ class AttendanceAdminApiTests(APITestCase):
     def test_list_and_detail_service_events(self):
         list_response = self.client.get("/api/attendance/")
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(list_response.data["data"]), 1)
+        self.assertGreaterEqual(len(list_response.data["data"]), 1)
+        self.assertTrue(
+            any(
+                event["title"] == "Sunday Morning Service"
+                for event in list_response.data["data"]
+            )
+        )
 
         detail_response = self.client.get(f"/api/attendance/{self.service_event.id}/")
         self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
@@ -48,10 +55,26 @@ class AttendanceAdminApiTests(APITestCase):
         response = self.client.get("/api/attendance/?page=1&page_size=1")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["data"]["count"], 2)
+        self.assertGreaterEqual(response.data["data"]["count"], 2)
         self.assertEqual(response.data["data"]["page"], 1)
         self.assertEqual(response.data["data"]["page_size"], 1)
         self.assertEqual(len(response.data["data"]["results"]), 1)
+
+    def test_get_current_sunday_service_focus_returns_system_managed_event(self):
+        with patch("apps.attendance.services.timezone.localdate", return_value=date(2026, 3, 18)):
+            response = self.client.get("/api/attendance/sunday-service/current/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["data"]["event_type"], ServiceEventType.SUNDAY_SERVICE)
+        self.assertTrue(response.data["data"]["is_system_managed"])
+
+    def test_list_service_events_can_filter_system_managed_entries(self):
+        with patch("apps.attendance.services.timezone.localdate", return_value=date(2026, 3, 18)):
+            response = self.client.get("/api/attendance/?is_system_managed=true")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(len(response.data["data"]) > 0)
+        self.assertTrue(all(event["is_system_managed"] for event in response.data["data"]))
 
     def test_create_service_event(self):
         response = self.client.post(

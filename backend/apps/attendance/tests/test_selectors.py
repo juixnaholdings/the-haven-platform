@@ -27,6 +27,16 @@ class AttendanceSelectorTests(TestCase):
                 "is_active": True,
             }
         )
+        self.system_sunday_service = services.create_service_event(
+            data={
+                "title": "Sunday Service",
+                "event_type": ServiceEventType.SUNDAY_SERVICE,
+                "is_system_managed": True,
+                "service_date": date(2026, 3, 22),
+                "location": "Main Auditorium",
+                "is_active": True,
+            }
+        )
         self.member = Member.objects.create(first_name="Ama", last_name="Mensah")
         services.create_or_update_attendance_summary(
             service_event=self.service_event,
@@ -62,3 +72,17 @@ class AttendanceSelectorTests(TestCase):
 
         self.assertEqual(member_attendances.count(), 1)
         self.assertEqual(member_attendances.first().service_event, self.service_event)
+
+    def test_list_service_events_filters_by_system_managed_state(self):
+        managed_events = selectors.list_service_events(filters={"is_system_managed": True})
+
+        self.assertEqual(managed_events.count(), 1)
+        self.assertEqual(managed_events.first().id, self.system_sunday_service.id)
+
+    def test_get_current_or_upcoming_sunday_service_prefers_upcoming(self):
+        sunday_service = selectors.get_current_or_upcoming_sunday_service(
+            reference_date=date(2026, 3, 18)
+        )
+
+        self.assertIsNotNone(sunday_service)
+        self.assertEqual(sunday_service.id, self.system_sunday_service.id)

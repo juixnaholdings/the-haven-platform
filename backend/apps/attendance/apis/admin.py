@@ -49,6 +49,7 @@ class ServiceEventListCreateAdminApi(views.APIView):
         responses=ServiceEventListSerializer(many=True),
     )
     def get(self, request):
+        services.ensure_system_managed_sunday_services(actor=request.user)
         service_events = selectors.list_service_events(
             filters=_get_service_event_filters(request.query_params)
         )
@@ -86,6 +87,27 @@ class ServiceEventListCreateAdminApi(views.APIView):
             data=response_serializer.data,
             message="Service event created successfully.",
             status_code=status.HTTP_201_CREATED,
+        )
+
+
+class SundayServiceFocusAdminApi(views.APIView):
+    permission_classes = [ServiceEventAdminPermission]
+
+    @extend_schema(
+        tags=["Admin - Attendance"],
+        summary="Get current or upcoming system-managed Sunday service",
+        responses=ServiceEventListSerializer,
+    )
+    def get(self, request):
+        services.ensure_system_managed_sunday_services(actor=request.user)
+        sunday_service = selectors.get_current_or_upcoming_sunday_service()
+        if sunday_service is None:
+            raise NotFound("Sunday service not found.")
+
+        serializer = ServiceEventListSerializer(sunday_service)
+        return CustomResponse(
+            data=serializer.data,
+            message="Sunday service fetched successfully.",
         )
 
 

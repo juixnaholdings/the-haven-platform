@@ -28,6 +28,7 @@ class ServiceEvent(AuditModel):
         choices=ServiceEventType.choices,
         default=ServiceEventType.OTHER,
     )
+    is_system_managed = models.BooleanField(default=False, db_index=True)
     service_date = models.DateField(db_index=True)
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
@@ -45,6 +46,14 @@ class ServiceEvent(AuditModel):
                     | Q(end_time__gte=F("start_time"))
                 ),
                 name="attendance_service_event_end_time_after_start_time",
+            ),
+            models.UniqueConstraint(
+                fields=["service_date"],
+                condition=Q(
+                    event_type=ServiceEventType.SUNDAY_SERVICE,
+                    is_system_managed=True,
+                ),
+                name="attendance_unique_system_sunday_service_per_date",
             ),
         ]
 

@@ -6,7 +6,12 @@ from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from apps.attendance import services
-from apps.attendance.models import AttendanceSummary, MemberAttendance, ServiceEventType
+from apps.attendance.models import (
+    AttendanceSummary,
+    MemberAttendance,
+    ServiceEvent,
+    ServiceEventType,
+)
 from apps.members.models import Member
 
 User = get_user_model()
@@ -144,3 +149,60 @@ class AttendanceServiceTests(TestCase):
                 member=self.member,
             ).exists()
         )
+
+    def test_ensure_system_managed_sunday_services_is_idempotent(self):
+        first_run = services.ensure_system_managed_sunday_services(
+            weeks_back=1,
+            weeks_forward=2,
+            reference_date=date(2026, 3, 18),
+            actor=self.actor,
+        )
+        second_run = services.ensure_system_managed_sunday_services(
+            weeks_back=1,
+            weeks_forward=2,
+            reference_date=date(2026, 3, 18),
+            actor=self.actor,
+        )
+
+        self.assertEqual(len(first_run), 4)
+        self.assertEqual(len(second_run), 4)
+        self.assertEqual(
+            ServiceEvent.objects.filter(
+                event_type=ServiceEventType.SUNDAY_SERVICE,
+                is_system_managed=True,
+            ).count(),
+            4,
+        )
+
+    def test_ensure_system_managed_sunday_services_marks_events_active(self):
+        services.ensure_system_managed_sunday_services(
+            weeks_back=0,
+            weeks_forward=0,
+            reference_date=date(2026, 3, 22),
+            actor=self.actor,
+        )
+        sunday_event = ServiceEvent.objects.get(
+            event_type=ServiceEventType.SUNDAY_SERVICE,
+            is_system_managed=True,
+            service_date=date(2026, 3, 22),
+        )
+        sunday_event.is_active = False
+        sunday_event.save(update_fields=["is_active"])
+
+        services.ensure_system_managed_sunday_services(
+            weeks_back=0,
+            weeks_forward=0,
+            reference_date=date(2026, 3, 22),
+            actor=self.actor,
+        )
+
+        sunday_event.refresh_from_db()
+        self.assertTrue(sunday_event.is_active)
+
+    def test_ensure_system_managed_sunday_services_rejects_negative_weeks(self):
+        with self.assertRaises(ValidationError):
+            services.ensure_system_managed_sunday_services(
+                weeks_back=-1,
+                weeks_forward=1,
+                reference_date=date(2026, 3, 22),
+            )
