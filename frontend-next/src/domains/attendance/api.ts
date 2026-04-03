@@ -31,6 +31,9 @@ export const attendanceApi = {
   getServiceEvent(serviceEventId: number) {
     return apiClient.get<ServiceEventDetail>(`/api/attendance/${serviceEventId}/`);
   },
+  getCurrentOrUpcomingSundayService() {
+    return apiClient.get<ServiceEventListItem>("/api/attendance/sunday-service/current/");
+  },
   createServiceEvent(payload: ServiceEventWritePayload) {
     return apiClient.post<ServiceEventDetail, ServiceEventWritePayload>("/api/attendance/", payload);
   },

@@ -306,6 +306,9 @@ export function EventAttendancePageScreen() {
         meta={
           <>
             <StatusBadge label={getServiceEventTypeLabel(serviceEvent.event_type)} tone="info" />
+            {serviceEvent.is_system_managed ? (
+              <StatusBadge label="System-managed Sunday" tone="info" />
+            ) : null}
             <StatusBadge
               label={serviceEvent.is_active ? "Active event" : "Inactive event"}
               tone={serviceEvent.is_active ? "success" : "muted"}

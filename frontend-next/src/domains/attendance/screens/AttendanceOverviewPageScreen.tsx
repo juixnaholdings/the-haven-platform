@@ -32,7 +32,16 @@ export function AttendanceOverviewPageScreen() {
       }),
   });
 
-  if (attendanceSummaryQuery.isLoading || serviceEventsQuery.isLoading) {
+  const sundayServiceQuery = useQuery({
+    queryKey: ["attendance-overview-sunday-service-focus"],
+    queryFn: () => attendanceApi.getCurrentOrUpcomingSundayService(),
+  });
+
+  if (
+    attendanceSummaryQuery.isLoading ||
+    serviceEventsQuery.isLoading ||
+    sundayServiceQuery.isLoading
+  ) {
     return (
       <LoadingState
         description="Fetching attendance reporting metrics and service-event records."
@@ -41,13 +50,18 @@ export function AttendanceOverviewPageScreen() {
     );
   }
 
-  if (attendanceSummaryQuery.error || serviceEventsQuery.error) {
+  if (
+    attendanceSummaryQuery.error ||
+    serviceEventsQuery.error ||
+    sundayServiceQuery.error
+  ) {
     return (
       <ErrorState
-        error={attendanceSummaryQuery.error ?? serviceEventsQuery.error}
+        error={attendanceSummaryQuery.error ?? serviceEventsQuery.error ?? sundayServiceQuery.error}
         onRetry={() => {
           void attendanceSummaryQuery.refetch();
           void serviceEventsQuery.refetch();
+          void sundayServiceQuery.refetch();
         }}
         title="Attendance overview could not be loaded"
       />
@@ -56,6 +70,7 @@ export function AttendanceOverviewPageScreen() {
 
   const summary = attendanceSummaryQuery.data;
   const serviceEvents = serviceEventsQuery.data ?? [];
+  const sundayService = sundayServiceQuery.data ?? null;
   const hasDateFilter = Boolean(startDate || endDate);
 
   if (!summary) {
@@ -70,6 +85,35 @@ export function AttendanceOverviewPageScreen() {
         meta={<StatusBadge label={hasDateFilter ? "Filtered range" : "All-time overview"} tone="info" />}
         title="Attendance"
       />
+
+      {sundayService ? (
+        <section className="rounded-3xl border border-blue-200/80 bg-blue-50/60 p-6 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="grid gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge label="System Sunday service" tone="info" />
+                <StatusBadge
+                  label={sundayService.is_active ? "Active event" : "Inactive event"}
+                  tone={sundayService.is_active ? "success" : "muted"}
+                />
+              </div>
+              <h3 className="m-0 text-lg font-semibold text-slate-900">{sundayService.title}</h3>
+              <p className="m-0 text-sm text-slate-600">
+                {formatDate(sundayService.service_date)}
+                {sundayService.location ? ` | ${sundayService.location}` : ""}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <Link className="button button-primary" href={`/events/${sundayService.id}/attendance`}>
+                Take Sunday attendance
+              </Link>
+              <Link className="button button-secondary" href={`/events/${sundayService.id}`}>
+                View Sunday event
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
         <FilterActionStrip
@@ -217,8 +261,11 @@ export function AttendanceOverviewPageScreen() {
                       {serviceEvent.title}
                     </Link>
                     <span className="block text-xs text-slate-500">
-                      {getServiceEventTypeLabel(serviceEvent.event_type)} · {formatDate(serviceEvent.service_date)}
+                      {getServiceEventTypeLabel(serviceEvent.event_type)} | {formatDate(serviceEvent.service_date)}
                     </span>
+                    {serviceEvent.is_system_managed ? (
+                      <StatusBadge label="System-managed Sunday" tone="info" />
+                    ) : null}
                   </div>
                 ),
               },

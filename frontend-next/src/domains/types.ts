@@ -373,6 +373,7 @@ export interface ServiceEventListItem {
   id: number;
   title: string;
   event_type: string;
+  is_system_managed: boolean;
   service_date: string;
   start_time: string | null;
   end_time: string | null;
@@ -386,6 +387,7 @@ export interface ServiceEventDetail {
   id: number;
   title: string;
   event_type: string;
+  is_system_managed: boolean;
   service_date: string;
   start_time: string | null;
   end_time: string | null;
@@ -412,6 +414,7 @@ export interface ServiceEventWritePayload {
 export interface ServiceEventListFilters extends PaginationParams {
   search?: string;
   event_type?: string;
+  is_system_managed?: boolean;
   is_active?: boolean;
   service_date_from?: string;
   service_date_to?: string;

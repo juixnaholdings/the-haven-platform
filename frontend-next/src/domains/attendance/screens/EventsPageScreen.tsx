@@ -36,7 +36,6 @@ interface EventFormState {
   notes: string;
   is_active: boolean;
 }
-
 const emptyEventForm: EventFormState = {
   title: "",
   event_type: "OTHER",
@@ -83,6 +82,10 @@ export function EventsPageScreen() {
         page_size: pageSize,
       }),
   });
+  const sundayServiceQuery = useQuery({
+    queryKey: ["service-events-sunday-focus"],
+    queryFn: () => attendanceApi.getCurrentOrUpcomingSundayService(),
+  });
 
   const createEventMutation = useMutation({
     mutationFn: (payload: ServiceEventWritePayload) => attendanceApi.createServiceEvent(payload),
@@ -96,6 +99,7 @@ export function EventsPageScreen() {
 
   const serviceEvents = serviceEventsQuery.data?.items ?? [];
   const pagination = serviceEventsQuery.data?.pagination ?? null;
+  const sundayService = sundayServiceQuery.data ?? null;
   const totalServiceEvents = pagination?.count ?? serviceEvents.length;
   const hasFilters = Boolean(search.trim()) || eventTypeFilter !== "all" || statusFilter !== "all";
   const activeEvents = serviceEvents.filter((serviceEvent) => serviceEvent.is_active).length;
@@ -108,13 +112,20 @@ export function EventsPageScreen() {
     <div className="space-y-6">
       <PageHeader
         actions={
-          <button
-            className={showCreateForm ? "button button-secondary" : "button button-primary"}
-            onClick={() => setShowCreateForm((current) => !current)}
-            type="button"
-          >
-            {showCreateForm ? "Close form" : "New event"}
-          </button>
+          <div className="flex flex-wrap items-center gap-2.5">
+            {sundayService ? (
+              <Link className="button button-secondary" href={`/events/${sundayService.id}/attendance`}>
+                Sunday attendance
+              </Link>
+            ) : null}
+            <button
+              className={showCreateForm ? "button button-secondary" : "button button-primary"}
+              onClick={() => setShowCreateForm((current) => !current)}
+              type="button"
+            >
+              {showCreateForm ? "Close form" : "New event"}
+            </button>
+          </div>
         }
         description="Manage church services and events, then move into the detail and attendance recording workflows."
         eyebrow="Services / events"
@@ -417,8 +428,11 @@ export function EventsPageScreen() {
                       {serviceEvent.title}
                     </Link>
                     <span className="block text-xs text-slate-500">
-                      {getServiceEventTypeLabel(serviceEvent.event_type)} · {formatDate(serviceEvent.service_date)}
+                      {getServiceEventTypeLabel(serviceEvent.event_type)} | {formatDate(serviceEvent.service_date)}
                     </span>
+                    {serviceEvent.is_system_managed ? (
+                      <StatusBadge label="System-managed Sunday" tone="info" />
+                    ) : null}
                   </div>
                 ),
               },
@@ -431,7 +445,7 @@ export function EventsPageScreen() {
               },
               {
                 header: "Location",
-                cell: (serviceEvent) => serviceEvent.location || "—",
+                cell: (serviceEvent) => serviceEvent.location || "-",
               },
               {
                 header: "Attendance",
@@ -487,3 +501,4 @@ export function EventsPageScreen() {
     </div>
   );
 }
+

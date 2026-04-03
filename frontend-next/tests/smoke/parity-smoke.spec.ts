@@ -130,6 +130,7 @@ const serviceEventListItem = {
   id: 1,
   title: "Sunday Morning Service",
   event_type: "SUNDAY_SERVICE",
+  is_system_managed: true,
   service_date: "2026-03-22",
   start_time: "09:00:00",
   end_time: "11:00:00",
@@ -541,6 +542,14 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
       return;
     }
 
+    if (path === "/api/attendance/sunday-service/current/" && method === "GET") {
+      await fulfillJson(
+        route,
+        successEnvelope(serviceEventListItem, "Sunday service fetched successfully."),
+      );
+      return;
+    }
+
     if (path === "/api/attendance/1/" && method === "GET") {
       await fulfillJson(
         route,
@@ -549,6 +558,7 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
             id: 1,
             title: "Sunday Morning Service",
             event_type: "SUNDAY_SERVICE",
+            is_system_managed: true,
             service_date: "2026-03-22",
             start_time: "09:00:00",
             end_time: "11:00:00",
