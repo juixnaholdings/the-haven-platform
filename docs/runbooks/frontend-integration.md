@@ -57,12 +57,17 @@ Recommended values:
 - Modal-first parity now includes:
   - staff lifecycle actions (`/settings/staff`) for invite, create, elevate, and manage/edit.
   - group and household detail management for record edits and membership add/edit flows.
-  - finance ledger quick actions for income, expense, and transfer capture, plus transaction metadata edits.
+  - finance ledger quick actions for income, expense, and transfer capture, plus transaction metadata edits
+    (including line-level category/notes corrections and external reference updates).
 - Shared attendance modals live in `frontend-next/src/domains/attendance/components/`.
 - Dashboard quick actions are now wired:
   - `Add Event` opens the shared create-event modal.
   - `Record Attendance` opens the shared record-attendance modal.
 - Some protected form routes remain as technical fallbacks (`/finance/entries/*`, `/finance/transfers/new`, `/members/new`, `/members/[id]/edit`) but primary CTAs now favor modal workflows.
+
+Finance safety notes:
+- Transfer capture and transaction metadata updates now require explicit in-modal confirmation before submit.
+- Transaction detail metadata editing remains constrained to safe fields and line metadata (`category_name`, `notes`), not line amount/direction edits.
 
 ## Attendance modal workflow (current behavior)
 

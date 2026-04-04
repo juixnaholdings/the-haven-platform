@@ -129,17 +129,24 @@ Frontend record-attendance workflow note:
 - `PATCH /api/finance/fund-accounts/{fund_account_id}/`
   Updates a fund account.
 - `GET /api/finance/transactions/`
-  Lists finance transactions with optional search and filter support.
+  Lists finance transactions with optional filters:
+  `search`, `transaction_type`, `category_name`, `fund_account_id`, `service_event_id`,
+  `transaction_date_from`, and `transaction_date_to`.
+  Includes operational fields like `external_reference`, `primary_category`, and `has_line_notes`.
 - `GET /api/finance/transactions/{transaction_id}/`
-  Returns transaction detail including ledger lines.
+  Returns transaction detail including ledger lines, `external_reference`, `primary_category`,
+  and `has_line_notes`.
 - `PATCH /api/finance/transactions/{transaction_id}/`
-  Updates safe transaction metadata only.
+  Updates safe transaction metadata only:
+  `transaction_date`, `description`, `external_reference`, `service_event_id`, plus optional
+  `line_updates` (`id`, `category_name?`, `notes?`) for line-level metadata corrections.
 - `POST /api/finance/transactions/income/`
-  Records a posted income transaction.
+  Records a posted income transaction. Optional metadata: `external_reference`, `category_name`, `notes`.
 - `POST /api/finance/transactions/expense/`
-  Records a posted expense transaction.
+  Records a posted expense transaction. Optional metadata: `external_reference`, `category_name`, `notes`.
 - `POST /api/finance/transactions/transfer/`
   Records a posted transfer with one `OUT` line and one `IN` line.
+  Optional metadata: `external_reference`, `category_name`, `notes`.
 
 ## Reporting Admin Endpoints
 
