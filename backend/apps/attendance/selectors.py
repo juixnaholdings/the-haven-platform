@@ -1,4 +1,4 @@
-from django.db.models import Count, Exists, OuterRef, Prefetch, Q
+from django.db.models import Count, Exists, Max, OuterRef, Prefetch, Q
 
 from apps.attendance.models import (
     AttendanceSummary,
@@ -21,6 +21,8 @@ def list_service_events(*, filters: dict | None = None):
     queryset = ServiceEvent.objects.annotate(
         member_attendance_count=Count("member_attendances", distinct=True),
         has_attendance_summary=Exists(summary_exists),
+        member_attendance_last_updated_at=Max("member_attendances__updated_at"),
+        attendance_summary_updated_at=Max("attendance_summary__updated_at"),
     )
 
     search = filters.get("search")

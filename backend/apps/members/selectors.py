@@ -1,6 +1,6 @@
 from django.db.models import Count, Max, Prefetch, Q
 
-from apps.attendance.models import AttendanceStatus
+from apps.attendance.models import AttendanceStatus, MemberAttendance
 from apps.groups.models import GroupMembership
 from apps.households.models import HouseholdMembership
 from apps.members.models import Member
@@ -22,6 +22,14 @@ def _ordered_group_membership_queryset():
         "group__name",
         "-started_on",
         "id",
+    )
+
+
+def _ordered_member_attendance_queryset():
+    return MemberAttendance.objects.select_related("service_event").order_by(
+        "-service_event__service_date",
+        "-updated_at",
+        "-id",
     )
 
 
@@ -83,6 +91,7 @@ def get_member_by_id(*, member_id: int):
         .prefetch_related(
             Prefetch("household_memberships", queryset=_ordered_household_membership_queryset()),
             Prefetch("group_memberships", queryset=_ordered_group_membership_queryset()),
+            Prefetch("member_attendances", queryset=_ordered_member_attendance_queryset()),
         )
         .first()
     )

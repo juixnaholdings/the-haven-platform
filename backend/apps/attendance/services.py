@@ -1,4 +1,4 @@
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from rest_framework.exceptions import ValidationError
 
 from apps.common.audit import AuditEventType, AuditTargetType
@@ -146,7 +146,16 @@ def record_member_attendance(
         notes=notes,
     )
     _set_audit_fields(member_attendance, actor=actor, is_create=True)
-    member_attendance.save()
+    try:
+        member_attendance.save()
+    except IntegrityError as exc:
+        raise ValidationError(
+            {
+                "member_id": [
+                    "Member attendance has already been recorded for this service event."
+                ]
+            }
+        ) from exc
 
     common_services.log_audit_event(
         actor=actor,
@@ -183,7 +192,16 @@ def update_member_attendance(*, member_attendance: MemberAttendance, data: dict,
             setattr(member_attendance, field, data[field])
 
     _set_audit_fields(member_attendance, actor=actor)
-    member_attendance.save()
+    try:
+        member_attendance.save()
+    except IntegrityError as exc:
+        raise ValidationError(
+            {
+                "member_id": [
+                    "Member attendance has already been recorded for this service event."
+                ]
+            }
+        ) from exc
 
     common_services.log_audit_event(
         actor=actor,
