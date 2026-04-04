@@ -206,7 +206,7 @@ export default function DashboardPage() {
         <div className="flex items-end gap-5">
           <div className="flex-col">
             <button
-              className="button button-secondary relative overflow-hidden group border-0 px-5"
+              className="button button-primary relative overflow-hidden group border-0 px-5"
               onClick={() => setIsCreateEventModalOpen(true)}
               type="button"
             >
