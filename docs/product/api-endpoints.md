@@ -213,9 +213,18 @@ Staff lifecycle caveat:
 
 - `GET /api/audit/events/`
   Returns audit events for high-value operational mutations. Supports optional filters:
-  `event_type`, `actor_id`, `target_type`, `target_id`, `start_date`, `end_date`, plus optional pagination (`page`, `page_size`).
+  `search`, `event_type`, `actor_id`, `actor_username`, `target_type`, `target_id`,
+  `start_date`, `end_date`, plus optional pagination (`page`, `page_size`).
 - `GET /api/audit/events/{audit_event_id}/`
   Returns one audit event payload for focused inspection.
+
+## Ops Notification Endpoint
+
+- `GET /api/ops/notifications/`
+  Returns lightweight in-app operational reminders for authenticated users.
+  Feed items are permission-aware and currently include:
+  pending staff invite follow-up, attendance capture follow-up, upcoming event reminders,
+  and recent finance action confirmation summaries.
 
 Current first-wave coverage includes:
 

@@ -50,6 +50,7 @@ Recommended values:
 - `frontend-next/src/domains/reporting/`
 - `frontend-next/src/domains/users/`
 - `frontend-next/src/domains/audit/`
+- `frontend-next/src/domains/ops/`
 
 ## Modal-first form rule (current wave)
 
@@ -81,6 +82,15 @@ Finance safety notes:
 - Event attendance screens keep correction modal flows for both summary and member records, with explicit duplicate-prevention messaging.
 
 Attendance and reporting are now intentionally general-purpose (non-Sunday-specialized). Event records and attendance summaries are surfaced uniformly across events pages, attendance pages, and reports.
+
+Ops/notification usage notes:
+- Protected shell notifications now read from `GET /api/ops/notifications/` and are displayed in the existing bell dropdown.
+- Notifications are lightweight and permission-aware (for example: pending staff invites, attendance follow-up, upcoming events, finance action confirmations).
+- Mark-read actions in the current wave are in-app UI state only; no server-side read/unread persistence is required.
+
+Audit usage notes:
+- Audit filtering now supports `search` and `actor_username` in addition to existing `event_type`, actor/target ids, and date range.
+- The audit page includes a grouped activity timeline panel to improve operational scanability.
 
 Reporting usage notes:
 - Reports now support practical date presets (`TODAY`, `THIS_WEEK`, `THIS_MONTH`, `CUSTOM`) for dashboard/attendance/finance reporting calls.
