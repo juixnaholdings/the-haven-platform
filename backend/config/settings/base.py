@@ -163,6 +163,7 @@ SPECTACULAR_SETTINGS = {
         {"name": "Admin - Reporting", "description": "Administrative reporting and dashboard APIs."},
         {"name": "Admin - Settings", "description": "Administrative staff-user and role-management APIs."},
         {"name": "Admin - Audit", "description": "Administrative audit-trail read APIs."},
+        {"name": "Admin - Ops", "description": "Operational notification/reminder APIs for authenticated users."},
     ],
 }
 

@@ -14,6 +14,7 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path(f"{settings.API_PREFIX}/audit/", include("apps.common.audit_urls")),
+    path(f"{settings.API_PREFIX}/ops/", include("apps.common.ops_urls")),
     path(f"{settings.API_PREFIX}/reports/", include("apps.reporting.urls")),
     path(f"{settings.API_PREFIX}/finance/", include("apps.finance.urls")),
     path(f"{settings.API_PREFIX}/attendance/", include("apps.attendance.urls")),
