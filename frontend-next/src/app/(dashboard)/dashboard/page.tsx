@@ -7,9 +7,10 @@ import { ErrorState } from "@/components/ErrorState";
 import { LoadingState } from "@/components/LoadingState";
 import { StatCard } from "@/components/StatCard";
 import { ApiError } from "@/api/errors";
+import { attendanceApi } from "@/domains/attendance/api";
 import { CreateServiceEventModal, RecordAttendanceModal } from "@/domains/attendance/components";
 import { reportingApi } from "@/domains/reporting/api";
-import type { DashboardOverview } from "@/domains/types";
+import type { DashboardOverview, ServiceEventListItem } from "@/domains/types";
 import Image from "next/image";
 
 function formatAmount(amount: string | number) {
@@ -25,6 +26,14 @@ function formatAmount(amount: string | number) {
   }).format(numeric);
 }
 
+function getTodayIsoDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const [dashboard, setDashboard] = useState<DashboardOverview | null>(null);
@@ -32,6 +41,8 @@ export default function DashboardPage() {
   const [error, setError] = useState<ApiError | null>(null);
   const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
   const [isRecordAttendanceModalOpen, setIsRecordAttendanceModalOpen] = useState(false);
+  const [upcomingEvents, setUpcomingEvents] = useState<ServiceEventListItem[]>([]);
+  const [isUpcomingEventsUnavailable, setIsUpcomingEventsUnavailable] = useState(false);
 
   const attendanceBarRows = useMemo(() => {
     const sourceRows = [...dashboard?.attendance.recent_service_events ?? []]
@@ -64,6 +75,35 @@ export default function DashboardPage() {
     );
   }, [attendanceBarMax]);
 
+  const upcomingEventCalendarRows = useMemo(() => {
+    const groupedEvents = new Map<string, ServiceEventListItem[]>();
+    for (const event of upcomingEvents) {
+      const bucket = groupedEvents.get(event.service_date) ?? [];
+      bucket.push(event);
+      groupedEvents.set(event.service_date, bucket);
+    }
+
+    return Array.from(groupedEvents.entries()).map(([serviceDate, events]) => {
+      const parsedDate = new Date(serviceDate);
+      const isValidDate = !Number.isNaN(parsedDate.getTime());
+      return {
+        serviceDate,
+        weekdayLabel: isValidDate
+          ? new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(parsedDate)
+          : "Day",
+        dayNumberLabel: isValidDate ? String(parsedDate.getDate()).padStart(2, "0") : "--",
+        fullDateLabel: isValidDate
+          ? new Intl.DateTimeFormat("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }).format(parsedDate)
+          : serviceDate,
+        eventTitles: events.map((event) => event.title),
+      };
+    });
+  }, [upcomingEvents]);
+
   const loadDashboardOverview = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -71,6 +111,23 @@ export default function DashboardPage() {
     try {
       const response = await reportingApi.getDashboardOverview();
       setDashboard(response);
+
+      try {
+        const upcomingServiceEvents = await attendanceApi.listServiceEvents({
+          is_active: true,
+          service_date_from: getTodayIsoDate(),
+          page_size: 12,
+        });
+        setUpcomingEvents(
+          [...upcomingServiceEvents]
+            .sort((left, right) => left.service_date.localeCompare(right.service_date))
+            .slice(0, 10),
+        );
+        setIsUpcomingEventsUnavailable(false);
+      } catch {
+        setUpcomingEvents([]);
+        setIsUpcomingEventsUnavailable(true);
+      }
     } catch (fetchError) {
       if (fetchError instanceof ApiError) {
         setError(fetchError);
@@ -250,8 +307,53 @@ export default function DashboardPage() {
         </div>
         <div className="flex-none w-[32%]">
           <article className="metric-card h-full">
-            <div>
-              <h3>Upcoming Events</h3>
+            <div className="flex h-full min-h-0 flex-col gap-4">
+              <div className="flex items-start justify-between gap-3">
+                <h3>Upcoming Events</h3>
+                <span className="text-xs font-medium text-slate-500">Calendar</span>
+              </div>
+
+              {isUpcomingEventsUnavailable ? (
+                <p className="m-0 rounded-xl border border-amber-300/70 bg-amber-50/80 px-3 py-2 text-sm text-amber-800">
+                  Upcoming events are unavailable right now.
+                </p>
+              ) : upcomingEventCalendarRows.length === 0 ? (
+                <p className="m-0 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2 text-sm text-slate-500">
+                  No upcoming events are scheduled yet.
+                </p>
+              ) : (
+                <ul className="space-y-2 overflow-y-auto pr-1">
+                  {upcomingEventCalendarRows.map((row) => (
+                    <li
+                      className="grid grid-cols-[3.5rem_minmax(0,1fr)] gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3"
+                      key={row.serviceDate}
+                    >
+                      <div className="flex flex-col items-center justify-center rounded-xl bg-white/90 px-2 py-1.5 shadow-sm ring-1 ring-slate-200/60">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                          {row.weekdayLabel}
+                        </span>
+                        <strong className="text-lg leading-none text-[#16335f]">{row.dayNumberLabel}</strong>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="m-0 text-xs font-medium text-slate-500">{row.fullDateLabel}</p>
+                        <ul className="mt-1 space-y-1">
+                          {row.eventTitles.slice(0, 2).map((eventTitle, eventIndex) => (
+                            <li
+                              className="truncate text-sm font-medium text-slate-700"
+                              key={`${row.serviceDate}-${eventTitle}-${eventIndex}`}
+                            >
+                              {eventTitle}
+                            </li>
+                          ))}
+                          {row.eventTitles.length > 2 ? (
+                            <li className="text-xs text-slate-500">+{row.eventTitles.length - 2} more event(s)</li>
+                          ) : null}
+                        </ul>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </article>
         </div>
