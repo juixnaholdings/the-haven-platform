@@ -27,7 +27,7 @@ export function FormModalShell({
 
   return (
     <AppModal isOpen={isOpen} labelledBy={headingId} onClose={onClose} size={size}>
-      <div className="grid h-full min-h-0 grid-rows-[auto,minmax(0,1fr),auto]">
+      <div className="grid max-h-[calc(100dvh-2rem)] min-h-0 grid-rows-[auto,minmax(0,1fr),auto] sm:max-h-[calc(100dvh-2.5rem)]">
         <header className="flex items-start justify-between gap-4 border-b border-slate-200 bg-[#f8f4eb]/85 px-6 py-5">
           <div className="max-w-[72ch] space-y-1.5">
             <h3 className="m-0 text-xl font-semibold tracking-tight text-slate-900" id={headingId}>

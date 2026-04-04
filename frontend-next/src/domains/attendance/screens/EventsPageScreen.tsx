@@ -90,14 +90,6 @@ export function EventsPageScreen() {
             </button>
           </div>
         }
-        description="Manage church services and events, then move into the detail and attendance recording workflows."
-        eyebrow="Services / events"
-        meta={
-          <StatusBadge
-            label={`${totalServiceEvents} event${totalServiceEvents === 1 ? "" : "s"}`}
-            tone="info"
-          />
-        }
         title="Events"
       />
 
@@ -109,74 +101,7 @@ export function EventsPageScreen() {
         <StatCard label="Next in view" value={nextEvent ? formatDate(nextEvent.service_date) : "Not scheduled"} />
       </section>
 
-      <FilterActionStrip
-        actions={
-          hasFilters ? (
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setSearch("");
-                setEventTypeFilter("all");
-                setStatusFilter("all");
-                setPage(1);
-              }}
-              type="button"
-            >
-              Clear filters
-            </button>
-          ) : null
-        }
-        filters={
-          <>
-            <label className="field">
-              <span>Event type</span>
-              <select
-                onChange={(event) => {
-                  setEventTypeFilter(event.target.value);
-                  setPage(1);
-                }}
-                value={eventTypeFilter}
-              >
-                <option value="all">All event types</option>
-                {SERVICE_EVENT_TYPE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="field">
-              <span>Status</span>
-              <select
-                onChange={(event) => {
-                  setStatusFilter(event.target.value as EventStatusFilter);
-                  setPage(1);
-                }}
-                value={statusFilter}
-              >
-                <option value="all">All events</option>
-                <option value="active">Active events</option>
-                <option value="inactive">Inactive events</option>
-              </select>
-            </label>
-          </>
-        }
-        search={
-          <label className="field">
-            <span>Search events</span>
-            <input
-              onChange={(event) => {
-                setSearch(event.target.value);
-                setPage(1);
-              }}
-              placeholder="Search by title or location"
-              value={search}
-            />
-          </label>
-        }
-      />
-
+      
       {serviceEventsQuery.isLoading ? (
         <LoadingState
           description="Fetching service events and attendance flags from the backend."
@@ -191,41 +116,6 @@ export function EventsPageScreen() {
             void serviceEventsQuery.refetch();
           }}
           title="Events could not be loaded"
-        />
-      ) : null}
-
-      {!serviceEventsQuery.isLoading && !serviceEventsQuery.error && serviceEvents.length === 0 ? (
-        <EmptyState
-          action={
-            hasFilters ? (
-              <button
-                className="button button-secondary"
-                onClick={() => {
-                  setSearch("");
-                  setEventTypeFilter("all");
-                  setStatusFilter("all");
-                  setPage(1);
-                }}
-                type="button"
-              >
-                Clear filters
-              </button>
-            ) : (
-              <button
-                className="button button-primary"
-                onClick={() => setIsCreateEventModalOpen(true)}
-                type="button"
-              >
-                Create event
-              </button>
-            )
-          }
-          description={
-            hasFilters
-              ? "Try a broader search or adjust the event-type and status filters."
-              : "Create the first event to start tracking attendance and service operations."
-          }
-          title={hasFilters ? "No events matched the current filters" : "No events have been created yet"}
         />
       ) : null}
 
@@ -278,15 +168,15 @@ export function EventsPageScreen() {
                   </div>
                 ),
               },
-              {
-                header: "Status",
-                cell: (serviceEvent) => (
-                  <StatusBadge
-                    label={serviceEvent.is_active ? "Active" : "Inactive"}
-                    tone={serviceEvent.is_active ? "success" : "muted"}
-                  />
-                ),
-              },
+              // {
+              //   header: "Status",
+              //   cell: (serviceEvent) => (
+              //     <StatusBadge
+              //       label={serviceEvent.is_active ? "Active" : "Inactive"}
+              //       tone={serviceEvent.is_active ? "success" : "muted"}
+              //     />
+              //   ),
+              // },
               {
                 header: "Actions",
                 className: "cell-actions",

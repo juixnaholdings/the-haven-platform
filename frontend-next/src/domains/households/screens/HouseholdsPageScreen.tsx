@@ -124,13 +124,7 @@ export function HouseholdsPageScreen() {
         title="Households"
       />
 
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Households" value={totalHouseholds} tone="accent" />
-        <StatCard label="Active in view" value={activeHouseholds} />
-        <StatCard label="Inactive in view" value={inactiveHouseholds} />
-        <StatCard label="Linked members in view" value={linkedMembers} />
-      </section>
-
+{/* 
       <FilterActionStrip
         actions={
           hasFilters ? (
@@ -176,10 +170,9 @@ export function HouseholdsPageScreen() {
             />
           </label>
         }
-      />
+      /> */}
 
       <FormModalShell
-        description="This form maps directly to the current household create payload and opens the real detail workflow after save."
         footer={
           <>
             <button

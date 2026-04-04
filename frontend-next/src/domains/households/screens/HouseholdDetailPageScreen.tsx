@@ -301,6 +301,9 @@ export function HouseholdDetailPageScreen() {
       <PageHeader
         actions={
           <div className="flex flex-wrap items-center gap-2.5">
+            <Link className="button button-ghost" href="/households">
+              Back to households
+            </Link>
             <button
               className="button button-primary"
               onClick={() => setIsEditHouseholdModalOpen(true)}
@@ -315,25 +318,9 @@ export function HouseholdDetailPageScreen() {
             >
               Add member
             </button>
-            <Link className="button button-ghost" href="/households">
-              Back to households
-            </Link>
-          </div>
+              </div>
         }
-        description="Use this operational view to maintain the household profile and keep household memberships current. No destructive delete flow is exposed in the current backend."
-        eyebrow="Household management"
-        meta={
-          <>
-            <StatusBadge
-              label={household.is_active ? "Active household" : "Inactive household"}
-              tone={household.is_active ? "success" : "muted"}
-            />
-            <StatusBadge
-              label={`${activeMembershipCount} active member${activeMembershipCount === 1 ? "" : "s"}`}
-              tone="info"
-            />
-          </>
-        }
+        
         title={household.name}
       />
 
@@ -374,7 +361,7 @@ export function HouseholdDetailPageScreen() {
               </div>
             </dl>
           </section>
-
+{/* 
           <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
             <div className="section-header">
               <div>
@@ -413,12 +400,11 @@ export function HouseholdDetailPageScreen() {
                 <dd>{formatDateTime(household.updated_at)}</dd>
               </div>
             </dl>
-          </section>
+          </section> */}
         </section>
       </div>
 
       <FormModalShell
-        description="This edit form writes directly to the current household patch endpoint."
         isOpen={isEditHouseholdModalOpen}
         onClose={() => {
           setHouseholdFormOverrides({});
@@ -647,7 +633,6 @@ export function HouseholdDetailPageScreen() {
       </section>
 
       <FormModalShell
-        description="Use the live member directory to assign an active member. The backend still enforces conflicting active household rules."
         isOpen={isAddMemberModalOpen}
         onClose={() => {
           setAddMemberFormState(emptyAddMemberForm);
@@ -664,9 +649,8 @@ export function HouseholdDetailPageScreen() {
           addMemberMutation.mutate(toAddMemberPayload(addMemberFormState));
         }}
       >
-        <FormSection
-          description="Use the live member directory to assign an active member. The backend still enforces conflicting active household rules."
-          title="Add member to household"
+          <FormSection
+            title="Add member to household"
         >
           <div className="grid gap-4 md:grid-cols-2">
             <label className="field">
@@ -822,7 +806,6 @@ export function HouseholdDetailPageScreen() {
       </FormModalShell>
 
       <FormModalShell
-        description="Use this panel to keep household membership status, dates, and notes current."
         isOpen={Boolean(selectedMembership)}
         onClose={() => {
           setSelectedMembershipId(null);
