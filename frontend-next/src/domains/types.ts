@@ -86,6 +86,10 @@ export interface StaffInviteCreatePayload {
   expires_in_days?: number;
 }
 
+export interface StaffInviteResendPayload {
+  expires_in_days?: number;
+}
+
 export interface StaffInviteListFilters {
   status?: StaffInviteLifecycleStatus;
   search?: string;

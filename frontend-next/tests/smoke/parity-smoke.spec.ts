@@ -890,6 +890,13 @@ test.describe("frontend-next parity smoke", () => {
       timeout: 15000,
     });
     await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/, { timeout: 15000 });
+
+    await expect(page.getByRole("link", { name: "Settings" })).toBeVisible();
+    await page.getByRole("link", { name: "Settings" }).click();
+    await expect(page).toHaveURL(/\/settings(?:\?.*)?$/, { timeout: 15000 });
+    await expect(page.getByRole("heading", { name: "Settings" }).first()).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test("supports public signup flow", async ({ page }) => {
@@ -940,6 +947,7 @@ test.describe("frontend-next parity smoke", () => {
       { path: "/finance/transfers/new", heading: "Fund transfer" },
       { path: "/finance/transactions/1", heading: "TRX-0001" },
       { path: "/reports", heading: "Reports" },
+      { path: "/settings", heading: "Settings" },
       { path: "/settings/roles", heading: "Roles" },
       { path: "/settings/staff", heading: "Staff users" },
       { path: "/audit", heading: "Audit events" },

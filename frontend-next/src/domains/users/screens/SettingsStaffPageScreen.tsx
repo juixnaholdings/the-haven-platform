@@ -192,6 +192,10 @@ function canCopyInvite(invite: StaffInviteListItem): boolean {
   return deriveInviteStatus(invite) === "PENDING" && Boolean(invite.invite_path);
 }
 
+function canResendInvite(invite: StaffInviteListItem): boolean {
+  return deriveInviteStatus(invite) !== "ACCEPTED";
+}
+
 export function SettingsStaffPageScreen() {
   const [staffSearch, setStaffSearch] = useState("");
   const [staffStatusFilter, setStaffStatusFilter] = useState<StaffStatusFilter>("all");
@@ -211,6 +215,7 @@ export function SettingsStaffPageScreen() {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteFormState, setInviteFormState] = useState<StaffInviteFormState>(emptyInviteForm);
   const [copiedInviteId, setCopiedInviteId] = useState<number | null>(null);
+  const [resendingInviteId, setResendingInviteId] = useState<number | null>(null);
 
   const deferredStaffSearch = useDeferredValue(staffSearch);
   const deferredBasicUserSearch = useDeferredValue(basicUserSearch);
@@ -302,6 +307,20 @@ export function SettingsStaffPageScreen() {
     mutationFn: (staffInviteId: number) => usersApi.revokeStaffInvite(staffInviteId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["settings", "staff-invites"] });
+    },
+  });
+
+  const resendStaffInviteMutation = useMutation({
+    mutationFn: ({ staffInviteId, expiresInDays }: { staffInviteId: number; expiresInDays?: number }) =>
+      usersApi.resendStaffInvite(staffInviteId, { expires_in_days: expiresInDays }),
+    onMutate: ({ staffInviteId }) => {
+      setResendingInviteId(staffInviteId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["settings", "staff-invites"] });
+    },
+    onSettled: () => {
+      setResendingInviteId(null);
     },
   });
 
@@ -405,6 +424,8 @@ export function SettingsStaffPageScreen() {
   const pendingElevationCount = allBasicUsers.length;
   const pendingInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "PENDING").length;
   const acceptedInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "ACCEPTED").length;
+  const revokedInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "REVOKED").length;
+  const expiredInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "EXPIRED").length;
 
   return (
     <div className="page-stack">
@@ -447,6 +468,8 @@ export function SettingsStaffPageScreen() {
         <StatCard label="Pending basic users" value={pendingElevationCount} />
         <StatCard label="Pending invites" value={pendingInviteCount} />
         <StatCard label="Accepted invites" value={acceptedInviteCount} />
+        <StatCard label="Revoked invites" value={revokedInviteCount} />
+        <StatCard label="Expired invites" value={expiredInviteCount} />
       </section>
 
       <FormModalShell
@@ -753,6 +776,18 @@ export function SettingsStaffPageScreen() {
                       {copiedInviteId === invite.id ? "Copied" : "Copy link"}
                     </button>
                     <button
+                      className="button button-secondary button-compact"
+                      disabled={!canResendInvite(invite) || resendStaffInviteMutation.isPending}
+                      onClick={() =>
+                        resendStaffInviteMutation.mutate({
+                          staffInviteId: invite.id,
+                        })
+                      }
+                      type="button"
+                    >
+                      {resendingInviteId === invite.id ? "Resending..." : "Resend"}
+                    </button>
+                    <button
                       className="button button-ghost button-compact"
                       disabled={!canRevokeInvite(invite) || revokeStaffInviteMutation.isPending}
                       onClick={() => revokeStaffInviteMutation.mutate(invite.id)}
@@ -772,6 +807,10 @@ export function SettingsStaffPageScreen() {
         <ErrorAlert
           error={revokeStaffInviteMutation.error}
           fallbackMessage="The invite could not be updated."
+        />
+        <ErrorAlert
+          error={resendStaffInviteMutation.error}
+          fallbackMessage="The invite could not be resent."
         />
       </section>
 

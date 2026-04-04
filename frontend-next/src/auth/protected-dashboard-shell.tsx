@@ -133,6 +133,19 @@ const navItems: NavItem[] = [
         alt='graph-report'
       />
     )
+  },
+  {
+    label: 'Settings',
+    href: '/settings',
+    activePrefix: '/settings',
+    navIcon: (
+      <Image
+        width='20'
+        height='20'
+        src='https://img.icons8.com/puffy/32/settings.png'
+        alt='settings'
+      />
+    )
   }
 ]
 

@@ -7,6 +7,7 @@ import type {
   StaffInviteCreatePayload,
   StaffInviteListFilters,
   StaffInviteListItem,
+  StaffInviteResendPayload,
   StaffUserCreatePayload,
   StaffUserListItem,
   StaffUserUpdatePayload,
@@ -57,6 +58,12 @@ export const usersApi = {
     return apiClient.patch<StaffInviteListItem>(
       `/api/settings/staff-invites/${staffInviteId}/revoke/`,
       {},
+    );
+  },
+  resendStaffInvite(staffInviteId: number, payload: StaffInviteResendPayload = {}) {
+    return apiClient.patch<StaffInviteListItem, StaffInviteResendPayload>(
+      `/api/settings/staff-invites/${staffInviteId}/resend/`,
+      payload,
     );
   },
   listRoleSummaries() {
