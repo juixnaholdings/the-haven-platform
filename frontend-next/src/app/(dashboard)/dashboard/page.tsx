@@ -388,28 +388,32 @@ export default function DashboardPage() {
               <span className="text-xs font-medium text-slate-500">Ledger snapshot</span>
             </div>
 
-            {isRecentTransactionsUnavailable ? (
-              <p className="m-0 rounded-xl border border-amber-300/70 bg-amber-50/80 px-3 py-2 text-sm text-amber-800">
-                Recent transactions are unavailable right now.
-              </p>
-            ) : recentTransactions.length === 0 ? (
-              <p className="m-0 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2 text-sm text-slate-500">
-                No transactions have been posted yet.
-              </p>
-            ) : (
-              <div className="min-h-0 overflow-auto rounded-2xl border border-slate-200/80 bg-white/80">
-                <table className="min-w-full divide-y divide-slate-200 text-sm">
-                  <thead className="sticky top-0 bg-slate-100/95 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+            <div className="min-h-0 overflow-auto rounded-2xl border border-slate-200/80 bg-white/80">
+              <table className="min-w-full divide-y divide-slate-200 text-sm">
+                <thead className="sticky top-0 bg-slate-100/95 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+                  <tr>
+                    <th className="px-3 py-2.5">Reference</th>
+                    <th className="px-3 py-2.5">Type</th>
+                    <th className="px-3 py-2.5">Date</th>
+                    <th className="px-3 py-2.5">Movement</th>
+                    <th className="px-3 py-2.5">Event</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200/80">
+                  {isRecentTransactionsUnavailable ? (
                     <tr>
-                      <th className="px-3 py-2.5">Reference</th>
-                      <th className="px-3 py-2.5">Type</th>
-                      <th className="px-3 py-2.5">Date</th>
-                      <th className="px-3 py-2.5">Movement</th>
-                      <th className="px-3 py-2.5">Event</th>
+                      <td className="px-3 py-6 text-sm text-amber-800" colSpan={5}>
+                        Recent transactions are unavailable right now.
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200/80">
-                    {recentTransactions.map((transaction) => (
+                  ) : recentTransactions.length === 0 ? (
+                    <tr>
+                      <td className="px-3 py-6 text-sm text-slate-500" colSpan={5}>
+                        No transactions have been posted yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    recentTransactions.map((transaction) => (
                       <tr className="hover:bg-slate-50/80" key={transaction.id}>
                         <td className="px-3 py-2.5 align-top">
                           <div className="grid gap-1">
@@ -438,11 +442,11 @@ export default function DashboardPage() {
                           {transaction.service_event_title || "Not linked"}
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </article>
       </section>
