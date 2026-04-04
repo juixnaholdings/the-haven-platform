@@ -1,25 +1,102 @@
 "use client";
 
 import { useDeferredValue, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
+import { queryClient } from "@/api/queryClient";
 import {
   BlockedFeatureCard,
   EmptyState,
   EntityTable,
+  ErrorAlert,
   ErrorState,
   FilterActionStrip,
+  FormModalShell,
+  FormSection,
   LoadingState,
   PageHeader,
   PaginationControls,
   StatCard,
   StatusBadge,
 } from "@/components";
+import { attendanceApi } from "@/domains/attendance/api";
 import { financeApi } from "@/domains/finance/api";
 import { getTransactionTypeLabel, TRANSACTION_TYPE_OPTIONS } from "@/domains/finance/options";
 import { reportingApi } from "@/domains/reporting/api";
+import type {
+  ExpenseTransactionPayload,
+  IncomeTransactionPayload,
+  TransferTransactionPayload,
+} from "@/domains/types";
 import { formatAmount, formatDate, formatDateTime } from "@/lib/formatters";
+
+interface EntryFormState {
+  fund_account_id: string;
+  amount: string;
+  transaction_date: string;
+  description: string;
+  service_event_id: string;
+  category_name: string;
+  notes: string;
+}
+
+interface TransferFormState {
+  source_fund_account_id: string;
+  destination_fund_account_id: string;
+  amount: string;
+  transaction_date: string;
+  description: string;
+  service_event_id: string;
+  category_name: string;
+  notes: string;
+}
+
+const emptyEntryForm: EntryFormState = {
+  fund_account_id: "",
+  amount: "",
+  transaction_date: new Date().toISOString().slice(0, 10),
+  description: "",
+  service_event_id: "",
+  category_name: "",
+  notes: "",
+};
+
+const emptyTransferForm: TransferFormState = {
+  source_fund_account_id: "",
+  destination_fund_account_id: "",
+  amount: "",
+  transaction_date: new Date().toISOString().slice(0, 10),
+  description: "",
+  service_event_id: "",
+  category_name: "",
+  notes: "",
+};
+
+function toEntryPayload(formState: EntryFormState): IncomeTransactionPayload | ExpenseTransactionPayload {
+  return {
+    fund_account_id: Number(formState.fund_account_id),
+    amount: formState.amount,
+    transaction_date: formState.transaction_date,
+    description: formState.description,
+    service_event_id: formState.service_event_id ? Number(formState.service_event_id) : null,
+    category_name: formState.category_name || undefined,
+    notes: formState.notes || undefined,
+  };
+}
+
+function toTransferPayload(formState: TransferFormState): TransferTransactionPayload {
+  return {
+    source_fund_account_id: Number(formState.source_fund_account_id),
+    destination_fund_account_id: Number(formState.destination_fund_account_id),
+    amount: formState.amount,
+    transaction_date: formState.transaction_date,
+    description: formState.description,
+    service_event_id: formState.service_event_id ? Number(formState.service_event_id) : null,
+    category_name: formState.category_name || undefined,
+    notes: formState.notes || undefined,
+  };
+}
 
 export function FinancePageScreen() {
   const [search, setSearch] = useState("");
@@ -29,11 +106,22 @@ export function FinancePageScreen() {
   const [endDate, setEndDate] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [incomeFormState, setIncomeFormState] = useState<EntryFormState>(emptyEntryForm);
+  const [expenseFormState, setExpenseFormState] = useState<EntryFormState>(emptyEntryForm);
+  const [transferFormState, setTransferFormState] = useState<TransferFormState>(emptyTransferForm);
   const deferredSearch = useDeferredValue(search);
 
   const fundAccountsQuery = useQuery({
     queryKey: ["finance", "fund-accounts"],
     queryFn: () => financeApi.listFundAccounts(),
+  });
+
+  const serviceEventsQuery = useQuery({
+    queryKey: ["attendance", "service-events", "active"],
+    queryFn: () => attendanceApi.listServiceEvents({ is_active: true }),
   });
 
   const financeSummaryQuery = useQuery({
@@ -63,7 +151,44 @@ export function FinancePageScreen() {
       }),
   });
 
-  if (fundAccountsQuery.isLoading || financeSummaryQuery.isLoading || transactionsQuery.isLoading) {
+  const incomeMutation = useMutation({
+    mutationFn: (payload: IncomeTransactionPayload | ExpenseTransactionPayload) =>
+      financeApi.recordIncome(payload as IncomeTransactionPayload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["finance"] });
+      await queryClient.invalidateQueries({ queryKey: ["reporting"] });
+      setIncomeFormState(emptyEntryForm);
+      setIsIncomeModalOpen(false);
+    },
+  });
+
+  const expenseMutation = useMutation({
+    mutationFn: (payload: IncomeTransactionPayload | ExpenseTransactionPayload) =>
+      financeApi.recordExpense(payload as ExpenseTransactionPayload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["finance"] });
+      await queryClient.invalidateQueries({ queryKey: ["reporting"] });
+      setExpenseFormState(emptyEntryForm);
+      setIsExpenseModalOpen(false);
+    },
+  });
+
+  const transferMutation = useMutation({
+    mutationFn: (payload: TransferTransactionPayload) => financeApi.recordTransfer(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["finance"] });
+      await queryClient.invalidateQueries({ queryKey: ["reporting"] });
+      setTransferFormState(emptyTransferForm);
+      setIsTransferModalOpen(false);
+    },
+  });
+
+  if (
+    fundAccountsQuery.isLoading ||
+    serviceEventsQuery.isLoading ||
+    financeSummaryQuery.isLoading ||
+    transactionsQuery.isLoading
+  ) {
     return (
       <LoadingState
         description="Fetching fund balances, finance reporting totals, and posted transactions."
@@ -72,12 +197,18 @@ export function FinancePageScreen() {
     );
   }
 
-  if (fundAccountsQuery.error || financeSummaryQuery.error || transactionsQuery.error) {
+  if (fundAccountsQuery.error || serviceEventsQuery.error || financeSummaryQuery.error || transactionsQuery.error) {
     return (
       <ErrorState
-        error={fundAccountsQuery.error ?? financeSummaryQuery.error ?? transactionsQuery.error}
+        error={
+          fundAccountsQuery.error ??
+          serviceEventsQuery.error ??
+          financeSummaryQuery.error ??
+          transactionsQuery.error
+        }
         onRetry={() => {
           void fundAccountsQuery.refetch();
+          void serviceEventsQuery.refetch();
           void financeSummaryQuery.refetch();
           void transactionsQuery.refetch();
         }}
@@ -87,6 +218,7 @@ export function FinancePageScreen() {
   }
 
   const fundAccounts = fundAccountsQuery.data ?? [];
+  const serviceEvents = serviceEventsQuery.data ?? [];
   const financeSummary = financeSummaryQuery.data;
   const transactions = transactionsQuery.data?.items ?? [];
   const transactionsPagination = transactionsQuery.data?.pagination ?? null;
@@ -98,6 +230,8 @@ export function FinancePageScreen() {
     Boolean(startDate || endDate);
 
   const activeFundCount = fundAccounts.filter((fundAccount) => fundAccount.is_active).length;
+  const canRecordEntry = fundAccounts.length > 0;
+  const canRecordTransfer = fundAccounts.length > 1;
   const latestTransaction = [...transactions].sort((left, right) => right.posted_at.localeCompare(left.posted_at))[0];
 
   if (!financeSummary) {
@@ -109,15 +243,30 @@ export function FinancePageScreen() {
       <PageHeader
         actions={
           <div className="flex flex-wrap items-center gap-2.5">
-            <Link className="button button-primary" href="/finance/entries/income">
+            <button
+              className="button button-primary"
+              disabled={!canRecordEntry}
+              onClick={() => setIsIncomeModalOpen(true)}
+              type="button"
+            >
               Record income
-            </Link>
-            <Link className="button button-secondary" href="/finance/entries/expense">
+            </button>
+            <button
+              className="button button-secondary"
+              disabled={!canRecordEntry}
+              onClick={() => setIsExpenseModalOpen(true)}
+              type="button"
+            >
               Record expense
-            </Link>
-            <Link className="button button-ghost" href="/finance/transfers/new">
+            </button>
+            <button
+              className="button button-ghost"
+              disabled={!canRecordTransfer}
+              onClick={() => setIsTransferModalOpen(true)}
+              type="button"
+            >
               New transfer
-            </Link>
+            </button>
           </div>
         }
         description="This finance surface works against the posted-ledger backend. Balances come from transaction lines, and there is no reversal or void workflow exposed here."
@@ -140,6 +289,424 @@ export function FinancePageScreen() {
         <StatCard label="Expense in range" value={formatAmount(financeSummary.total_expense)} />
         <StatCard label="Net flow" value={formatAmount(financeSummary.net_flow)} />
       </section>
+
+      <FormModalShell
+        description="Record a posted income entry without leaving the ledger screen."
+        isOpen={isIncomeModalOpen}
+        onClose={() => {
+          setIncomeFormState(emptyEntryForm);
+          setIsIncomeModalOpen(false);
+        }}
+        size="large"
+        title="Record income"
+      >
+        <form
+          className="space-y-6"
+          onSubmit={(event) => {
+            event.preventDefault();
+            incomeMutation.mutate(toEntryPayload(incomeFormState));
+          }}
+        >
+          <FormSection title="Entry details">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="field">
+                <span>Fund account</span>
+                <select
+                  onChange={(event) =>
+                    setIncomeFormState((current) => ({ ...current, fund_account_id: event.target.value }))
+                  }
+                  required
+                  value={incomeFormState.fund_account_id}
+                >
+                  <option value="">Select fund account</option>
+                  {fundAccounts.map((fundAccount) => (
+                    <option key={`income-${fundAccount.id}`} value={fundAccount.id}>
+                      {fundAccount.name} · {fundAccount.code}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Amount</span>
+                <input
+                  min="0.01"
+                  onChange={(event) => setIncomeFormState((current) => ({ ...current, amount: event.target.value }))}
+                  required
+                  step="0.01"
+                  type="number"
+                  value={incomeFormState.amount}
+                />
+              </label>
+
+              <label className="field">
+                <span>Transaction date</span>
+                <input
+                  onChange={(event) =>
+                    setIncomeFormState((current) => ({ ...current, transaction_date: event.target.value }))
+                  }
+                  required
+                  type="date"
+                  value={incomeFormState.transaction_date}
+                />
+              </label>
+
+              <label className="field">
+                <span>Description</span>
+                <input
+                  onChange={(event) =>
+                    setIncomeFormState((current) => ({ ...current, description: event.target.value }))
+                  }
+                  required
+                  value={incomeFormState.description}
+                />
+              </label>
+
+              <label className="field">
+                <span>Category</span>
+                <input
+                  onChange={(event) =>
+                    setIncomeFormState((current) => ({ ...current, category_name: event.target.value }))
+                  }
+                  placeholder="Offering, tithe, pledge..."
+                  value={incomeFormState.category_name}
+                />
+              </label>
+
+              <label className="field">
+                <span>Linked service/event</span>
+                <select
+                  onChange={(event) =>
+                    setIncomeFormState((current) => ({ ...current, service_event_id: event.target.value }))
+                  }
+                  value={incomeFormState.service_event_id}
+                >
+                  <option value="">No linked event</option>
+                  {serviceEvents.map((serviceEvent) => (
+                    <option key={`income-event-${serviceEvent.id}`} value={serviceEvent.id}>
+                      {serviceEvent.title} · {serviceEvent.service_date}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label className="field">
+              <span>Notes</span>
+              <textarea
+                onChange={(event) => setIncomeFormState((current) => ({ ...current, notes: event.target.value }))}
+                rows={4}
+                value={incomeFormState.notes}
+              />
+            </label>
+          </FormSection>
+
+          <ErrorAlert error={incomeMutation.error} fallbackMessage="Income could not be recorded." />
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button className="button button-primary" disabled={incomeMutation.isPending} type="submit">
+              {incomeMutation.isPending ? "Saving..." : "Record income"}
+            </button>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setIncomeFormState(emptyEntryForm);
+                setIsIncomeModalOpen(false);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </FormModalShell>
+
+      <FormModalShell
+        description="Record a posted expense entry without leaving the ledger screen."
+        isOpen={isExpenseModalOpen}
+        onClose={() => {
+          setExpenseFormState(emptyEntryForm);
+          setIsExpenseModalOpen(false);
+        }}
+        size="large"
+        title="Record expense"
+      >
+        <form
+          className="space-y-6"
+          onSubmit={(event) => {
+            event.preventDefault();
+            expenseMutation.mutate(toEntryPayload(expenseFormState));
+          }}
+        >
+          <FormSection title="Entry details">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="field">
+                <span>Fund account</span>
+                <select
+                  onChange={(event) =>
+                    setExpenseFormState((current) => ({ ...current, fund_account_id: event.target.value }))
+                  }
+                  required
+                  value={expenseFormState.fund_account_id}
+                >
+                  <option value="">Select fund account</option>
+                  {fundAccounts.map((fundAccount) => (
+                    <option key={`expense-${fundAccount.id}`} value={fundAccount.id}>
+                      {fundAccount.name} · {fundAccount.code}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Amount</span>
+                <input
+                  min="0.01"
+                  onChange={(event) =>
+                    setExpenseFormState((current) => ({ ...current, amount: event.target.value }))
+                  }
+                  required
+                  step="0.01"
+                  type="number"
+                  value={expenseFormState.amount}
+                />
+              </label>
+
+              <label className="field">
+                <span>Transaction date</span>
+                <input
+                  onChange={(event) =>
+                    setExpenseFormState((current) => ({ ...current, transaction_date: event.target.value }))
+                  }
+                  required
+                  type="date"
+                  value={expenseFormState.transaction_date}
+                />
+              </label>
+
+              <label className="field">
+                <span>Description</span>
+                <input
+                  onChange={(event) =>
+                    setExpenseFormState((current) => ({ ...current, description: event.target.value }))
+                  }
+                  required
+                  value={expenseFormState.description}
+                />
+              </label>
+
+              <label className="field">
+                <span>Category</span>
+                <input
+                  onChange={(event) =>
+                    setExpenseFormState((current) => ({ ...current, category_name: event.target.value }))
+                  }
+                  placeholder="Maintenance, welfare, supplies..."
+                  value={expenseFormState.category_name}
+                />
+              </label>
+
+              <label className="field">
+                <span>Linked service/event</span>
+                <select
+                  onChange={(event) =>
+                    setExpenseFormState((current) => ({ ...current, service_event_id: event.target.value }))
+                  }
+                  value={expenseFormState.service_event_id}
+                >
+                  <option value="">No linked event</option>
+                  {serviceEvents.map((serviceEvent) => (
+                    <option key={`expense-event-${serviceEvent.id}`} value={serviceEvent.id}>
+                      {serviceEvent.title} · {serviceEvent.service_date}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label className="field">
+              <span>Notes</span>
+              <textarea
+                onChange={(event) => setExpenseFormState((current) => ({ ...current, notes: event.target.value }))}
+                rows={4}
+                value={expenseFormState.notes}
+              />
+            </label>
+          </FormSection>
+
+          <ErrorAlert error={expenseMutation.error} fallbackMessage="Expense could not be recorded." />
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button className="button button-primary" disabled={expenseMutation.isPending} type="submit">
+              {expenseMutation.isPending ? "Saving..." : "Record expense"}
+            </button>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setExpenseFormState(emptyEntryForm);
+                setIsExpenseModalOpen(false);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </FormModalShell>
+
+      <FormModalShell
+        description="Record a balanced transfer between two active funds."
+        isOpen={isTransferModalOpen}
+        onClose={() => {
+          setTransferFormState(emptyTransferForm);
+          setIsTransferModalOpen(false);
+        }}
+        size="large"
+        title="New transfer"
+      >
+        <form
+          className="space-y-6"
+          onSubmit={(event) => {
+            event.preventDefault();
+            transferMutation.mutate(toTransferPayload(transferFormState));
+          }}
+        >
+          <FormSection title="Transfer details">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="field">
+                <span>Source fund</span>
+                <select
+                  onChange={(event) =>
+                    setTransferFormState((current) => ({ ...current, source_fund_account_id: event.target.value }))
+                  }
+                  required
+                  value={transferFormState.source_fund_account_id}
+                >
+                  <option value="">Select source fund</option>
+                  {fundAccounts.map((fundAccount) => (
+                    <option key={`source-${fundAccount.id}`} value={fundAccount.id}>
+                      {fundAccount.name} · {fundAccount.code}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Destination fund</span>
+                <select
+                  onChange={(event) =>
+                    setTransferFormState((current) => ({
+                      ...current,
+                      destination_fund_account_id: event.target.value,
+                    }))
+                  }
+                  required
+                  value={transferFormState.destination_fund_account_id}
+                >
+                  <option value="">Select destination fund</option>
+                  {fundAccounts.map((fundAccount) => (
+                    <option key={`destination-${fundAccount.id}`} value={fundAccount.id}>
+                      {fundAccount.name} · {fundAccount.code}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Amount</span>
+                <input
+                  min="0.01"
+                  onChange={(event) =>
+                    setTransferFormState((current) => ({ ...current, amount: event.target.value }))
+                  }
+                  required
+                  step="0.01"
+                  type="number"
+                  value={transferFormState.amount}
+                />
+              </label>
+
+              <label className="field">
+                <span>Transaction date</span>
+                <input
+                  onChange={(event) =>
+                    setTransferFormState((current) => ({ ...current, transaction_date: event.target.value }))
+                  }
+                  required
+                  type="date"
+                  value={transferFormState.transaction_date}
+                />
+              </label>
+
+              <label className="field">
+                <span>Description</span>
+                <input
+                  onChange={(event) =>
+                    setTransferFormState((current) => ({ ...current, description: event.target.value }))
+                  }
+                  required
+                  value={transferFormState.description}
+                />
+              </label>
+
+              <label className="field">
+                <span>Category</span>
+                <input
+                  onChange={(event) =>
+                    setTransferFormState((current) => ({ ...current, category_name: event.target.value }))
+                  }
+                  placeholder="Internal transfer, welfare reallocation..."
+                  value={transferFormState.category_name}
+                />
+              </label>
+
+              <label className="field">
+                <span>Linked service/event</span>
+                <select
+                  onChange={(event) =>
+                    setTransferFormState((current) => ({ ...current, service_event_id: event.target.value }))
+                  }
+                  value={transferFormState.service_event_id}
+                >
+                  <option value="">No linked event</option>
+                  {serviceEvents.map((serviceEvent) => (
+                    <option key={`transfer-event-${serviceEvent.id}`} value={serviceEvent.id}>
+                      {serviceEvent.title} · {serviceEvent.service_date}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label className="field">
+              <span>Notes</span>
+              <textarea
+                onChange={(event) => setTransferFormState((current) => ({ ...current, notes: event.target.value }))}
+                rows={4}
+                value={transferFormState.notes}
+              />
+            </label>
+          </FormSection>
+
+          <ErrorAlert error={transferMutation.error} fallbackMessage="Transfer could not be recorded." />
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button className="button button-primary" disabled={transferMutation.isPending} type="submit">
+              {transferMutation.isPending ? "Saving..." : "Record transfer"}
+            </button>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setTransferFormState(emptyTransferForm);
+                setIsTransferModalOpen(false);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </FormModalShell>
 
       <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
@@ -374,9 +941,9 @@ export function FinancePageScreen() {
                 Clear filters
               </button>
             ) : (
-              <Link className="button button-primary" href="/finance/entries/income">
+              <button className="button button-primary" onClick={() => setIsIncomeModalOpen(true)} type="button">
                 Record first entry
-              </Link>
+              </button>
             )
           }
           description={
