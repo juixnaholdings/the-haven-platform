@@ -392,6 +392,77 @@ def create_staff_invite(*, data: dict, actor=None) -> StaffInvite:
 
 
 @transaction.atomic
+def resend_staff_invite(*, staff_invite: StaffInvite, data: dict, actor=None) -> StaffInvite:
+    expire_pending_staff_invites()
+
+    if staff_invite.status == StaffInviteStatus.ACCEPTED:
+        raise ValidationError({"detail": ["Accepted invites cannot be resent."]})
+
+    expires_in_days = data.get("expires_in_days", 7)
+    now = timezone.now()
+
+    User = get_user_model()
+    existing_user = User.objects.filter(email__iexact=staff_invite.email).first()
+    if existing_user is not None:
+        if existing_user.is_staff or existing_user.is_superuser:
+            raise ValidationError(
+                {"email": ["A staff account with this email already exists."]}
+            )
+        raise ValidationError(
+            {
+                "email": [
+                    "A basic account with this email already exists. Use the elevation workflow instead."
+                ]
+            }
+        )
+
+    conflicting_pending_invite = (
+        StaffInvite.objects.filter(
+            email__iexact=staff_invite.email,
+            status=StaffInviteStatus.PENDING,
+            expires_at__gte=now,
+        )
+        .exclude(id=staff_invite.id)
+        .exists()
+    )
+    if conflicting_pending_invite:
+        raise ValidationError(
+            {"email": ["Another pending invite for this email already exists."]}
+        )
+
+    previous_status = staff_invite.status
+    previous_expires_at = staff_invite.expires_at
+
+    staff_invite.status = StaffInviteStatus.PENDING
+    staff_invite.token = _generate_invite_token()
+    staff_invite.expires_at = now + timedelta(days=expires_in_days)
+    staff_invite.updated_by = actor if getattr(actor, "is_authenticated", False) else None
+    staff_invite.save(
+        update_fields=["status", "token", "expires_at", "updated_by", "updated_at"]
+    )
+    staff_invite = StaffInvite.objects.select_related("accepted_user", "created_by").prefetch_related(
+        "role_groups"
+    ).get(id=staff_invite.id)
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.STAFF_INVITE_RESENT,
+        target_type=AuditTargetType.STAFF_INVITE,
+        target_id=staff_invite.id,
+        summary=f"Resent staff invite for '{staff_invite.email}'.",
+        payload={
+            "email": staff_invite.email,
+            "previous_status": previous_status,
+            "previous_expires_at": previous_expires_at.isoformat(),
+            "expires_at": staff_invite.expires_at.isoformat(),
+            "role_names": sorted(staff_invite.role_groups.values_list("name", flat=True)),
+        },
+    )
+
+    return staff_invite
+
+
+@transaction.atomic
 def revoke_staff_invite(*, staff_invite: StaffInvite, actor=None) -> StaffInvite:
     if staff_invite.status == StaffInviteStatus.ACCEPTED:
         raise ValidationError({"detail": ["Accepted invites cannot be revoked."]})

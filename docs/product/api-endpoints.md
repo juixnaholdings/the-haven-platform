@@ -173,6 +173,8 @@ Frontend record-attendance workflow note:
   Lists staff invitation lifecycle records (`PENDING`, `ACCEPTED`, `REVOKED`, `EXPIRED`) with role metadata and invite-link path.
 - `POST /api/settings/staff-invites/`
   Creates a staff invite for a not-yet-onboarded user email and assigned role groups.
+- `PATCH /api/settings/staff-invites/{staff_invite_id}/resend/`
+  Resends an existing invite by rotating the secure token, refreshing expiry, and restoring `PENDING` status when valid.
 - `PATCH /api/settings/staff-invites/{staff_invite_id}/revoke/`
   Revokes a pending invite link.
 
@@ -185,6 +187,7 @@ Staff lifecycle caveat:
 
 - public signup continues to create basic users only (no staff roles/privileges by default)
 - elevation and invite/revoke actions remain admin-controlled through settings permissions
+- invite resend/revoke actions remain admin-controlled through settings permissions
 - invite links are tokenized for manual sharing; email delivery is intentionally out of scope in the current product slice
 
 ## Audit Admin Endpoints

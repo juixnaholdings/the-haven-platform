@@ -14,6 +14,7 @@ from apps.users.serializers import (
     StaffInviteCreateSerializer,
     StaffInviteListFilterSerializer,
     StaffInviteListSerializer,
+    StaffInviteResendSerializer,
     StaffUserCreateSerializer,
     StaffUserListSerializer,
     StaffUserUpdateSerializer,
@@ -270,5 +271,32 @@ class StaffInviteRevokeAdminApi(views.APIView):
         return CustomResponse(
             data=response_serializer.data,
             message="Staff invite updated successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class StaffInviteResendAdminApi(views.APIView):
+    permission_classes = [SettingsAdminWritePermission]
+
+    @extend_schema(
+        tags=["Admin - Settings"],
+        summary="Resend a staff invite",
+        request=StaffInviteResendSerializer,
+        responses=StaffInviteListSerializer,
+    )
+    def patch(self, request, staff_invite_id: int):
+        staff_invite = _get_staff_invite_or_404(staff_invite_id=staff_invite_id)
+        serializer = StaffInviteResendSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        staff_invite = services.resend_staff_invite(
+            staff_invite=staff_invite,
+            data=serializer.validated_data,
+            actor=request.user,
+        )
+        response_serializer = StaffInviteListSerializer(staff_invite)
+        return CustomResponse(
+            data=response_serializer.data,
+            message="Staff invite resent successfully.",
             status_code=status.HTTP_200_OK,
         )

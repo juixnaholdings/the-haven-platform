@@ -314,6 +314,10 @@ class StaffInviteCreateSerializer(serializers.Serializer):
         return value
 
 
+class StaffInviteResendSerializer(serializers.Serializer):
+    expires_in_days = serializers.IntegerField(required=False, min_value=1, max_value=30, default=7)
+
+
 class AcceptedInviteUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
