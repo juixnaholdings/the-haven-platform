@@ -25,15 +25,28 @@ class FundAccountAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ("reference_no", "transaction_type", "transaction_date", "service_event", "posted_at")
+    list_display = (
+        "reference_no",
+        "external_reference",
+        "transaction_type",
+        "transaction_date",
+        "service_event",
+        "posted_at",
+    )
     list_filter = ("transaction_type", "transaction_date")
-    search_fields = ("reference_no", "description", "service_event__title")
+    search_fields = (
+        "reference_no",
+        "external_reference",
+        "description",
+        "service_event__title",
+    )
     autocomplete_fields = ("service_event",)
     inlines = (TransactionLineInline,)
     date_hierarchy = "transaction_date"
     list_select_related = ("service_event",)
     readonly_fields = (
         "reference_no",
+        "external_reference",
         "transaction_type",
         "transaction_date",
         "description",

@@ -1,6 +1,18 @@
 from decimal import Decimal
 
-from django.db.models import Count, DecimalField, ExpressionWrapper, F, Prefetch, Q, Sum, Value
+from django.db.models import (
+    Count,
+    DecimalField,
+    Exists,
+    ExpressionWrapper,
+    F,
+    OuterRef,
+    Prefetch,
+    Q,
+    Subquery,
+    Sum,
+    Value,
+)
 from django.db.models.functions import Coalesce
 
 from apps.finance.models import FundAccount, LedgerDirection, Transaction, TransactionLine
@@ -41,6 +53,17 @@ def _annotate_fund_account_balances(queryset):
 
 
 def _annotate_transaction_totals(queryset):
+    # Use a correlation subquery for transaction list rendering so operators can see a quick category tag.
+    primary_category_subquery = (
+        TransactionLine.objects.filter(transaction_id=OuterRef("pk"))
+        .exclude(category_name="")
+        .order_by("id")
+        .values("category_name")[:1]
+    )
+    line_notes_exists = TransactionLine.objects.filter(
+        transaction_id=OuterRef("pk")
+    ).exclude(notes="")
+
     return queryset.annotate(
         line_count=Count("lines", distinct=True),
         total_in_amount=Coalesce(
@@ -63,6 +86,11 @@ def _annotate_transaction_totals(queryset):
             ),
             ZERO_BALANCE,
         ),
+        primary_category=Coalesce(
+            Subquery(primary_category_subquery),
+            Value(""),
+        ),
+        has_line_notes=Exists(line_notes_exists),
     )
 
 
@@ -112,6 +140,7 @@ def list_transactions(*, filters: dict | None = None):
     if search:
         queryset = queryset.filter(
             Q(reference_no__icontains=search)
+            | Q(external_reference__icontains=search)
             | Q(description__icontains=search)
             | Q(lines__category_name__icontains=search)
             | Q(lines__fund_account__name__icontains=search)
@@ -122,6 +151,10 @@ def list_transactions(*, filters: dict | None = None):
     transaction_type = filters.get("transaction_type")
     if transaction_type:
         queryset = queryset.filter(transaction_type=transaction_type)
+
+    category_name = filters.get("category_name")
+    if category_name:
+        queryset = queryset.filter(lines__category_name__icontains=category_name)
 
     fund_account_id = filters.get("fund_account_id")
     if fund_account_id is not None:

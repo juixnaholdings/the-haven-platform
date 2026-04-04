@@ -75,18 +75,23 @@ class FinanceAdminApiTests(APITestCase):
                 "amount": "150.00",
                 "transaction_date": "2026-03-22",
                 "description": "Sunday offering",
+                "external_reference": "RCPT-2026-001",
                 "service_event_id": self.service_event.id,
                 "category_name": "Offering",
+                "notes": "Ushers count validated.",
             },
             format="json",
         )
 
         self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
         transaction_id = create_response.data["data"]["id"]
+        self.assertEqual(create_response.data["data"]["external_reference"], "RCPT-2026-001")
 
         detail_response = self.client.get(f"/api/finance/transactions/{transaction_id}/")
         self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
         self.assertEqual(detail_response.data["data"]["transaction_type"], "INCOME")
+        self.assertEqual(detail_response.data["data"]["external_reference"], "RCPT-2026-001")
+        self.assertEqual(detail_response.data["data"]["lines"][0]["notes"], "Ushers count validated.")
         self.assertEqual(len(detail_response.data["data"]["lines"]), 1)
 
     def test_record_expense_and_transfer_transactions(self):
@@ -125,6 +130,18 @@ class FinanceAdminApiTests(APITestCase):
                 "amount": "100.00",
                 "transaction_date": "2026-03-22",
                 "description": "Special offering",
+                "category_name": "Offering",
+            },
+            format="json",
+        )
+        self.client.post(
+            "/api/finance/transactions/expense/",
+            {
+                "fund_account_id": self.general_fund.id,
+                "amount": "20.00",
+                "transaction_date": "2026-03-23",
+                "description": "Sound repairs",
+                "category_name": "Maintenance",
             },
             format="json",
         )
@@ -132,7 +149,82 @@ class FinanceAdminApiTests(APITestCase):
         response = self.client.get("/api/finance/transactions/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["data"]), 1)
+        self.assertEqual(len(response.data["data"]), 2)
+
+        filtered_response = self.client.get("/api/finance/transactions/?category_name=offering")
+        self.assertEqual(filtered_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(filtered_response.data["data"]), 1)
+        self.assertEqual(filtered_response.data["data"][0]["description"], "Special offering")
+
+    def test_transaction_metadata_patch_can_update_external_reference_and_line_notes(self):
+        create_response = self.client.post(
+            "/api/finance/transactions/income/",
+            {
+                "fund_account_id": self.general_fund.id,
+                "amount": "120.00",
+                "transaction_date": "2026-03-25",
+                "description": "Midweek donation",
+                "category_name": "Donation",
+                "notes": "Envelope batch A",
+            },
+            format="json",
+        )
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+        transaction_id = create_response.data["data"]["id"]
+        line_id = create_response.data["data"]["lines"][0]["id"]
+
+        patch_response = self.client.patch(
+            f"/api/finance/transactions/{transaction_id}/",
+            {
+                "external_reference": "BANK-REF-4451",
+                "line_updates": [
+                    {
+                        "id": line_id,
+                        "category_name": "Mission giving",
+                        "notes": "Corrected after reconciliation",
+                    }
+                ],
+            },
+            format="json",
+        )
+
+        self.assertEqual(patch_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(patch_response.data["data"]["external_reference"], "BANK-REF-4451")
+        self.assertEqual(patch_response.data["data"]["lines"][0]["category_name"], "Mission giving")
+        self.assertEqual(
+            patch_response.data["data"]["lines"][0]["notes"], "Corrected after reconciliation"
+        )
+
+    def test_transaction_metadata_patch_rejects_duplicate_line_updates(self):
+        create_response = self.client.post(
+            "/api/finance/transactions/income/",
+            {
+                "fund_account_id": self.general_fund.id,
+                "amount": "120.00",
+                "transaction_date": "2026-03-25",
+                "description": "Midweek donation",
+                "category_name": "Donation",
+                "notes": "Envelope batch A",
+            },
+            format="json",
+        )
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+        transaction_id = create_response.data["data"]["id"]
+        line_id = create_response.data["data"]["lines"][0]["id"]
+
+        patch_response = self.client.patch(
+            f"/api/finance/transactions/{transaction_id}/",
+            {
+                "line_updates": [
+                    {"id": line_id, "category_name": "Mission giving"},
+                    {"id": line_id, "notes": "Duplicate update payload"},
+                ]
+            },
+            format="json",
+        )
+
+        self.assertEqual(patch_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("line_updates", patch_response.data["errors"])
 
     def test_transaction_list_supports_optional_pagination(self):
         self.client.post(
@@ -184,3 +276,31 @@ class FinanceAdminApiTests(APITestCase):
         response = self.client.get("/api/finance/fund-accounts/")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_transaction_patch_rejects_user_without_permissions(self):
+        create_response = self.client.post(
+            "/api/finance/transactions/income/",
+            {
+                "fund_account_id": self.general_fund.id,
+                "amount": "70.00",
+                "transaction_date": "2026-03-26",
+                "description": "Weekend support",
+            },
+            format="json",
+        )
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+        transaction_id = create_response.data["data"]["id"]
+
+        basic_user = User.objects.create_user(
+            username="finance-basic-patch",
+            email="finance-basic-patch@example.com",
+            password="StrongPass123",
+        )
+        self.client.force_authenticate(basic_user)
+
+        patch_response = self.client.patch(
+            f"/api/finance/transactions/{transaction_id}/",
+            {"external_reference": "NO-ACCESS-1"},
+            format="json",
+        )
+        self.assertEqual(patch_response.status_code, status.HTTP_403_FORBIDDEN)
