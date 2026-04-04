@@ -59,7 +59,10 @@ export function AppModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[80] grid place-items-center p-4 sm:p-5" role="presentation">
+    <div
+      className="fixed inset-0 z-[80] grid place-items-center overflow-y-auto overscroll-contain p-4 sm:p-5"
+      role="presentation"
+    >
       <button
         aria-label="Close modal"
         className="absolute inset-0 border-0 bg-slate-950/45 backdrop-blur-[2px]"
@@ -69,7 +72,7 @@ export function AppModal({
       <div
         aria-labelledby={labelledBy}
         aria-modal="true"
-        className={`relative w-full overflow-hidden rounded-3xl border border-slate-200/80 bg-[#fffdfa] shadow-[0_28px_68px_rgba(15,23,42,0.24)] ${shellSizeClassName}`}
+        className={`relative my-3 w-full max-h-[calc(100dvh-2rem)] overflow-hidden rounded-3xl border border-slate-200/80 bg-[#fffdfa] shadow-[0_28px_68px_rgba(15,23,42,0.24)] sm:my-5 sm:max-h-[calc(100dvh-2.5rem)] ${shellSizeClassName}`}
         role="dialog"
       >
         {children}
