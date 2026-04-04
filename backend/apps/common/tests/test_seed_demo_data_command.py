@@ -3,12 +3,7 @@ from io import StringIO
 from django.core.management import CommandError, call_command
 from django.test import TestCase
 
-from apps.attendance.models import (
-    AttendanceSummary,
-    MemberAttendance,
-    ServiceEvent,
-    ServiceEventType,
-)
+from apps.attendance.models import AttendanceSummary, MemberAttendance, ServiceEvent
 from apps.common.models import AuditEvent
 from apps.finance.models import FundAccount, Transaction, TransactionLine
 from apps.groups.models import Group, GroupMembership
@@ -25,8 +20,6 @@ class SeedDemoDataCommandTests(TestCase):
             "seed_demo_data",
             count=5,
             seed=20260330,
-            sunday_weeks_back=2,
-            sunday_weeks_forward=2,
             stdout=stdout,
         )
 
@@ -59,8 +52,6 @@ class SeedDemoDataCommandTests(TestCase):
             "seed_demo_data",
             count=5,
             seed=20260330,
-            sunday_weeks_back=2,
-            sunday_weeks_forward=2,
         )
         initial_member_count = Member.objects.count()
         initial_transaction_count = Transaction.objects.count()
@@ -69,8 +60,6 @@ class SeedDemoDataCommandTests(TestCase):
             "seed_demo_data",
             count=5,
             seed=20260331,
-            sunday_weeks_back=2,
-            sunday_weeks_forward=2,
             reset=True,
         )
 
@@ -90,26 +79,9 @@ class SeedDemoDataCommandTests(TestCase):
             "seed_demo_data",
             count=5,
             seed=20260330,
-            sunday_weeks_back=1,
-            sunday_weeks_forward=1,
         )
 
         basic_users = User.objects.filter(username__startswith="demo_basic_")
         self.assertGreaterEqual(basic_users.count(), 5)
         self.assertTrue(all(not user.is_staff for user in basic_users))
         self.assertTrue(all(user.groups.count() == 0 for user in basic_users))
-
-    def test_seed_demo_data_ensures_system_managed_sunday_services(self):
-        call_command(
-            "seed_demo_data",
-            count=5,
-            seed=20260330,
-            sunday_weeks_back=2,
-            sunday_weeks_forward=2,
-        )
-
-        sunday_services = ServiceEvent.objects.filter(
-            event_type=ServiceEventType.SUNDAY_SERVICE,
-            is_system_managed=True,
-        )
-        self.assertEqual(sunday_services.count(), 5)

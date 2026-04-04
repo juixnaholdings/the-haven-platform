@@ -14,7 +14,6 @@ class ServiceEventListFilterSerializer(PaginationQuerySerializer):
         choices=ServiceEvent._meta.get_field("event_type").choices,
         required=False,
     )
-    is_system_managed = serializers.BooleanField(required=False)
     is_active = serializers.BooleanField(required=False)
     service_date_from = serializers.DateField(required=False)
     service_date_to = serializers.DateField(required=False)
@@ -47,7 +46,6 @@ class ServiceEventListSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "event_type",
-            "is_system_managed",
             "service_date",
             "start_time",
             "end_time",
@@ -157,7 +155,6 @@ class ServiceEventDetailSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "event_type",
-            "is_system_managed",
             "service_date",
             "start_time",
             "end_time",

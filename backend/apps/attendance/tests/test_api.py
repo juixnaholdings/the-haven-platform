@@ -1,5 +1,4 @@
 from datetime import date
-from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -59,22 +58,6 @@ class AttendanceAdminApiTests(APITestCase):
         self.assertEqual(response.data["data"]["page"], 1)
         self.assertEqual(response.data["data"]["page_size"], 1)
         self.assertEqual(len(response.data["data"]["results"]), 1)
-
-    def test_get_current_sunday_service_focus_returns_system_managed_event(self):
-        with patch("apps.attendance.services.timezone.localdate", return_value=date(2026, 3, 18)):
-            response = self.client.get("/api/attendance/sunday-service/current/")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["data"]["event_type"], ServiceEventType.SUNDAY_SERVICE)
-        self.assertTrue(response.data["data"]["is_system_managed"])
-
-    def test_list_service_events_can_filter_system_managed_entries(self):
-        with patch("apps.attendance.services.timezone.localdate", return_value=date(2026, 3, 18)):
-            response = self.client.get("/api/attendance/?is_system_managed=true")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data["data"]) > 0)
-        self.assertTrue(all(event["is_system_managed"] for event in response.data["data"]))
 
     def test_create_service_event(self):
         response = self.client.post(

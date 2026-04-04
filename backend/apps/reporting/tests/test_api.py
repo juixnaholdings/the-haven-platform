@@ -187,49 +187,6 @@ class ReportingAdminApiTests(APITestCase):
         self.assertEqual(response.data["data"]["aggregate_total_attendance"], 30)
         self.assertEqual(response.data["data"]["total_member_attendance_records"], 2)
 
-    def test_attendance_summary_report_includes_sunday_service_operational_block(self):
-        system_sunday_event = attendance_services.create_service_event(
-            data={
-                "title": "System Sunday",
-                "event_type": ServiceEventType.SUNDAY_SERVICE,
-                "service_date": date(2026, 3, 29),
-                "location": "Main Auditorium",
-                "is_active": True,
-                "is_system_managed": True,
-            }
-        )
-        attendance_services.create_or_update_attendance_summary(
-            service_event=system_sunday_event,
-            data={
-                "men_count": 11,
-                "women_count": 14,
-                "children_count": 7,
-                "visitor_count": 3,
-                "total_count": 32,
-            },
-        )
-        attendance_services.record_member_attendance(
-            service_event=system_sunday_event,
-            member=self.member_1,
-            status="PRESENT",
-        )
-
-        response = self.client.get(
-            "/api/reports/attendance/?start_date=2026-03-01&end_date=2026-03-31"
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        sunday_summary = response.data["data"]["sunday_services"]
-        self.assertEqual(sunday_summary["total_services"], 1)
-        self.assertEqual(sunday_summary["with_summary_count"], 1)
-        self.assertEqual(sunday_summary["with_member_records_count"], 1)
-        self.assertEqual(sunday_summary["fully_recorded_count"], 1)
-        self.assertEqual(sunday_summary["partially_recorded_count"], 0)
-        self.assertEqual(sunday_summary["not_started_count"], 0)
-        self.assertEqual(sunday_summary["latest_service"]["id"], system_sunday_event.id)
-        self.assertEqual(sunday_summary["latest_service"]["attendance_state"], "RECORDED")
-        self.assertEqual(len(sunday_summary["recent_services"]), 1)
-
     def test_finance_summary_report_correctness_and_balances(self):
         response = self.client.get(
             "/api/reports/finance/?start_date=2026-03-01&end_date=2026-03-31"

@@ -1,11 +1,9 @@
 from django.db.models import Count, Exists, OuterRef, Prefetch, Q
-from django.utils import timezone
 
 from apps.attendance.models import (
     AttendanceSummary,
     MemberAttendance,
     ServiceEvent,
-    ServiceEventType,
 )
 
 
@@ -36,10 +34,6 @@ def list_service_events(*, filters: dict | None = None):
     event_type = filters.get("event_type")
     if event_type:
         queryset = queryset.filter(event_type=event_type)
-
-    is_system_managed = filters.get("is_system_managed")
-    if is_system_managed is not None:
-        queryset = queryset.filter(is_system_managed=is_system_managed)
 
     is_active = filters.get("is_active")
     if is_active is not None:
@@ -72,31 +66,6 @@ def get_service_event_detail(*, service_event_id: int):
         )
         .first()
     )
-
-
-def get_current_or_upcoming_sunday_service(*, reference_date=None):
-    today = reference_date or timezone.localdate()
-    summary_exists = AttendanceSummary.objects.filter(service_event_id=OuterRef("pk"))
-    queryset = ServiceEvent.objects.filter(
-        event_type=ServiceEventType.SUNDAY_SERVICE,
-        is_system_managed=True,
-        is_active=True,
-    ).annotate(
-        member_attendance_count=Count("member_attendances", distinct=True),
-        has_attendance_summary=Exists(summary_exists),
-    )
-
-    current_or_upcoming = queryset.filter(service_date__gte=today).order_by(
-        "service_date",
-        "start_time",
-        "title",
-        "id",
-    )
-    sunday_service = current_or_upcoming.first()
-    if sunday_service is not None:
-        return sunday_service
-
-    return queryset.order_by("-service_date", "-start_time", "title", "id").first()
 
 
 def get_attendance_summary_for_event(*, service_event_id: int):

@@ -17,7 +17,6 @@ from apps.attendance.models import (
     ServiceEvent,
     ServiceEventType,
 )
-from apps.attendance import services as attendance_services
 from apps.common import services as common_services
 from apps.common.audit import AuditEventType, AuditTargetType
 from apps.common.models import AuditEvent
@@ -74,18 +73,6 @@ class Command(BaseCommand):
                 "finance/audit) before reseeding."
             ),
         )
-        parser.add_argument(
-            "--sunday-weeks-back",
-            type=int,
-            default=8,
-            help="Weeks of past Sunday services to ensure for attendance workflows.",
-        )
-        parser.add_argument(
-            "--sunday-weeks-forward",
-            type=int,
-            default=12,
-            help="Weeks of upcoming Sunday services to ensure for attendance workflows.",
-        )
 
     def _build_seed_plan(self, *, count: int) -> dict[str, int]:
         return {
@@ -108,9 +95,6 @@ class Command(BaseCommand):
             raise CommandError(
                 f"--count must be between {MIN_COUNT} and {MAX_COUNT}. Received {count}."
             )
-        if options["sunday_weeks_back"] < 0 or options["sunday_weeks_forward"] < 0:
-            raise CommandError("--sunday-weeks-back and --sunday-weeks-forward must be zero or greater.")
-
         seed_plan = self._build_seed_plan(count=count)
 
         random = Random(options["seed"])
@@ -156,21 +140,12 @@ class Command(BaseCommand):
                 random=random,
             )
 
-            sunday_service_events = attendance_services.ensure_system_managed_sunday_services(
-                weeks_back=options["sunday_weeks_back"],
-                weeks_forward=options["sunday_weeks_forward"],
-                actor=actor,
-            )
             manual_service_events = self._seed_service_events(
                 count=seed_plan["manual_service_event_count"],
                 actor=actor,
                 random=random,
             )
-            service_events_by_id = {
-                service_event.id: service_event
-                for service_event in [*sunday_service_events, *manual_service_events]
-            }
-            service_events = list(service_events_by_id.values())
+            service_events = list(manual_service_events)
             random.shuffle(service_events)
 
             self._seed_attendance(
@@ -205,8 +180,7 @@ class Command(BaseCommand):
             "households_householdmembership": seed_plan["member_count"],
             "groups_group": seed_plan["ministry_count"],
             "groups_groupmembership": seed_plan["membership_span"],
-            "attendance_serviceevent": len(sunday_service_events)
-            + seed_plan["manual_service_event_count"],
+            "attendance_serviceevent": seed_plan["manual_service_event_count"],
             "attendance_attendancesummary": min(
                 seed_plan["attendance_event_count"],
                 len(service_events),
@@ -639,7 +613,6 @@ class Command(BaseCommand):
                 service_date=service_date,
                 defaults={
                     "event_type": event_types[index % len(event_types)],
-                    "is_system_managed": False,
                     "start_time": time(hour=18 if index % 2 else 9, minute=30),
                     "end_time": time(hour=20 if index % 2 else 11, minute=30),
                     "location": ["Main Hall", "Youth Hall", "Prayer Room"][

@@ -1,7 +1,4 @@
-from datetime import timedelta, time
-
 from django.db import transaction
-from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from apps.common.audit import AuditEventType, AuditTargetType
@@ -10,16 +7,6 @@ from apps.attendance.models import (
     AttendanceSummary,
     MemberAttendance,
     ServiceEvent,
-    ServiceEventType,
-)
-
-
-SYSTEM_SUNDAY_EVENT_TITLE = "Sunday Service"
-SYSTEM_SUNDAY_EVENT_LOCATION = "Main Sanctuary"
-SYSTEM_SUNDAY_START_TIME = time(hour=9, minute=0)
-SYSTEM_SUNDAY_END_TIME = time(hour=11, minute=30)
-SYSTEM_SUNDAY_EVENT_NOTE = (
-    "System-managed Sunday service event. Use this event for weekly attendance tracking."
 )
 
 
@@ -61,80 +48,6 @@ def _ensure_no_duplicate_member_attendance(*, service_event, member, member_atte
                 ]
             }
         )
-
-
-def _resolve_reference_date(reference_date=None):
-    if reference_date is None:
-        return timezone.localdate()
-    return reference_date
-
-
-def _current_week_sunday(*, reference_date):
-    days_since_sunday = (reference_date.weekday() + 1) % 7
-    return reference_date - timedelta(days=days_since_sunday)
-
-
-def _iter_sunday_dates(*, start_date, end_date):
-    current = start_date
-    while current <= end_date:
-        yield current
-        current += timedelta(days=7)
-
-
-@transaction.atomic
-def ensure_system_managed_sunday_services(
-    *,
-    weeks_back: int = 8,
-    weeks_forward: int = 12,
-    reference_date=None,
-    actor=None,
-) -> list[ServiceEvent]:
-    if weeks_back < 0 or weeks_forward < 0:
-        raise ValidationError(
-            {"detail": ["weeks_back and weeks_forward must be zero or greater."]}
-        )
-
-    resolved_reference_date = _resolve_reference_date(reference_date)
-    current_sunday = _current_week_sunday(reference_date=resolved_reference_date)
-    start_sunday = current_sunday - timedelta(days=weeks_back * 7)
-    end_sunday = current_sunday + timedelta(days=weeks_forward * 7)
-
-    managed_sundays = []
-    for sunday_date in _iter_sunday_dates(start_date=start_sunday, end_date=end_sunday):
-        service_event, created = ServiceEvent.objects.get_or_create(
-            event_type=ServiceEventType.SUNDAY_SERVICE,
-            service_date=sunday_date,
-            is_system_managed=True,
-            defaults={
-                "title": SYSTEM_SUNDAY_EVENT_TITLE,
-                "start_time": SYSTEM_SUNDAY_START_TIME,
-                "end_time": SYSTEM_SUNDAY_END_TIME,
-                "location": SYSTEM_SUNDAY_EVENT_LOCATION,
-                "notes": SYSTEM_SUNDAY_EVENT_NOTE,
-                "is_active": True,
-            },
-        )
-
-        if created:
-            if actor and actor.is_authenticated:
-                _set_audit_fields(service_event, actor=actor, is_create=True)
-                service_event.save(update_fields=["created_by", "updated_by"])
-        else:
-            changed_fields = []
-            if not service_event.is_active:
-                service_event.is_active = True
-                changed_fields.append("is_active")
-
-            if service_event.updated_by_id is None and actor and actor.is_authenticated:
-                service_event.updated_by = actor
-                changed_fields.append("updated_by")
-
-            if changed_fields:
-                service_event.save(update_fields=changed_fields)
-
-        managed_sundays.append(service_event)
-
-    return managed_sundays
 
 
 @transaction.atomic

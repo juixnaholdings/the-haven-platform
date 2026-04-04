@@ -6,16 +6,10 @@ from apps.attendance.apis.admin import (
     MemberAttendanceListCreateAdminApi,
     ServiceEventDetailAdminApi,
     ServiceEventListCreateAdminApi,
-    SundayServiceFocusAdminApi,
 )
 
 urlpatterns = [
     path("", ServiceEventListCreateAdminApi.as_view(), name="service-event-list-create"),
-    path(
-        "sunday-service/current/",
-        SundayServiceFocusAdminApi.as_view(),
-        name="current-sunday-service",
-    ),
     path("<int:service_event_id>/", ServiceEventDetailAdminApi.as_view(), name="service-event-detail"),
     path(
         "<int:service_event_id>/summary/",
