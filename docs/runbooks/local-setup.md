@@ -24,12 +24,7 @@ Canonical demo-data path:
 - `seed_demo_data` is the primary local/dev bootstrap command for realistic product data.
 - Default run (`--count 24`) seeds practical volume across users, members, households, groups, events/attendance, finance, and audit records.
 - Use `--count` (allowed: `5-60`) to scale data volume.
-- Sunday services are system-managed in this flow:
-  - past horizon: `--sunday-weeks-back` (default `8`)
-  - future horizon: `--sunday-weeks-forward` (default `12`)
-- Seeded attendance includes both summary and member-level records across those Sunday services so attendance/reporting Sunday status cards are immediately testable in `frontend-next`.
-- For Sunday-service-only refreshes without reseeding all product data, use:
-  - `python backend/manage.py ensure_sunday_services`
+- Seeded attendance includes both summary and member-level records across a realistic spread of service events so attendance and reporting workflows are immediately testable in `frontend-next`.
 
 ## 3. Authentication and Admin
 

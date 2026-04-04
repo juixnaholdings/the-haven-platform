@@ -88,11 +88,9 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 ## Attendance Admin Endpoints
 
 - `GET /api/attendance/`
-  Lists service and event records with optional search, event type, date range, active-state filters, and optional `is_system_managed` filter.
+  Lists service and event records with optional search, event type, date range, and active-state filters.
 - `POST /api/attendance/`
   Creates a service or event record.
-- `GET /api/attendance/sunday-service/current/`
-  Ensures system-managed Sunday services exist for the default window and returns the current-or-upcoming Sunday service shortcut record for attendance workflows.
 - `GET /api/attendance/{service_event_id}/`
   Returns service/event detail including the attendance summary and member attendance records.
 - `PATCH /api/attendance/{service_event_id}/`
@@ -115,12 +113,6 @@ Frontend record-attendance workflow note:
   2. `PUT /api/attendance/{service_event_id}/summary/` (upsert anonymous summary)
   3. `POST /api/attendance/{service_event_id}/member-attendance/` (zero-or-more member rows)
 - No dedicated orchestration endpoint is required for this product wave; partial-failure handling is surfaced in the modal with a direct "continue in event attendance" link.
-
-System-managed Sunday behavior:
-
-- Sunday services are represented as normal `ServiceEvent` rows with `event_type="SUNDAY_SERVICE"` and `is_system_managed=true`.
-- The backend guarantees at most one system-managed Sunday service per Sunday date.
-- These events remain usable with the standard detail and attendance-recording endpoints.
 
 ## Finance Admin Endpoints
 
@@ -158,10 +150,6 @@ System-managed Sunday behavior:
   Returns group and affiliation summary metrics.
 - `GET /api/reports/attendance/`
   Returns attendance summary metrics, with optional `start_date` and `end_date`.
-  Includes a `sunday_services` operational block for system-managed Sunday services in the selected range:
-  - coverage counts (`total_services`, `with_summary_count`, `with_member_records_count`)
-  - workflow status counts (`fully_recorded_count`, `partially_recorded_count`, `not_started_count`)
-  - `latest_service` snapshot and `recent_services` list with per-service attendance state (`RECORDED`, `IN_PROGRESS`, `NOT_STARTED`)
 - `GET /api/reports/finance/`
   Returns finance summary metrics, with optional `start_date` and `end_date`.
 

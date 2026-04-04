@@ -61,13 +61,6 @@ Recommended values:
   - `Record Attendance` opens the shared record-attendance modal.
 - Some protected form routes remain as technical fallbacks (`/finance/entries/*`, `/finance/transfers/new`, `/members/new`, `/members/[id]/edit`) but primary CTAs now favor modal workflows.
 
-## Attendance Sunday-service shortcut
-
-- `GET /api/attendance/sunday-service/current/` is the frontend shortcut endpoint for Sunday attendance flows.
-- The backend ensures system-managed Sunday service records before returning this payload.
-- `frontend-next` still exposes Sunday shortcuts, but Sunday is no longer the dominant primary CTA.
-- Primary attendance capture is now the modal-first "Record Attendance" flow, with Sunday links as operational shortcuts.
-
 ## Attendance modal workflow (current behavior)
 
 - The shared "Record Attendance" modal captures event details and attendance details in one user activity.
@@ -77,14 +70,7 @@ Recommended values:
   3. save member attendance rows
 - If summary/member writes fail after event creation, the UI reports the partial state and links directly to `/events/{id}/attendance` to continue safely.
 
-## Attendance reporting Sunday metrics
-
-- `GET /api/reports/attendance/` now includes `sunday_services` in addition to aggregate attendance totals.
-- The `sunday_services` block provides:
-  - operational counts (`total_services`, `with_summary_count`, `with_member_records_count`)
-  - workflow status counts (`fully_recorded_count`, `partially_recorded_count`, `not_started_count`)
-  - `latest_service` and `recent_services` snapshots with `attendance_state` (`RECORDED`, `IN_PROGRESS`, `NOT_STARTED`).
-- `frontend-next` uses this block on attendance/reporting screens to show "take vs continue" Sunday attendance workflows.
+Attendance and reporting are now intentionally general-purpose (non-Sunday-specialized). Event records and attendance summaries are surfaced uniformly across events pages, attendance pages, and reports.
 
 ## Staff lifecycle integration
 
