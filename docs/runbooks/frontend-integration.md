@@ -72,6 +72,8 @@ Recommended values:
   2. save summary attendance
   3. save member attendance rows
 - If summary/member writes fail after event creation, the UI reports the partial state and links directly to `/events/{id}/attendance` to continue safely.
+- Attendance endpoints now also expose derived progress/completion metadata (`NOT_STARTED`, `IN_PROGRESS`, `COMPLETED`) and last-updated timestamps, which power follow-up and correction cues on events/attendance screens.
+- Event attendance screens keep correction modal flows for both summary and member records, with explicit duplicate-prevention messaging.
 
 Attendance and reporting are now intentionally general-purpose (non-Sunday-specialized). Event records and attendance summaries are surfaced uniformly across events pages, attendance pages, and reports.
 

@@ -51,7 +51,7 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 - `POST /api/members/`
   Creates a member record.
 - `GET /api/members/{member_id}/`
-  Returns member detail.
+  Returns member detail, including attendance-summary counters and recent attendance-history rows.
 - `PATCH /api/members/{member_id}/`
   Updates a member record.
 
@@ -89,10 +89,14 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 
 - `GET /api/attendance/`
   Lists service and event records with optional search, event type, date range, and active-state filters.
+  Includes derived attendance progress fields:
+  `attendance_progress_status`, `attendance_progress_label`, `attendance_progress_percent`,
+  `attendance_is_complete`, and `attendance_last_updated_at`.
 - `POST /api/attendance/`
   Creates a service or event record.
 - `GET /api/attendance/{service_event_id}/`
   Returns service/event detail including the attendance summary and member attendance records.
+  Includes derived completion/progress metadata and last attendance-update timestamp for correction workflows.
 - `PATCH /api/attendance/{service_event_id}/`
   Updates a service or event record.
 - `PUT /api/attendance/{service_event_id}/summary/`
