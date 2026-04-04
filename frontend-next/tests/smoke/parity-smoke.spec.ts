@@ -775,6 +775,60 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
       return;
     }
 
+    if (path === "/api/settings/basic-users/" && method === "GET") {
+      await fulfillJson(
+        route,
+        successEnvelope(
+          [
+            {
+              id: 5,
+              username: "new-basic-user",
+              first_name: "New",
+              last_name: "Basic",
+              full_name: "New Basic",
+              email: "new-basic-user@example.com",
+              is_active: true,
+              is_staff: false,
+              is_superuser: false,
+              role_names: [],
+              roles: [],
+              last_login: null,
+              date_joined: "2026-03-20T08:00:00Z",
+            },
+          ],
+          "Basic users fetched successfully.",
+        ),
+      );
+      return;
+    }
+
+    if (path === "/api/settings/staff-invites/" && method === "GET") {
+      await fulfillJson(
+        route,
+        successEnvelope(
+          [
+            {
+              id: 9,
+              email: "future.staff@example.com",
+              status: "PENDING",
+              expires_at: "2026-04-12T10:00:00Z",
+              accepted_at: null,
+              created_at: "2026-04-01T10:00:00Z",
+              updated_at: "2026-04-01T10:00:00Z",
+              invited_by_username: "church-admin",
+              accepted_user: null,
+              role_names: ["Church Admin"],
+              roles: [{ id: 1, name: "Church Admin" }],
+              invite_path: "/staff-invite/9?token=mock-token",
+              is_expired: false,
+            },
+          ],
+          "Staff invites fetched successfully.",
+        ),
+      );
+      return;
+    }
+
     if (path === "/api/audit/events/" && method === "GET") {
       await fulfillJson(
         route,
@@ -832,7 +886,7 @@ test.describe("frontend-next parity smoke", () => {
     await page.getByRole("button", { name: "Sign in" }).click();
     const loginResponse = await loginResponsePromise;
     expect(loginResponse.ok()).toBeTruthy();
-    await expect(page.getByRole("heading", { name: "Operational dashboard" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible({
       timeout: 15000,
     });
     await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/, { timeout: 15000 });
@@ -848,7 +902,7 @@ test.describe("frontend-next parity smoke", () => {
     );
     await page.getByLabel("Username").fill("new-basic-user");
     await page.getByLabel("Email").fill("new-basic-user@example.com");
-    await page.getByLabel("Password").fill("StrongPass123!");
+    await page.getByLabel("Password", { exact: true }).fill("StrongPass123!");
     await page.getByLabel("Confirm password").fill("StrongPass123!");
     await page.getByRole("button", { name: "Create account" }).click();
     const signupResponse = await signupResponsePromise;
@@ -865,7 +919,7 @@ test.describe("frontend-next parity smoke", () => {
     await page.goto("/dashboard");
 
     await expect(page.getByRole("link", { name: "Audit" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Operational dashboard" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 
     const routeChecks: Array<{ path: string; heading: string }> = [
       { path: "/members", heading: "Members" },

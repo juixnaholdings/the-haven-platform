@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { ErrorState } from "@/components/ErrorState";
 import { LoadingState } from "@/components/LoadingState";
 import { StatCard } from "@/components/StatCard";
 import { ApiError } from "@/api/errors";
+import { CreateServiceEventModal, RecordAttendanceModal } from "@/domains/attendance/components";
 import { reportingApi } from "@/domains/reporting/api";
 import type { DashboardOverview } from "@/domains/types";
 import Image from "next/image";
@@ -24,9 +26,12 @@ function formatAmount(amount: string | number) {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [dashboard, setDashboard] = useState<DashboardOverview | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
+  const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
+  const [isRecordAttendanceModalOpen, setIsRecordAttendanceModalOpen] = useState(false);
 
   const loadDashboardOverview = useCallback(async () => {
     setIsLoading(true);
@@ -91,16 +96,24 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-end gap-5">
           <div className="flex-col">
-            <a href="#_" className="relative rounded px-5 py-2.5 overflow-hidden group bg-green-500 hover:bg-gradient-to-r hover:from-green-500 hover:to-green-400 text-white hover:ring-2 hover:ring-offset-2 hover:ring-green-400 transition-all ease-out duration-300">
+            <button
+              className="relative rounded px-5 py-2.5 overflow-hidden group bg-green-500 hover:bg-gradient-to-r hover:from-green-500 hover:to-green-400 text-white hover:ring-2 hover:ring-offset-2 hover:ring-green-400 transition-all ease-out duration-300"
+              onClick={() => setIsCreateEventModalOpen(true)}
+              type="button"
+            >
               <span className="absolute right-0 w-8 h-32 -mt-12 transition-all duration-1000 transform translate-x-12 bg-white opacity-10 rotate-12 group-hover:-translate-x-40 ease"></span>
               <span className="relative">Add Event</span>
-            </a>
+            </button>
           </div>
           <div className="flex-col">
-            <a href="#_" className="relative rounded px-5 py-2.5 overflow-hidden group bg-green-500 hover:bg-gradient-to-r hover:from-green-500 hover:to-green-400 text-white hover:ring-2 hover:ring-offset-2 hover:ring-green-400 transition-all ease-out duration-300">
+            <button
+              className="relative rounded px-5 py-2.5 overflow-hidden group bg-green-500 hover:bg-gradient-to-r hover:from-green-500 hover:to-green-400 text-white hover:ring-2 hover:ring-offset-2 hover:ring-green-400 transition-all ease-out duration-300"
+              onClick={() => setIsRecordAttendanceModalOpen(true)}
+              type="button"
+            >
               <span className="absolute right-0 w-8 h-32 -mt-12 transition-all duration-1000 transform translate-x-12 bg-white opacity-10 rotate-12 group-hover:-translate-x-40 ease"></span>
               <span className="relative">Record Attendance</span>
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -151,6 +164,21 @@ export default function DashboardPage() {
           <h3>Recent Transactions</h3>
         </article>
       </section>
+
+      <CreateServiceEventModal
+        isOpen={isCreateEventModalOpen}
+        onClose={() => setIsCreateEventModalOpen(false)}
+        onCreated={(serviceEvent) => {
+          router.push(`/events/${serviceEvent.id}`);
+        }}
+      />
+      <RecordAttendanceModal
+        isOpen={isRecordAttendanceModalOpen}
+        onClose={() => setIsRecordAttendanceModalOpen(false)}
+        onCompleted={(serviceEvent) => {
+          router.push(`/events/${serviceEvent.id}/attendance`);
+        }}
+      />
     </div>
   );
 }

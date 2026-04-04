@@ -12,6 +12,7 @@ import {
   ErrorAlert,
   ErrorState,
   FilterActionStrip,
+  FormModalShell,
   FormSection,
   LoadingState,
   PageHeader,
@@ -62,7 +63,7 @@ export function HouseholdsPageScreen() {
   const [statusFilter, setStatusFilter] = useState<HouseholdStatusFilter>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [formState, setFormState] = useState<HouseholdFormState>(emptyHouseholdForm);
   const deferredSearch = useDeferredValue(search);
 
@@ -82,7 +83,7 @@ export function HouseholdsPageScreen() {
     onSuccess: async (household) => {
       await queryClient.invalidateQueries({ queryKey: ["households"] });
       setFormState(emptyHouseholdForm);
-      setShowCreateForm(false);
+      setIsCreateModalOpen(false);
       router.push(`/households/${household.id}`);
     },
   });
@@ -104,11 +105,11 @@ export function HouseholdsPageScreen() {
         actions={
           <div className="flex flex-wrap items-center gap-2.5">
             <button
-              className={showCreateForm ? "button button-secondary" : "button button-primary"}
-              onClick={() => setShowCreateForm((current) => !current)}
+              className="button button-primary"
+              onClick={() => setIsCreateModalOpen(true)}
               type="button"
             >
-              {showCreateForm ? "Close form" : "New household"}
+              New household
             </button>
           </div>
         }
@@ -177,18 +178,47 @@ export function HouseholdsPageScreen() {
         }
       />
 
-      {showCreateForm ? (
+      <FormModalShell
+        description="This form maps directly to the current household create payload and opens the real detail workflow after save."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setIsCreateModalOpen(false);
+                setFormState(emptyHouseholdForm);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={createHouseholdMutation.isPending}
+              form="create-household-modal-form"
+              type="submit"
+            >
+              {createHouseholdMutation.isPending ? "Creating..." : "Create household"}
+            </button>
+          </>
+        }
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setFormState(emptyHouseholdForm);
+        }}
+        size="large"
+        title="Create household"
+      >
         <form
           className="space-y-6"
+          id="create-household-modal-form"
           onSubmit={(event) => {
             event.preventDefault();
             createHouseholdMutation.mutate(toHouseholdPayload(formState));
           }}
         >
-          <FormSection
-            description="This form maps directly to the current household create payload and opens the real detail workflow after save."
-            title="Create household"
-          >
+          <FormSection title="Household details">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="field">
                 <span>Household name</span>
@@ -290,28 +320,8 @@ export function HouseholdsPageScreen() {
             error={createHouseholdMutation.error}
             fallbackMessage="The household could not be created."
           />
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              className="button button-primary"
-              disabled={createHouseholdMutation.isPending}
-              type="submit"
-            >
-              {createHouseholdMutation.isPending ? "Creating..." : "Create household"}
-            </button>
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setShowCreateForm(false);
-                setFormState(emptyHouseholdForm);
-              }}
-              type="button"
-            >
-              Cancel
-            </button>
-          </div>
         </form>
-      ) : null}
+      </FormModalShell>
 
       {householdsQuery.isLoading ? (
         <LoadingState
@@ -346,7 +356,7 @@ export function HouseholdsPageScreen() {
                 Clear filters
               </button>
             ) : (
-              <button className="button button-primary" onClick={() => setShowCreateForm(true)} type="button">
+              <button className="button button-primary" onClick={() => setIsCreateModalOpen(true)} type="button">
                 Create household
               </button>
             )

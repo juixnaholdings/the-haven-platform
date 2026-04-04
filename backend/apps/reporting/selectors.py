@@ -1,6 +1,15 @@
 from decimal import Decimal
 
-from django.db.models import Avg, Count, DecimalField, ExpressionWrapper, F, Q, Sum, Value
+from django.db.models import (
+    Avg,
+    Count,
+    DecimalField,
+    ExpressionWrapper,
+    F,
+    Q,
+    Sum,
+    Value,
+)
 from django.db.models.functions import Coalesce
 
 from apps.attendance.models import AttendanceSummary, MemberAttendance, ServiceEvent

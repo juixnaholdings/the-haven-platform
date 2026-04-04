@@ -1,7 +1,11 @@
 from django.urls import path
 
 from apps.users.apis.admin import (
+    BasicUserElevationAdminApi,
+    BasicUserListAdminApi,
     RoleSummaryListAdminApi,
+    StaffInviteListCreateAdminApi,
+    StaffInviteRevokeAdminApi,
     StaffUserDetailAdminApi,
     StaffUserListCreateAdminApi,
 )
@@ -10,6 +14,8 @@ from apps.users.apis.public import (
     PublicLoginJwtApi,
     PublicLogoutJwtApi,
     PublicMeApi,
+    PublicStaffInviteAcceptApi,
+    PublicStaffInviteValidateApi,
     PublicSignupApi,
     PublicTokenRefreshApi,
     PublicTokenVerifyApi,
@@ -28,8 +34,38 @@ urlpatterns = [
         name="settings-staff-user-detail",
     ),
     path("settings/roles/", RoleSummaryListAdminApi.as_view(), name="settings-roles"),
+    path(
+        "settings/basic-users/",
+        BasicUserListAdminApi.as_view(),
+        name="settings-basic-users",
+    ),
+    path(
+        "settings/basic-users/<int:user_id>/elevate/",
+        BasicUserElevationAdminApi.as_view(),
+        name="settings-basic-user-elevate",
+    ),
+    path(
+        "settings/staff-invites/",
+        StaffInviteListCreateAdminApi.as_view(),
+        name="settings-staff-invites",
+    ),
+    path(
+        "settings/staff-invites/<int:staff_invite_id>/revoke/",
+        StaffInviteRevokeAdminApi.as_view(),
+        name="settings-staff-invite-revoke",
+    ),
     path("auth/login/", PublicLoginJwtApi.as_view(), name="auth-login"),
     path("auth/signup/", PublicSignupApi.as_view(), name="auth-signup"),
+    path(
+        "auth/staff-invites/<int:staff_invite_id>/validate/",
+        PublicStaffInviteValidateApi.as_view(),
+        name="auth-staff-invite-validate",
+    ),
+    path(
+        "auth/staff-invites/<int:staff_invite_id>/accept/",
+        PublicStaffInviteAcceptApi.as_view(),
+        name="auth-staff-invite-accept",
+    ),
     path(
         "auth/availability/username/",
         PublicUsernameAvailabilityApi.as_view(),

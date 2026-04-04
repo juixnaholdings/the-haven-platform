@@ -3,7 +3,11 @@ from rest_framework.exceptions import ValidationError
 
 from apps.common.audit import AuditEventType, AuditTargetType
 from apps.common import services as common_services
-from apps.attendance.models import AttendanceSummary, MemberAttendance, ServiceEvent
+from apps.attendance.models import (
+    AttendanceSummary,
+    MemberAttendance,
+    ServiceEvent,
+)
 
 
 def _set_audit_fields(instance, *, actor, is_create: bool = False) -> None:

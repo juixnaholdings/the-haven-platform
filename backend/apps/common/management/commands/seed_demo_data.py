@@ -37,15 +37,15 @@ from apps.users.models import User
 
 SEED_TAG = "demo_seed_v1"
 DEMO_USER_PASSWORD = "DemoPass123!"
-DEFAULT_COUNT = 6
+DEFAULT_COUNT = 24
 MIN_COUNT = 5
-MAX_COUNT = 10
+MAX_COUNT = 60
 
 
 class Command(BaseCommand):
     help = (
-        "Seed linked demo data across all core product tables so each table has "
-        "at least 5-10 rows for UI/API and relational exploration."
+        "Seed linked and realistic demo data across core product tables for local "
+        "UI, workflow, and pagination exploration."
     )
 
     def add_arguments(self, parser):
@@ -53,7 +53,11 @@ class Command(BaseCommand):
             "--count",
             type=int,
             default=DEFAULT_COUNT,
-            help="Target row count baseline per core table (allowed: 5-10, default: 6).",
+            help=(
+                "Scale factor for demo data volume (allowed: 5-60, default: 24). "
+                "Default scale targets roughly 120 members, 30+ households, "
+                "8+ ministries, and 70+ finance transactions."
+            ),
         )
         parser.add_argument(
             "--seed",
@@ -70,12 +74,28 @@ class Command(BaseCommand):
             ),
         )
 
+    def _build_seed_plan(self, *, count: int) -> dict[str, int]:
+        return {
+            "staff_user_count": max(6, round(count / 4)),
+            "basic_user_count": max(5, round(count / 4)),
+            "member_count": count * 5,
+            "household_count": max(5, round(count * 1.3)),
+            "ministry_count": max(5, min(12, round(count / 3))),
+            "membership_span": max(5, count),
+            "manual_service_event_count": max(8, count),
+            "attendance_event_count": max(8, round(count * 0.9)),
+            "member_attendance_per_event": max(10, round(count * 2.5)),
+            "transaction_count": max(12, count * 3),
+            "audit_event_count": max(12, round(count * 1.5)),
+        }
+
     def handle(self, *args, **options):
         count = options["count"]
         if count < MIN_COUNT or count > MAX_COUNT:
             raise CommandError(
                 f"--count must be between {MIN_COUNT} and {MAX_COUNT}. Received {count}."
             )
+        seed_plan = self._build_seed_plan(count=count)
 
         random = Random(options["seed"])
 
@@ -87,36 +107,51 @@ class Command(BaseCommand):
             if options["reset"]:
                 self._reset_product_data()
 
-            staff_users = self._seed_staff_users(count=count)
+            staff_users = self._seed_staff_users(count=seed_plan["staff_user_count"])
             actor = staff_users[0]
 
-            members = self._seed_members(count=count, actor=actor, random=random)
-            households = self._seed_households(count=count, actor=actor)
+            self._seed_basic_users(count=seed_plan["basic_user_count"])
+
+            members = self._seed_members(
+                count=seed_plan["member_count"],
+                actor=actor,
+                random=random,
+            )
+            households = self._seed_households(
+                count=seed_plan["household_count"],
+                actor=actor,
+            )
             self._seed_household_memberships(
                 members=members,
                 households=households,
-                count=count,
+                count=seed_plan["household_count"],
                 actor=actor,
             )
 
-            ministries = self._seed_ministries(count=count, actor=actor)
+            ministries = self._seed_ministries(
+                count=seed_plan["ministry_count"],
+                actor=actor,
+            )
             self._seed_ministry_memberships(
                 members=members,
                 ministries=ministries,
-                count=count,
+                count=seed_plan["membership_span"],
                 actor=actor,
                 random=random,
             )
 
-            service_events = self._seed_service_events(
-                count=count,
+            manual_service_events = self._seed_service_events(
+                count=seed_plan["manual_service_event_count"],
                 actor=actor,
                 random=random,
             )
+            service_events = list(manual_service_events)
+            random.shuffle(service_events)
+
             self._seed_attendance(
                 members=members,
-                service_events=service_events,
-                count=count,
+                service_events=service_events[: seed_plan["attendance_event_count"]],
+                count=seed_plan["member_attendance_per_event"],
                 actor=actor,
                 random=random,
             )
@@ -125,7 +160,7 @@ class Command(BaseCommand):
             transactions = self._seed_transactions(
                 service_events=service_events,
                 fund_accounts=fund_accounts,
-                count=count,
+                count=seed_plan["transaction_count"],
                 actor=actor,
                 random=random,
             )
@@ -135,10 +170,33 @@ class Command(BaseCommand):
                 members=members,
                 service_events=service_events,
                 transactions=transactions,
-                count=count,
+                count=seed_plan["audit_event_count"],
             )
+        expected_minimums = {
+            "users_user": seed_plan["staff_user_count"] + seed_plan["basic_user_count"],
+            "auth_group": len(BASELINE_ROLE_NAMES),
+            "members_member": seed_plan["member_count"],
+            "households_household": seed_plan["household_count"],
+            "households_householdmembership": seed_plan["member_count"],
+            "groups_group": seed_plan["ministry_count"],
+            "groups_groupmembership": seed_plan["membership_span"],
+            "attendance_serviceevent": seed_plan["manual_service_event_count"],
+            "attendance_attendancesummary": min(
+                seed_plan["attendance_event_count"],
+                len(service_events),
+            ),
+            "attendance_memberattendance": min(
+                seed_plan["attendance_event_count"],
+                len(service_events),
+            )
+            * min(seed_plan["member_attendance_per_event"], seed_plan["member_count"]),
+            "finance_fundaccount": 6,
+            "finance_transaction": seed_plan["transaction_count"],
+            "finance_transactionline": seed_plan["transaction_count"],
+            "common_auditevent": seed_plan["audit_event_count"],
+        }
 
-        self._print_row_summary(expected_minimum=count)
+        self._print_row_summary(expected_minimums=expected_minimums)
         self.stdout.write(self.style.SUCCESS("Demo data seeding complete."))
 
     def _reset_product_data(self) -> None:
@@ -155,6 +213,8 @@ class Command(BaseCommand):
         MinistryGroup.objects.all().delete()
         Household.objects.all().delete()
         Member.objects.all().delete()
+        User.objects.filter(username__startswith="demo_staff_").delete()
+        User.objects.filter(username__startswith="demo_basic_").delete()
 
     def _seed_staff_users(self, *, count: int) -> list[User]:
         roles = list(
@@ -213,6 +273,51 @@ class Command(BaseCommand):
         self.stdout.write(f"Seeded/updated staff users: {len(users)}")
         return users
 
+    def _seed_basic_users(self, *, count: int) -> list[User]:
+        users: list[User] = []
+        for index in range(count):
+            username = f"demo_basic_{index + 1}"
+            email = f"{username}@thehaven.local"
+
+            user, created = User.objects.get_or_create(
+                username=username,
+                defaults={
+                    "email": email,
+                    "first_name": f"Demo{index + 1}",
+                    "last_name": "Member",
+                    "is_active": True,
+                    "is_staff": False,
+                    "is_superuser": False,
+                },
+            )
+
+            changed = False
+            if created:
+                user.set_password(DEMO_USER_PASSWORD)
+                changed = True
+
+            desired_fields = {
+                "email": email,
+                "first_name": f"Demo{index + 1}",
+                "last_name": "Member",
+                "is_active": True,
+                "is_staff": False,
+                "is_superuser": False,
+            }
+            for field_name, desired_value in desired_fields.items():
+                if getattr(user, field_name) != desired_value:
+                    setattr(user, field_name, desired_value)
+                    changed = True
+
+            if changed:
+                user.save()
+
+            user.groups.clear()
+            users.append(user)
+
+        self.stdout.write(f"Seeded/updated basic users: {len(users)}")
+        return users
+
     def _seed_members(self, *, count: int, actor: User, random: Random) -> list[Member]:
         first_names = [
             "Grace",
@@ -225,6 +330,16 @@ class Command(BaseCommand):
             "Jonathan",
             "Naomi",
             "David",
+            "Hannah",
+            "Benjamin",
+            "Priscilla",
+            "Emmanuel",
+            "Abigail",
+            "Elijah",
+            "Miriam",
+            "Solomon",
+            "Rebecca",
+            "Nathaniel",
         ]
         last_names = [
             "Adewale",
@@ -237,6 +352,16 @@ class Command(BaseCommand):
             "Bassey",
             "Adeyemi",
             "Nartey",
+            "Asante",
+            "Boateng",
+            "Owusu",
+            "Danquah",
+            "Agyeman",
+            "Bamfo",
+            "Ofori",
+            "Amoah",
+            "Nkrumah",
+            "Kwarteng",
         ]
 
         members: list[Member] = []
@@ -457,24 +582,44 @@ class Command(BaseCommand):
         actor: User,
         random: Random,
     ) -> list[ServiceEvent]:
-        event_types = [choice for choice, _ in ServiceEventType.choices]
+        event_types = [
+            ServiceEventType.MIDWEEK_SERVICE,
+            ServiceEventType.PRAYER_MEETING,
+            ServiceEventType.YOUTH_MEETING,
+            ServiceEventType.CHOIR_REHEARSAL,
+            ServiceEventType.SPECIAL_EVENT,
+            ServiceEventType.OTHER,
+        ]
+        title_prefixes = [
+            "Midweek Encounter",
+            "Prayer Night",
+            "Youth Connect",
+            "Choir Rehearsal",
+            "Community Outreach",
+            "Leaders Retreat",
+            "Special Thanksgiving",
+            "Training Session",
+            "Workers Meeting",
+            "Family Fellowship",
+        ]
         today = date.today()
         events: list[ServiceEvent] = []
 
         for index in range(count):
-            service_date = today - timedelta(days=index * 7)
+            service_date = today + timedelta(days=(index - (count // 2)) * 3)
+            title_prefix = title_prefixes[index % len(title_prefixes)]
             event, _ = ServiceEvent.objects.update_or_create(
-                title=f"Seed Service Event {index + 1}",
+                title=f"{title_prefix} {index + 1}",
                 service_date=service_date,
                 defaults={
                     "event_type": event_types[index % len(event_types)],
-                    "start_time": time(hour=9, minute=30),
-                    "end_time": time(hour=11, minute=30),
+                    "start_time": time(hour=18 if index % 2 else 9, minute=30),
+                    "end_time": time(hour=20 if index % 2 else 11, minute=30),
                     "location": ["Main Hall", "Youth Hall", "Prayer Room"][
                         random.randint(0, 2)
                     ],
                     "notes": f"Seeded service event ({SEED_TAG}).",
-                    "is_active": index <= (count // 2),
+                    "is_active": service_date >= (today - timedelta(days=60)),
                     "created_by": actor,
                     "updated_by": actor,
                 },
@@ -496,9 +641,9 @@ class Command(BaseCommand):
         statuses = [choice for choice, _ in AttendanceStatus.choices]
 
         for event_index, event in enumerate(service_events):
-            men_count = 20 + event_index
-            women_count = 24 + event_index
-            children_count = 8 + (event_index % 4)
+            men_count = 20 + event_index + random.randint(0, 8)
+            women_count = 24 + event_index + random.randint(0, 10)
+            children_count = 8 + (event_index % 4) + random.randint(0, 3)
             total_count = men_count + women_count + children_count
             visitor_count = min(6 + (event_index % 3), total_count)
 
@@ -517,11 +662,15 @@ class Command(BaseCommand):
             )
 
             active_members = members[:count]
+            base_start_time = event.start_time or time(hour=9, minute=0)
             for member_index, member in enumerate(active_members):
                 checked_in = timezone.make_aware(
                     datetime.combine(
                         event.service_date,
-                        time(hour=9, minute=min(55, 5 + (member_index * 4))),
+                        time(
+                            hour=base_start_time.hour,
+                            minute=min(59, base_start_time.minute + min(45, member_index * 2)),
+                        ),
                     ),
                     timezone.get_current_timezone(),
                 )
@@ -717,7 +866,7 @@ class Command(BaseCommand):
                 },
             )
 
-    def _print_row_summary(self, *, expected_minimum: int) -> None:
+    def _print_row_summary(self, *, expected_minimums: dict[str, int]) -> None:
         table_counts = [
             ("users_user", User.objects.count()),
             ("auth_group", Group.objects.count()),
@@ -755,8 +904,9 @@ class Command(BaseCommand):
         below_threshold = []
         for table_name, row_count in table_counts:
             self.stdout.write(f"- {table_name}: {row_count}")
-            if row_count < expected_minimum:
-                below_threshold.append((table_name, row_count))
+            expected_minimum = expected_minimums.get(table_name)
+            if expected_minimum is not None and row_count < expected_minimum:
+                below_threshold.append((table_name, row_count, expected_minimum))
 
         self.stdout.write("")
         self.stdout.write("Integrity checks:")
@@ -771,9 +921,10 @@ class Command(BaseCommand):
 
         if below_threshold:
             below_text = ", ".join(
-                f"{table} ({rows})" for table, rows in below_threshold
+                f"{table} ({rows} < expected {minimum})"
+                for table, rows, minimum in below_threshold
             )
             raise CommandError(
-                f"Some tables are below the target count ({expected_minimum}): {below_text}"
+                f"Some tables are below the expected seeded volume: {below_text}"
             )
 

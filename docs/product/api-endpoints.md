@@ -21,6 +21,11 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 - `POST /api/auth/signup/`
   Accepts `{ "username", "email", "password", "confirm_password" }` and creates a basic user account.
   Signup users are created without staff/admin flags and without assigned role groups by default.
+- `GET /api/auth/staff-invites/{staff_invite_id}/validate/?token=<invite-token>`
+  Validates a public staff invite link and returns invite metadata (`email`, `role_names`, `expires_at`) for onboarding.
+- `POST /api/auth/staff-invites/{staff_invite_id}/accept/`
+  Accepts `{ "token", "username", "first_name?", "last_name?", "password", "confirm_password" }` and completes invite onboarding.
+  On success, the system creates a real staff user account with the invite email and assigned role groups.
 - `GET /api/auth/availability/username/?username=<value>`
   Returns whether the submitted username is currently available.
 - `GET /api/auth/availability/email/?email=<value>`
@@ -101,6 +106,14 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 - `PATCH /api/attendance/{service_event_id}/member-attendance/{member_attendance_id}/`
   Updates an existing member attendance record.
 
+Frontend record-attendance workflow note:
+
+- The modal-first "Record Attendance" UX in `frontend-next` currently uses the existing endpoints in sequence:
+  1. `POST /api/attendance/` (create event)
+  2. `PUT /api/attendance/{service_event_id}/summary/` (upsert anonymous summary)
+  3. `POST /api/attendance/{service_event_id}/member-attendance/` (zero-or-more member rows)
+- No dedicated orchestration endpoint is required for this product wave; partial-failure handling is surfaced in the modal with a direct "continue in event attendance" link.
+
 ## Finance Admin Endpoints
 
 - `GET /api/finance/fund-accounts/`
@@ -152,11 +165,27 @@ All API routes are mounted under the configured API prefix, which defaults to `/
   Updates safe staff fields (`email`, names, `is_active`) and assigned `role_ids`.
 - `GET /api/settings/roles/`
   Returns a role summary with assigned-user counts and permission codes.
+- `GET /api/settings/basic-users/`
+  Returns basic (non-staff, non-superuser) users for elevation workflows. Defaults to unassigned-only candidates.
+- `POST /api/settings/basic-users/{user_id}/elevate/`
+  Elevates a basic user to staff access with explicit `role_ids` assignment.
+- `GET /api/settings/staff-invites/`
+  Lists staff invitation lifecycle records (`PENDING`, `ACCEPTED`, `REVOKED`, `EXPIRED`) with role metadata and invite-link path.
+- `POST /api/settings/staff-invites/`
+  Creates a staff invite for a not-yet-onboarded user email and assigned role groups.
+- `PATCH /api/settings/staff-invites/{staff_invite_id}/revoke/`
+  Revokes a pending invite link.
 
 Role-definition caveat:
 
 - role-definition mutation (renaming roles or changing permission maps) is intentionally not exposed through product APIs
 - role definitions remain bootstrap/admin-governed through `setup_roles` and Django admin
+
+Staff lifecycle caveat:
+
+- public signup continues to create basic users only (no staff roles/privileges by default)
+- elevation and invite/revoke actions remain admin-controlled through settings permissions
+- invite links are tokenized for manual sharing; email delivery is intentionally out of scope in the current product slice
 
 ## Audit Admin Endpoints
 

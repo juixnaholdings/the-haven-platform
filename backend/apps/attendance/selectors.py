@@ -1,6 +1,10 @@
 from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 
-from apps.attendance.models import AttendanceSummary, MemberAttendance, ServiceEvent
+from apps.attendance.models import (
+    AttendanceSummary,
+    MemberAttendance,
+    ServiceEvent,
+)
 
 
 def _ordered_member_attendance_queryset():

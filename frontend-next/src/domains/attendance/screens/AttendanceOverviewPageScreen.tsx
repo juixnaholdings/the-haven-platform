@@ -3,16 +3,20 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { EmptyState, EntityTable, ErrorState, FilterActionStrip, LoadingState, PageHeader, StatCard, StatusBadge } from "@/components";
 import { attendanceApi } from "@/domains/attendance/api";
+import { RecordAttendanceModal } from "@/domains/attendance/components";
 import { getServiceEventTypeLabel } from "@/domains/attendance/options";
 import { reportingApi } from "@/domains/reporting/api";
 import { formatDate } from "@/lib/formatters";
 
 export function AttendanceOverviewPageScreen() {
+  const router = useRouter();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [isRecordAttendanceModalOpen, setIsRecordAttendanceModalOpen] = useState(false);
 
   const attendanceSummaryQuery = useQuery({
     queryKey: ["attendance-overview", { startDate, endDate }],
@@ -65,6 +69,20 @@ export function AttendanceOverviewPageScreen() {
   return (
     <div className="space-y-6">
       <PageHeader
+        actions={
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              className="button button-primary"
+              onClick={() => setIsRecordAttendanceModalOpen(true)}
+              type="button"
+            >
+              Record attendance
+            </button>
+            <Link className="button button-secondary" href="/events">
+              View events
+            </Link>
+          </div>
+        }
         description="This overview keeps anonymous summary attendance and member-level attendance explicit as separate but related operational surfaces."
         eyebrow="Attendance overview"
         meta={<StatusBadge label={hasDateFilter ? "Filtered range" : "All-time overview"} tone="info" />}
@@ -188,9 +206,13 @@ export function AttendanceOverviewPageScreen() {
       {serviceEvents.length === 0 ? (
         <EmptyState
           action={
-            <Link className="button button-primary" href="/events">
-              Go to events
-            </Link>
+            <button
+              className="button button-primary"
+              onClick={() => setIsRecordAttendanceModalOpen(true)}
+              type="button"
+            >
+              Record attendance
+            </button>
           }
           description={
             hasDateFilter
@@ -217,7 +239,7 @@ export function AttendanceOverviewPageScreen() {
                       {serviceEvent.title}
                     </Link>
                     <span className="block text-xs text-slate-500">
-                      {getServiceEventTypeLabel(serviceEvent.event_type)} · {formatDate(serviceEvent.service_date)}
+                      {getServiceEventTypeLabel(serviceEvent.event_type)} | {formatDate(serviceEvent.service_date)}
                     </span>
                   </div>
                 ),
@@ -247,7 +269,9 @@ export function AttendanceOverviewPageScreen() {
                       className="button button-ghost button-compact"
                       href={`/events/${serviceEvent.id}/attendance`}
                     >
-                      Record attendance
+                      {serviceEvent.has_attendance_summary || serviceEvent.member_attendance_count > 0
+                        ? "Continue"
+                        : "Take attendance"}
                     </Link>
                   </div>
                 ),
@@ -258,6 +282,14 @@ export function AttendanceOverviewPageScreen() {
           />
         </section>
       )}
+
+      <RecordAttendanceModal
+        isOpen={isRecordAttendanceModalOpen}
+        onClose={() => setIsRecordAttendanceModalOpen(false)}
+        onCompleted={(serviceEvent) => {
+          router.push(`/events/${serviceEvent.id}/attendance`);
+        }}
+      />
     </div>
   );
 }

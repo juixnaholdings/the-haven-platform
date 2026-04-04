@@ -12,6 +12,7 @@ import {
   EntityTable,
   ErrorAlert,
   ErrorState,
+  FormModalShell,
   FormSection,
   LoadingState,
   PageHeader,
@@ -48,6 +49,7 @@ export function TransactionDetailPageScreen() {
   const params = useParams<{ transactionId: string }>();
   const numericTransactionId = Number(params.transactionId);
   const [formOverrides, setFormOverrides] = useState<Partial<TransactionMetadataFormState>>({});
+  const [isMetadataModalOpen, setIsMetadataModalOpen] = useState(false);
 
   const transactionQuery = useQuery({
     enabled: Number.isFinite(numericTransactionId),
@@ -89,6 +91,7 @@ export function TransactionDetailPageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["finance"] });
       await queryClient.invalidateQueries({ queryKey: ["reporting"] });
       setFormOverrides({});
+      setIsMetadataModalOpen(false);
     },
   });
 
@@ -134,6 +137,9 @@ export function TransactionDetailPageScreen() {
       <PageHeader
         actions={
           <div className="flex flex-wrap items-center gap-2.5">
+            <button className="button button-primary" onClick={() => setIsMetadataModalOpen(true)} type="button">
+              Edit metadata
+            </button>
             <Link className="button button-secondary" href="/finance">
               Back to ledger
             </Link>
@@ -191,80 +197,19 @@ export function TransactionDetailPageScreen() {
             </dl>
           </section>
 
-          <form
-            className="space-y-6"
-            onSubmit={(event) => {
-              event.preventDefault();
-              updateMutation.mutate(toMetadataPayload(formState));
-            }}
-          >
-            <FormSection
-              description="Use this only for safe operational metadata changes. Posted ledger lines themselves are not editable here."
-              title="Update transaction metadata"
-            >
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="field">
-                  <span>Transaction date</span>
-                  <input
-                    onChange={(event) =>
-                      setFormOverrides((current) => ({
-                        ...current,
-                        transaction_date: event.target.value,
-                      }))
-                    }
-                    required
-                    type="date"
-                    value={formState.transaction_date}
-                  />
-                </label>
-
-                <label className="field">
-                  <span>Linked service/event</span>
-                  <select
-                    onChange={(event) =>
-                      setFormOverrides((current) => ({
-                        ...current,
-                        service_event_id: event.target.value,
-                      }))
-                    }
-                    value={formState.service_event_id}
-                  >
-                    <option value="">No linked event</option>
-                    {serviceEvents.map((serviceEvent) => (
-                      <option key={serviceEvent.id} value={serviceEvent.id}>
-                        {serviceEvent.title} · {serviceEvent.service_date}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+          <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+            <div className="section-header">
+              <div>
+                <h3>Metadata actions</h3>
+                <p className="m-0 text-sm text-slate-500">
+                  Use the modal editor for safe operational metadata updates.
+                </p>
               </div>
-
-              <label className="field">
-                <span>Description</span>
-                <textarea
-                  onChange={(event) =>
-                    setFormOverrides((current) => ({
-                      ...current,
-                      description: event.target.value,
-                    }))
-                  }
-                  rows={4}
-                  value={formState.description}
-                />
-              </label>
-            </FormSection>
-
-            <ErrorAlert
-              error={updateMutation.error}
-              fallbackMessage="The transaction metadata could not be updated."
-            />
-
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button className="button button-primary" disabled={updateMutation.isPending} type="submit">
-                {updateMutation.isPending ? "Saving..." : "Save metadata changes"}
+              <button className="button button-primary" onClick={() => setIsMetadataModalOpen(true)} type="button">
+                Edit metadata
               </button>
             </div>
-          </form>
+          </section>
 
           {transaction.lines.length === 0 ? (
             <EmptyState
@@ -351,6 +296,89 @@ export function TransactionDetailPageScreen() {
           </section>
         </aside>
       </div>
+
+      <FormModalShell
+        description="Use this only for safe operational metadata changes. Posted ledger lines themselves are not editable here."
+        isOpen={isMetadataModalOpen}
+        onClose={() => setIsMetadataModalOpen(false)}
+        size="large"
+        title="Update transaction metadata"
+      >
+        <form
+          className="space-y-6"
+          onSubmit={(event) => {
+            event.preventDefault();
+            updateMutation.mutate(toMetadataPayload(formState));
+          }}
+        >
+          <FormSection title="Metadata details">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="field">
+                <span>Transaction date</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      transaction_date: event.target.value,
+                    }))
+                  }
+                  required
+                  type="date"
+                  value={formState.transaction_date}
+                />
+              </label>
+
+              <label className="field">
+                <span>Linked service/event</span>
+                <select
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      service_event_id: event.target.value,
+                    }))
+                  }
+                  value={formState.service_event_id}
+                >
+                  <option value="">No linked event</option>
+                  {serviceEvents.map((serviceEvent) => (
+                    <option key={serviceEvent.id} value={serviceEvent.id}>
+                      {serviceEvent.title} · {serviceEvent.service_date}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label className="field">
+              <span>Description</span>
+              <textarea
+                onChange={(event) =>
+                  setFormOverrides((current) => ({
+                    ...current,
+                    description: event.target.value,
+                  }))
+                }
+                rows={4}
+                value={formState.description}
+              />
+            </label>
+          </FormSection>
+
+          <ErrorAlert
+            error={updateMutation.error}
+            fallbackMessage="The transaction metadata could not be updated."
+          />
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button className="button button-primary" disabled={updateMutation.isPending} type="submit">
+              {updateMutation.isPending ? "Saving..." : "Save metadata changes"}
+            </button>
+            <button className="button button-secondary" onClick={() => setIsMetadataModalOpen(false)} type="button">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </FormModalShell>
 
       <BlockedFeatureCard
         action={

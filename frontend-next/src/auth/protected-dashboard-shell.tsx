@@ -140,7 +140,7 @@ const mobileMediaQuery = '(max-width: 1024px)'
 const initialNotifications: UserNotification[] = [
   {
     id: 'notification-1',
-    title: 'Sunday service attendance is ready',
+    title: 'Attendance records are ready',
     description: 'You have pending attendance records waiting for review.',
     href: '/attendance',
     createdAtLabel: '12m ago',

@@ -6,6 +6,7 @@ class AuditTargetType:
     MEMBER_ATTENDANCE = "member_attendance"
     FINANCE_TRANSACTION = "finance_transaction"
     STAFF_USER = "staff_user"
+    STAFF_INVITE = "staff_invite"
 
 
 class AuditEventType:
@@ -23,4 +24,8 @@ class AuditEventType:
     FINANCE_TRANSACTION_UPDATED = "finance.transaction.updated"
     STAFF_USER_CREATED = "settings.staff_user.created"
     STAFF_USER_UPDATED = "settings.staff_user.updated"
+    STAFF_USER_ELEVATED = "settings.staff_user.elevated"
     STAFF_ROLE_ASSIGNMENT_UPDATED = "settings.staff_role_assignment.updated"
+    STAFF_INVITE_CREATED = "settings.staff_invite.created"
+    STAFF_INVITE_REVOKED = "settings.staff_invite.revoked"
+    STAFF_INVITE_ACCEPTED = "settings.staff_invite.accepted"
