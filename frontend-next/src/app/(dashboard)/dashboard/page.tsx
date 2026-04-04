@@ -206,7 +206,7 @@ export default function DashboardPage() {
         <div className="flex items-end gap-5">
           <div className="flex-col">
             <button
-              className="relative rounded px-5 py-2.5 overflow-hidden group hover:bg-gradient-to-r hover:from-green-500 hover:to-green-400 text-white hover:ring-2 hover:ring-offset-2 hover:ring-green-400 transition-all ease-out duration-300"
+              className="button button-secondary relative overflow-hidden group border-0 px-5"
               onClick={() => setIsCreateEventModalOpen(true)}
               type="button"
             >
@@ -216,7 +216,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex-col">
             <button
-              className="relative rounded px-5 py-2.5 overflow-hidden group bg-green-500 hover:bg-gradient-to-r hover:from-green-500 hover:to-green-400 text-white hover:ring-2 hover:ring-offset-2 hover:ring-green-400 transition-all ease-out duration-300"
+              className="button button-primary relative overflow-hidden group border-0 px-5"
               onClick={() => setIsRecordAttendanceModalOpen(true)}
               type="button"
             >
@@ -384,7 +384,7 @@ export default function DashboardPage() {
         <article className="metric-card w-full h-full">
           <div className="flex h-full min-h-0 flex-col gap-4">
             <div className="flex items-start justify-between gap-3">
-              <h3>Recent Transactions</h3>
+          <h3>Recent Transactions</h3>
               <span className="text-xs font-medium text-slate-500">Ledger snapshot</span>
             </div>
 

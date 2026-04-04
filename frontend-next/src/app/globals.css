@@ -172,7 +172,7 @@ a {
   }
 
   .button {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 font-semibold transition duration-150;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-transparent px-5 py-2.5 text-sm font-semibold leading-5 transition duration-150;
   }
 
   .button:hover {
@@ -180,7 +180,7 @@ a {
   }
 
   .button:focus-visible {
-    @apply outline-none ring-2 ring-[#16335f]/25 ring-offset-2 ring-offset-white;
+    @apply outline-none ring-2 ring-[#0f6fe8]/35 ring-offset-2 ring-offset-white;
   }
 
   .button:disabled {
@@ -188,19 +188,19 @@ a {
   }
 
   .button-primary {
-    @apply bg-gradient-to-br from-[#16335f] to-[#27497d] text-white shadow-[0_10px_24px_rgba(22,51,95,0.18)] hover:from-[#102748] hover:to-[#1e3f6e];
+    @apply border-[#0b5fcb] bg-[#0f6fe8] text-white shadow-[0_10px_22px_rgba(15,111,232,0.28),inset_0_0_0_1px_rgba(255,255,255,0.32)] hover:border-[#0a57b9] hover:bg-[#0c63d1];
   }
 
   .button-secondary {
-    @apply border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50;
+    @apply border-[#2e81e5] bg-[#2f88ef] text-white shadow-[0_8px_18px_rgba(31,123,240,0.2)] hover:border-[#2874d0] hover:bg-[#2679dd];
   }
 
   .button-ghost {
-    @apply border border-slate-200/80 bg-slate-50 text-slate-700 hover:bg-slate-100;
+    @apply border-[#89baf6] bg-[#eaf3ff] text-[#0f5fc5] hover:border-[#64a4ef] hover:bg-[#dbeafe];
   }
 
   .button-compact {
-    @apply px-3 py-1.5 text-sm leading-5;
+    @apply min-h-8 px-3 py-1.5 text-sm leading-5;
   }
 
   .button-block {
