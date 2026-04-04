@@ -57,8 +57,9 @@ Canonical demo-data path:
 ## 5. Local Validation Commands
 
 - `python backend/manage.py check`
+- `python backend/manage.py test`
 - `python backend/manage.py makemigrations --check --dry-run`
-- `pytest`
+- `python -m pytest backend`
 
 ## 6. Frontend Local Setup
 
