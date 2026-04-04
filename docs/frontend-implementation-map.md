@@ -31,6 +31,7 @@ This map now reflects the post-replacement state where Next.js is the canonical 
 - `/finance/transfers/new`
 - `/finance/transactions/:transactionId`
 - `/reports`
+- `/settings`
 - `/settings/roles`
 - `/settings/staff`
 - `/audit`

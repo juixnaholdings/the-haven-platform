@@ -9,6 +9,9 @@ Operational reference for the active frontend integration path in The Haven.
 - Canonical app: `frontend-next/`
 - Legacy snapshot only: `frontend/` (inactive)
 
+Settings navigation:
+- Sidebar now includes a primary `Settings` item routed to `/settings` as the settings landing page.
+
 ## API base URL strategy
 
 - Env file: `frontend-next/.env.local`
@@ -77,7 +80,7 @@ Attendance and reporting are now intentionally general-purpose (non-Sunday-speci
 - Admin settings screen (`/settings/staff`) now includes:
   - active staff directory and role assignment
   - basic-user elevation candidates from public signup
-  - staff invite lifecycle list (create/copy/revoke)
+  - staff invite lifecycle list (create/copy/resend/revoke)
 - Public signup users remain roleless/basic until explicit admin elevation.
 - Invite onboarding is intentionally link-based in this wave (manual sharing); no outbound email coupling is required.
 
