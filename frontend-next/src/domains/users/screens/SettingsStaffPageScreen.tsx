@@ -196,7 +196,7 @@ export function SettingsStaffPageScreen() {
   const [staffSearch, setStaffSearch] = useState("");
   const [staffStatusFilter, setStaffStatusFilter] = useState<StaffStatusFilter>("all");
   const [selectedStaffUserId, setSelectedStaffUserId] = useState<number | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createFormState, setCreateFormState] = useState<StaffCreateFormState>(emptyCreateForm);
   const [updateFormOverrides, setUpdateFormOverrides] = useState<Partial<StaffUpdateFormState>>({});
 
@@ -208,7 +208,7 @@ export function SettingsStaffPageScreen() {
 
   const [inviteSearch, setInviteSearch] = useState("");
   const [inviteStatusFilter, setInviteStatusFilter] = useState<InviteStatusFilter>("all");
-  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteFormState, setInviteFormState] = useState<StaffInviteFormState>(emptyInviteForm);
   const [copiedInviteId, setCopiedInviteId] = useState<number | null>(null);
 
@@ -240,14 +240,7 @@ export function SettingsStaffPageScreen() {
   const allBasicUsers = basicUsersQuery.data ?? EMPTY_BASIC_USERS;
   const allStaffInvites = staffInvitesQuery.data ?? EMPTY_STAFF_INVITES;
 
-  const selectedUserStillExists = selectedStaffUserId
-    ? allStaffUsers.some((user) => user.id === selectedStaffUserId)
-    : false;
-  const effectiveSelectedStaffUserId = selectedUserStillExists
-    ? selectedStaffUserId
-    : allStaffUsers[0]?.id ?? null;
-  const selectedStaffUser =
-    allStaffUsers.find((user) => user.id === effectiveSelectedStaffUserId) ?? null;
+  const selectedStaffUser = allStaffUsers.find((user) => user.id === selectedStaffUserId) ?? null;
   const updateFormValues = selectedStaffUser
     ? buildUpdateFormValues(selectedStaffUser, updateFormOverrides)
     : emptyUpdateForm;
@@ -259,7 +252,7 @@ export function SettingsStaffPageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["settings", "staff-users"] });
       await queryClient.invalidateQueries({ queryKey: ["settings", "roles"] });
       setCreateFormState(emptyCreateForm);
-      setShowCreateForm(false);
+      setIsCreateModalOpen(false);
       setSelectedStaffUserId(createdStaffUser.id);
       setUpdateFormOverrides({});
     },
@@ -267,10 +260,10 @@ export function SettingsStaffPageScreen() {
 
   const updateStaffUserMutation = useMutation({
     mutationFn: (payload: StaffUserUpdatePayload) => {
-      if (!effectiveSelectedStaffUserId) {
+      if (!selectedStaffUserId) {
         throw new Error("No staff user selected.");
       }
-      return usersApi.updateStaffUser(effectiveSelectedStaffUserId, payload);
+      return usersApi.updateStaffUser(selectedStaffUserId, payload);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["settings", "staff-users"] });
@@ -301,7 +294,7 @@ export function SettingsStaffPageScreen() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["settings", "staff-invites"] });
       setInviteFormState(emptyInviteForm);
-      setShowInviteForm(false);
+      setIsInviteModalOpen(false);
     },
   });
 
@@ -422,18 +415,18 @@ export function SettingsStaffPageScreen() {
               View roles
             </Link>
             <button
-              className={showInviteForm ? "button button-secondary" : "button button-primary"}
-              onClick={() => setShowInviteForm((current) => !current)}
+              className="button button-primary"
+              onClick={() => setIsInviteModalOpen(true)}
               type="button"
             >
-              {showInviteForm ? "Close invite form" : "Invite staff"}
+              Invite staff
             </button>
             <button
-              className={showCreateForm ? "button button-secondary" : "button button-primary"}
-              onClick={() => setShowCreateForm((current) => !current)}
+              className="button button-primary"
+              onClick={() => setIsCreateModalOpen(true)}
               type="button"
             >
-              {showCreateForm ? "Close create form" : "Add staff user"}
+              Add staff user
             </button>
           </div>
         }
@@ -456,18 +449,47 @@ export function SettingsStaffPageScreen() {
         <StatCard label="Accepted invites" value={acceptedInviteCount} />
       </section>
 
-      {showInviteForm ? (
+      <FormModalShell
+        description="Create a secure invite link for a future staff user. Share the generated link manually when outbound email delivery is unavailable."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setInviteFormState(emptyInviteForm);
+                setIsInviteModalOpen(false);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={createStaffInviteMutation.isPending}
+              form="staff-invite-form"
+              type="submit"
+            >
+              {createStaffInviteMutation.isPending ? "Creating invite..." : "Create invite"}
+            </button>
+          </>
+        }
+        isOpen={isInviteModalOpen}
+        onClose={() => {
+          setInviteFormState(emptyInviteForm);
+          setIsInviteModalOpen(false);
+        }}
+        size="large"
+        title="Invite new staff"
+      >
         <form
           className="page-stack"
+          id="staff-invite-form"
           onSubmit={(event) => {
             event.preventDefault();
             createStaffInviteMutation.mutate(toInvitePayload(inviteFormState));
           }}
         >
-          <FormSection
-            description="Create a secure invite link for a future staff user. Share the generated link manually when outbound email delivery is unavailable."
-            title="Invite new staff"
-          >
+          <FormSection title="Invite details">
             <div className="form-grid form-grid-2">
               <label className="field">
                 <span>Invite email</span>
@@ -526,28 +548,8 @@ export function SettingsStaffPageScreen() {
             error={createStaffInviteMutation.error}
             fallbackMessage="The staff invite could not be created."
           />
-
-          <div className="inline-actions">
-            <button
-              className="button button-primary"
-              disabled={createStaffInviteMutation.isPending}
-              type="submit"
-            >
-              {createStaffInviteMutation.isPending ? "Creating invite..." : "Create invite"}
-            </button>
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setInviteFormState(emptyInviteForm);
-                setShowInviteForm(false);
-              }}
-              type="button"
-            >
-              Cancel
-            </button>
-          </div>
         </form>
-      ) : null}
+      </FormModalShell>
 
       <section className="panel">
         <div className="panel-header">
@@ -773,18 +775,47 @@ export function SettingsStaffPageScreen() {
         />
       </section>
 
-      {showCreateForm ? (
+      <FormModalShell
+        description="Create a staff account directly and assign baseline roles."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setCreateFormState(emptyCreateForm);
+                setIsCreateModalOpen(false);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={createStaffUserMutation.isPending}
+              form="staff-create-form"
+              type="submit"
+            >
+              {createStaffUserMutation.isPending ? "Creating..." : "Create staff user"}
+            </button>
+          </>
+        }
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setCreateFormState(emptyCreateForm);
+          setIsCreateModalOpen(false);
+        }}
+        size="large"
+        title="Add staff user"
+      >
         <form
           className="page-stack"
+          id="staff-create-form"
           onSubmit={(event) => {
             event.preventDefault();
             createStaffUserMutation.mutate(toCreatePayload(createFormState));
           }}
         >
-          <FormSection
-            description="Create a staff account directly and assign baseline roles."
-            title="Add staff user"
-          >
+          <FormSection title="Staff account details">
             <div className="form-grid form-grid-2">
               <label className="field">
                 <span>Username</span>
@@ -875,28 +906,8 @@ export function SettingsStaffPageScreen() {
             error={createStaffUserMutation.error}
             fallbackMessage="The staff user could not be created."
           />
-
-          <div className="inline-actions">
-            <button
-              className="button button-primary"
-              disabled={createStaffUserMutation.isPending}
-              type="submit"
-            >
-              {createStaffUserMutation.isPending ? "Creating..." : "Create staff user"}
-            </button>
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setCreateFormState(emptyCreateForm);
-                setShowCreateForm(false);
-              }}
-              type="button"
-            >
-              Cancel
-            </button>
-          </div>
         </form>
-      ) : null}
+      </FormModalShell>
 
       <section className="panel">
         <div className="panel-header">
@@ -1000,18 +1011,14 @@ export function SettingsStaffPageScreen() {
                 className: "cell-actions",
                 cell: (user) => (
                   <button
-                    className={
-                      effectiveSelectedStaffUserId === user.id
-                        ? "button button-secondary button-compact"
-                        : "button button-ghost button-compact"
-                    }
+                    className="button button-ghost button-compact"
                     onClick={() => {
                       setSelectedStaffUserId(user.id);
                       setUpdateFormOverrides({});
                     }}
                     type="button"
                   >
-                    {effectiveSelectedStaffUserId === user.id ? "Editing" : "Manage"}
+                    Manage
                   </button>
                 ),
               },
@@ -1023,110 +1030,132 @@ export function SettingsStaffPageScreen() {
         )}
       </section>
 
-      {selectedStaffUser ? (
-        <form
-          className="page-stack"
-          onSubmit={(event) => {
-            event.preventDefault();
-            updateStaffUserMutation.mutate(toUpdatePayload(updateFormValues));
-          }}
-        >
-          <FormSection
-            description="Update identity fields, active status, and assigned roles for this staff account."
-            title={`Edit staff user: ${selectedStaffUser.full_name}`}
+      <FormModalShell
+        description={
+          selectedStaffUser
+            ? "Update identity fields, active status, and assigned roles for this staff account."
+            : "Choose a staff record above to edit access and role assignments."
+        }
+        isOpen={Boolean(selectedStaffUser)}
+        onClose={() => {
+          setSelectedStaffUserId(null);
+          setUpdateFormOverrides({});
+        }}
+        size="large"
+        title={selectedStaffUser ? `Edit staff user: ${selectedStaffUser.full_name}` : "Edit staff user"}
+      >
+        {selectedStaffUser ? (
+          <form
+            className="page-stack"
+            onSubmit={(event) => {
+              event.preventDefault();
+              updateStaffUserMutation.mutate(toUpdatePayload(updateFormValues));
+            }}
           >
-            <div className="form-grid form-grid-2">
-              <label className="field">
-                <span>Username</span>
-                <input disabled value={selectedStaffUser.username} />
-              </label>
-              <label className="field">
-                <span>Email</span>
-                <input
-                  onChange={(event) =>
-                    setUpdateFormOverrides((current) => ({ ...current, email: event.target.value }))
-                  }
-                  required
-                  type="email"
-                  value={updateFormValues.email}
-                />
-              </label>
-              <label className="field">
-                <span>First name</span>
-                <input
-                  onChange={(event) =>
-                    setUpdateFormOverrides((current) => ({ ...current, first_name: event.target.value }))
-                  }
-                  value={updateFormValues.first_name}
-                />
-              </label>
-              <label className="field">
-                <span>Last name</span>
-                <input
-                  onChange={(event) =>
-                    setUpdateFormOverrides((current) => ({ ...current, last_name: event.target.value }))
-                  }
-                  value={updateFormValues.last_name}
-                />
-              </label>
-              <label className="checkbox-field checkbox-field-inline">
-                <input
-                  checked={updateFormValues.is_active}
-                  onChange={(event) =>
-                    setUpdateFormOverrides((current) => ({ ...current, is_active: event.target.checked }))
-                  }
-                  type="checkbox"
-                />
-                <span>User is active</span>
-              </label>
-            </div>
-
-            <div className="form-grid">
-              <span className="field-label">Assigned roles</span>
-              <div className="tag-list">
-                {sortedRoles.map((role) => (
-                  <label className="checkbox-field checkbox-field-inline" key={`edit-${role.id}`}>
-                    <input
-                      checked={updateFormValues.role_ids.includes(role.id)}
-                      onChange={() =>
-                        setUpdateFormOverrides((current) => ({
-                          ...current,
-                          role_ids: toggleRoleIds(updateFormValues.role_ids, role.id),
-                        }))
-                      }
-                      type="checkbox"
-                    />
-                    <span>{role.name}</span>
-                  </label>
-                ))}
+            <FormSection title="Staff account details">
+              <div className="form-grid form-grid-2">
+                <label className="field">
+                  <span>Username</span>
+                  <input disabled value={selectedStaffUser.username} />
+                </label>
+                <label className="field">
+                  <span>Email</span>
+                  <input
+                    onChange={(event) =>
+                      setUpdateFormOverrides((current) => ({ ...current, email: event.target.value }))
+                    }
+                    required
+                    type="email"
+                    value={updateFormValues.email}
+                  />
+                </label>
+                <label className="field">
+                  <span>First name</span>
+                  <input
+                    onChange={(event) =>
+                      setUpdateFormOverrides((current) => ({ ...current, first_name: event.target.value }))
+                    }
+                    value={updateFormValues.first_name}
+                  />
+                </label>
+                <label className="field">
+                  <span>Last name</span>
+                  <input
+                    onChange={(event) =>
+                      setUpdateFormOverrides((current) => ({ ...current, last_name: event.target.value }))
+                    }
+                    value={updateFormValues.last_name}
+                  />
+                </label>
+                <label className="checkbox-field checkbox-field-inline">
+                  <input
+                    checked={updateFormValues.is_active}
+                    onChange={(event) =>
+                      setUpdateFormOverrides((current) => ({ ...current, is_active: event.target.checked }))
+                    }
+                    type="checkbox"
+                  />
+                  <span>User is active</span>
+                </label>
               </div>
+
+              <div className="form-grid">
+                <span className="field-label">Assigned roles</span>
+                <div className="tag-list">
+                  {sortedRoles.map((role) => (
+                    <label className="checkbox-field checkbox-field-inline" key={`edit-${role.id}`}>
+                      <input
+                        checked={updateFormValues.role_ids.includes(role.id)}
+                        onChange={() =>
+                          setUpdateFormOverrides((current) => ({
+                            ...current,
+                            role_ids: toggleRoleIds(updateFormValues.role_ids, role.id),
+                          }))
+                        }
+                        type="checkbox"
+                      />
+                      <span>{role.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </FormSection>
+
+            <ErrorAlert
+              error={updateStaffUserMutation.error}
+              fallbackMessage="The staff user could not be updated."
+            />
+
+            <div className="inline-actions">
+              <button
+                className="button button-primary"
+                disabled={updateStaffUserMutation.isPending}
+                type="submit"
+              >
+                {updateStaffUserMutation.isPending ? "Saving..." : "Save staff user"}
+              </button>
+              <button className="button button-secondary" onClick={() => setUpdateFormOverrides({})} type="button">
+                Reset changes
+              </button>
+              <button
+                className="button button-secondary"
+                onClick={() => {
+                  setSelectedStaffUserId(null);
+                  setUpdateFormOverrides({});
+                }}
+                type="button"
+              >
+                Close
+              </button>
             </div>
-          </FormSection>
-
-          <ErrorAlert
-            error={updateStaffUserMutation.error}
-            fallbackMessage="The staff user could not be updated."
+          </form>
+        ) : (
+          <EmptyState
+            description="Choose a staff record above to edit access and role assignments."
+            title="No staff user selected"
           />
-
-          <div className="inline-actions">
-            <button
-              className="button button-primary"
-              disabled={updateStaffUserMutation.isPending}
-              type="submit"
-            >
-              {updateStaffUserMutation.isPending ? "Saving..." : "Save staff user"}
-            </button>
-            <button className="button button-secondary" onClick={() => setUpdateFormOverrides({})} type="button">
-              Reset changes
-            </button>
-          </div>
-        </form>
-      ) : (
-        <EmptyState
-          description="Choose a staff record above to edit access and role assignments."
-          title="No staff user selected"
-        />
-      )}
+        )}
+      </FormModalShell>
 
       <FormModalShell
         description={

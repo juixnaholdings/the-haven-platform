@@ -11,6 +11,7 @@ import {
   EntityTable,
   ErrorAlert,
   ErrorState,
+  FormModalShell,
   FormSection,
   LoadingState,
   PageHeader,
@@ -99,6 +100,8 @@ function toMembershipPayload(formState: MembershipFormState): GroupMembershipUpd
 export function GroupDetailPageScreen() {
   const params = useParams<{ groupId: string }>();
   const numericGroupId = Number(params.groupId);
+  const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [groupFormOverrides, setGroupFormOverrides] = useState<Partial<GroupFormState>>({});
   const [memberSearch, setMemberSearch] = useState("");
   const [addMemberFormState, setAddMemberFormState] = useState<AddMemberFormState>(emptyAddMemberForm);
@@ -189,6 +192,7 @@ export function GroupDetailPageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["groups"] });
       await queryClient.invalidateQueries({ queryKey: ["group", numericGroupId] });
       setGroupFormOverrides({});
+      setIsEditGroupModalOpen(false);
     },
   });
 
@@ -199,6 +203,7 @@ export function GroupDetailPageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["groups"] });
       setAddMemberFormState(emptyAddMemberForm);
       setMemberSearch("");
+      setIsAddMemberModalOpen(false);
     },
   });
 
@@ -214,6 +219,7 @@ export function GroupDetailPageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["group", numericGroupId] });
       await queryClient.invalidateQueries({ queryKey: ["groups"] });
       setMembershipFormOverrides({});
+      setSelectedMembershipId(null);
     },
   });
 
@@ -256,9 +262,25 @@ export function GroupDetailPageScreen() {
     <div className="space-y-6">
       <PageHeader
         actions={
-          <Link className="button button-secondary" href="/groups">
-            Back to ministries
-          </Link>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              className="button button-primary"
+              onClick={() => setIsEditGroupModalOpen(true)}
+              type="button"
+            >
+              Edit ministry
+            </button>
+            <button
+              className="button button-secondary"
+              onClick={() => setIsAddMemberModalOpen(true)}
+              type="button"
+            >
+              Add member
+            </button>
+            <Link className="button button-ghost" href="/groups">
+              Back to ministries
+            </Link>
+          </div>
         }
         description="This screen uses the current flat group model as the ministry detail workflow. No parent-child ministry hierarchy is available yet."
         eyebrow="Groups / ministries"
@@ -328,73 +350,95 @@ export function GroupDetailPageScreen() {
         </section>
       </div>
 
-      <form
-        className="space-y-6"
-        onSubmit={(event) => {
-          event.preventDefault();
-          updateGroupMutation.mutate(toGroupPayload(groupFormState));
+      <FormModalShell
+        description="This form updates the current flat group record used for ministry management."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setGroupFormOverrides({});
+                setIsEditGroupModalOpen(false);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={updateGroupMutation.isPending}
+              form="group-edit-form"
+              type="submit"
+            >
+              {updateGroupMutation.isPending ? "Saving..." : "Save ministry changes"}
+            </button>
+          </>
+        }
+        isOpen={isEditGroupModalOpen}
+        onClose={() => {
+          setGroupFormOverrides({});
+          setIsEditGroupModalOpen(false);
         }}
+        size="large"
+        title="Update ministry"
       >
-        <FormSection
-          description="This form updates the current flat group record used for ministry management."
-          title="Update ministry"
+        <form
+          className="space-y-6"
+          id="group-edit-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            updateGroupMutation.mutate(toGroupPayload(groupFormState));
+          }}
         >
-          <div className="grid gap-4 md:grid-cols-2">
+          <FormSection title="Ministry details">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="field">
+                <span>Ministry name</span>
+                <input
+                  onChange={(event) =>
+                    setGroupFormOverrides((current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                  required
+                  value={groupFormState.name}
+                />
+              </label>
+
+              <label className="checkbox-field checkbox-field-inline">
+                <input
+                  checked={groupFormState.is_active}
+                  onChange={(event) =>
+                    setGroupFormOverrides((current) => ({
+                      ...current,
+                      is_active: event.target.checked,
+                    }))
+                  }
+                  type="checkbox"
+                />
+                <span>Ministry is active</span>
+              </label>
+            </div>
+
             <label className="field">
-              <span>Ministry name</span>
-              <input
+              <span>Description</span>
+              <textarea
                 onChange={(event) =>
                   setGroupFormOverrides((current) => ({
                     ...current,
-                    name: event.target.value,
+                    description: event.target.value,
                   }))
                 }
-                required
-                value={groupFormState.name}
+                rows={4}
+                value={groupFormState.description}
               />
             </label>
+          </FormSection>
 
-            <label className="checkbox-field checkbox-field-inline">
-              <input
-                checked={groupFormState.is_active}
-                onChange={(event) =>
-                  setGroupFormOverrides((current) => ({
-                    ...current,
-                    is_active: event.target.checked,
-                  }))
-                }
-                type="checkbox"
-              />
-              <span>Ministry is active</span>
-            </label>
-          </div>
-
-          <label className="field">
-            <span>Description</span>
-            <textarea
-              onChange={(event) =>
-                setGroupFormOverrides((current) => ({
-                  ...current,
-                  description: event.target.value,
-                }))
-              }
-              rows={4}
-              value={groupFormState.description}
-            />
-          </label>
-        </FormSection>
-
-        <ErrorAlert
-          error={updateGroupMutation.error}
-          fallbackMessage="The ministry could not be updated."
-        />
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button className="button button-primary" disabled={updateGroupMutation.isPending} type="submit">
-            {updateGroupMutation.isPending ? "Saving..." : "Save ministry changes"}
-          </button>
-        </div>
-      </form>
+          <ErrorAlert error={updateGroupMutation.error} fallbackMessage="The ministry could not be updated." />
+        </form>
+      </FormModalShell>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
         <div className="section-header">
@@ -405,11 +449,18 @@ export function GroupDetailPageScreen() {
               group memberships only.
             </p>
           </div>
+          <button
+            className="button button-secondary button-compact"
+            onClick={() => setIsAddMemberModalOpen(true)}
+            type="button"
+          >
+            Add member
+          </button>
         </div>
 
         {group.memberships.length === 0 ? (
           <EmptyState
-            description="Add a member below to start using this ministry operationally."
+            description="Use the Add member action to start using this ministry operationally."
             title="No ministry memberships yet"
           />
         ) : (
@@ -472,6 +523,17 @@ export function GroupDetailPageScreen() {
         )}
       </section>
 
+      <FormModalShell
+        description="Use the live member directory to assign a member into this ministry. Duplicate active memberships are still enforced by the backend."
+        isOpen={isAddMemberModalOpen}
+        onClose={() => {
+          setAddMemberFormState(emptyAddMemberForm);
+          setMemberSearch("");
+          setIsAddMemberModalOpen(false);
+        }}
+        size="large"
+        title="Add member to ministry"
+      >
       <form
         className="space-y-6"
         onSubmit={(event) => {
@@ -585,6 +647,7 @@ export function GroupDetailPageScreen() {
             onClick={() => {
               setAddMemberFormState(emptyAddMemberForm);
               setMemberSearch("");
+              setIsAddMemberModalOpen(false);
             }}
             type="button"
           >
@@ -592,122 +655,126 @@ export function GroupDetailPageScreen() {
           </button>
         </div>
       </form>
+      </FormModalShell>
 
-      {selectedMembership ? (
-        <form
-          className="space-y-6"
-          onSubmit={(event) => {
-            event.preventDefault();
-            updateMembershipMutation.mutate(toMembershipPayload(membershipFormState));
-          }}
-        >
-          <FormSection
-            description="Update ministry role, dates, notes, and active state through the existing membership patch endpoint."
-            title={`Edit membership: ${formatMemberName(selectedMembership)}`}
+      <FormModalShell
+        description="Update ministry role, dates, notes, and active state through the existing membership patch endpoint."
+        isOpen={Boolean(selectedMembership)}
+        onClose={() => {
+          setSelectedMembershipId(null);
+          setMembershipFormOverrides({});
+        }}
+        size="large"
+        title={selectedMembership ? `Edit membership: ${formatMemberName(selectedMembership)}` : "Edit membership"}
+      >
+        {selectedMembership ? (
+          <form
+            className="space-y-6"
+            onSubmit={(event) => {
+              event.preventDefault();
+              updateMembershipMutation.mutate(toMembershipPayload(membershipFormState));
+            }}
           >
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="field">
-                <span>Role name</span>
-                <input
-                  onChange={(event) =>
-                    setMembershipFormOverrides((current) => ({
-                      ...current,
-                      role_name: event.target.value,
-                    }))
-                  }
-                  value={membershipFormState.role_name}
-                />
-              </label>
+            <FormSection title="Membership details">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="field">
+                  <span>Role name</span>
+                  <input
+                    onChange={(event) =>
+                      setMembershipFormOverrides((current) => ({
+                        ...current,
+                        role_name: event.target.value,
+                      }))
+                    }
+                    value={membershipFormState.role_name}
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Started on</span>
+                  <input
+                    onChange={(event) =>
+                      setMembershipFormOverrides((current) => ({
+                        ...current,
+                        started_on: event.target.value,
+                      }))
+                    }
+                    type="date"
+                    value={membershipFormState.started_on}
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Ended on</span>
+                  <input
+                    onChange={(event) =>
+                      setMembershipFormOverrides((current) => ({
+                        ...current,
+                        ended_on: event.target.value,
+                      }))
+                    }
+                    type="date"
+                    value={membershipFormState.ended_on}
+                  />
+                </label>
+
+                <label className="checkbox-field checkbox-field-inline">
+                  <input
+                    checked={membershipFormState.is_active}
+                    onChange={(event) =>
+                      setMembershipFormOverrides((current) => ({
+                        ...current,
+                        is_active: event.target.checked,
+                      }))
+                    }
+                    type="checkbox"
+                  />
+                  <span>Membership is active</span>
+                </label>
+              </div>
 
               <label className="field">
-                <span>Started on</span>
-                <input
+                <span>Membership notes</span>
+                <textarea
                   onChange={(event) =>
                     setMembershipFormOverrides((current) => ({
                       ...current,
-                      started_on: event.target.value,
+                      notes: event.target.value,
                     }))
                   }
-                  type="date"
-                  value={membershipFormState.started_on}
+                  rows={4}
+                  value={membershipFormState.notes}
                 />
               </label>
+            </FormSection>
 
-              <label className="field">
-                <span>Ended on</span>
-                <input
-                  onChange={(event) =>
-                    setMembershipFormOverrides((current) => ({
-                      ...current,
-                      ended_on: event.target.value,
-                    }))
-                  }
-                  type="date"
-                  value={membershipFormState.ended_on}
-                />
-              </label>
+            <ErrorAlert
+              error={updateMembershipMutation.error}
+              fallbackMessage="The ministry membership could not be updated."
+            />
 
-              <label className="checkbox-field checkbox-field-inline">
-                <input
-                  checked={membershipFormState.is_active}
-                  onChange={(event) =>
-                    setMembershipFormOverrides((current) => ({
-                      ...current,
-                      is_active: event.target.checked,
-                    }))
-                  }
-                  type="checkbox"
-                />
-                <span>Membership is active</span>
-              </label>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                className="button button-primary"
+                disabled={updateMembershipMutation.isPending}
+                type="submit"
+              >
+                {updateMembershipMutation.isPending ? "Saving..." : "Save membership"}
+              </button>
+              <button
+                className="button button-secondary"
+                onClick={() => {
+                  setSelectedMembershipId(null);
+                  setMembershipFormOverrides({});
+                }}
+                type="button"
+              >
+                Close editor
+              </button>
             </div>
-
-            <label className="field">
-              <span>Membership notes</span>
-              <textarea
-                onChange={(event) =>
-                  setMembershipFormOverrides((current) => ({
-                    ...current,
-                    notes: event.target.value,
-                  }))
-                }
-                rows={4}
-                value={membershipFormState.notes}
-              />
-            </label>
-          </FormSection>
-
-          <ErrorAlert
-            error={updateMembershipMutation.error}
-            fallbackMessage="The ministry membership could not be updated."
-          />
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              className="button button-primary"
-              disabled={updateMembershipMutation.isPending}
-              type="submit"
-            >
-              {updateMembershipMutation.isPending ? "Saving..." : "Save membership"}
-            </button>
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setSelectedMembershipId(null);
-                setMembershipFormOverrides({});
-              }}
-              type="button"
-            >
-              Close editor
-            </button>
-          </div>
-        </form>
-      ) : (
-        <EmptyState
-          description="Choose a row above to edit role, dates, notes, or active state."
-          title="No ministry membership selected"
-        />
-      )}
+          </form>
+        ) : null}
+      </FormModalShell>
     </div>
   );
 }

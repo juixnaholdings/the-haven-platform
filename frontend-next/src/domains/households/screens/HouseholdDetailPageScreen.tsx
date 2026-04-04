@@ -11,6 +11,7 @@ import {
   EntityTable,
   ErrorAlert,
   ErrorState,
+  FormModalShell,
   FormSection,
   LoadingState,
   PageHeader,
@@ -128,6 +129,8 @@ function getMemberDisplayName(member: {
 export function HouseholdDetailPageScreen() {
   const params = useParams<{ householdId: string }>();
   const numericHouseholdId = Number(params.householdId);
+  const [isEditHouseholdModalOpen, setIsEditHouseholdModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [householdFormOverrides, setHouseholdFormOverrides] = useState<Partial<HouseholdFormState>>({});
   const [memberSearch, setMemberSearch] = useState("");
   const [addMemberFormState, setAddMemberFormState] = useState<AddMemberFormState>(emptyAddMemberForm);
@@ -224,6 +227,7 @@ export function HouseholdDetailPageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["households"] });
       await queryClient.invalidateQueries({ queryKey: ["household", numericHouseholdId] });
       setHouseholdFormOverrides({});
+      setIsEditHouseholdModalOpen(false);
     },
   });
 
@@ -235,6 +239,7 @@ export function HouseholdDetailPageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["households"] });
       setAddMemberFormState(emptyAddMemberForm);
       setMemberSearch("");
+      setIsAddMemberModalOpen(false);
     },
   });
 
@@ -250,6 +255,7 @@ export function HouseholdDetailPageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["household", numericHouseholdId] });
       await queryClient.invalidateQueries({ queryKey: ["households"] });
       setMembershipFormOverrides({});
+      setSelectedMembershipId(null);
     },
   });
 
@@ -295,7 +301,21 @@ export function HouseholdDetailPageScreen() {
       <PageHeader
         actions={
           <div className="flex flex-wrap items-center gap-2.5">
-            <Link className="button button-secondary" href="/households">
+            <button
+              className="button button-primary"
+              onClick={() => setIsEditHouseholdModalOpen(true)}
+              type="button"
+            >
+              Edit household
+            </button>
+            <button
+              className="button button-secondary"
+              onClick={() => setIsAddMemberModalOpen(true)}
+              type="button"
+            >
+              Add member
+            </button>
+            <Link className="button button-ghost" href="/households">
               Back to households
             </Link>
           </div>
@@ -397,129 +417,144 @@ export function HouseholdDetailPageScreen() {
         </section>
       </div>
 
-      <form
-        className="space-y-6"
-        onSubmit={(event) => {
-          event.preventDefault();
-          updateHouseholdMutation.mutate(toHouseholdPayload(householdFormState));
+      <FormModalShell
+        description="This edit form writes directly to the current household patch endpoint."
+        isOpen={isEditHouseholdModalOpen}
+        onClose={() => {
+          setHouseholdFormOverrides({});
+          setIsEditHouseholdModalOpen(false);
         }}
+        size="large"
+        title="Update household"
       >
-        <FormSection
-          description="This edit form writes directly to the current household patch endpoint."
-          title="Update household"
+        <form
+          className="space-y-6"
+          onSubmit={(event) => {
+            event.preventDefault();
+            updateHouseholdMutation.mutate(toHouseholdPayload(householdFormState));
+          }}
         >
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="field">
-              <span>Household name</span>
-              <input
-                onChange={(event) =>
-                  setHouseholdFormOverrides((current) => ({
-                    ...current,
-                    name: event.target.value,
-                  }))
-                }
-                required
-                value={householdFormState.name}
-              />
-            </label>
+          <FormSection title="Household details">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="field">
+                <span>Household name</span>
+                <input
+                  onChange={(event) =>
+                    setHouseholdFormOverrides((current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                  required
+                  value={householdFormState.name}
+                />
+              </label>
+
+              <label className="field">
+                <span>Primary phone</span>
+                <input
+                  onChange={(event) =>
+                    setHouseholdFormOverrides((current) => ({
+                      ...current,
+                      primary_phone: event.target.value,
+                    }))
+                  }
+                  value={householdFormState.primary_phone}
+                />
+              </label>
+
+              <label className="field">
+                <span>City</span>
+                <input
+                  onChange={(event) =>
+                    setHouseholdFormOverrides((current) => ({
+                      ...current,
+                      city: event.target.value,
+                    }))
+                  }
+                  value={householdFormState.city}
+                />
+              </label>
+
+              <label className="field">
+                <span>Address line 1</span>
+                <input
+                  onChange={(event) =>
+                    setHouseholdFormOverrides((current) => ({
+                      ...current,
+                      address_line_1: event.target.value,
+                    }))
+                  }
+                  value={householdFormState.address_line_1}
+                />
+              </label>
+
+              <label className="field">
+                <span>Address line 2</span>
+                <input
+                  onChange={(event) =>
+                    setHouseholdFormOverrides((current) => ({
+                      ...current,
+                      address_line_2: event.target.value,
+                    }))
+                  }
+                  value={householdFormState.address_line_2}
+                />
+              </label>
+
+              <label className="checkbox-field checkbox-field-inline">
+                <input
+                  checked={householdFormState.is_active}
+                  onChange={(event) =>
+                    setHouseholdFormOverrides((current) => ({
+                      ...current,
+                      is_active: event.target.checked,
+                    }))
+                  }
+                  type="checkbox"
+                />
+                <span>Household is active</span>
+              </label>
+            </div>
 
             <label className="field">
-              <span>Primary phone</span>
-              <input
+              <span>Notes</span>
+              <textarea
                 onChange={(event) =>
                   setHouseholdFormOverrides((current) => ({
                     ...current,
-                    primary_phone: event.target.value,
+                    notes: event.target.value,
                   }))
                 }
-                value={householdFormState.primary_phone}
+                rows={4}
+                value={householdFormState.notes}
               />
             </label>
+          </FormSection>
 
-            <label className="field">
-              <span>City</span>
-              <input
-                onChange={(event) =>
-                  setHouseholdFormOverrides((current) => ({
-                    ...current,
-                    city: event.target.value,
-                  }))
-                }
-                value={householdFormState.city}
-              />
-            </label>
+          <ErrorAlert error={updateHouseholdMutation.error} fallbackMessage="The household could not be updated." />
 
-            <label className="field">
-              <span>Address line 1</span>
-              <input
-                onChange={(event) =>
-                  setHouseholdFormOverrides((current) => ({
-                    ...current,
-                    address_line_1: event.target.value,
-                  }))
-                }
-                value={householdFormState.address_line_1}
-              />
-            </label>
-
-            <label className="field">
-              <span>Address line 2</span>
-              <input
-                onChange={(event) =>
-                  setHouseholdFormOverrides((current) => ({
-                    ...current,
-                    address_line_2: event.target.value,
-                  }))
-                }
-                value={householdFormState.address_line_2}
-              />
-            </label>
-
-            <label className="checkbox-field checkbox-field-inline">
-              <input
-                checked={householdFormState.is_active}
-                onChange={(event) =>
-                  setHouseholdFormOverrides((current) => ({
-                    ...current,
-                    is_active: event.target.checked,
-                  }))
-                }
-                type="checkbox"
-              />
-              <span>Household is active</span>
-            </label>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              className="button button-primary"
+              disabled={updateHouseholdMutation.isPending}
+              type="submit"
+            >
+              {updateHouseholdMutation.isPending ? "Saving..." : "Save household changes"}
+            </button>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setHouseholdFormOverrides({});
+                setIsEditHouseholdModalOpen(false);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
           </div>
-
-          <label className="field">
-            <span>Notes</span>
-            <textarea
-              onChange={(event) =>
-                setHouseholdFormOverrides((current) => ({
-                  ...current,
-                  notes: event.target.value,
-                }))
-              }
-              rows={4}
-              value={householdFormState.notes}
-            />
-          </label>
-        </FormSection>
-
-        <ErrorAlert
-          error={updateHouseholdMutation.error}
-          fallbackMessage="The household could not be updated."
-        />
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            className="button button-primary"
-            disabled={updateHouseholdMutation.isPending}
-            type="submit"
-          >
-            {updateHouseholdMutation.isPending ? "Saving..." : "Save household changes"}
-          </button>
-        </div>
-      </form>
+        </form>
+      </FormModalShell>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
         <div className="section-header">
@@ -530,11 +565,18 @@ export function HouseholdDetailPageScreen() {
               exposed; use active state and dates instead.
             </p>
           </div>
+          <button
+            className="button button-secondary button-compact"
+            onClick={() => setIsAddMemberModalOpen(true)}
+            type="button"
+          >
+            Add member
+          </button>
         </div>
 
         {household.members.length === 0 ? (
           <EmptyState
-            description="Add a member below to start building the household record."
+            description="Use the Add member action to start building the household record."
             title="No household memberships yet"
           />
         ) : (
@@ -604,6 +646,17 @@ export function HouseholdDetailPageScreen() {
         )}
       </section>
 
+      <FormModalShell
+        description="Use the live member directory to assign an active member. The backend still enforces conflicting active household rules."
+        isOpen={isAddMemberModalOpen}
+        onClose={() => {
+          setAddMemberFormState(emptyAddMemberForm);
+          setMemberSearch("");
+          setIsAddMemberModalOpen(false);
+        }}
+        size="large"
+        title="Add member to household"
+      >
       <form
         className="space-y-6"
         onSubmit={(event) => {
@@ -758,6 +811,7 @@ export function HouseholdDetailPageScreen() {
             onClick={() => {
               setAddMemberFormState(emptyAddMemberForm);
               setMemberSearch("");
+              setIsAddMemberModalOpen(false);
             }}
             type="button"
           >
@@ -765,148 +819,152 @@ export function HouseholdDetailPageScreen() {
           </button>
         </div>
       </form>
+      </FormModalShell>
 
-      {selectedMembership ? (
-        <form
-          className="space-y-6"
-          onSubmit={(event) => {
-            event.preventDefault();
-            updateMembershipMutation.mutate(toMembershipPayload(membershipFormState));
-          }}
-        >
-          <FormSection
-            description="Use this panel to keep household membership status, dates, and notes current."
-            title={`Edit membership: ${getMemberDisplayName(selectedMembership)}`}
+      <FormModalShell
+        description="Use this panel to keep household membership status, dates, and notes current."
+        isOpen={Boolean(selectedMembership)}
+        onClose={() => {
+          setSelectedMembershipId(null);
+          setMembershipFormOverrides({});
+        }}
+        size="large"
+        title={selectedMembership ? `Edit membership: ${getMemberDisplayName(selectedMembership)}` : "Edit membership"}
+      >
+        {selectedMembership ? (
+          <form
+            className="space-y-6"
+            onSubmit={(event) => {
+              event.preventDefault();
+              updateMembershipMutation.mutate(toMembershipPayload(membershipFormState));
+            }}
           >
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="field">
-                <span>Relationship to head</span>
-                <select
-                  onChange={(event) =>
-                    setMembershipFormOverrides((current) => ({
-                      ...current,
-                      relationship_to_head: event.target.value,
-                    }))
-                  }
-                  value={membershipFormState.relationship_to_head}
-                >
-                  {HOUSEHOLD_RELATIONSHIP_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="field">
-                <span>Joined on</span>
-                <input
-                  onChange={(event) =>
-                    setMembershipFormOverrides((current) => ({
-                      ...current,
-                      joined_on: event.target.value,
-                    }))
-                  }
-                  type="date"
-                  value={membershipFormState.joined_on}
-                />
-              </label>
-
-              <label className="field">
-                <span>Left on</span>
-                <input
-                  onChange={(event) =>
-                    setMembershipFormOverrides((current) => ({
-                      ...current,
-                      left_on: event.target.value,
-                    }))
-                  }
-                  type="date"
-                  value={membershipFormState.left_on}
-                />
-              </label>
-
-              <div className="checkbox-group">
-                <label className="checkbox-field checkbox-field-inline">
-                  <input
-                    checked={membershipFormState.is_head}
+            <FormSection title="Membership details">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="field">
+                  <span>Relationship to head</span>
+                  <select
                     onChange={(event) =>
                       setMembershipFormOverrides((current) => ({
                         ...current,
-                        is_head: event.target.checked,
-                        relationship_to_head:
-                          event.target.checked && current.relationship_to_head === "OTHER"
-                            ? "HEAD"
-                            : current.relationship_to_head,
+                        relationship_to_head: event.target.value,
                       }))
                     }
-                    type="checkbox"
-                  />
-                  <span>Household head</span>
+                    value={membershipFormState.relationship_to_head}
+                  >
+                    {HOUSEHOLD_RELATIONSHIP_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </label>
 
-                <label className="checkbox-field checkbox-field-inline">
+                <label className="field">
+                  <span>Joined on</span>
                   <input
-                    checked={membershipFormState.is_active}
                     onChange={(event) =>
                       setMembershipFormOverrides((current) => ({
                         ...current,
-                        is_active: event.target.checked,
+                        joined_on: event.target.value,
                       }))
                     }
-                    type="checkbox"
+                    type="date"
+                    value={membershipFormState.joined_on}
                   />
-                  <span>Membership is active</span>
                 </label>
+
+                <label className="field">
+                  <span>Left on</span>
+                  <input
+                    onChange={(event) =>
+                      setMembershipFormOverrides((current) => ({
+                        ...current,
+                        left_on: event.target.value,
+                      }))
+                    }
+                    type="date"
+                    value={membershipFormState.left_on}
+                  />
+                </label>
+
+                <div className="checkbox-group">
+                  <label className="checkbox-field checkbox-field-inline">
+                    <input
+                      checked={membershipFormState.is_head}
+                      onChange={(event) =>
+                        setMembershipFormOverrides((current) => ({
+                          ...current,
+                          is_head: event.target.checked,
+                          relationship_to_head:
+                            event.target.checked && current.relationship_to_head === "OTHER"
+                              ? "HEAD"
+                              : current.relationship_to_head,
+                        }))
+                      }
+                      type="checkbox"
+                    />
+                    <span>Household head</span>
+                  </label>
+
+                  <label className="checkbox-field checkbox-field-inline">
+                    <input
+                      checked={membershipFormState.is_active}
+                      onChange={(event) =>
+                        setMembershipFormOverrides((current) => ({
+                          ...current,
+                          is_active: event.target.checked,
+                        }))
+                      }
+                      type="checkbox"
+                    />
+                    <span>Membership is active</span>
+                  </label>
+                </div>
               </div>
+
+              <label className="field">
+                <span>Membership notes</span>
+                <textarea
+                  onChange={(event) =>
+                    setMembershipFormOverrides((current) => ({
+                      ...current,
+                      notes: event.target.value,
+                    }))
+                  }
+                  rows={4}
+                  value={membershipFormState.notes}
+                />
+              </label>
+            </FormSection>
+
+            <ErrorAlert
+              error={updateMembershipMutation.error}
+              fallbackMessage="The household membership could not be updated."
+            />
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                className="button button-primary"
+                disabled={updateMembershipMutation.isPending}
+                type="submit"
+              >
+                {updateMembershipMutation.isPending ? "Saving..." : "Save membership"}
+              </button>
+              <button
+                className="button button-secondary"
+                onClick={() => {
+                  setSelectedMembershipId(null);
+                  setMembershipFormOverrides({});
+                }}
+                type="button"
+              >
+                Close editor
+              </button>
             </div>
-
-            <label className="field">
-              <span>Membership notes</span>
-              <textarea
-              onChange={(event) =>
-                  setMembershipFormOverrides((current) => ({
-                    ...current,
-                    notes: event.target.value,
-                  }))
-                }
-                rows={4}
-                value={membershipFormState.notes}
-              />
-            </label>
-          </FormSection>
-
-          <ErrorAlert
-            error={updateMembershipMutation.error}
-            fallbackMessage="The household membership could not be updated."
-          />
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              className="button button-primary"
-              disabled={updateMembershipMutation.isPending}
-              type="submit"
-            >
-              {updateMembershipMutation.isPending ? "Saving..." : "Save membership"}
-            </button>
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setSelectedMembershipId(null);
-                setMembershipFormOverrides({});
-              }}
-              type="button"
-            >
-              Close editor
-            </button>
-          </div>
-        </form>
-      ) : (
-        <EmptyState
-          description="Choose a household member from the table above to edit relationship, dates, notes, or active status."
-          title="No membership selected"
-        />
-      )}
+          </form>
+        ) : null}
+      </FormModalShell>
     </div>
   );
 }
