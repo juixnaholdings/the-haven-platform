@@ -115,26 +115,81 @@ const dashboardSummary = {
   groups: {
     total_groups: 6,
     active_groups: 5,
+    inactive_groups: 1,
     total_active_affiliations: 28,
+    members_with_active_group: 30,
+    members_without_active_group: 12,
+    participation_rate_percent: 71.43,
     group_membership_counts: [{ id: 1, name: "Choir Ministry", active_membership_count: 12 }],
+    top_groups: [{ id: 1, name: "Choir Ministry", active_membership_count: 12 }],
   },
   attendance: {
     total_events: 8,
+    events_with_summary: 8,
+    events_without_summary: 0,
     aggregate_men_count: 80,
     aggregate_women_count: 95,
     aggregate_children_count: 40,
     aggregate_visitor_count: 12,
     aggregate_total_attendance: 227,
     total_member_attendance_records: 65,
+    average_total_attendance_per_event: 28.38,
+    attendance_capture_rate_percent: 100,
     event_type_counts: [{ event_type: "SUNDAY_SERVICE", count: 4 }],
+    attendance_trend: [
+      {
+        period_start: "2026-03-22",
+        period_end: "2026-03-22",
+        event_count: 1,
+        attendance_total: 122,
+        member_attendance_records: 38,
+      },
+    ],
+    recent_service_events: [
+      {
+        id: 1,
+        title: "Sunday Morning Service",
+        event_type: "SUNDAY_SERVICE",
+        service_date: "2026-03-22",
+        total_attendance: 122,
+        member_attendance_count: 38,
+      },
+    ],
+    applied_range: {
+      date_preset: "THIS_MONTH",
+      start_date: "2026-03-01",
+      end_date: "2026-03-31",
+    },
   },
   finance: {
     total_fund_accounts: 3,
+    total_posted_transactions: 12,
     balances_by_fund: [{ id: 1, name: "General Fund", code: "GEN", current_balance: "10250.00" }],
     total_income: "16000.00",
     total_expense: "5750.00",
     total_transfers: "2200.00",
     net_flow: "10250.00",
+    period_breakdown: [
+      {
+        period_start: "2026-03-22",
+        period_end: "2026-03-22",
+        total_income: "2500.00",
+        total_expense: "300.00",
+        total_transfers: "400.00",
+        net_flow: "2200.00",
+      },
+    ],
+    top_categories: [
+      {
+        category_name: "Offering",
+        total_amount: "1200.00",
+      },
+    ],
+    applied_range: {
+      date_preset: "THIS_MONTH",
+      start_date: "2026-03-01",
+      end_date: "2026-03-31",
+    },
   },
 };
 

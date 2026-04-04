@@ -517,6 +517,7 @@ export interface MemberAttendanceListFilters {
 }
 
 export interface ReportingDateRange {
+  date_preset?: "TODAY" | "THIS_WEEK" | "THIS_MONTH" | "CUSTOM";
   start_date?: string;
   end_date?: string;
 }
@@ -661,8 +662,13 @@ export interface GroupMembershipCount {
 export interface GroupSummary {
   total_groups: number;
   active_groups: number;
+  inactive_groups: number;
   total_active_affiliations: number;
+  members_with_active_group: number;
+  members_without_active_group: number;
+  participation_rate_percent: number;
   group_membership_counts: GroupMembershipCount[];
+  top_groups: GroupMembershipCount[];
 }
 
 export interface AttendanceEventTypeCount {
@@ -672,13 +678,37 @@ export interface AttendanceEventTypeCount {
 
 export interface AttendanceReportSummary {
   total_events: number;
+  events_with_summary: number;
+  events_without_summary: number;
   aggregate_men_count: number;
   aggregate_women_count: number;
   aggregate_children_count: number;
   aggregate_visitor_count: number;
   aggregate_total_attendance: number;
   total_member_attendance_records: number;
+  average_total_attendance_per_event: number;
+  attendance_capture_rate_percent: number;
   event_type_counts: AttendanceEventTypeCount[];
+  attendance_trend: {
+    period_start: string;
+    period_end: string;
+    event_count: number;
+    attendance_total: number;
+    member_attendance_records: number;
+  }[];
+  recent_service_events: {
+    id: number;
+    title: string;
+    event_type: string;
+    service_date: string;
+    total_attendance: number;
+    member_attendance_count: number;
+  }[];
+  applied_range: {
+    date_preset: "TODAY" | "THIS_WEEK" | "THIS_MONTH" | "CUSTOM" | null;
+    start_date: string | null;
+    end_date: string | null;
+  };
 }
 
 export interface FundBalance {
@@ -690,11 +720,29 @@ export interface FundBalance {
 
 export interface FinanceSummary {
   total_fund_accounts: number;
+  total_posted_transactions: number;
   balances_by_fund: FundBalance[];
   total_income: string;
   total_expense: string;
   total_transfers: string;
   net_flow: string;
+  period_breakdown: {
+    period_start: string;
+    period_end: string;
+    total_income: string;
+    total_expense: string;
+    total_transfers: string;
+    net_flow: string;
+  }[];
+  top_categories: {
+    category_name: string;
+    total_amount: string;
+  }[];
+  applied_range: {
+    date_preset: "TODAY" | "THIS_WEEK" | "THIS_MONTH" | "CUSTOM" | null;
+    start_date: string | null;
+    end_date: string | null;
+  };
 }
 
 export interface DashboardOverview {
