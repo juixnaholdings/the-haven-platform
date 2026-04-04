@@ -304,6 +304,11 @@ export function ProtectedDashboardShell ({
         }
       ]
     : navItems
+  const settingsNavItem =
+    visibleNavItems.find(item => item.href === '/settings') ?? null
+  const primaryNavItems = visibleNavItems.filter(
+    item => item.href !== '/settings'
+  )
   const shellClassName = [
     'app-shell',
     isMobileViewport ? 'app-shell-mobile' : '',
@@ -358,6 +363,35 @@ export function ProtectedDashboardShell ({
     notification => notification.unread
   ).length
 
+  function renderNavLink (item: NavItem) {
+    const isActive =
+      item.activePrefix === '/dashboard'
+        ? pathname === '/dashboard'
+        : pathname.startsWith(item.activePrefix)
+
+    const className = isActive
+      ? 'app-nav-link app-nav-link-active'
+      : 'app-nav-link'
+
+    return (
+      <Link
+        className={className}
+        href={item.href}
+        key={item.label}
+        onClick={() => {
+          if (isMobileViewport) {
+            setIsMobileNavOpen(false)
+          }
+        }}
+      >
+        <span aria-hidden='true' className='app-nav-icon'>
+          {item.navIcon}
+        </span>
+        <span className='app-nav-label'>{item.label}</span>
+      </Link>
+    )
+  }
+
   return (
     <div className={shellClassName}>
       {isMobileViewport && isMobileNavOpen ? (
@@ -371,7 +405,7 @@ export function ProtectedDashboardShell ({
 
       null}
 
-      <aside className='app-sidebar z-20 h-screen'>
+     <aside className='app-sidebar z-20 h-screen'>
         <div className='app-sidebar-brand flex-1 gap-5 items-start'>
           <div className='flex-col'>
             <Image
@@ -387,36 +421,17 @@ export function ProtectedDashboardShell ({
         </div>
 
         <nav className='app-nav' aria-label='Primary'>
-          {visibleNavItems.map(item => {
-            const isActive =
-              item.activePrefix === '/dashboard'
-                ? pathname === '/dashboard'
-                : pathname.startsWith(item.activePrefix)
-
-            const className = isActive
-              ? 'app-nav-link app-nav-link-active'
-              : 'app-nav-link'
-
-            return (
-              <Link
-                className={className}
-                href={item.href}
-                key={item.label}
-                onClick={() => {
-                  if (isMobileViewport) {
-                    setIsMobileNavOpen(false)
-                  }
-                }}
-              >
-                <span aria-hidden='true' className='app-nav-icon'>
-                  {item.navIcon}
-                </span>
-                <span className='app-nav-label'>{item.label}</span>
-              </Link>
-            )
-          })}
+          {primaryNavItems.map(renderNavLink)}
         </nav>
-      </aside>
+
+        {settingsNavItem ? (
+          <div className='border-t border-slate-200/80 pt-3'>
+            <nav className='app-nav' aria-label='Settings'>
+              {renderNavLink(settingsNavItem)}
+            </nav>
+          </div>
+        ) : null}
+      </aside> 
 
       <header className='bg-white min-h-2.5 fixed w-full z-10'>
         <div className='flex justify-between'>
