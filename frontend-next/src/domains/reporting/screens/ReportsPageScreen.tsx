@@ -16,20 +16,8 @@ import {
   StatusBadge,
 } from "@/components";
 import { getServiceEventTypeLabel } from "@/domains/attendance/options";
-import type { SundayAttendanceState } from "@/domains/types";
 import { reportingApi } from "@/domains/reporting/api";
-import { formatAmount, formatDate } from "@/lib/formatters";
-
-function getSundayAttendanceStateMeta(state: SundayAttendanceState) {
-  switch (state) {
-    case "RECORDED":
-      return { label: "Summary and member records captured", tone: "success" as const };
-    case "IN_PROGRESS":
-      return { label: "Attendance is in progress", tone: "warning" as const };
-    default:
-      return { label: "Attendance not started", tone: "muted" as const };
-  }
-}
+import { formatAmount } from "@/lib/formatters";
 
 export function ReportsPageScreen() {
   const [startDate, setStartDate] = useState("");
@@ -126,7 +114,6 @@ export function ReportsPageScreen() {
   const attendance = attendanceQuery.data;
   const finance = financeQuery.data;
   const hasDateFilter = Boolean(startDate || endDate);
-  const sundaySummary = attendance?.sunday_services;
 
   if (!dashboard || !membership || !households || !groups || !attendance || !finance) {
     return null;
@@ -191,8 +178,6 @@ export function ReportsPageScreen() {
         <StatCard label="Households" value={households.total_households} />
         <StatCard label="Active groups" value={groups.active_groups} />
         <StatCard label="Events in range" value={attendance.total_events} />
-        <StatCard label="System Sundays in range" value={sundaySummary?.total_services ?? 0} />
-        <StatCard label="Sundays fully recorded" value={sundaySummary?.fully_recorded_count ?? 0} />
         <StatCard label="Net flow" value={formatAmount(finance.net_flow)} />
         <StatCard label="Active affiliations" value={groups.total_active_affiliations} />
       </section>
@@ -343,112 +328,6 @@ export function ReportsPageScreen() {
           )}
         </section>
       </div>
-
-      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-        <div className="section-header">
-          <div>
-            <h3>Sunday attendance operations</h3>
-            <p className="m-0 text-sm text-slate-500">
-              Keep system-managed Sunday services visible so weekly attendance work is easy to monitor.
-            </p>
-          </div>
-          <Link className="button button-secondary button-compact" href="/attendance">
-            Open attendance overview
-          </Link>
-        </div>
-
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard label="Sunday services in range" tone="accent" value={sundaySummary?.total_services ?? 0} />
-          <StatCard label="With summary" value={sundaySummary?.with_summary_count ?? 0} />
-          <StatCard label="With member records" value={sundaySummary?.with_member_records_count ?? 0} />
-          <StatCard label="Partially recorded" value={sundaySummary?.partially_recorded_count ?? 0} />
-        </div>
-
-        {sundaySummary?.latest_service ? (
-          <div className="mt-4 rounded-2xl border border-blue-200/80 bg-blue-50/60 p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="grid gap-1">
-                <p className="m-0 text-xs font-semibold uppercase tracking-[0.08em] text-blue-700">Latest Sunday service</p>
-                <h4 className="m-0 text-sm font-semibold text-slate-900">{sundaySummary.latest_service.title}</h4>
-                <p className="m-0 text-sm text-slate-600">{formatDate(sundaySummary.latest_service.service_date)}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge
-                  label={getSundayAttendanceStateMeta(sundaySummary.latest_service.attendance_state).label}
-                  tone={getSundayAttendanceStateMeta(sundaySummary.latest_service.attendance_state).tone}
-                />
-                <Link
-                  className="button button-primary button-compact"
-                  href={`/events/${sundaySummary.latest_service.id}/attendance`}
-                >
-                  {sundaySummary.latest_service.attendance_state === "NOT_STARTED"
-                    ? "Take attendance"
-                    : "Continue attendance"}
-                </Link>
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {sundaySummary && sundaySummary.recent_services.length > 0 ? (
-          <div className="mt-4">
-            <EntityTable
-              columns={[
-                {
-                  header: "Sunday service",
-                  cell: (serviceEvent) => (
-                    <div className="grid gap-1">
-                      <Link className="font-semibold text-[#16335f] hover:underline" href={`/events/${serviceEvent.id}`}>
-                        {serviceEvent.title}
-                      </Link>
-                      <span className="block text-xs text-slate-500">{formatDate(serviceEvent.service_date)}</span>
-                    </div>
-                  ),
-                },
-                {
-                  header: "Progress",
-                  cell: (serviceEvent) => {
-                    const state = getSundayAttendanceStateMeta(serviceEvent.attendance_state);
-                    return <StatusBadge label={state.label} tone={state.tone} />;
-                  },
-                },
-                {
-                  header: "Summary total",
-                  cell: (serviceEvent) => serviceEvent.summary_total_count || "-",
-                },
-                {
-                  header: "Member records",
-                  cell: (serviceEvent) => serviceEvent.member_attendance_count,
-                },
-                {
-                  header: "Actions",
-                  className: "cell-actions",
-                  cell: (serviceEvent) => (
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <Link className="button button-secondary button-compact" href={`/events/${serviceEvent.id}`}>
-                        View
-                      </Link>
-                      <Link
-                        className="button button-ghost button-compact"
-                        href={`/events/${serviceEvent.id}/attendance`}
-                      >
-                        {serviceEvent.attendance_state === "NOT_STARTED" ? "Take attendance" : "Continue"}
-                      </Link>
-                    </div>
-                  ),
-                },
-              ]}
-              getRowKey={(serviceEvent) => serviceEvent.id}
-              rows={sundaySummary.recent_services}
-            />
-          </div>
-        ) : (
-          <EmptyState
-            description="System-managed Sunday services have not been generated for the selected range yet."
-            title="No Sunday services in this reporting window"
-          />
-        )}
-      </section>
 
       <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
         <div className="section-header">

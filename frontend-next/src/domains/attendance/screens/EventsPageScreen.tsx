@@ -61,15 +61,9 @@ export function EventsPageScreen() {
         page_size: pageSize,
       }),
   });
-  const sundayServiceQuery = useQuery({
-    queryKey: ["service-events-sunday-focus"],
-    queryFn: () => attendanceApi.getCurrentOrUpcomingSundayService(),
-  });
 
   const serviceEvents = serviceEventsQuery.data?.items ?? [];
   const pagination = serviceEventsQuery.data?.pagination ?? null;
-  const sundayService = sundayServiceQuery.data ?? null;
-  const sundayActionLabel = sundayService ? "Open Sunday service" : "Sunday service unavailable";
   const totalServiceEvents = pagination?.count ?? serviceEvents.length;
   const hasFilters = Boolean(search.trim()) || eventTypeFilter !== "all" || statusFilter !== "all";
   const activeEvents = serviceEvents.filter((serviceEvent) => serviceEvent.is_active).length;
@@ -97,11 +91,6 @@ export function EventsPageScreen() {
             >
               New event
             </button>
-            {sundayService ? (
-              <Link className="button button-ghost" href={`/events/${sundayService.id}`}>
-                {sundayActionLabel}
-              </Link>
-            ) : null}
           </div>
         }
         description="Manage church services and events, then move into the detail and attendance recording workflows."
@@ -256,9 +245,6 @@ export function EventsPageScreen() {
                     <span className="block text-xs text-slate-500">
                       {getServiceEventTypeLabel(serviceEvent.event_type)} | {formatDate(serviceEvent.service_date)}
                     </span>
-                    {serviceEvent.is_system_managed ? (
-                      <StatusBadge label="System-managed Sunday" tone="info" />
-                    ) : null}
                   </div>
                 ),
               },

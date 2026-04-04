@@ -439,7 +439,6 @@ export interface ServiceEventListItem {
   id: number;
   title: string;
   event_type: string;
-  is_system_managed: boolean;
   service_date: string;
   start_time: string | null;
   end_time: string | null;
@@ -453,7 +452,6 @@ export interface ServiceEventDetail {
   id: number;
   title: string;
   event_type: string;
-  is_system_managed: boolean;
   service_date: string;
   start_time: string | null;
   end_time: string | null;
@@ -480,7 +478,6 @@ export interface ServiceEventWritePayload {
 export interface ServiceEventListFilters extends PaginationParams {
   search?: string;
   event_type?: string;
-  is_system_managed?: boolean;
   is_active?: boolean;
   service_date_from?: string;
   service_date_to?: string;
@@ -645,31 +642,6 @@ export interface AttendanceEventTypeCount {
   count: number;
 }
 
-export type SundayAttendanceState = "RECORDED" | "IN_PROGRESS" | "NOT_STARTED";
-
-export interface SundayServiceAttendanceSnapshot {
-  id: number;
-  title: string;
-  service_date: string;
-  is_active: boolean;
-  has_attendance_summary: boolean;
-  member_attendance_count: number;
-  summary_total_count: number;
-  attendance_state: SundayAttendanceState;
-  updated_at: string;
-}
-
-export interface SundayServiceAttendanceSummary {
-  total_services: number;
-  with_summary_count: number;
-  with_member_records_count: number;
-  fully_recorded_count: number;
-  partially_recorded_count: number;
-  not_started_count: number;
-  latest_service: SundayServiceAttendanceSnapshot | null;
-  recent_services: SundayServiceAttendanceSnapshot[];
-}
-
 export interface AttendanceReportSummary {
   total_events: number;
   aggregate_men_count: number;
@@ -679,7 +651,6 @@ export interface AttendanceReportSummary {
   aggregate_total_attendance: number;
   total_member_attendance_records: number;
   event_type_counts: AttendanceEventTypeCount[];
-  sunday_services: SundayServiceAttendanceSummary;
 }
 
 export interface FundBalance {

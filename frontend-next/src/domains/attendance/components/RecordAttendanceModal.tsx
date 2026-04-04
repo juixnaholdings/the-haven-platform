@@ -263,10 +263,8 @@ export function RecordAttendanceModal({
     onSuccess: async ({ serviceEvent }) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["service-events"] }),
-        queryClient.invalidateQueries({ queryKey: ["service-events-sunday-focus"] }),
         queryClient.invalidateQueries({ queryKey: ["attendance-overview"] }),
         queryClient.invalidateQueries({ queryKey: ["attendance-overview-events"] }),
-        queryClient.invalidateQueries({ queryKey: ["attendance-overview-sunday-service-focus"] }),
         queryClient.invalidateQueries({ queryKey: ["reporting"] }),
       ]);
       resetWorkflowState();

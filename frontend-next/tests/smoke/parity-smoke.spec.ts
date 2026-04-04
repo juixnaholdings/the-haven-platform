@@ -115,38 +115,6 @@ const dashboardSummary = {
     aggregate_total_attendance: 227,
     total_member_attendance_records: 65,
     event_type_counts: [{ event_type: "SUNDAY_SERVICE", count: 4 }],
-    sunday_services: {
-      total_services: 4,
-      with_summary_count: 3,
-      with_member_records_count: 3,
-      fully_recorded_count: 3,
-      partially_recorded_count: 0,
-      not_started_count: 1,
-      latest_service: {
-        id: 1,
-        title: "Sunday Morning Service",
-        service_date: "2026-03-22",
-        is_active: true,
-        has_attendance_summary: true,
-        member_attendance_count: 1,
-        summary_total_count: 122,
-        attendance_state: "RECORDED",
-        updated_at: "2026-03-22T12:30:00Z",
-      },
-      recent_services: [
-        {
-          id: 1,
-          title: "Sunday Morning Service",
-          service_date: "2026-03-22",
-          is_active: true,
-          has_attendance_summary: true,
-          member_attendance_count: 1,
-          summary_total_count: 122,
-          attendance_state: "RECORDED",
-          updated_at: "2026-03-22T12:30:00Z",
-        },
-      ],
-    },
   },
   finance: {
     total_fund_accounts: 3,
@@ -162,7 +130,6 @@ const serviceEventListItem = {
   id: 1,
   title: "Sunday Morning Service",
   event_type: "SUNDAY_SERVICE",
-  is_system_managed: true,
   service_date: "2026-03-22",
   start_time: "09:00:00",
   end_time: "11:00:00",
@@ -574,14 +541,6 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
       return;
     }
 
-    if (path === "/api/attendance/sunday-service/current/" && method === "GET") {
-      await fulfillJson(
-        route,
-        successEnvelope(serviceEventListItem, "Sunday service fetched successfully."),
-      );
-      return;
-    }
-
     if (path === "/api/attendance/1/" && method === "GET") {
       await fulfillJson(
         route,
@@ -590,7 +549,6 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
             id: 1,
             title: "Sunday Morning Service",
             event_type: "SUNDAY_SERVICE",
-            is_system_managed: true,
             service_date: "2026-03-22",
             start_time: "09:00:00",
             end_time: "11:00:00",

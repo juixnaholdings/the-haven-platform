@@ -9,31 +9,8 @@ import { EmptyState, EntityTable, ErrorState, FilterActionStrip, LoadingState, P
 import { attendanceApi } from "@/domains/attendance/api";
 import { RecordAttendanceModal } from "@/domains/attendance/components";
 import { getServiceEventTypeLabel } from "@/domains/attendance/options";
-import type { SundayAttendanceState } from "@/domains/types";
 import { reportingApi } from "@/domains/reporting/api";
 import { formatDate } from "@/lib/formatters";
-
-const emptySundayServiceSummary = {
-  total_services: 0,
-  with_summary_count: 0,
-  with_member_records_count: 0,
-  fully_recorded_count: 0,
-  partially_recorded_count: 0,
-  not_started_count: 0,
-  latest_service: null,
-  recent_services: [],
-} as const;
-
-function getSundayAttendanceStateMeta(state: SundayAttendanceState) {
-  switch (state) {
-    case "RECORDED":
-      return { label: "Summary and member records captured", tone: "success" as const };
-    case "IN_PROGRESS":
-      return { label: "Attendance is in progress", tone: "warning" as const };
-    default:
-      return { label: "Attendance not started", tone: "muted" as const };
-  }
-}
 
 export function AttendanceOverviewPageScreen() {
   const router = useRouter();
@@ -59,16 +36,7 @@ export function AttendanceOverviewPageScreen() {
       }),
   });
 
-  const sundayServiceQuery = useQuery({
-    queryKey: ["attendance-overview-sunday-service-focus"],
-    queryFn: () => attendanceApi.getCurrentOrUpcomingSundayService(),
-  });
-
-  if (
-    attendanceSummaryQuery.isLoading ||
-    serviceEventsQuery.isLoading ||
-    sundayServiceQuery.isLoading
-  ) {
+  if (attendanceSummaryQuery.isLoading || serviceEventsQuery.isLoading) {
     return (
       <LoadingState
         description="Fetching attendance reporting metrics and service-event records."
@@ -77,18 +45,13 @@ export function AttendanceOverviewPageScreen() {
     );
   }
 
-  if (
-    attendanceSummaryQuery.error ||
-    serviceEventsQuery.error ||
-    sundayServiceQuery.error
-  ) {
+  if (attendanceSummaryQuery.error || serviceEventsQuery.error) {
     return (
       <ErrorState
-        error={attendanceSummaryQuery.error ?? serviceEventsQuery.error ?? sundayServiceQuery.error}
+        error={attendanceSummaryQuery.error ?? serviceEventsQuery.error}
         onRetry={() => {
           void attendanceSummaryQuery.refetch();
           void serviceEventsQuery.refetch();
-          void sundayServiceQuery.refetch();
         }}
         title="Attendance overview could not be loaded"
       />
@@ -97,19 +60,11 @@ export function AttendanceOverviewPageScreen() {
 
   const summary = attendanceSummaryQuery.data;
   const serviceEvents = serviceEventsQuery.data ?? [];
-  const sundayService = sundayServiceQuery.data ?? null;
   const hasDateFilter = Boolean(startDate || endDate);
-  const sundayActionLabel = sundayService
-    ? sundayService.has_attendance_summary || sundayService.member_attendance_count > 0
-      ? "Continue Sunday attendance"
-      : "Take Sunday attendance"
-    : "Sunday attendance";
 
   if (!summary) {
     return null;
   }
-
-  const sundayServiceSummary = summary.sunday_services ?? emptySundayServiceSummary;
 
   return (
     <div className="space-y-6">
@@ -133,54 +88,6 @@ export function AttendanceOverviewPageScreen() {
         meta={<StatusBadge label={hasDateFilter ? "Filtered range" : "All-time overview"} tone="info" />}
         title="Attendance"
       />
-
-      {sundayService ? (
-        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="grid gap-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge label="System Sunday service" tone="info" />
-                <StatusBadge
-                  label={sundayService.is_active ? "Active event" : "Inactive event"}
-                  tone={sundayService.is_active ? "success" : "muted"}
-                />
-                <StatusBadge
-                  label={sundayService.has_attendance_summary ? "Summary recorded" : "Summary pending"}
-                  tone={sundayService.has_attendance_summary ? "success" : "warning"}
-                />
-                <StatusBadge
-                  label={
-                    sundayService.member_attendance_count > 0
-                      ? `${sundayService.member_attendance_count} member record${sundayService.member_attendance_count === 1 ? "" : "s"}`
-                      : "No member records yet"
-                  }
-                  tone={sundayService.member_attendance_count > 0 ? "info" : "muted"}
-                />
-              </div>
-              <h3 className="m-0 text-lg font-semibold text-slate-900">{sundayService.title}</h3>
-              <p className="m-0 text-sm text-slate-600">
-                {formatDate(sundayService.service_date)}
-                {sundayService.location ? ` | ${sundayService.location}` : ""}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button
-                className="button button-primary"
-                onClick={() => setIsRecordAttendanceModalOpen(true)}
-                type="button"
-              >
-                Record attendance
-              </button>
-              <Link className="button button-secondary" href={`/events/${sundayService.id}/attendance`}>
-                {sundayActionLabel}
-              </Link>
-              <Link className="button button-ghost" href={`/events/${sundayService.id}`}>
-                View Sunday event
-              </Link>
-            </div>
-          </div>
-        </section>
-      ) : null}
 
       <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
         <FilterActionStrip
@@ -239,8 +146,6 @@ export function AttendanceOverviewPageScreen() {
         <StatCard label="Aggregate attendance" value={summary.aggregate_total_attendance} />
         <StatCard label="Visitors" value={summary.aggregate_visitor_count} />
         <StatCard label="Member records" value={summary.total_member_attendance_records} />
-        <StatCard label="System Sundays in range" value={sundayServiceSummary.total_services} />
-        <StatCard label="Sundays fully recorded" value={sundayServiceSummary.fully_recorded_count} />
       </section>
 
       <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
@@ -298,68 +203,6 @@ export function AttendanceOverviewPageScreen() {
         </section>
       </div>
 
-      {sundayServiceSummary.recent_services.length > 0 ? (
-        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-          <div className="section-header">
-            <div>
-              <h3>Recent Sunday tracking</h3>
-              <p className="m-0 text-sm text-slate-500">
-                Track whether Sunday attendance has started and open the right workflow quickly.
-              </p>
-            </div>
-          </div>
-          <EntityTable
-            columns={[
-              {
-                header: "Sunday service",
-                cell: (serviceEvent) => (
-                  <div className="grid gap-1">
-                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/events/${serviceEvent.id}`}>
-                      {serviceEvent.title}
-                    </Link>
-                    <span className="block text-xs text-slate-500">{formatDate(serviceEvent.service_date)}</span>
-                  </div>
-                ),
-              },
-              {
-                header: "Progress",
-                cell: (serviceEvent) => {
-                  const state = getSundayAttendanceStateMeta(serviceEvent.attendance_state);
-                  return <StatusBadge label={state.label} tone={state.tone} />;
-                },
-              },
-              {
-                header: "Summary total",
-                cell: (serviceEvent) => serviceEvent.summary_total_count || "-",
-              },
-              {
-                header: "Member records",
-                cell: (serviceEvent) => serviceEvent.member_attendance_count,
-              },
-              {
-                header: "Actions",
-                className: "cell-actions",
-                cell: (serviceEvent) => (
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <Link className="button button-secondary button-compact" href={`/events/${serviceEvent.id}`}>
-                      View
-                    </Link>
-                    <Link
-                      className="button button-ghost button-compact"
-                      href={`/events/${serviceEvent.id}/attendance`}
-                    >
-                      {serviceEvent.attendance_state === "NOT_STARTED" ? "Take attendance" : "Continue"}
-                    </Link>
-                  </div>
-                ),
-              },
-            ]}
-            getRowKey={(serviceEvent) => serviceEvent.id}
-            rows={sundayServiceSummary.recent_services}
-          />
-        </section>
-      ) : null}
-
       {serviceEvents.length === 0 ? (
         <EmptyState
           action={
@@ -398,9 +241,6 @@ export function AttendanceOverviewPageScreen() {
                     <span className="block text-xs text-slate-500">
                       {getServiceEventTypeLabel(serviceEvent.event_type)} | {formatDate(serviceEvent.service_date)}
                     </span>
-                    {serviceEvent.is_system_managed ? (
-                      <StatusBadge label="System-managed Sunday" tone="info" />
-                    ) : null}
                   </div>
                 ),
               },

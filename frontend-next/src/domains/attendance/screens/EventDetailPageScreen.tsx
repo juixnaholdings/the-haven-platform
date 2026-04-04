@@ -159,9 +159,6 @@ export function EventDetailPageScreen() {
               tone={serviceEvent.is_active ? "success" : "muted"}
             />
             <StatusBadge label={getServiceEventTypeLabel(serviceEvent.event_type)} tone="info" />
-            {serviceEvent.is_system_managed ? (
-              <StatusBadge label="System-managed Sunday" tone="info" />
-            ) : null}
           </>
         }
         title={serviceEvent.title}
@@ -202,10 +199,6 @@ export function EventDetailPageScreen() {
             <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Location</dt>
               <dd>{serviceEvent.location || "Not set"}</dd>
-            </div>
-            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
-              <dt>System managed</dt>
-              <dd>{serviceEvent.is_system_managed ? "Yes" : "No"}</dd>
             </div>
           </dl>
         </section>
