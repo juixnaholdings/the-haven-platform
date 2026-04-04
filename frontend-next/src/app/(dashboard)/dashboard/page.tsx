@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { ErrorState } from "@/components/ErrorState";
@@ -32,6 +32,37 @@ export default function DashboardPage() {
   const [error, setError] = useState<ApiError | null>(null);
   const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
   const [isRecordAttendanceModalOpen, setIsRecordAttendanceModalOpen] = useState(false);
+
+  const attendanceBarRows = useMemo(() => {
+    const sourceRows = [...dashboard?.attendance.recent_service_events ?? []]
+      .sort((left, right) => left.service_date.localeCompare(right.service_date))
+      .slice(-7);
+
+    return sourceRows.map((row) => {
+      const parsedDate = new Date(row.service_date);
+      const dateLabel = Number.isNaN(parsedDate.getTime())
+        ? row.service_date
+        : new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(parsedDate);
+      return {
+        id: row.id,
+        title: row.title,
+        dateLabel,
+        totalAttendance: row.total_attendance,
+      };
+    });
+  }, [dashboard?.attendance.recent_service_events]);
+
+  const attendanceBarMax = useMemo(
+    () => Math.max(...attendanceBarRows.map((row) => row.totalAttendance), 1),
+    [attendanceBarRows],
+  );
+
+  const attendanceAxisTicks = useMemo(() => {
+    const tickCount = 4;
+    return Array.from({ length: tickCount + 1 }, (_, index) =>
+      Math.round((attendanceBarMax * (tickCount - index)) / tickCount),
+    );
+  }, [attendanceBarMax]);
 
   const loadDashboardOverview = useCallback(async () => {
     setIsLoading(true);
@@ -145,8 +176,75 @@ export default function DashboardPage() {
       <section className="flex gap-5 h-96 my-2.5">
         <div className="flex-auto w-[70%]">
           <article className="metric-card h-full">
-            <div>
-              <h3>Attendance Trends</h3>
+            <div className="flex h-full min-h-0 flex-col gap-4">
+              <div className="flex items-start justify-between gap-3">
+                <h3>Attendance Trends</h3>
+                {/* <span className="text-xs font-medium text-slate-500">Attendance by event date</span> */}
+              </div>
+
+              {attendanceBarRows.length === 0 ? (
+                <p className="m-0 text-sm text-slate-500">No event attendance data is available yet.</p>
+              ) : (
+                <div className="grid h-full min-h-[220px] grid-cols-[3rem_minmax(0,1fr)] gap-3">
+                  <div className="flex h-full flex-col justify-between pb-10 text-[11px] font-medium text-slate-500">
+                    {attendanceAxisTicks.map((tick) => (
+                      <span className="leading-none" key={tick}>
+                        {tick}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="relative h-full min-h-0">
+                    <div className="absolute inset-0 grid grid-rows-4 pb-10">
+                      <div className="border-x border-b border-slate-200/70" />
+                      <div className="border-x border-b border-slate-200/70" />
+                      <div className="border-x border-b border-slate-200/70" />
+                      <div className="border-x border-b border-slate-200/70" />
+                    </div>
+
+                    <div
+                      className="relative z-10 grid h-full items-end gap-3 pb-10 pl-2 pr-1"
+                      style={{
+                        gridTemplateColumns: `repeat(${attendanceBarRows.length}, minmax(0, 1fr))`,
+                      }}
+                    >
+                      {attendanceBarRows.map((row) => {
+                        const heightPercent = Math.max(
+                          4,
+                          (row.totalAttendance / attendanceBarMax) * 100,
+                        );
+                        return (
+                          <div className="flex h-full items-end justify-center" key={row.id}>
+                            <div className="relative flex w-full max-w-10 items-end justify-center">
+                              <span className="absolute -top-6 text-[11px] font-semibold text-slate-700">
+                                {row.totalAttendance}
+                              </span>
+                              <div
+                                className="w-full rounded-t-md bg-[#16335f]"
+                                style={{ height: `${heightPercent}%` }}
+                                title={`${row.title} - ${row.totalAttendance}`}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div
+                      className="absolute inset-x-0 bottom-0 grid gap-3 pl-2 pr-1"
+                      style={{
+                        gridTemplateColumns: `repeat(${attendanceBarRows.length}, minmax(0, 1fr))`,
+                      }}
+                    >
+                      {attendanceBarRows.map((row) => (
+                        <span className="truncate text-center text-[11px] font-medium text-slate-500" key={row.id}>
+                          {row.dateLabel}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </article>
         </div>
