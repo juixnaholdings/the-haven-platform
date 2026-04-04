@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { ErrorState } from "@/components/ErrorState";
@@ -9,8 +10,11 @@ import { StatCard } from "@/components/StatCard";
 import { ApiError } from "@/api/errors";
 import { attendanceApi } from "@/domains/attendance/api";
 import { CreateServiceEventModal, RecordAttendanceModal } from "@/domains/attendance/components";
+import { financeApi } from "@/domains/finance/api";
+import { getTransactionTypeLabel } from "@/domains/finance/options";
 import { reportingApi } from "@/domains/reporting/api";
-import type { DashboardOverview, ServiceEventListItem } from "@/domains/types";
+import type { DashboardOverview, ServiceEventListItem, TransactionListItem } from "@/domains/types";
+import { formatDate } from "@/lib/formatters";
 import Image from "next/image";
 
 function formatAmount(amount: string | number) {
@@ -43,6 +47,8 @@ export default function DashboardPage() {
   const [isRecordAttendanceModalOpen, setIsRecordAttendanceModalOpen] = useState(false);
   const [upcomingEvents, setUpcomingEvents] = useState<ServiceEventListItem[]>([]);
   const [isUpcomingEventsUnavailable, setIsUpcomingEventsUnavailable] = useState(false);
+  const [recentTransactions, setRecentTransactions] = useState<TransactionListItem[]>([]);
+  const [isRecentTransactionsUnavailable, setIsRecentTransactionsUnavailable] = useState(false);
 
   const attendanceBarRows = useMemo(() => {
     const sourceRows = [...dashboard?.attendance.recent_service_events ?? []]
@@ -128,6 +134,21 @@ export default function DashboardPage() {
         setUpcomingEvents([]);
         setIsUpcomingEventsUnavailable(true);
       }
+
+      try {
+        const recentTransactionsResponse = await financeApi.listTransactionsPage({
+          page_size: 8,
+        });
+        setRecentTransactions(
+          [...recentTransactionsResponse.items]
+            .sort((left, right) => right.posted_at.localeCompare(left.posted_at))
+            .slice(0, 8),
+        );
+        setIsRecentTransactionsUnavailable(false);
+      } catch {
+        setRecentTransactions([]);
+        setIsRecentTransactionsUnavailable(true);
+      }
     } catch (fetchError) {
       if (fetchError instanceof ApiError) {
         setError(fetchError);
@@ -185,7 +206,7 @@ export default function DashboardPage() {
         <div className="flex items-end gap-5">
           <div className="flex-col">
             <button
-              className="relative rounded px-5 py-2.5 overflow-hidden group bg-green-500 hover:bg-gradient-to-r hover:from-green-500 hover:to-green-400 text-white hover:ring-2 hover:ring-offset-2 hover:ring-green-400 transition-all ease-out duration-300"
+              className="relative rounded px-5 py-2.5 overflow-hidden group hover:bg-gradient-to-r hover:from-green-500 hover:to-green-400 text-white hover:ring-2 hover:ring-offset-2 hover:ring-green-400 transition-all ease-out duration-300"
               onClick={() => setIsCreateEventModalOpen(true)}
               type="button"
             >
@@ -361,7 +382,68 @@ export default function DashboardPage() {
 
       <section className="h-96 my-2.5">
         <article className="metric-card w-full h-full">
-          <h3>Recent Transactions</h3>
+          <div className="flex h-full min-h-0 flex-col gap-4">
+            <div className="flex items-start justify-between gap-3">
+              <h3>Recent Transactions</h3>
+              <span className="text-xs font-medium text-slate-500">Ledger snapshot</span>
+            </div>
+
+            {isRecentTransactionsUnavailable ? (
+              <p className="m-0 rounded-xl border border-amber-300/70 bg-amber-50/80 px-3 py-2 text-sm text-amber-800">
+                Recent transactions are unavailable right now.
+              </p>
+            ) : recentTransactions.length === 0 ? (
+              <p className="m-0 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2 text-sm text-slate-500">
+                No transactions have been posted yet.
+              </p>
+            ) : (
+              <div className="min-h-0 overflow-auto rounded-2xl border border-slate-200/80 bg-white/80">
+                <table className="min-w-full divide-y divide-slate-200 text-sm">
+                  <thead className="sticky top-0 bg-slate-100/95 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <tr>
+                      <th className="px-3 py-2.5">Reference</th>
+                      <th className="px-3 py-2.5">Type</th>
+                      <th className="px-3 py-2.5">Date</th>
+                      <th className="px-3 py-2.5">Movement</th>
+                      <th className="px-3 py-2.5">Event</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200/80">
+                    {recentTransactions.map((transaction) => (
+                      <tr className="hover:bg-slate-50/80" key={transaction.id}>
+                        <td className="px-3 py-2.5 align-top">
+                          <div className="grid gap-1">
+                            <Link
+                              className="font-semibold text-[#16335f] hover:underline"
+                              href={`/finance/transactions/${transaction.id}`}
+                            >
+                              {transaction.reference_no}
+                            </Link>
+                            <span className="truncate text-xs text-slate-500">{transaction.description}</span>
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5 align-top">
+                          <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
+                            {getTransactionTypeLabel(transaction.transaction_type)}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 align-top text-slate-700">{formatDate(transaction.transaction_date)}</td>
+                        <td className="px-3 py-2.5 align-top">
+                          <div className="grid gap-0.5">
+                            <span>In: {formatAmount(transaction.total_in_amount)}</span>
+                            <span className="text-xs text-slate-500">Out: {formatAmount(transaction.total_out_amount)}</span>
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5 align-top text-slate-700">
+                          {transaction.service_event_title || "Not linked"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </article>
       </section>
 
