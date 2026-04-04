@@ -789,10 +789,31 @@ export interface AuditEvent {
 }
 
 export interface AuditEventListFilters extends PaginationParams {
+  search?: string;
   event_type?: string;
   target_type?: string;
   target_id?: number;
   actor_id?: number;
+  actor_username?: string;
   start_date?: string;
   end_date?: string;
+}
+
+export type OpsNotificationSeverity = "info" | "success" | "warning" | "danger";
+
+export interface OpsNotificationItem {
+  id: string;
+  kind: string;
+  severity: OpsNotificationSeverity;
+  title: string;
+  description: string;
+  href: string;
+  created_at: string | null;
+}
+
+export interface OpsNotificationFeed {
+  generated_at: string;
+  notification_count: number;
+  unread_count: number;
+  notifications: OpsNotificationItem[];
 }

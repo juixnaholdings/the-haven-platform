@@ -4,8 +4,12 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import { useQuery } from '@tanstack/react-query'
 
 import { LoadingState } from '@/components/LoadingState'
+import { opsApi } from '@/domains/ops/api'
+import type { OpsNotificationItem } from '@/domains/types'
+import { formatDateTime } from '@/lib/formatters'
 
 import { useSession } from './use-session'
 
@@ -22,6 +26,8 @@ interface NavItem {
 
 interface UserNotification {
   id: string
+  kind: string
+  severity: 'info' | 'success' | 'warning' | 'danger'
   title: string
   description: string
   href: string
@@ -150,32 +156,15 @@ const navItems: NavItem[] = [
 ]
 
 const mobileMediaQuery = '(max-width: 1024px)'
-const initialNotifications: UserNotification[] = [
-  {
-    id: 'notification-1',
-    title: 'Attendance records are ready',
-    description: 'You have pending attendance records waiting for review.',
-    href: '/attendance',
-    createdAtLabel: '12m ago',
-    unread: true
-  },
-  {
-    id: 'notification-2',
-    title: '3 new member profiles added',
-    description: 'New members have been added and need onboarding updates.',
-    href: '/members',
-    createdAtLabel: '1h ago',
-    unread: true
-  },
-  {
-    id: 'notification-3',
-    title: 'Finance transfer posted',
-    description: 'A recent transfer has been posted in the finance ledger.',
-    href: '/finance',
-    createdAtLabel: 'Yesterday',
-    unread: false
-  }
-]
+const unreadDotToneClassMap: Record<
+  UserNotification['severity'],
+  string
+> = {
+  danger: 'bg-red-500',
+  warning: 'bg-amber-500',
+  info: 'bg-[#16335f]',
+  success: 'bg-emerald-500'
+}
 
 function getDisplayName (
   user: NonNullable<ReturnType<typeof useSession>['user']>
@@ -195,10 +184,16 @@ export function ProtectedDashboardShell ({
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [isNotificationsMenuOpen, setIsNotificationsMenuOpen] = useState(false)
-  const [notifications, setNotifications] =
-    useState<UserNotification[]>(initialNotifications)
+  const [readNotificationIds, setReadNotificationIds] = useState<string[]>([])
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
   const notificationsMenuRef = useRef<HTMLDivElement | null>(null)
+
+  const notificationsQuery = useQuery({
+    enabled: isAuthenticated,
+    queryKey: ['ops', 'notifications'],
+    queryFn: () => opsApi.getNotifications(),
+    staleTime: 60_000
+  })
 
   useEffect(() => {
     if (status !== 'unauthenticated') {
@@ -324,19 +319,38 @@ export function ProtectedDashboardShell ({
     router.replace('/login')
   }
 
+  function toUserNotification (
+    notification: OpsNotificationItem
+  ): UserNotification {
+    const createdAtLabel = notification.created_at
+      ? formatDateTime(notification.created_at)
+      : 'Just now'
+    return {
+      id: notification.id,
+      kind: notification.kind,
+      severity: notification.severity,
+      title: notification.title,
+      description: notification.description,
+      href: notification.href,
+      createdAtLabel,
+      unread: !readNotificationIds.includes(notification.id)
+    }
+  }
+
+  const notifications = (
+    notificationsQuery.data?.notifications ?? []
+  ).map(toUserNotification)
+
   function handleMarkNotificationRead (notificationId: string) {
-    setNotifications(current =>
-      current.map(notification =>
-        notification.id === notificationId
-          ? { ...notification, unread: false }
-          : notification
-      )
+    setReadNotificationIds(current =>
+      current.includes(notificationId) ? current : [...current, notificationId]
     )
   }
 
   function handleMarkAllNotificationsRead () {
-    setNotifications(current =>
-      current.map(notification => ({ ...notification, unread: false }))
+    const allNotificationIds = notifications.map(notification => notification.id)
+    setReadNotificationIds(current =>
+      Array.from(new Set([...current, ...allNotificationIds]))
     )
   }
 
@@ -485,7 +499,26 @@ export function ProtectedDashboardShell ({
                       </button>
                     </div>
 
-                    {notifications.length > 0 ? (
+                    {notificationsQuery.isLoading ? (
+                      <p className='px-4 py-6 text-center text-sm text-gray-500'>
+                        Loading reminders...
+                      </p>
+                    ) : notificationsQuery.error ? (
+                      <div className='space-y-2 px-4 py-5'>
+                        <p className='text-sm font-medium text-red-700'>
+                          Notifications are unavailable right now.
+                        </p>
+                        <button
+                          className='text-xs font-medium text-[#16335f] transition hover:text-[#0f2443]'
+                          onClick={() => {
+                            void notificationsQuery.refetch()
+                          }}
+                          type='button'
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    ) : notifications.length > 0 ? (
                       <div className='max-h-80 overflow-y-auto'>
                         {notifications.map(notification => (
                           <div
@@ -514,7 +547,11 @@ export function ProtectedDashboardShell ({
                                     {notification.createdAtLabel}
                                   </span>
                                   {notification.unread ? (
-                                    <span className='inline-flex h-2.5 w-2.5 rounded-full bg-[#16335f]' />
+                                    <span
+                                      className={`inline-flex h-2.5 w-2.5 rounded-full ${
+                                        unreadDotToneClassMap[notification.severity]
+                                      }`}
+                                    />
                                   ) : null}
                                 </div>
                               </div>

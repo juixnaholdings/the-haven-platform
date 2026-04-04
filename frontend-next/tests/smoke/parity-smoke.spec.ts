@@ -365,6 +365,56 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
       return;
     }
 
+    if (path === "/api/ops/notifications/" && method === "GET") {
+      const notifications =
+        sessionMode === "authenticated-staff"
+          ? [
+              {
+                id: "attendance-missing-summary",
+                kind: "ATTENDANCE_MISSING_SUMMARY",
+                severity: "warning",
+                title: "1 event needs attendance capture",
+                description: "Follow up with Sunday Morning Service (2026-03-22).",
+                href: "/events/1/attendance",
+                created_at: "2026-03-22T12:30:00Z",
+              },
+            ]
+          : [
+              {
+                id: "staff-invites-pending",
+                kind: "STAFF_INVITES_PENDING",
+                severity: "warning",
+                title: "1 pending staff invite",
+                description: "Oldest pending invite expires on Apr 12, 2026.",
+                href: "/settings/staff",
+                created_at: "2026-04-01T10:00:00Z",
+              },
+              {
+                id: "attendance-upcoming-event",
+                kind: "UPCOMING_EVENT",
+                severity: "info",
+                title: "Upcoming event reminder",
+                description: "Sunday Morning Service is scheduled for 2026-03-22.",
+                href: "/events/1",
+                created_at: "2026-03-22T09:00:00Z",
+              },
+            ];
+
+      await fulfillJson(
+        route,
+        successEnvelope(
+          {
+            generated_at: "2026-04-04T10:00:00Z",
+            notification_count: notifications.length,
+            unread_count: notifications.length,
+            notifications,
+          },
+          "Operational notifications fetched successfully.",
+        ),
+      );
+      return;
+    }
+
     if (path === "/api/reports/dashboard/" && method === "GET") {
       await fulfillJson(route, successEnvelope(dashboardSummary, "Dashboard summary fetched."));
       return;
