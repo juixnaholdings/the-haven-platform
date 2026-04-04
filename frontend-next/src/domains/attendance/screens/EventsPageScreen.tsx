@@ -23,20 +23,14 @@ import { formatDate, formatTime } from "@/lib/formatters";
 
 type EventStatusFilter = "all" | "active" | "inactive";
 
-function getAttendanceProgressLabel({
-  hasSummary,
-  memberAttendanceCount,
-}: {
-  hasSummary: boolean;
-  memberAttendanceCount: number;
-}) {
-  if (hasSummary && memberAttendanceCount > 0) {
-    return "Summary and member records captured";
+function getAttendanceProgressTone(status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED") {
+  if (status === "COMPLETED") {
+    return "success" as const;
   }
-  if (hasSummary || memberAttendanceCount > 0) {
-    return "Attendance in progress";
+  if (status === "IN_PROGRESS") {
+    return "warning" as const;
   }
-  return "Attendance not started";
+  return "muted" as const;
 }
 
 export function EventsPageScreen() {
@@ -67,7 +61,10 @@ export function EventsPageScreen() {
   const totalServiceEvents = pagination?.count ?? serviceEvents.length;
   const hasFilters = Boolean(search.trim()) || eventTypeFilter !== "all" || statusFilter !== "all";
   const activeEvents = serviceEvents.filter((serviceEvent) => serviceEvent.is_active).length;
-  const eventsWithSummary = serviceEvents.filter((serviceEvent) => serviceEvent.has_attendance_summary).length;
+  const completedEvents = serviceEvents.filter((serviceEvent) => serviceEvent.attendance_is_complete).length;
+  const inProgressEvents = serviceEvents.filter(
+    (serviceEvent) => serviceEvent.attendance_progress_status === "IN_PROGRESS",
+  ).length;
   const nextEvent = [...serviceEvents]
     .filter((serviceEvent) => Boolean(serviceEvent.service_date))
     .sort((left, right) => left.service_date.localeCompare(right.service_date))[0];
@@ -104,10 +101,11 @@ export function EventsPageScreen() {
         title="Events"
       />
 
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard label="Events" tone="accent" value={totalServiceEvents} />
         <StatCard label="Active in view" value={activeEvents} />
-        <StatCard label="Summary in view" value={eventsWithSummary} />
+        <StatCard label="Attendance complete" value={completedEvents} />
+        <StatCard label="Attendance in progress" value={inProgressEvents} />
         <StatCard label="Next in view" value={nextEvent ? formatDate(nextEvent.service_date) : "Not scheduled"} />
       </section>
 
@@ -263,15 +261,19 @@ export function EventsPageScreen() {
                 header: "Attendance",
                 cell: (serviceEvent) => (
                   <div className="grid gap-1">
+                    <StatusBadge
+                      label={serviceEvent.attendance_progress_label}
+                      tone={getAttendanceProgressTone(serviceEvent.attendance_progress_status)}
+                    />
                     <span>{serviceEvent.member_attendance_count} member records</span>
                     <span className="block text-xs text-slate-500">
                       {serviceEvent.has_attendance_summary ? "Summary recorded" : "No summary yet"}
                     </span>
                     <span className="block text-xs text-slate-500">
-                      {getAttendanceProgressLabel({
-                        hasSummary: serviceEvent.has_attendance_summary,
-                        memberAttendanceCount: serviceEvent.member_attendance_count,
-                      })}
+                      Progress: {serviceEvent.attendance_progress_percent}%
+                    </span>
+                    <span className="block text-xs text-slate-500">
+                      Last attendance update: {formatDate(serviceEvent.attendance_last_updated_at)}
                     </span>
                   </div>
                 ),
@@ -297,7 +299,7 @@ export function EventsPageScreen() {
                       className="button button-ghost button-compact"
                       href={`/events/${serviceEvent.id}/attendance`}
                     >
-                      Attendance
+                      {serviceEvent.attendance_is_complete ? "Review attendance" : "Continue attendance"}
                     </Link>
                   </div>
                 ),

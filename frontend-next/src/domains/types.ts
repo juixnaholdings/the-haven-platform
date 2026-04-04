@@ -233,6 +233,17 @@ export interface MemberAttendanceSummary {
   last_attended_on: string | null;
 }
 
+export interface MemberRecentAttendanceRecord {
+  id: number;
+  service_event_id: number;
+  service_event_title: string;
+  service_event_type: string;
+  service_date: string;
+  status: string;
+  checked_in_at: string | null;
+  updated_at: string;
+}
+
 export interface MemberDetail extends MemberListItem {
   date_of_birth: string | null;
   notes: string;
@@ -240,6 +251,7 @@ export interface MemberDetail extends MemberListItem {
   household_memberships: MemberHouseholdMembership[];
   group_memberships: MemberGroupMembership[];
   attendance_summary: MemberAttendanceSummary;
+  recent_attendance_records: MemberRecentAttendanceRecord[];
   created_at: string;
   updated_at: string;
 }
@@ -450,6 +462,11 @@ export interface ServiceEventListItem {
   is_active: boolean;
   member_attendance_count: number;
   has_attendance_summary: boolean;
+  attendance_progress_status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  attendance_progress_label: string;
+  attendance_progress_percent: number;
+  attendance_is_complete: boolean;
+  attendance_last_updated_at: string | null;
 }
 
 export interface ServiceEventDetail {
@@ -464,6 +481,13 @@ export interface ServiceEventDetail {
   is_active: boolean;
   attendance_summary: AttendanceSummary | null;
   member_attendances: MemberAttendance[];
+  member_attendance_count: number;
+  has_attendance_summary: boolean;
+  attendance_progress_status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  attendance_progress_label: string;
+  attendance_progress_percent: number;
+  attendance_is_complete: boolean;
+  attendance_last_updated_at: string | null;
   created_at: string;
   updated_at: string;
 }

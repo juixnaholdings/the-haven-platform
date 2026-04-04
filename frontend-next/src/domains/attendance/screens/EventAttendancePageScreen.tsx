@@ -75,6 +75,16 @@ const emptyMemberAttendanceEditForm: MemberAttendanceEditFormState = {
   notes: "",
 };
 
+function getAttendanceProgressTone(status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED") {
+  if (status === "COMPLETED") {
+    return "success" as const;
+  }
+  if (status === "IN_PROGRESS") {
+    return "warning" as const;
+  }
+  return "muted" as const;
+}
+
 function toSafeCount(value: string) {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
@@ -294,6 +304,7 @@ export function EventAttendancePageScreen() {
   const serviceEvent = serviceEventQuery.data;
   const memberAttendanceRecords = memberAttendanceQuery.data ?? [];
   const summaryPayload = toSummaryPayload(summaryFormState);
+  const hasSummary = Boolean(serviceEvent.attendance_summary);
 
   return (
     <div className="space-y-6">
@@ -308,7 +319,7 @@ export function EventAttendancePageScreen() {
               onClick={() => setIsSummaryModalOpen(true)}
               type="button"
             >
-              Edit summary
+              {hasSummary ? "Correct summary" : "Record summary"}
             </button>
             <button
               className="button button-primary"
@@ -331,16 +342,22 @@ export function EventAttendancePageScreen() {
               label={serviceEvent.is_active ? "Active event" : "Inactive event"}
               tone={serviceEvent.is_active ? "success" : "muted"}
             />
+            <StatusBadge
+              label={serviceEvent.attendance_progress_label}
+              tone={getAttendanceProgressTone(serviceEvent.attendance_progress_status)}
+            />
           </>
         }
         title={serviceEvent.title}
       />
 
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-6">
         <StatCard label="Service date" tone="accent" value={formatDate(serviceEvent.service_date)} />
         <StatCard label="Summary total" value={summaryPayload.total_count} />
         <StatCard label="Visitors" value={summaryPayload.visitor_count} />
-        <StatCard label="Member records" value={serviceEvent.member_attendances.length} />
+        <StatCard label="Member records" value={serviceEvent.member_attendance_count} />
+        <StatCard label="Completion" value={`${serviceEvent.attendance_progress_percent}%`} />
+        <StatCard label="Attendance updated" value={formatDateTime(serviceEvent.attendance_last_updated_at)} />
       </section>
 
       <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
@@ -361,8 +378,8 @@ export function EventAttendancePageScreen() {
               <dd>{serviceEvent.location || "Not set"}</dd>
             </div>
             <div>
-              <dt>Last updated</dt>
-              <dd>{formatDateTime(serviceEvent.updated_at)}</dd>
+              <dt>Attendance last updated</dt>
+              <dd>{formatDateTime(serviceEvent.attendance_last_updated_at)}</dd>
             </div>
           </dl>
         </section>
@@ -404,7 +421,7 @@ export function EventAttendancePageScreen() {
             onClick={() => setIsSummaryModalOpen(true)}
             type="button"
           >
-            Edit summary
+            {hasSummary ? "Correct summary" : "Record summary"}
           </button>
         </div>
         <dl className="definition-list">
@@ -427,6 +444,10 @@ export function EventAttendancePageScreen() {
           <div>
             <dt>Derived total</dt>
             <dd>{summaryPayload.total_count}</dd>
+          </div>
+          <div>
+            <dt>Summary last updated</dt>
+            <dd>{formatDateTime(serviceEvent.attendance_summary?.updated_at)}</dd>
           </div>
         </dl>
       </section>
@@ -495,6 +516,10 @@ export function EventAttendancePageScreen() {
                 cell: (memberAttendance) => formatDateTime(memberAttendance.checked_in_at),
               },
               {
+                header: "Last updated",
+                cell: (memberAttendance) => formatDateTime(memberAttendance.updated_at),
+              },
+              {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (memberAttendance) => (
@@ -508,7 +533,7 @@ export function EventAttendancePageScreen() {
                       }}
                       type="button"
                     >
-                      Edit record
+                      Correct record
                     </button>
                   </div>
                 ),
@@ -796,6 +821,9 @@ export function EventAttendancePageScreen() {
                 : candidateMembers.length > 0
                   ? `${candidateMembers.length} eligible member${candidateMembers.length === 1 ? "" : "s"} found.`
                   : "No eligible members match the current search."}
+            </p>
+            <p className="m-0 text-sm text-slate-500">
+              Duplicate prevention is active: each member can only have one attendance record per event.
             </p>
           </FormSection>
 

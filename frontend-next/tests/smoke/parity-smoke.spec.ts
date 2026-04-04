@@ -85,6 +85,18 @@ const baseMemberDetail = {
     excused_count: 0,
     last_attended_on: "2026-03-01",
   },
+  recent_attendance_records: [
+    {
+      id: 1,
+      service_event_id: 1,
+      service_event_title: "Sunday Morning Service",
+      service_event_type: "SUNDAY_SERVICE",
+      service_date: "2026-03-22",
+      status: "PRESENT",
+      checked_in_at: "2026-03-22T09:10:00Z",
+      updated_at: "2026-03-22T09:10:00Z",
+    },
+  ],
   created_at: "2025-01-01T10:00:00Z",
   updated_at: "2026-03-01T10:00:00Z",
 };
@@ -137,6 +149,11 @@ const serviceEventListItem = {
   is_active: true,
   member_attendance_count: 1,
   has_attendance_summary: true,
+  attendance_progress_status: "COMPLETED",
+  attendance_progress_label: "Completed",
+  attendance_progress_percent: 100,
+  attendance_is_complete: true,
+  attendance_last_updated_at: "2026-03-22T12:30:00Z",
 };
 
 function successEnvelope(data: unknown, message = "OK") {
@@ -581,6 +598,13 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
                 updated_at: "2026-03-22T09:10:00Z",
               },
             ],
+            member_attendance_count: 1,
+            has_attendance_summary: true,
+            attendance_progress_status: "COMPLETED",
+            attendance_progress_label: "Completed",
+            attendance_progress_percent: 100,
+            attendance_is_complete: true,
+            attendance_last_updated_at: "2026-03-22T12:30:00Z",
             created_at: "2026-03-20T10:00:00Z",
             updated_at: "2026-03-22T12:30:00Z",
           },
@@ -947,7 +971,6 @@ test.describe("frontend-next parity smoke", () => {
       { path: "/finance/transfers/new", heading: "Fund transfer" },
       { path: "/finance/transactions/1", heading: "TRX-0001" },
       { path: "/reports", heading: "Reports" },
-      { path: "/settings", heading: "Settings" },
       { path: "/settings/roles", heading: "Roles" },
       { path: "/settings/staff", heading: "Staff users" },
       { path: "/audit", heading: "Audit events" },

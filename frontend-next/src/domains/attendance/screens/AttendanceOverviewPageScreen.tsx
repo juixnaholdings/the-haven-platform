@@ -12,6 +12,16 @@ import { getServiceEventTypeLabel } from "@/domains/attendance/options";
 import { reportingApi } from "@/domains/reporting/api";
 import { formatDate } from "@/lib/formatters";
 
+function getAttendanceProgressTone(status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED") {
+  if (status === "COMPLETED") {
+    return "success" as const;
+  }
+  if (status === "IN_PROGRESS") {
+    return "warning" as const;
+  }
+  return "muted" as const;
+}
+
 export function AttendanceOverviewPageScreen() {
   const router = useRouter();
   const [startDate, setStartDate] = useState("");
@@ -60,6 +70,8 @@ export function AttendanceOverviewPageScreen() {
 
   const summary = attendanceSummaryQuery.data;
   const serviceEvents = serviceEventsQuery.data ?? [];
+  const incompleteEvents = serviceEvents.filter((serviceEvent) => !serviceEvent.attendance_is_complete);
+  const completedEvents = serviceEvents.filter((serviceEvent) => serviceEvent.attendance_is_complete);
   const hasDateFilter = Boolean(startDate || endDate);
 
   if (!summary) {
@@ -141,11 +153,13 @@ export function AttendanceOverviewPageScreen() {
         </section>
       </div>
 
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-6">
         <StatCard label="Events in range" tone="accent" value={summary.total_events} />
         <StatCard label="Aggregate attendance" value={summary.aggregate_total_attendance} />
         <StatCard label="Visitors" value={summary.aggregate_visitor_count} />
         <StatCard label="Member records" value={summary.total_member_attendance_records} />
+        <StatCard label="Completed events" value={completedEvents.length} />
+        <StatCard label="Needs follow-up" value={incompleteEvents.length} />
       </section>
 
       <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
@@ -245,12 +259,20 @@ export function AttendanceOverviewPageScreen() {
                 ),
               },
               {
-                header: "Summary",
+                header: "Progress",
                 cell: (serviceEvent) => (
-                  <StatusBadge
-                    label={serviceEvent.has_attendance_summary ? "Recorded" : "Pending"}
-                    tone={serviceEvent.has_attendance_summary ? "success" : "warning"}
-                  />
+                  <div className="grid gap-1">
+                    <StatusBadge
+                      label={serviceEvent.attendance_progress_label}
+                      tone={getAttendanceProgressTone(serviceEvent.attendance_progress_status)}
+                    />
+                    <span className="block text-xs text-slate-500">
+                      {serviceEvent.attendance_progress_percent}% complete
+                    </span>
+                    <span className="block text-xs text-slate-500">
+                      Last update: {formatDate(serviceEvent.attendance_last_updated_at)}
+                    </span>
+                  </div>
                 ),
               },
               {
@@ -269,9 +291,7 @@ export function AttendanceOverviewPageScreen() {
                       className="button button-ghost button-compact"
                       href={`/events/${serviceEvent.id}/attendance`}
                     >
-                      {serviceEvent.has_attendance_summary || serviceEvent.member_attendance_count > 0
-                        ? "Continue"
-                        : "Take attendance"}
+                      {serviceEvent.attendance_is_complete ? "Review" : "Continue"}
                     </Link>
                   </div>
                 ),
@@ -282,6 +302,35 @@ export function AttendanceOverviewPageScreen() {
           />
         </section>
       )}
+
+      {incompleteEvents.length > 0 ? (
+        <section className="rounded-3xl border border-amber-200/80 bg-amber-50/70 p-6 shadow-sm">
+          <div className="section-header">
+            <div>
+              <h3>Attendance follow-up queue</h3>
+              <p className="m-0 text-sm text-amber-900/80">
+                Continue these events to complete summary and member-level attendance capture.
+              </p>
+            </div>
+            <StatusBadge label={`${incompleteEvents.length} pending`} tone="warning" />
+          </div>
+          <ul className="item-list">
+            {incompleteEvents.slice(0, 6).map((serviceEvent) => (
+              <li className="item-row" key={serviceEvent.id}>
+                <div>
+                  <strong>{serviceEvent.title}</strong>
+                  <span>
+                    {formatDate(serviceEvent.service_date)} | {serviceEvent.attendance_progress_label}
+                  </span>
+                </div>
+                <Link className="button button-secondary button-compact" href={`/events/${serviceEvent.id}/attendance`}>
+                  Continue attendance
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <RecordAttendanceModal
         isOpen={isRecordAttendanceModalOpen}

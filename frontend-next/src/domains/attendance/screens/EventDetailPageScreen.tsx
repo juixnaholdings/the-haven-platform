@@ -12,6 +12,16 @@ import { getServiceEventTypeLabel, SERVICE_EVENT_TYPE_OPTIONS } from "@/domains/
 import type { ServiceEventWritePayload } from "@/domains/types";
 import { formatDate, formatDateTime, formatTime } from "@/lib/formatters";
 
+function getAttendanceProgressTone(status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED") {
+  if (status === "COMPLETED") {
+    return "success" as const;
+  }
+  if (status === "IN_PROGRESS") {
+    return "warning" as const;
+  }
+  return "muted" as const;
+}
+
 interface EventFormState {
   title: string;
   event_type: string;
@@ -166,9 +176,10 @@ export function EventDetailPageScreen() {
 
       <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Service date" tone="accent" value={formatDate(serviceEvent.service_date)} />
-        <StatCard label="Member records" value={serviceEvent.member_attendances.length} />
+        <StatCard label="Member records" value={serviceEvent.member_attendance_count} />
         <StatCard label="Summary total" value={summaryTotal} />
-        <StatCard label="Updated" value={formatDate(serviceEvent.updated_at)} />
+        <StatCard label="Attendance progress" value={`${serviceEvent.attendance_progress_percent}%`} />
+        <StatCard label="Attendance updated" value={formatDate(serviceEvent.attendance_last_updated_at)} />
       </section>
 
       <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
@@ -215,18 +226,18 @@ export function EventDetailPageScreen() {
               <dt>Summary status</dt>
               <dd>
                 <StatusBadge
-                  label={serviceEvent.attendance_summary ? "Summary recorded" : "No summary yet"}
-                  tone={serviceEvent.attendance_summary ? "success" : "warning"}
+                  label={serviceEvent.attendance_progress_label}
+                  tone={getAttendanceProgressTone(serviceEvent.attendance_progress_status)}
                 />
               </dd>
             </div>
             <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Member attendance rows</dt>
-              <dd>{serviceEvent.member_attendances.length}</dd>
+              <dd>{serviceEvent.member_attendance_count}</dd>
             </div>
             <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
-              <dt>Last updated</dt>
-              <dd>{formatDateTime(serviceEvent.updated_at)}</dd>
+              <dt>Attendance last updated</dt>
+              <dd>{formatDateTime(serviceEvent.attendance_last_updated_at)}</dd>
             </div>
           </dl>
         </section>
