@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -29,6 +29,7 @@ interface EntryFormState {
   amount: string;
   transaction_date: string;
   description: string;
+  external_reference: string;
   service_event_id: string;
   category_name: string;
   notes: string;
@@ -39,6 +40,7 @@ const emptyFormState: EntryFormState = {
   amount: "",
   transaction_date: new Date().toISOString().slice(0, 10),
   description: "",
+  external_reference: "",
   service_event_id: "",
   category_name: "",
   notes: "",
@@ -50,6 +52,7 @@ function toEntryPayload(formState: EntryFormState): IncomeTransactionPayload | E
     amount: formState.amount,
     transaction_date: formState.transaction_date,
     description: formState.description,
+    external_reference: formState.external_reference || undefined,
     service_event_id: formState.service_event_id ? Number(formState.service_event_id) : null,
     category_name: formState.category_name || undefined,
     notes: formState.notes || undefined,
@@ -181,7 +184,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                     <option value="">Select fund account</option>
                     {fundAccounts.map((fundAccount) => (
                       <option key={fundAccount.id} value={fundAccount.id}>
-                        {fundAccount.name} · {fundAccount.code}
+                        {fundAccount.name} - {fundAccount.code}
                       </option>
                     ))}
                   </select>
@@ -248,6 +251,20 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                 </label>
 
                 <label className="field">
+                  <span>External reference</span>
+                  <input
+                    onChange={(event) =>
+                      setFormState((current) => ({
+                        ...current,
+                        external_reference: event.target.value,
+                      }))
+                    }
+                    placeholder="Bank ref, receipt no, voucher no..."
+                    value={formState.external_reference}
+                  />
+                </label>
+
+                <label className="field">
                   <span>Linked service/event</span>
                   <select
                     onChange={(event) =>
@@ -261,7 +278,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                     <option value="">No linked event</option>
                     {serviceEvents.map((serviceEvent) => (
                       <option key={serviceEvent.id} value={serviceEvent.id}>
-                        {serviceEvent.title} · {serviceEvent.service_date}
+                        {serviceEvent.title} - {serviceEvent.service_date}
                       </option>
                     ))}
                   </select>

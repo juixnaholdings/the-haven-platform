@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useDeferredValue, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -36,6 +36,7 @@ interface EntryFormState {
   amount: string;
   transaction_date: string;
   description: string;
+  external_reference: string;
   service_event_id: string;
   category_name: string;
   notes: string;
@@ -47,6 +48,7 @@ interface TransferFormState {
   amount: string;
   transaction_date: string;
   description: string;
+  external_reference: string;
   service_event_id: string;
   category_name: string;
   notes: string;
@@ -57,6 +59,7 @@ const emptyEntryForm: EntryFormState = {
   amount: "",
   transaction_date: new Date().toISOString().slice(0, 10),
   description: "",
+  external_reference: "",
   service_event_id: "",
   category_name: "",
   notes: "",
@@ -68,6 +71,7 @@ const emptyTransferForm: TransferFormState = {
   amount: "",
   transaction_date: new Date().toISOString().slice(0, 10),
   description: "",
+  external_reference: "",
   service_event_id: "",
   category_name: "",
   notes: "",
@@ -79,6 +83,7 @@ function toEntryPayload(formState: EntryFormState): IncomeTransactionPayload | E
     amount: formState.amount,
     transaction_date: formState.transaction_date,
     description: formState.description,
+    external_reference: formState.external_reference || undefined,
     service_event_id: formState.service_event_id ? Number(formState.service_event_id) : null,
     category_name: formState.category_name || undefined,
     notes: formState.notes || undefined,
@@ -92,6 +97,7 @@ function toTransferPayload(formState: TransferFormState): TransferTransactionPay
     amount: formState.amount,
     transaction_date: formState.transaction_date,
     description: formState.description,
+    external_reference: formState.external_reference || undefined,
     service_event_id: formState.service_event_id ? Number(formState.service_event_id) : null,
     category_name: formState.category_name || undefined,
     notes: formState.notes || undefined,
@@ -101,6 +107,7 @@ function toTransferPayload(formState: TransferFormState): TransferTransactionPay
 export function FinancePageScreen() {
   const [search, setSearch] = useState("");
   const [transactionTypeFilter, setTransactionTypeFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [fundAccountFilter, setFundAccountFilter] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -112,6 +119,7 @@ export function FinancePageScreen() {
   const [incomeFormState, setIncomeFormState] = useState<EntryFormState>(emptyEntryForm);
   const [expenseFormState, setExpenseFormState] = useState<EntryFormState>(emptyEntryForm);
   const [transferFormState, setTransferFormState] = useState<TransferFormState>(emptyTransferForm);
+  const [isTransferConfirmed, setIsTransferConfirmed] = useState(false);
   const deferredSearch = useDeferredValue(search);
 
   const fundAccountsQuery = useQuery({
@@ -137,12 +145,22 @@ export function FinancePageScreen() {
     queryKey: [
       "finance",
       "transactions",
-      { search: deferredSearch, transactionTypeFilter, fundAccountFilter, startDate, endDate, page, pageSize },
+      {
+        search: deferredSearch,
+        transactionTypeFilter,
+        categoryFilter,
+        fundAccountFilter,
+        startDate,
+        endDate,
+        page,
+        pageSize,
+      },
     ],
     queryFn: () =>
       financeApi.listTransactionsPage({
         search: deferredSearch || undefined,
         transaction_type: transactionTypeFilter === "all" ? undefined : transactionTypeFilter,
+        category_name: categoryFilter || undefined,
         fund_account_id: fundAccountFilter === "all" ? undefined : Number(fundAccountFilter),
         transaction_date_from: startDate || undefined,
         transaction_date_to: endDate || undefined,
@@ -179,6 +197,7 @@ export function FinancePageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["finance"] });
       await queryClient.invalidateQueries({ queryKey: ["reporting"] });
       setTransferFormState(emptyTransferForm);
+      setIsTransferConfirmed(false);
       setIsTransferModalOpen(false);
     },
   });
@@ -226,6 +245,7 @@ export function FinancePageScreen() {
   const hasFilters =
     Boolean(search.trim()) ||
     transactionTypeFilter !== "all" ||
+    Boolean(categoryFilter.trim()) ||
     fundAccountFilter !== "all" ||
     Boolean(startDate || endDate);
 
@@ -321,7 +341,7 @@ export function FinancePageScreen() {
                   <option value="">Select fund account</option>
                   {fundAccounts.map((fundAccount) => (
                     <option key={`income-${fundAccount.id}`} value={fundAccount.id}>
-                      {fundAccount.name} · {fundAccount.code}
+                      {fundAccount.name} - {fundAccount.code}
                     </option>
                   ))}
                 </select>
@@ -363,6 +383,17 @@ export function FinancePageScreen() {
               </label>
 
               <label className="field">
+                <span>External reference</span>
+                <input
+                  onChange={(event) =>
+                    setIncomeFormState((current) => ({ ...current, external_reference: event.target.value }))
+                  }
+                  placeholder="Bank ref, receipt no, voucher no..."
+                  value={incomeFormState.external_reference}
+                />
+              </label>
+
+              <label className="field">
                 <span>Category</span>
                 <input
                   onChange={(event) =>
@@ -384,7 +415,7 @@ export function FinancePageScreen() {
                   <option value="">No linked event</option>
                   {serviceEvents.map((serviceEvent) => (
                     <option key={`income-event-${serviceEvent.id}`} value={serviceEvent.id}>
-                      {serviceEvent.title} · {serviceEvent.service_date}
+                      {serviceEvent.title} - {serviceEvent.service_date}
                     </option>
                   ))}
                 </select>
@@ -452,7 +483,7 @@ export function FinancePageScreen() {
                   <option value="">Select fund account</option>
                   {fundAccounts.map((fundAccount) => (
                     <option key={`expense-${fundAccount.id}`} value={fundAccount.id}>
-                      {fundAccount.name} · {fundAccount.code}
+                      {fundAccount.name} - {fundAccount.code}
                     </option>
                   ))}
                 </select>
@@ -496,6 +527,17 @@ export function FinancePageScreen() {
               </label>
 
               <label className="field">
+                <span>External reference</span>
+                <input
+                  onChange={(event) =>
+                    setExpenseFormState((current) => ({ ...current, external_reference: event.target.value }))
+                  }
+                  placeholder="Invoice no, bank ref, receipt no..."
+                  value={expenseFormState.external_reference}
+                />
+              </label>
+
+              <label className="field">
                 <span>Category</span>
                 <input
                   onChange={(event) =>
@@ -517,7 +559,7 @@ export function FinancePageScreen() {
                   <option value="">No linked event</option>
                   {serviceEvents.map((serviceEvent) => (
                     <option key={`expense-event-${serviceEvent.id}`} value={serviceEvent.id}>
-                      {serviceEvent.title} · {serviceEvent.service_date}
+                      {serviceEvent.title} - {serviceEvent.service_date}
                     </option>
                   ))}
                 </select>
@@ -559,6 +601,7 @@ export function FinancePageScreen() {
         isOpen={isTransferModalOpen}
         onClose={() => {
           setTransferFormState(emptyTransferForm);
+          setIsTransferConfirmed(false);
           setIsTransferModalOpen(false);
         }}
         size="large"
@@ -585,7 +628,7 @@ export function FinancePageScreen() {
                   <option value="">Select source fund</option>
                   {fundAccounts.map((fundAccount) => (
                     <option key={`source-${fundAccount.id}`} value={fundAccount.id}>
-                      {fundAccount.name} · {fundAccount.code}
+                      {fundAccount.name} - {fundAccount.code}
                     </option>
                   ))}
                 </select>
@@ -606,7 +649,7 @@ export function FinancePageScreen() {
                   <option value="">Select destination fund</option>
                   {fundAccounts.map((fundAccount) => (
                     <option key={`destination-${fundAccount.id}`} value={fundAccount.id}>
-                      {fundAccount.name} · {fundAccount.code}
+                      {fundAccount.name} - {fundAccount.code}
                     </option>
                   ))}
                 </select>
@@ -650,6 +693,17 @@ export function FinancePageScreen() {
               </label>
 
               <label className="field">
+                <span>External reference</span>
+                <input
+                  onChange={(event) =>
+                    setTransferFormState((current) => ({ ...current, external_reference: event.target.value }))
+                  }
+                  placeholder="Transfer slip, bank batch, memo id..."
+                  value={transferFormState.external_reference}
+                />
+              </label>
+
+              <label className="field">
                 <span>Category</span>
                 <input
                   onChange={(event) =>
@@ -671,7 +725,7 @@ export function FinancePageScreen() {
                   <option value="">No linked event</option>
                   {serviceEvents.map((serviceEvent) => (
                     <option key={`transfer-event-${serviceEvent.id}`} value={serviceEvent.id}>
-                      {serviceEvent.title} · {serviceEvent.service_date}
+                      {serviceEvent.title} - {serviceEvent.service_date}
                     </option>
                   ))}
                 </select>
@@ -686,18 +740,33 @@ export function FinancePageScreen() {
                 value={transferFormState.notes}
               />
             </label>
+
+            <label className="inline-flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50/70 px-3 py-2 text-sm text-slate-700">
+              <input
+                checked={isTransferConfirmed}
+                className="mt-1 size-4 rounded border-slate-300 text-[#16335f] focus:ring-[#16335f]"
+                onChange={(event) => setIsTransferConfirmed(event.target.checked)}
+                type="checkbox"
+              />
+              <span>I confirm the source, destination, amount, and metadata are correct for this posted transfer.</span>
+            </label>
           </FormSection>
 
           <ErrorAlert error={transferMutation.error} fallbackMessage="Transfer could not be recorded." />
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <button className="button button-primary" disabled={transferMutation.isPending} type="submit">
+            <button
+              className="button button-primary"
+              disabled={transferMutation.isPending || !isTransferConfirmed}
+              type="submit"
+            >
               {transferMutation.isPending ? "Saving..." : "Record transfer"}
             </button>
             <button
               className="button button-secondary"
               onClick={() => {
                 setTransferFormState(emptyTransferForm);
+                setIsTransferConfirmed(false);
                 setIsTransferModalOpen(false);
               }}
               type="button"
@@ -834,6 +903,7 @@ export function FinancePageScreen() {
             onClick={() => {
               setSearch("");
               setTransactionTypeFilter("all");
+              setCategoryFilter("");
               setFundAccountFilter("all");
               setStartDate("");
               setEndDate("");
@@ -880,6 +950,18 @@ export function FinancePageScreen() {
                   </option>
                 ))}
               </select>
+            </label>
+
+            <label className="field">
+              <span>Category contains</span>
+              <input
+                onChange={(event) => {
+                  setCategoryFilter(event.target.value);
+                  setPage(1);
+                }}
+                placeholder="Offering, welfare, maintenance..."
+                value={categoryFilter}
+              />
             </label>
 
             <label className="field">
@@ -931,6 +1013,7 @@ export function FinancePageScreen() {
                 onClick={() => {
                   setSearch("");
                   setTransactionTypeFilter("all");
+                  setCategoryFilter("");
                   setFundAccountFilter("all");
                   setStartDate("");
                   setEndDate("");
@@ -979,6 +1062,13 @@ export function FinancePageScreen() {
                     <Link className="font-semibold text-[#16335f] hover:underline" href={`/finance/transactions/${transaction.id}`}>
                       {transaction.reference_no}
                     </Link>
+                    {transaction.external_reference ? (
+                      <span className="block text-xs text-slate-500">
+                        External ref: {transaction.external_reference}
+                      </span>
+                    ) : (
+                      <span className="block text-xs text-slate-400">External ref not set</span>
+                    )}
                     <span className="block text-xs text-slate-500">{transaction.description}</span>
                   </div>
                 ),
@@ -1008,6 +1098,18 @@ export function FinancePageScreen() {
                   <div className="grid gap-1">
                     <span>In: {formatAmount(transaction.total_in_amount)}</span>
                     <span className="block text-xs text-slate-500">Out: {formatAmount(transaction.total_out_amount)}</span>
+                  </div>
+                ),
+              },
+              {
+                header: "Category",
+                cell: (transaction) => (
+                  <div className="grid gap-1">
+                    <span>{transaction.primary_category || "Not categorized"}</span>
+                    <StatusBadge
+                      label={transaction.has_line_notes ? "Notes present" : "No line notes"}
+                      tone={transaction.has_line_notes ? "info" : "muted"}
+                    />
                   </div>
                 ),
               },

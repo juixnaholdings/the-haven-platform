@@ -566,9 +566,16 @@ export interface TransactionLine {
   notes: string;
 }
 
+export interface TransactionLineMetadataUpdate {
+  id: number;
+  category_name?: string;
+  notes?: string;
+}
+
 export interface TransactionListItem {
   id: number;
   reference_no: string;
+  external_reference: string;
   transaction_type: string;
   transaction_date: string;
   description: string;
@@ -578,11 +585,14 @@ export interface TransactionListItem {
   line_count: number;
   total_in_amount: string;
   total_out_amount: string;
+  primary_category: string;
+  has_line_notes: boolean;
 }
 
 export interface TransactionDetail {
   id: number;
   reference_no: string;
+  external_reference: string;
   transaction_type: string;
   transaction_date: string;
   description: string;
@@ -590,6 +600,8 @@ export interface TransactionDetail {
   posted_at: string;
   total_in_amount: string;
   total_out_amount: string;
+  primary_category: string;
+  has_line_notes: boolean;
   lines: TransactionLine[];
   created_at: string;
   updated_at: string;
@@ -598,6 +610,7 @@ export interface TransactionDetail {
 export interface TransactionListFilters extends PaginationParams {
   search?: string;
   transaction_type?: string;
+  category_name?: string;
   fund_account_id?: number;
   service_event_id?: number | null;
   transaction_date_from?: string;
@@ -609,6 +622,7 @@ export interface IncomeTransactionPayload {
   amount: string | number;
   transaction_date: string;
   description: string;
+  external_reference?: string;
   service_event_id?: number | null;
   category_name?: string;
   notes?: string;
@@ -619,6 +633,7 @@ export interface ExpenseTransactionPayload {
   amount: string | number;
   transaction_date: string;
   description: string;
+  external_reference?: string;
   service_event_id?: number | null;
   category_name?: string;
   notes?: string;
@@ -630,6 +645,7 @@ export interface TransferTransactionPayload {
   amount: string | number;
   transaction_date: string;
   description: string;
+  external_reference?: string;
   service_event_id?: number | null;
   category_name?: string;
   notes?: string;
@@ -638,7 +654,9 @@ export interface TransferTransactionPayload {
 export interface TransactionUpdatePayload {
   transaction_date?: string;
   description?: string;
+  external_reference?: string;
   service_event_id?: number | null;
+  line_updates?: TransactionLineMetadataUpdate[];
 }
 
 export interface MembershipSummary {
