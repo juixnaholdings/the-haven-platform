@@ -51,10 +51,15 @@ Recommended values:
 ## Modal-first form rule (current wave)
 
 - Product forms in protected areas are now modal-first where practical; public auth pages (`/login`, `/signup`) remain page forms by design.
+- Modal-first parity now includes:
+  - staff lifecycle actions (`/settings/staff`) for invite, create, elevate, and manage/edit.
+  - group and household detail management for record edits and membership add/edit flows.
+  - finance ledger quick actions for income, expense, and transfer capture, plus transaction metadata edits.
 - Shared attendance modals live in `frontend-next/src/domains/attendance/components/`.
 - Dashboard quick actions are now wired:
   - `Add Event` opens the shared create-event modal.
   - `Record Attendance` opens the shared record-attendance modal.
+- Some protected form routes remain as technical fallbacks (`/finance/entries/*`, `/finance/transfers/new`, `/members/new`, `/members/[id]/edit`) but primary CTAs now favor modal workflows.
 
 ## Attendance Sunday-service shortcut
 
