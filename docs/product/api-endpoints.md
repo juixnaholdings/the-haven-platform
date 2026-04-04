@@ -146,16 +146,24 @@ Frontend record-attendance workflow note:
 - `GET /api/reports/dashboard/`
   Returns the consolidated dashboard payload across membership, households, groups, attendance, and finance.
   Read access is intentionally limited to overarching leadership-style roles.
+  Supports optional `date_preset` (`TODAY`, `THIS_WEEK`, `THIS_MONTH`, `CUSTOM`) with optional `start_date`/`end_date`.
 - `GET /api/reports/members/`
   Returns member summary metrics.
 - `GET /api/reports/households/`
   Returns household summary metrics.
 - `GET /api/reports/groups/`
-  Returns group and affiliation summary metrics.
+  Returns group and affiliation summary metrics, including:
+  `inactive_groups`, `members_with_active_group`, `members_without_active_group`,
+  `participation_rate_percent`, and `top_groups`.
 - `GET /api/reports/attendance/`
-  Returns attendance summary metrics, with optional `start_date` and `end_date`.
+  Returns attendance summary metrics, with optional `date_preset`, `start_date`, and `end_date`.
+  Includes operational fields:
+  `events_with_summary`, `events_without_summary`, `average_total_attendance_per_event`,
+  `attendance_capture_rate_percent`, `attendance_trend`, `recent_service_events`, and `applied_range`.
 - `GET /api/reports/finance/`
-  Returns finance summary metrics, with optional `start_date` and `end_date`.
+  Returns finance summary metrics, with optional `date_preset`, `start_date`, and `end_date`.
+  Includes operational fields:
+  `total_posted_transactions`, `period_breakdown`, `top_categories`, and `applied_range`.
 
 ## Settings Admin Endpoints
 
@@ -214,7 +222,12 @@ Current first-wave coverage includes:
 
 ## Reporting Date Filters
 
-- `start_date` and `end_date` are optional query params on the dashboard, attendance, and finance report endpoints.
-- If both are omitted, the reports use all-time behavior.
+- `date_preset` is supported on dashboard, attendance, and finance endpoints:
+  - `TODAY`
+  - `THIS_WEEK`
+  - `THIS_MONTH`
+  - `CUSTOM`
+- For `CUSTOM`, both `start_date` and `end_date` are required.
+- If no preset/range params are supplied, the reports use all-time behavior.
 - If `end_date` is supplied for finance reporting, balances are computed as of that cutoff date.
 - Member, household, group, attendance, and finance list endpoints also expose typed filter parameters in the schema for frontend consumers.

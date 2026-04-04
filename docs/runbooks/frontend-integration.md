@@ -77,6 +77,14 @@ Recommended values:
 
 Attendance and reporting are now intentionally general-purpose (non-Sunday-specialized). Event records and attendance summaries are surfaced uniformly across events pages, attendance pages, and reports.
 
+Reporting usage notes:
+- Reports now support practical date presets (`TODAY`, `THIS_WEEK`, `THIS_MONTH`, `CUSTOM`) for dashboard/attendance/finance reporting calls.
+- When `CUSTOM` is selected, frontend integrations must send both `start_date` and `end_date`.
+- Reporting payloads now include operational aggregates for:
+  - attendance trends (`attendance_trend`, `recent_service_events`, capture/coverage stats)
+  - group participation (`participation_rate_percent`, active-vs-unassigned member counts)
+  - finance period/category summaries (`period_breakdown`, `top_categories`, posted transaction counts)
+
 ## Staff lifecycle integration
 
 - Admin settings screen (`/settings/staff`) now includes:
