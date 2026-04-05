@@ -822,7 +822,7 @@ export function FinancePageScreen() {
             />
           )}
         </section>
-
+{/* 
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <div className="section-header">
             <div>
@@ -853,7 +853,7 @@ export function FinancePageScreen() {
               </div>
             </li>
           </ul>
-        </section>
+        </section> */}
 
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <div className="section-header">
@@ -895,7 +895,7 @@ export function FinancePageScreen() {
         reason="Use careful transaction descriptions and metadata updates for corrections. If a reversal workflow is needed, it requires a dedicated backend slice."
         title="Reversal and void workflow"
       />
-
+{/* 
       <FilterActionStrip
         actions={
           <button
@@ -1002,7 +1002,7 @@ export function FinancePageScreen() {
             />
           </label>
         }
-      />
+      /> */}
 
       {transactions.length === 0 ? (
         <EmptyState

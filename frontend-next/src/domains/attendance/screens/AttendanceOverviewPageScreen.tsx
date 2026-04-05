@@ -121,7 +121,7 @@ export function AttendanceOverviewPageScreen () {
         }
         title='Attendance'
       />
-
+{/* 
       <div className='grid gap-4 grid-cols-1 xl:grid-cols-2'>
         <section className='rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm'>
           <div className='section-header'>
@@ -183,7 +183,7 @@ export function AttendanceOverviewPageScreen () {
           </dl>
         </section>
       </div>
-
+ */}
       <div className='grid gap-4 grid-cols-1 xl:grid-cols-2'>
         {/* <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <div className="section-header">

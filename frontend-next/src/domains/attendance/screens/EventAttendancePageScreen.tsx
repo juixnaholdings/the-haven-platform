@@ -37,6 +37,7 @@ import {
   toIsoDateTime
 } from '@/lib/formatters'
 import { formatMemberName } from '@/lib/members'
+import Image from 'next/image'
 
 interface SummaryFormState {
   men_count: string
@@ -645,74 +646,77 @@ export function EventAttendancePageScreen () {
         >
           <FormSection title='Summary counts'>
             <div className=''>
-              <div className='flex justify-between'>
-                <div className='flex-1 flex-wrap w-[70%] items-start gap-2.5 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4'>
-                  <div className="flex gap-5 justify-between">
+              <div className='flex justify-between gap-5'>
+                <div className='flex-1 flex-wrap w-[60%] items-start gap-5 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4'>
+                  <div className='flex gap-5 justify-between'>
+                    <label className='field flex-1 w-1/3'>
+                      <span>Men</span>
+                      <input
+                        min='0'
+                        onChange={event =>
+                          setSummaryFormOverrides(current => ({
+                            ...current,
+                            men_count: event.target.value
+                          }))
+                        }
+                        type='number'
+                        value={summaryFormState.men_count}
+                      />
+                    </label>
 
-                  <label className='field flex-1 items-start w-1/2 gap-5'>
-                    <span>Men</span>
-                    <input
-                      min='0'
-                      onChange={event =>
-                        setSummaryFormOverrides(current => ({
-                          ...current,
-                          men_count: event.target.value
-                        }))
-                      }
-                      type='number'
-                      value={summaryFormState.men_count}
-                    />
-                  </label>
+                    <label className='field flex-1 w-1/3'>
+                      <span>Women</span>
+                      <input
+                        min='0'
+                        onChange={event =>
+                          setSummaryFormOverrides(current => ({
+                            ...current,
+                            women_count: event.target.value
+                          }))
+                        }
+                        type='number'
+                        value={summaryFormState.women_count}
+                      />
+                    </label>
+                  </div>
+                  <div className="flex gap-5 justify-between mt-5">
+                    <label className='field flex-1 w-1/3'>
+                      <span>Children</span>
+                      <input
+                        min='0'
+                        onChange={event =>
+                          setSummaryFormOverrides(current => ({
+                            ...current,
+                            children_count: event.target.value
+                          }))
+                        }
+                        type='number'
+                        value={summaryFormState.children_count}
+                      />
+                    </label>
 
-                  <label className='field flex-1 items-start w-1/2 gap-5'>
-                    <span>Women</span>
-                    <input
-                      min='0'
-                      onChange={event =>
-                        setSummaryFormOverrides(current => ({
-                          ...current,
-                          women_count: event.target.value
-                        }))
-                      }
-                      type='number'
-                      value={summaryFormState.women_count}
-                    />
-                  </label>
-                      </div>
-
-                  <label className='field flex-1 items-start w-1/2'>
-                    <span>Children</span>
-                    <input
-                      min='0'
-                      onChange={event =>
-                        setSummaryFormOverrides(current => ({
-                          ...current,
-                          children_count: event.target.value
-                        }))
-                      }
-                      type='number'
-                      value={summaryFormState.children_count}
-                    />
-                  </label>
-
-                  <label className='field'>
-                    <span>Visitors</span>
-                    <input
-                      min='0'
-                      onChange={event =>
-                        setSummaryFormOverrides(current => ({
-                          ...current,
-                          visitor_count: event.target.value
-                        }))
-                      }
-                      type='number'
-                      value={summaryFormState.visitor_count}
-                    />
-                  </label>
+                    <label className='field flex-1 w-1/3'>
+                      <span>Visitors</span>
+                      <input
+                        min='0'
+                        onChange={event =>
+                          setSummaryFormOverrides(current => ({
+                            ...current,
+                            visitor_count: event.target.value
+                          }))
+                        }
+                        type='number'
+                        value={summaryFormState.visitor_count}
+                      />
+                    </label>
+                  </div>
                 </div>
                 <div className='flex items-end rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4'>
-                  <dt>Derived total attendance</dt>
-                  <dd>{summaryPayload.total_count}</dd>
+                  <StatCard 
+                    label='Derived total attendance'
+                    value={summaryPayload.total_count}
+                    icon={<Image width="25" height="25" src="https://img.icons8.com/windows/32/conference-call.png" alt="conference-call" />}
+                  />  
                 </div>
               </div>
             </div>
