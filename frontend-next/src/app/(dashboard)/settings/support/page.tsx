@@ -2,65 +2,118 @@
 
 import Link from "next/link";
 
+import { PageHeader, StatusBadge } from "@/components";
+
+interface SupportLinkCard {
+  description: string;
+  href: string;
+  title: string;
+}
+
+const quickActions: SupportLinkCard[] = [
+  {
+    title: "Update profile details",
+    description: "Edit your personal profile information and contact details.",
+    href: "/settings/profile",
+  },
+  {
+    title: "Manage account credentials",
+    description: "Update account email and password preferences.",
+    href: "/settings/account",
+  },
+  {
+    title: "Review role assignments",
+    description: "Check role coverage and access expectations.",
+    href: "/settings/roles",
+  },
+];
+
 export default function SettingsSupportPage() {
   return (
-    <div className="space-y-6">
-      <section className="flex flex-wrap items-start justify-between gap-6 border-b border-slate-200/80 pb-5">
-        <div className="grid max-w-4xl gap-2">
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-amber-700/85">
-            Settings / support
-          </p>
-          <h1 className="text-[clamp(1.8rem,2.25vw,2.4rem)] font-semibold tracking-tight text-slate-900">
-            Help &amp; Support
-          </h1>
-          <p className="max-w-[72ch] text-sm text-slate-600">
-            Find quick guidance, account help, and who to contact when you need support.
-          </p>
+    <div className="page-stack">
+      <PageHeader
+        actions={
+          <div className="inline-actions">
+            <Link className="button button-secondary" href="/settings/account">
+              Manage account
+            </Link>
+            <a className="button button-primary" href="mailto:support@thehaven.local">
+              Contact support
+            </a>
+          </div>
+        }
+        description="Find quick guidance, account help routes, and the right support contact path."
+        eyebrow="Settings / support"
+        meta={
+          <>
+            <StatusBadge label="Self-service guidance" tone="info" />
+            <StatusBadge label="Email support" tone="success" />
+          </>
+        }
+        title="Help & Support"
+      />
+
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <h3>Quick help actions</h3>
+            <p className="muted-text">Start with these common support destinations.</p>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Link
-            className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2.5 font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-            href="/settings/account"
-          >
-            Manage account
-          </Link>
+
+        <div className="panel-grid">
+          {quickActions.map((quickAction) => (
+            <article className="panel" key={quickAction.href}>
+              <div className="panel-header">
+                <div>
+                  <h3>{quickAction.title}</h3>
+                  <p className="muted-text">{quickAction.description}</p>
+                </div>
+              </div>
+              <div className="inline-actions">
+                <Link className="button button-secondary" href={quickAction.href}>
+                  Open
+                </Link>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="grid gap-4 rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
-        <div className="mb-4 border-b border-slate-100 pb-4">
-          <h3 className="m-0 text-lg font-semibold tracking-tight text-slate-900">Quick help</h3>
-          <p className="mt-1 text-sm text-slate-600">
-            Start with these common support destinations.
-          </p>
+      <section className="panel">
+        <div className="panel-header">
+          <div>
+            <h3>Support expectations</h3>
+            <p className="muted-text">Use this flow to get faster help without routing delays.</p>
+          </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <Link
-            className="inline-flex items-center justify-center rounded-full border border-slate-200/80 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-            href="/settings/profile"
-          >
-            Update profile details
-          </Link>
-          <Link
-            className="inline-flex items-center justify-center rounded-full border border-slate-200/80 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-            href="/settings/account"
-          >
-            Change account credentials
-          </Link>
-          <Link
-            className="inline-flex items-center justify-center rounded-full border border-slate-200/80 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-            href="/settings/roles"
-          >
-            View role assignments
-          </Link>
-          <a
-            className="inline-flex items-center justify-center rounded-full border border-slate-200/80 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-            href="mailto:support@thehaven.local"
-          >
-            Contact support
-          </a>
-        </div>
+        <ul className="item-list">
+          <li className="item-row">
+            <div>
+              <strong>Account access issues</strong>
+              <span>Start with Manage account to confirm email and password updates.</span>
+            </div>
+          </li>
+          <li className="item-row">
+            <div>
+              <strong>Profile data updates</strong>
+              <span>Use Profile settings for name, contact, and personal detail corrections.</span>
+            </div>
+          </li>
+          <li className="item-row">
+            <div>
+              <strong>Permission or role questions</strong>
+              <span>Use Roles to verify expected access, then contact support if escalation is needed.</span>
+            </div>
+          </li>
+          <li className="item-row">
+            <div>
+              <strong>Need direct support</strong>
+              <span>Email <a className="auth-switch-link" href="mailto:support@thehaven.local">support@thehaven.local</a> with screenshots and error context.</span>
+            </div>
+          </li>
+        </ul>
       </section>
     </div>
   );

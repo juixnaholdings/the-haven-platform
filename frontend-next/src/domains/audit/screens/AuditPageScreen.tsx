@@ -263,13 +263,13 @@ export function AuditPageScreen() {
           value={targetTypeFilter === "all" ? "All targets" : targetTypeFilter}
         />
       </section>
-
+{/* 
       <BlockedFeatureCard
         description="Audit history now supports practical timeline and search filtering, but still does not include export pipelines or anomaly analytics."
         reason="This wave prioritizes practical operational traceability without building a heavyweight forensics subsystem."
         title="Forensics and export workflows"
         tone="info"
-      />
+      /> */}
 
       <section className="panel">
         <div className="filters-grid filters-grid-3">
@@ -411,7 +411,7 @@ export function AuditPageScreen() {
           title={hasFilters ? "No audit events matched the current filters" : "No audit events recorded yet"}
         />
       ) : (
-        <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.75fr)]">
+        <div className="grid gap-4 items-start grid-cols-1">
           <section className="panel">
             <EntityTable
               columns={[
@@ -485,7 +485,7 @@ export function AuditPageScreen() {
             />
           </section>
 
-          <aside className="space-y-4">
+          {/* <aside className="space-y-4">
             <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
               <div className="section-header">
                 <div>
@@ -509,11 +509,11 @@ export function AuditPageScreen() {
                 ))}
               </ul>
             </section>
-          </aside>
+          </aside> */}
         </div>
       )}
 
-      {selectedAuditEvent ? (
+      {/* {selectedAuditEvent ? (
         <section className="panel">
           <div className="panel-header">
             <div>
@@ -553,7 +553,7 @@ export function AuditPageScreen() {
             <pre className="panel-copy">{JSON.stringify(selectedAuditEvent.payload, null, 2)}</pre>
           </div>
         </section>
-      ) : null}
+      ) : null} */}
     </div>
   );
 }
