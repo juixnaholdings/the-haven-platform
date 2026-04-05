@@ -644,7 +644,7 @@ export function EventAttendancePageScreen () {
           }}
         >
           <FormSection title='Summary counts'>
-            <div className='grid gap-4 xl:grid-cols-3'>
+            <div className=''>
               <div className='flex justify-between'>
                 <div className='flex-1 w-[70%] items-start gap-2.5 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4'>
                   <label className='field'>
