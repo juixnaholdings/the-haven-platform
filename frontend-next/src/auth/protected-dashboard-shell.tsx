@@ -24,6 +24,7 @@ import type { OpsNotificationItem } from '@/domains/types'
 import { formatDateTime } from '@/lib/formatters'
 
 import { useSession } from './use-session'
+import { hasStaffOrAdminAccess } from './access'
 
 interface ProtectedDashboardShellProps {
   children: React.ReactNode
@@ -276,6 +277,7 @@ export function ProtectedDashboardShell ({
   const searchContainerRef = useRef<HTMLDivElement | null>(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
   const deferredSearchTerm = useDeferredValue(searchTerm.trim())
+  const hasElevatedAccessForSearch = hasStaffOrAdminAccess(user)
 
   const notificationsQuery = useQuery({
     enabled: isAuthenticated,
@@ -285,7 +287,11 @@ export function ProtectedDashboardShell ({
   })
 
   const globalSearchQuery = useQuery({
-    enabled: isAuthenticated && isSearchOpen && deferredSearchTerm.length >= 2,
+    enabled:
+      isAuthenticated &&
+      hasElevatedAccessForSearch &&
+      isSearchOpen &&
+      deferredSearchTerm.length >= 2,
     queryKey: ['global-search', deferredSearchTerm],
     queryFn: async () => {
       const [
@@ -345,6 +351,20 @@ export function ProtectedDashboardShell ({
     const nextPath = query ? `${pathname}?${query}` : pathname
     router.replace(`/login?next=${encodeURIComponent(nextPath)}`)
   }, [pathname, router, status])
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      return
+    }
+
+    if (hasStaffOrAdminAccess(user)) {
+      return
+    }
+
+    if (pathname !== '/dashboard') {
+      router.replace('/dashboard')
+    }
+  }, [isAuthenticated, pathname, router, user])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -449,15 +469,19 @@ export function ProtectedDashboardShell ({
     .map(namePart => namePart[0])
     .join('')
     .toUpperCase()
+  const hasElevatedAccess = hasStaffOrAdminAccess(user)
   const hasAuditAccess = Boolean(
-    user?.is_superuser ||
+    hasElevatedAccess &&
+      (user?.is_superuser ||
       user?.role_names?.some(
         roleName => roleName === 'Super Admin' || roleName === 'Church Admin'
-      )
+      ))
   )
   const visibleNavItems = useMemo(
     () =>
-      hasAuditAccess
+      !hasElevatedAccess
+        ? [navItems[0]]
+        : hasAuditAccess
         ? [
             ...navItems,
             {
@@ -475,7 +499,7 @@ export function ProtectedDashboardShell ({
             }
           ]
         : navItems,
-    [hasAuditAccess]
+    [hasAuditAccess, hasElevatedAccess]
   )
   const settingsNavItem =
     visibleNavItems.find(item => item.href === '/settings') ?? null
@@ -503,7 +527,9 @@ export function ProtectedDashboardShell ({
 
   const quickActionItems = useMemo<GlobalSearchItem[]>(
     () =>
-      hasAuditAccess
+      !hasElevatedAccess
+        ? []
+        : hasAuditAccess
         ? [
             ...globalQuickActions,
             {
@@ -514,7 +540,7 @@ export function ProtectedDashboardShell ({
             }
           ]
         : globalQuickActions,
-    [hasAuditAccess]
+    [hasAuditAccess, hasElevatedAccess]
   )
 
   const normalizedSearchTerm = deferredSearchTerm.toLowerCase()
@@ -566,7 +592,7 @@ export function ProtectedDashboardShell ({
       })
     }
 
-    if (!shouldFetchGlobalRecords) {
+    if (!hasElevatedAccess || !shouldFetchGlobalRecords) {
       return sections
     }
 
@@ -637,6 +663,7 @@ export function ProtectedDashboardShell ({
     globalSearchQuery.data?.members,
     globalSearchQuery.data?.serviceEvents,
     globalSearchQuery.data?.transactions,
+    hasElevatedAccess,
     navigationSearchItems,
     normalizedSearchTerm,
     quickActionItems,

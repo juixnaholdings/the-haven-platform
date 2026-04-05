@@ -8,6 +8,8 @@ import { ErrorState } from "@/components/ErrorState";
 import { LoadingState } from "@/components/LoadingState";
 import { StatCard } from "@/components/StatCard";
 import { ApiError } from "@/api/errors";
+import { hasStaffOrAdminAccess } from "@/auth/access";
+import { useSession } from "@/auth/use-session";
 import { attendanceApi } from "@/domains/attendance/api";
 import { CreateServiceEventModal, RecordAttendanceModal } from "@/domains/attendance/components";
 import { financeApi } from "@/domains/finance/api";
@@ -40,6 +42,7 @@ function getTodayIsoDate() {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { user } = useSession();
   const [dashboard, setDashboard] = useState<DashboardOverview | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
@@ -49,6 +52,7 @@ export default function DashboardPage() {
   const [isUpcomingEventsUnavailable, setIsUpcomingEventsUnavailable] = useState(false);
   const [recentTransactions, setRecentTransactions] = useState<TransactionListItem[]>([]);
   const [isRecentTransactionsUnavailable, setIsRecentTransactionsUnavailable] = useState(false);
+  const hasElevatedAccess = hasStaffOrAdminAccess(user);
 
   const attendanceBarRows = useMemo(() => {
     const sourceRows = [...dashboard?.attendance.recent_service_events ?? []]
@@ -166,8 +170,27 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    if (!hasElevatedAccess) {
+      return;
+    }
+
     void loadDashboardOverview();
-  }, [loadDashboardOverview]);
+  }, [hasElevatedAccess, loadDashboardOverview]);
+
+  if (!hasElevatedAccess) {
+    return (
+      <section className="grid min-h-[calc(100vh-8rem)] place-items-center px-6 py-8">
+        <div className="grid place-items-center gap-3 text-center">
+          <p className="m-0 text-base font-semibold text-slate-700">
+            Dashboard access is not available for your account yet.
+          </p>
+          <p className="m-0 text-sm text-slate-500">
+            Contact your administrator to request access.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   if (isLoading) {
     return <LoadingState title="Loading dashboard metrics..." />;
