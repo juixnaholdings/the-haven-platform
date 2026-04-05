@@ -1175,7 +1175,7 @@ export function ProtectedDashboardShell ({
                 aria-expanded={isProfileMenuOpen}
                 aria-haspopup='menu'
                 aria-label='Open profile menu'
-                className='inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-[#00a6fb]/40 bg-gradient-to-br from-white to-[#eff8ff] text-slate-700 shadow-sm transition hover:border-[#00a6fb]/70 focus:outline-none focus:ring-2 focus:ring-[#00a6fb]/35'
+                className='inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-[#00a6fb]/45 bg-gradient-to-br from-white via-white to-[#edf8ff] text-slate-700 shadow-sm transition hover:border-[#00a6fb]/70 hover:bg-[#f4fbff] focus:outline-none focus:ring-2 focus:ring-[#00a6fb]/35'
                 onClick={() => {
                   setIsProfileMenuOpen(current => !current)
                   setIsNotificationsMenuOpen(false)
@@ -1188,8 +1188,8 @@ export function ProtectedDashboardShell ({
                 </span>
               </button>
               {isProfileMenuOpen ? (
-                <div className='absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.16)]'>
-                  <div className='border-b border-slate-100 bg-slate-50/70 px-4 py-3'>
+                <div className='absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-[#bde8ff] bg-gradient-to-b from-[#f5fbff] via-white to-white shadow-[0_18px_48px_rgba(15,23,42,0.16)]'>
+                  <div className='border-b border-[#d7efff] bg-[#eff8ff]/65 px-4 py-3'>
                     <p className='truncate text-sm font-semibold text-slate-900'>
                       {displayName}
                     </p>
@@ -1197,23 +1197,23 @@ export function ProtectedDashboardShell ({
                       {user.email}
                     </p>
                   </div>
-                  <div className='py-2'>
+                  <div className='grid gap-1 p-2'>
                     <Link
-                      className='block px-4 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50 hover:text-slate-900'
+                      className='block rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-[#eef8ff] hover:text-slate-900'
                       href='/settings/profile'
                       onClick={() => setIsProfileMenuOpen(false)}
                     >
                       Profile
                     </Link>
                     <Link
-                      className='block px-4 py-2.5 text-sm text-slate-700 transition hover:bg-slate-50 hover:text-slate-900'
+                      className='block rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-[#eef8ff] hover:text-slate-900'
                       href='/settings/account'
                       onClick={() => setIsProfileMenuOpen(false)}
                     >
                       Manage account
                     </Link>
                     <button
-                      className='block w-full px-4 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50'
+                      className='w-full rounded-xl border border-transparent px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:border-red-100 hover:bg-red-50/80 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-200/70'
                       onClick={() => {
                         void handleLogout()
                       }}
