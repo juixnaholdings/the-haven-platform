@@ -430,6 +430,55 @@ class SettingsApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data["status"], "error")
 
+    def test_non_admin_staff_user_cannot_read_settings_admin_endpoints(self):
+        self.client.force_authenticate(user=self.staff_user)
+
+        for endpoint in (
+            "/api/settings/staff-users/",
+            "/api/settings/roles/",
+            "/api/settings/basic-users/",
+            "/api/settings/staff-invites/",
+        ):
+            with self.subTest(endpoint=endpoint):
+                response = self.client.get(endpoint)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+                self.assertEqual(response.data["status"], "error")
+
+    def test_permission_only_staff_user_cannot_write_settings_admin_endpoints(self):
+        permission_only_user = User.objects.create_user(
+            username="permissionstaff",
+            email="permissionstaff@example.com",
+            password="StrongPass123",
+            is_staff=True,
+        )
+        permission_only_user.user_permissions.add(
+            Permission.objects.get(codename="add_user", content_type__app_label="users"),
+            Permission.objects.get(codename="change_user", content_type__app_label="users"),
+            Permission.objects.get(codename="change_group", content_type__app_label="auth"),
+        )
+        self.client.force_authenticate(user=permission_only_user)
+
+        create_staff_response = self.client.post(
+            "/api/settings/staff-users/",
+            {
+                "username": "restrictedstaff",
+                "email": "restrictedstaff@example.com",
+                "password": "StrongPass123",
+                "role_ids": [self.finance_secretary_group.id],
+            },
+            format="json",
+        )
+        self.assertEqual(create_staff_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(create_staff_response.data["status"], "error")
+
+        elevate_response = self.client.post(
+            f"/api/settings/basic-users/{self.regular_user.id}/elevate/",
+            {"role_ids": [self.finance_secretary_group.id], "is_active": True},
+            format="json",
+        )
+        self.assertEqual(elevate_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(elevate_response.data["status"], "error")
+
     def test_staff_users_returns_role_aware_staff_directory(self):
         self.client.force_authenticate(user=self.admin_user)
 

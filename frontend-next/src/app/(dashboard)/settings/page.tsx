@@ -2,16 +2,9 @@
 
 import Link from "next/link";
 
+import { hasSettingsAdminAccess } from "@/auth/access";
 import { useSession } from "@/auth/use-session";
 import { PageHeader, StatusBadge } from "@/components";
-
-function hasSettingsAdminAccess(roleNames: string[], isSuperuser: boolean): boolean {
-  if (isSuperuser) {
-    return true;
-  }
-
-  return roleNames.some((roleName) => roleName === "Super Admin" || roleName === "Church Admin");
-}
 
 interface SettingsLinkCard {
   description: string;
@@ -53,8 +46,7 @@ const adminSettingsLinks: SettingsLinkCard[] = [
 
 export default function SettingsLandingPage() {
   const { user } = useSession();
-  const roleNames = user?.role_names ?? [];
-  const isSettingsAdmin = hasSettingsAdminAccess(roleNames, Boolean(user?.is_superuser));
+  const isSettingsAdmin = hasSettingsAdminAccess(user);
 
   return (
     <div className="page-stack">

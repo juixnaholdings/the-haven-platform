@@ -24,7 +24,7 @@ import type { OpsNotificationItem } from '@/domains/types'
 import { formatDateTime } from '@/lib/formatters'
 
 import { useSession } from './use-session'
-import { hasStaffOrAdminAccess } from './access'
+import { hasSettingsAdminAccess, hasStaffOrAdminAccess } from './access'
 
 interface ProtectedDashboardShellProps {
   children: React.ReactNode
@@ -229,6 +229,17 @@ const unreadDotToneClassMap: Record<
   info: 'bg-[#16335f]',
   success: 'bg-emerald-500'
 }
+const basicUserAllowedPaths = new Set([
+  '/dashboard',
+  '/settings',
+  '/settings/profile',
+  '/settings/account',
+  '/settings/support'
+])
+
+function isBasicUserPathAllowed (pathname: string) {
+  return basicUserAllowedPaths.has(pathname)
+}
 
 function getDisplayName (
   user: NonNullable<ReturnType<typeof useSession>['user']>
@@ -361,7 +372,12 @@ export function ProtectedDashboardShell ({
       return
     }
 
-    if (pathname !== '/dashboard') {
+    if (!isBasicUserPathAllowed(pathname)) {
+      if (pathname.startsWith('/settings')) {
+        router.replace('/settings')
+        return
+      }
+
       router.replace('/dashboard')
     }
   }, [isAuthenticated, pathname, router, user])
@@ -470,17 +486,12 @@ export function ProtectedDashboardShell ({
     .join('')
     .toUpperCase()
   const hasElevatedAccess = hasStaffOrAdminAccess(user)
-  const hasAuditAccess = Boolean(
-    hasElevatedAccess &&
-      (user?.is_superuser ||
-      user?.role_names?.some(
-        roleName => roleName === 'Super Admin' || roleName === 'Church Admin'
-      ))
-  )
+  const hasSettingsAdminPrivileges = hasSettingsAdminAccess(user)
+  const hasAuditAccess = Boolean(hasElevatedAccess && hasSettingsAdminPrivileges)
   const visibleNavItems = useMemo(
     () =>
       !hasElevatedAccess
-        ? [navItems[0]]
+        ? navItems.filter(item => item.href === '/dashboard' || item.href === '/settings')
         : hasAuditAccess
         ? [
             ...navItems,
@@ -685,6 +696,10 @@ export function ProtectedDashboardShell ({
 
   if (!isAuthenticated || !user) {
     return <LoadingState title='Redirecting to sign in...' />
+  }
+
+  if (!hasElevatedAccess && !isBasicUserPathAllowed(pathname)) {
+    return <LoadingState title='Loading...' />
   }
 
   async function handleLogout () {

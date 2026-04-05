@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { hasSettingsAdminAccess } from "@/auth/access";
+import { useSession } from "@/auth/use-session";
 import { PageHeader, StatusBadge } from "@/components";
 
 interface SupportLinkCard {
@@ -10,7 +12,7 @@ interface SupportLinkCard {
   title: string;
 }
 
-const quickActions: SupportLinkCard[] = [
+const personalQuickActions: SupportLinkCard[] = [
   {
     title: "Update profile details",
     description: "Edit your personal profile information and contact details.",
@@ -21,14 +23,21 @@ const quickActions: SupportLinkCard[] = [
     description: "Update account email and password preferences.",
     href: "/settings/account",
   },
-  {
-    title: "Review role assignments",
-    description: "Check role coverage and access expectations.",
-    href: "/settings/roles",
-  },
 ];
 
+const adminQuickAction: SupportLinkCard = {
+  title: "Review role assignments",
+  description: "Check role coverage and access expectations.",
+  href: "/settings/roles",
+};
+
 export default function SettingsSupportPage() {
+  const { user } = useSession();
+  const isSettingsAdmin = hasSettingsAdminAccess(user);
+  const quickActions = isSettingsAdmin
+    ? [...personalQuickActions, adminQuickAction]
+    : personalQuickActions;
+
   return (
     <div className="page-stack">
       <PageHeader
@@ -101,12 +110,21 @@ export default function SettingsSupportPage() {
               <span>Use Profile settings for name, contact, and personal detail corrections.</span>
             </div>
           </li>
-          <li className="item-row">
-            <div>
-              <strong>Permission or role questions</strong>
-              <span>Use Roles to verify expected access, then contact support if escalation is needed.</span>
-            </div>
-          </li>
+          {isSettingsAdmin ? (
+            <li className="item-row">
+              <div>
+                <strong>Permission or role questions</strong>
+                <span>Use Roles to verify expected access, then contact support if escalation is needed.</span>
+              </div>
+            </li>
+          ) : (
+            <li className="item-row">
+              <div>
+                <strong>Permission or role questions</strong>
+                <span>Contact your administrator for role-related access requests and escalation support.</span>
+              </div>
+            </li>
+          )}
           <li className="item-row">
             <div>
               <strong>Need direct support</strong>
