@@ -174,14 +174,6 @@ export function EventDetailPageScreen() {
         title={serviceEvent.title}
       />
 
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Service date" tone="accent" value={formatDate(serviceEvent.service_date)} />
-        <StatCard label="Member records" value={serviceEvent.member_attendance_count} />
-        <StatCard label="Summary total" value={summaryTotal} />
-        <StatCard label="Attendance progress" value={`${serviceEvent.attendance_progress_percent}%`} />
-        <StatCard label="Attendance updated" value={formatDate(serviceEvent.attendance_last_updated_at)} />
-      </section>
-
       <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <div className="section-header">
@@ -247,7 +239,7 @@ export function EventDetailPageScreen() {
         <div className="section-header">
           <div>
             <h3>Notes</h3>
-            <p className="m-0 text-sm text-slate-500">Event-level notes only. Attendance notes are handled in the recording workflow.</p>
+            {/* <p className="m-0 text-sm text-slate-500">Event-level notes only. Attendance notes are handled in the recording workflow.</p> */}
           </div>
         </div>
         <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">{serviceEvent.notes || "No event notes recorded."}</p>

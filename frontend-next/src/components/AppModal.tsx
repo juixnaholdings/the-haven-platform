@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface AppModalProps {
   children: React.ReactNode;
@@ -54,11 +55,11 @@ export function AppModal({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) {
+  if (!isOpen || typeof document === "undefined") {
     return null;
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[80] overflow-y-auto overscroll-contain" role="presentation">
       <button
         aria-label="Close modal"
@@ -70,12 +71,13 @@ export function AppModal({
         <div
           aria-labelledby={labelledBy}
           aria-modal="true"
-          className={`relative my-3 w-full max-h-[calc(100dvh-2rem)] overflow-hidden rounded-3xl border border-slate-200/80 bg-[#fffdfa] shadow-[0_28px_68px_rgba(15,23,42,0.24)] sm:my-5 sm:max-h-[calc(100dvh-2.5rem)] ${shellSizeClassName}`}
+          className={`relative my-3 flex w-full max-h-[calc(100dvh-2rem)] min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-[#fffdfa] shadow-[0_28px_68px_rgba(15,23,42,0.24)] sm:my-5 sm:max-h-[calc(100dvh-2.5rem)] ${shellSizeClassName}`}
           role="dialog"
         >
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
