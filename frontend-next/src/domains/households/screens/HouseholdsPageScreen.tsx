@@ -98,6 +98,7 @@ export function HouseholdsPageScreen() {
     (count, household) => count + household.active_member_count,
     0,
   );
+  const isCreateSubmitDisabled = createHouseholdMutation.isPending || !formState.name.trim();
 
   return (
     <div className="space-y-6">
@@ -187,7 +188,7 @@ export function HouseholdsPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={createHouseholdMutation.isPending}
+              disabled={isCreateSubmitDisabled}
               form="create-household-modal-form"
               type="submit"
             >

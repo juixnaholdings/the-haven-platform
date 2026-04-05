@@ -360,6 +360,8 @@ export function EventAttendancePageScreen () {
   const memberAttendanceRecords = memberAttendanceQuery.data ?? []
   const summaryPayload = toSummaryPayload(summaryFormState)
   const hasSummary = Boolean(serviceEvent.attendance_summary)
+  const isAddMemberSubmitDisabled =
+    createMemberAttendanceMutation.isPending || !addFormState.member_id
 
   return (
     <div className='space-y-6'>
@@ -756,7 +758,7 @@ export function EventAttendancePageScreen () {
             </button>
             <button
               className='button button-primary'
-              disabled={createMemberAttendanceMutation.isPending}
+              disabled={isAddMemberSubmitDisabled}
               form='add-member-attendance-modal-form'
               type='submit'
             >

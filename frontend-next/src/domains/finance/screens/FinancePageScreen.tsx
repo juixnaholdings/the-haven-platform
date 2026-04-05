@@ -252,6 +252,26 @@ export function FinancePageScreen() {
   const activeFundCount = fundAccounts.filter((fundAccount) => fundAccount.is_active).length;
   const canRecordEntry = fundAccounts.length > 0;
   const canRecordTransfer = fundAccounts.length > 1;
+  const hasEntryRequiredFields = (formState: EntryFormState) =>
+    Boolean(formState.fund_account_id) &&
+    Number(formState.amount) > 0 &&
+    Boolean(formState.transaction_date) &&
+    Boolean(formState.description.trim());
+  const hasTransferRequiredFields = (formState: TransferFormState) =>
+    Boolean(formState.source_fund_account_id) &&
+    Boolean(formState.destination_fund_account_id) &&
+    formState.source_fund_account_id !== formState.destination_fund_account_id &&
+    Number(formState.amount) > 0 &&
+    Boolean(formState.transaction_date) &&
+    Boolean(formState.description.trim());
+  const isIncomeSubmitDisabled =
+    incomeMutation.isPending || !hasEntryRequiredFields(incomeFormState);
+  const isExpenseSubmitDisabled =
+    expenseMutation.isPending || !hasEntryRequiredFields(expenseFormState);
+  const isTransferSubmitDisabled =
+    transferMutation.isPending ||
+    !isTransferConfirmed ||
+    !hasTransferRequiredFields(transferFormState);
   const latestTransaction = [...transactions].sort((left, right) => right.posted_at.localeCompare(left.posted_at))[0];
 
   if (!financeSummary) {
@@ -435,7 +455,7 @@ export function FinancePageScreen() {
           <ErrorAlert error={incomeMutation.error} fallbackMessage="Income could not be recorded." />
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <button className="button button-primary" disabled={incomeMutation.isPending} type="submit">
+            <button className="button button-primary" disabled={isIncomeSubmitDisabled} type="submit">
               {incomeMutation.isPending ? "Saving..." : "Record income"}
             </button>
             <button
@@ -579,7 +599,7 @@ export function FinancePageScreen() {
           <ErrorAlert error={expenseMutation.error} fallbackMessage="Expense could not be recorded." />
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <button className="button button-primary" disabled={expenseMutation.isPending} type="submit">
+            <button className="button button-primary" disabled={isExpenseSubmitDisabled} type="submit">
               {expenseMutation.isPending ? "Saving..." : "Record expense"}
             </button>
             <button
@@ -757,7 +777,7 @@ export function FinancePageScreen() {
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               className="button button-primary"
-              disabled={transferMutation.isPending || !isTransferConfirmed}
+              disabled={isTransferSubmitDisabled}
               type="submit"
             >
               {transferMutation.isPending ? "Saving..." : "Record transfer"}

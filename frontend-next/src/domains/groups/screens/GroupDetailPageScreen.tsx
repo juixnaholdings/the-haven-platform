@@ -257,6 +257,8 @@ export function GroupDetailPageScreen() {
   const group = groupQuery.data;
   const activeMembershipCount = group.memberships.filter((membership) => membership.is_active).length;
   const inactiveMembershipCount = group.memberships.length - activeMembershipCount;
+  const isUpdateGroupSubmitDisabled = updateGroupMutation.isPending || !groupFormState.name.trim();
+  const isAddMemberSubmitDisabled = addMemberMutation.isPending || !addMemberFormState.member_id;
 
   return (
     <div className="space-y-6">
@@ -366,7 +368,7 @@ export function GroupDetailPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={updateGroupMutation.isPending}
+              disabled={isUpdateGroupSubmitDisabled}
               form="group-edit-form"
               type="submit"
             >
@@ -639,7 +641,7 @@ export function GroupDetailPageScreen() {
         />
 
         <div className="flex flex-wrap items-center gap-2.5">
-          <button className="button button-primary" disabled={addMemberMutation.isPending} type="submit">
+          <button className="button button-primary" disabled={isAddMemberSubmitDisabled} type="submit">
             {addMemberMutation.isPending ? "Adding..." : "Add member"}
           </button>
           <button

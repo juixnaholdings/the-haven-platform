@@ -186,6 +186,7 @@ export function TransactionDetailPageScreen() {
     formState.service_event_id !== baseMetadataForm.service_event_id;
   const hasLineChanges = lineUpdates.length > 0;
   const hasPendingChanges = hasMetadataChanges || hasLineChanges;
+  const hasRequiredMetadata = Boolean(formState.transaction_date) && Boolean(formState.description.trim());
   const closeMetadataModal = () => {
     setFormOverrides({});
     setLineDrafts({});
@@ -462,6 +463,7 @@ export function TransactionDetailPageScreen() {
                     description: event.target.value,
                   }))
                 }
+                required
                 rows={4}
                 value={formState.description}
               />
@@ -556,7 +558,12 @@ export function TransactionDetailPageScreen() {
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               className="button button-primary"
-              disabled={updateMutation.isPending || !hasPendingChanges || !isMetadataUpdateConfirmed}
+              disabled={
+                updateMutation.isPending ||
+                !hasPendingChanges ||
+                !isMetadataUpdateConfirmed ||
+                !hasRequiredMetadata
+              }
               type="submit"
             >
               {updateMutation.isPending ? "Saving..." : "Save metadata changes"}

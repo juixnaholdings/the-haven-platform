@@ -295,6 +295,9 @@ export function HouseholdDetailPageScreen() {
   const headCount = household.members.filter(
     (membership) => membership.is_head && membership.is_active,
   ).length;
+  const isUpdateHouseholdSubmitDisabled =
+    updateHouseholdMutation.isPending || !householdFormState.name.trim();
+  const isAddMemberSubmitDisabled = addMemberMutation.isPending || !addMemberFormState.member_id;
 
   return (
     <div className="space-y-6">
@@ -523,7 +526,7 @@ export function HouseholdDetailPageScreen() {
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               className="button button-primary"
-              disabled={updateHouseholdMutation.isPending}
+              disabled={isUpdateHouseholdSubmitDisabled}
               type="submit"
             >
               {updateHouseholdMutation.isPending ? "Saving..." : "Save household changes"}
@@ -785,7 +788,7 @@ export function HouseholdDetailPageScreen() {
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             className="button button-primary"
-            disabled={addMemberMutation.isPending}
+            disabled={isAddMemberSubmitDisabled}
             type="submit"
           >
             {addMemberMutation.isPending ? "Adding..." : "Add member"}

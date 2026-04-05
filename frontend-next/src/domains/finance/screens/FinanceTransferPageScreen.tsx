@@ -82,6 +82,15 @@ export function FinanceTransferPageScreen() {
     (fundAccount) => String(fundAccount.id) === formState.destination_fund_account_id,
   );
   const parsedAmount = Number(formState.amount || "0");
+  const hasTransferRequiredFields =
+    Boolean(formState.source_fund_account_id) &&
+    Boolean(formState.destination_fund_account_id) &&
+    formState.source_fund_account_id !== formState.destination_fund_account_id &&
+    parsedAmount > 0 &&
+    Boolean(formState.transaction_date) &&
+    Boolean(formState.description.trim());
+  const isTransferSubmitDisabled =
+    transferMutation.isPending || !isTransferConfirmed || !hasTransferRequiredFields;
 
   if (fundAccountsQuery.isLoading || serviceEventsQuery.isLoading) {
     return (
@@ -313,7 +322,7 @@ export function FinanceTransferPageScreen() {
             <div className="flex flex-wrap items-center gap-2.5">
               <button
                 className="button button-primary"
-                disabled={transferMutation.isPending || !isTransferConfirmed}
+                disabled={isTransferSubmitDisabled}
                 type="submit"
               >
                 {transferMutation.isPending ? "Saving..." : "Record transfer"}

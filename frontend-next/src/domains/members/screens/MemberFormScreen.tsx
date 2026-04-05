@@ -114,6 +114,7 @@ export function MemberFormScreen({
     }),
     [baseFormState, formOverrides],
   );
+  const isSubmitGuarded = !formState.first_name.trim() || !formState.last_name.trim();
 
   const saveMemberMutation = useMutation({
     mutationFn: async (payload: MemberWritePayload) => {
@@ -338,7 +339,11 @@ export function MemberFormScreen({
 
       {!isModal ? (
         <div className="flex flex-wrap items-center gap-2.5">
-          <button className="button button-primary" disabled={saveMemberMutation.isPending} type="submit">
+          <button
+            className="button button-primary"
+            disabled={saveMemberMutation.isPending || isSubmitGuarded}
+            type="submit"
+          >
             {saveMemberMutation.isPending ? "Saving..." : isEdit ? "Save changes" : "Create member"}
           </button>
           <button className="button button-secondary" onClick={handleCancel} type="button">
@@ -361,7 +366,7 @@ export function MemberFormScreen({
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               className="button button-primary"
-              disabled={saveMemberMutation.isPending}
+              disabled={saveMemberMutation.isPending || isSubmitGuarded}
               form={formId}
               type="submit"
             >

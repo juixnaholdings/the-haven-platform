@@ -426,6 +426,20 @@ export function SettingsStaffPageScreen() {
   const acceptedInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "ACCEPTED").length;
   const revokedInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "REVOKED").length;
   const expiredInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "EXPIRED").length;
+  const isInviteSubmitDisabled =
+    createStaffInviteMutation.isPending ||
+    !inviteFormState.email.trim() ||
+    inviteFormState.expires_in_days < 1 ||
+    inviteFormState.expires_in_days > 30;
+  const isCreateStaffSubmitDisabled =
+    createStaffUserMutation.isPending ||
+    !createFormState.username.trim() ||
+    !createFormState.email.trim() ||
+    createFormState.password.length < 8;
+  const isUpdateStaffSubmitDisabled =
+    updateStaffUserMutation.isPending || !updateFormValues.email.trim();
+  const isElevationSubmitDisabled =
+    elevateBasicUserMutation.isPending || elevationFormState.role_ids.length === 0;
 
   return (
     <div className="page-stack">
@@ -488,7 +502,7 @@ export function SettingsStaffPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={createStaffInviteMutation.isPending}
+              disabled={isInviteSubmitDisabled}
               form="staff-invite-form"
               type="submit"
             >
@@ -830,7 +844,7 @@ export function SettingsStaffPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={createStaffUserMutation.isPending}
+              disabled={isCreateStaffSubmitDisabled}
               form="staff-create-form"
               type="submit"
             >
@@ -1168,7 +1182,7 @@ export function SettingsStaffPageScreen() {
             <div className="inline-actions">
               <button
                 className="button button-primary"
-                disabled={updateStaffUserMutation.isPending}
+                disabled={isUpdateStaffSubmitDisabled}
                 type="submit"
               >
                 {updateStaffUserMutation.isPending ? "Saving..." : "Save staff user"}
@@ -1216,7 +1230,7 @@ export function SettingsStaffPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={elevateBasicUserMutation.isPending}
+              disabled={isElevationSubmitDisabled}
               form="basic-user-elevation-form"
               type="submit"
             >

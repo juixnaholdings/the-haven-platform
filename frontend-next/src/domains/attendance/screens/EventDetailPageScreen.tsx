@@ -139,6 +139,8 @@ export function EventDetailPageScreen() {
 
   const serviceEvent = serviceEventQuery.data;
   const summaryTotal = serviceEvent.attendance_summary?.total_count ?? 0;
+  const isEventSubmitDisabled =
+    updateServiceEventMutation.isPending || !formState.title.trim() || !formState.service_date;
 
   return (
     <div className="space-y-6">
@@ -258,7 +260,7 @@ export function EventDetailPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={updateServiceEventMutation.isPending}
+              disabled={isEventSubmitDisabled}
               form="update-event-modal-form"
               type="submit"
             >

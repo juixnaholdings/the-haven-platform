@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown>(null);
+  const isSubmitGuarded = !identifier.trim() || !password;
   const nextPath =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("next") || "/dashboard"
@@ -72,12 +73,16 @@ export default function LoginPage() {
               />
             </label>
 
-            <button className="button button-primary button-block" disabled={isSubmitting || isBootstrapping} type="submit">
+            <button
+              className="button button-primary button-block"
+              disabled={isSubmitting || isBootstrapping || isSubmitGuarded}
+              type="submit"
+            >
               {isSubmitting ? "Signing in..." : "Sign in"}
             </button>
           </form>
 
-          <ErrorAlert error={submitError} fallbackMessage="Server Error. Please Try Again." />
+          <ErrorAlert error={submitError} fallbackMessage="Sign In Failed" />
           <p className="m-0 text-sm text-slate-500">
             New to The Haven?{" "}
             <Link className="font-semibold text-[#16335f] hover:underline" href="/signup">

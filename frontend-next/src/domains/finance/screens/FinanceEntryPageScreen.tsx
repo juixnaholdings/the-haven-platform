@@ -91,7 +91,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
   const highlightedFunds = [...fundAccounts].slice(0, 2);
   const hasPreparedForm =
     Boolean(formState.fund_account_id) &&
-    Boolean(formState.amount) &&
+    Number(formState.amount) > 0 &&
     Boolean(formState.transaction_date) &&
     Boolean(formState.description.trim());
 
@@ -306,7 +306,11 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
             />
 
             <div className="flex flex-wrap items-center gap-2.5">
-              <button className="button button-primary" disabled={submitMutation.isPending} type="submit">
+              <button
+                className="button button-primary"
+                disabled={submitMutation.isPending || !hasPreparedForm}
+                type="submit"
+              >
                 {submitMutation.isPending ? "Saving..." : submitLabel}
               </button>
               <button className="button button-secondary" onClick={() => setFormState(emptyFormState)} type="button">
