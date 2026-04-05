@@ -890,8 +890,8 @@ export function ProtectedDashboardShell ({
                     </svg>
                   </button>
                 ) : (
-                  <span className='text-[11px] font-medium text-slate-400'>
-                    Ctrl/Cmd + K
+                  <span className='text-[10px] font-medium text-slate-400'>
+                    Ctrl+K
                   </span>
                 )}
               </div>
@@ -1030,8 +1030,8 @@ export function ProtectedDashboardShell ({
               </button>
 
               {isNotificationsMenuOpen ? (
-                <div className='absolute right-0 z-50 mt-2 w-[22rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.16)]'>
-                  <div className='flex items-center justify-between border-b border-slate-100 px-4 py-3'>
+                <div className='absolute right-0 z-50 mt-2 w-[22rem] overflow-hidden rounded-2xl border border-[#bde8ff] bg-gradient-to-b from-[#f5fbff] via-white to-white shadow-[0_18px_48px_rgba(15,23,42,0.16)]'>
+                  <div className='flex items-center justify-between border-b border-[#d7efff] bg-[#eff8ff]/65 px-4 py-3'>
                     <div>
                       <p className='text-sm font-semibold text-slate-900'>
                         Notifications
@@ -1043,7 +1043,7 @@ export function ProtectedDashboardShell ({
                       </p>
                     </div>
                     <button
-                      className='text-xs font-medium text-[#16335f] transition hover:text-[#0f2443] disabled:cursor-not-allowed disabled:opacity-40'
+                      className='button button-ghost button-compact border-[#9ddfff] bg-[#eaf8ff] text-[#0077b8] disabled:cursor-not-allowed disabled:opacity-40'
                       disabled={unreadNotificationsCount === 0}
                       onClick={handleMarkAllNotificationsRead}
                       type='button'
@@ -1057,12 +1057,12 @@ export function ProtectedDashboardShell ({
                       Loading reminders...
                     </p>
                   ) : notificationsQuery.error ? (
-                    <div className='space-y-2 px-4 py-5'>
+                    <div className='space-y-3 px-4 py-5'>
                       <p className='text-sm font-medium text-red-700'>
                         Notifications are unavailable right now.
                       </p>
                       <button
-                        className='text-xs font-medium text-[#16335f] transition hover:text-[#0f2443]'
+                        className='button button-secondary button-compact'
                         onClick={() => {
                           void notificationsQuery.refetch()
                         }}
@@ -1076,11 +1076,13 @@ export function ProtectedDashboardShell ({
                       <div className='max-h-80 overflow-y-auto'>
                         {notifications.map(notification => (
                           <div
-                            className='border-b border-slate-100 last:border-b-0'
+                            className={`border-b border-slate-100 last:border-b-0 ${
+                              notification.unread ? 'bg-[#f5fbff]/70' : ''
+                            }`}
                             key={notification.id}
                           >
                             <Link
-                              className='block px-4 py-3 transition hover:bg-slate-50'
+                              className='block px-4 py-3 transition hover:bg-[#eef8ff]'
                               href={notification.href}
                               onClick={() => {
                                 handleMarkNotificationRead(notification.id)
@@ -1113,7 +1115,7 @@ export function ProtectedDashboardShell ({
                             {notification.unread ? (
                               <div className='px-4 pb-3'>
                                 <button
-                                  className='text-xs font-medium text-[#16335f] transition hover:text-[#0f2443]'
+                                  className='button button-ghost button-compact border-[#9ddfff] bg-[#eaf8ff] text-[#0077b8]'
                                   onClick={() =>
                                     handleMarkNotificationRead(notification.id)
                                   }
@@ -1126,9 +1128,9 @@ export function ProtectedDashboardShell ({
                           </div>
                         ))}
                       </div>
-                      <div className='border-t border-slate-100 bg-slate-50/70 px-4 py-2.5'>
+                      <div className='border-t border-[#d7efff] bg-[#eff8ff]/65 px-4 py-2.5'>
                         <Link
-                          className='text-xs font-medium text-[#16335f] transition hover:text-[#0f2443]'
+                          className='button button-secondary button-compact'
                           href={hasAuditAccess ? '/audit' : '/settings/support'}
                           onClick={() => setIsNotificationsMenuOpen(false)}
                         >
