@@ -645,8 +645,8 @@ export function EventAttendancePageScreen () {
         >
           <FormSection title='Summary counts'>
             <div className='grid gap-4 xl:grid-cols-3'>
-              <div className='grid gap-4 md:grid-cols-2'>
-                <div cl>
+              <div className='flex justif'>
+                <div className='rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4'>
                   <label className='field'>
                     <span>Men</span>
                     <input
@@ -707,8 +707,7 @@ export function EventAttendancePageScreen () {
                     />
                   </label>
                 </div>
-                <div>
-                  
+                <div className='rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4'>
                   <div className='rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4'>
                     <dt>Derived total attendance</dt>
                     <dd>{summaryPayload.total_count}</dd>
