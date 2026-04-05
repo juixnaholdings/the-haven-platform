@@ -889,12 +889,12 @@ export function FinancePageScreen() {
           )}
         </section>
       </div>
-
+{/* 
       <BlockedFeatureCard
         description="The current finance contract does not expose reversal, void, or delete actions for posted transactions."
         reason="Use careful transaction descriptions and metadata updates for corrections. If a reversal workflow is needed, it requires a dedicated backend slice."
         title="Reversal and void workflow"
-      />
+      /> */}
 {/* 
       <FilterActionStrip
         actions={
