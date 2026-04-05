@@ -646,8 +646,10 @@ export function EventAttendancePageScreen () {
           <FormSection title='Summary counts'>
             <div className=''>
               <div className='flex justify-between'>
-                <div className='flex-1 w-[70%] items-start gap-2.5 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4'>
-                  <label className='field'>
+                <div className='flex-1 flex-wrap w-[70%] items-start gap-2.5 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4'>
+                  <div className="flex gap-5 justify-between">
+
+                  <label className='field flex-1 items-start w-1/2 gap-5'>
                     <span>Men</span>
                     <input
                       min='0'
@@ -662,7 +664,7 @@ export function EventAttendancePageScreen () {
                     />
                   </label>
 
-                  <label className='field'>
+                  <label className='field flex-1 items-start w-1/2 gap-5'>
                     <span>Women</span>
                     <input
                       min='0'
@@ -676,8 +678,9 @@ export function EventAttendancePageScreen () {
                       value={summaryFormState.women_count}
                     />
                   </label>
+                      </div>
 
-                  <label className='field'>
+                  <label className='field flex-1 items-start w-1/2'>
                     <span>Children</span>
                     <input
                       min='0'
