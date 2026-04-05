@@ -18,6 +18,7 @@ The old Vite app in `../frontend/` is kept only as a legacy snapshot for rollbac
 ## Primary routes
 
 - `/login`
+- `/signup`
 - `/dashboard`
 - `/members`, `/members/new`, `/members/:memberId`, `/members/:memberId/edit`
 - `/households`, `/households/:householdId`
@@ -36,6 +37,13 @@ From `frontend-next/`:
 ```bash
 npm install
 npm run dev
+```
+
+`npm run dev` is intentionally pinned to webpack mode for local stability on current Next 16 builds.
+If you need to test Turbopack explicitly, use:
+
+```bash
+npm run dev:turbo
 ```
 
 App URL:
@@ -57,9 +65,37 @@ npm run build
 npm run test:smoke
 ```
 
+## UI system conventions
+
+- Page-level screens use a shared `PageHeader` pattern:
+  - title + short supporting copy + right-side action area
+- List-heavy screens use the shared `FilterActionStrip`:
+  - left: search
+  - middle: supported filters
+  - right: primary reset/action control
+- Data tables and pagination use `EntityTable` + `PaginationControls` with the shared list-card styling.
+- Detail pages compose sections in this order:
+  - summary/metrics first
+  - metadata and related records next
+  - supporting and blocked-capability notes last
+- Status indicators should use `StatusBadge` tones for consistent cross-page state treatment.
+
+## Tailwind usage
+
+- Tailwind CSS is enabled in `frontend-next` and can be used directly in `className` strings.
+- To avoid disrupting the existing design system, preflight reset is intentionally disabled.
+- Use utility classes for incremental enhancements while preserving the shared CSS primitives.
+
 ## Caveats (intentional)
 
 - Role definitions remain read-only in product UI.
 - Staff invite lifecycle remains out of scope.
 - Audit is list-first and intentionally limited.
 - Finance reversal/void workflows remain out of scope.
+
+## Shell and form interaction rules
+
+- Sidebar is collapsible by default on desktop and uses drawer behavior on smaller screens.
+- Global settings entry lives in the top bar gear button (top-right).
+- Active navigation uses stronger visual emphasis than hover/inactive states.
+- Create/edit operational forms are modal-first where implemented (members list/detail), while route form pages remain as fallback paths.

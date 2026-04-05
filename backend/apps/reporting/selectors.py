@@ -1,6 +1,15 @@
 from decimal import Decimal
 
-from django.db.models import Avg, Count, DecimalField, ExpressionWrapper, F, Q, Sum, Value
+from django.db.models import (
+    Avg,
+    Count,
+    DecimalField,
+    ExpressionWrapper,
+    F,
+    Q,
+    Sum,
+    Value,
+)
 from django.db.models.functions import Coalesce
 
 from apps.attendance.models import AttendanceSummary, MemberAttendance, ServiceEvent
@@ -12,6 +21,15 @@ from apps.members.models import Member
 
 DECIMAL_OUTPUT_FIELD = DecimalField(max_digits=14, decimal_places=2)
 ZERO_DECIMAL = Value(Decimal("0.00"), output_field=DECIMAL_OUTPUT_FIELD)
+
+
+def _build_applied_range(*, filters: dict | None = None):
+    filters = filters or {}
+    return {
+        "date_preset": filters.get("date_preset"),
+        "start_date": filters.get("start_date"),
+        "end_date": filters.get("end_date"),
+    }
 
 
 def _apply_date_range(queryset, *, field_name: str, filters: dict | None = None):
@@ -97,14 +115,32 @@ def get_group_summary(*, filters: dict | None = None):
             distinct=True,
         )
     )
+    total_groups = Group.objects.count()
+    active_groups = Group.objects.filter(is_active=True).count()
+    members_with_active_group = (
+        Member.objects.filter(group_memberships__is_active=True).distinct().count()
+    )
+    total_members = Member.objects.count()
+    members_without_active_group = max(total_members - members_with_active_group, 0)
+    participation_rate_percent = (
+        round((members_with_active_group / total_members) * 100, 2)
+        if total_members
+        else 0.0
+    )
+    group_membership_counts = list(
+        groups_with_counts.order_by("name").values("id", "name", "active_membership_count")
+    )
 
     return {
-        "total_groups": Group.objects.count(),
-        "active_groups": Group.objects.filter(is_active=True).count(),
+        "total_groups": total_groups,
+        "active_groups": active_groups,
+        "inactive_groups": max(total_groups - active_groups, 0),
         "total_active_affiliations": GroupMembership.objects.filter(is_active=True).count(),
-        "group_membership_counts": list(
-            groups_with_counts.values("id", "name", "active_membership_count")
-        ),
+        "members_with_active_group": members_with_active_group,
+        "members_without_active_group": members_without_active_group,
+        "participation_rate_percent": participation_rate_percent,
+        "group_membership_counts": group_membership_counts,
+        "top_groups": group_membership_counts[:5],
     }
 
 
@@ -132,20 +168,86 @@ def get_attendance_summary(*, filters: dict | None = None):
         visitor_count=Sum("visitor_count"),
         total_count=Sum("total_count"),
     )
+    total_events = service_events.count()
+    events_with_summary = attendance_summaries.count()
+    aggregate_total_attendance = summary_totals["total_count"] or 0
+    total_member_attendance_records = member_attendances.count()
+
+    event_counts_by_date = {
+        row["service_date"]: row["event_count"]
+        for row in service_events.values("service_date")
+        .annotate(event_count=Count("id"))
+        .order_by("service_date")
+    }
+    summary_totals_by_date = {
+        row["service_event__service_date"]: row["attendance_total"]
+        for row in attendance_summaries.values("service_event__service_date")
+        .annotate(attendance_total=Coalesce(Sum("total_count"), Value(0)))
+        .order_by("service_event__service_date")
+    }
+    member_records_by_date = {
+        row["service_event__service_date"]: row["member_attendance_records"]
+        for row in member_attendances.values("service_event__service_date")
+        .annotate(member_attendance_records=Count("id"))
+        .order_by("service_event__service_date")
+    }
+    trend_dates = sorted(
+        {
+            *event_counts_by_date.keys(),
+            *summary_totals_by_date.keys(),
+            *member_records_by_date.keys(),
+        }
+    )
+    attendance_trend = [
+        {
+            "period_start": trend_date,
+            "period_end": trend_date,
+            "event_count": event_counts_by_date.get(trend_date, 0),
+            "attendance_total": summary_totals_by_date.get(trend_date, 0),
+            "member_attendance_records": member_records_by_date.get(trend_date, 0),
+        }
+        for trend_date in trend_dates
+    ]
+    recent_service_events = list(
+        service_events.annotate(
+            total_attendance=Coalesce(F("attendance_summary__total_count"), Value(0)),
+            member_attendance_count=Count("member_attendances", distinct=True),
+        )
+        .order_by("-service_date", "-id")
+        .values(
+            "id",
+            "title",
+            "event_type",
+            "service_date",
+            "total_attendance",
+            "member_attendance_count",
+        )[:5]
+    )
 
     return {
-        "total_events": service_events.count(),
+        "total_events": total_events,
+        "events_with_summary": events_with_summary,
+        "events_without_summary": max(total_events - events_with_summary, 0),
         "aggregate_men_count": summary_totals["men_count"] or 0,
         "aggregate_women_count": summary_totals["women_count"] or 0,
         "aggregate_children_count": summary_totals["children_count"] or 0,
         "aggregate_visitor_count": summary_totals["visitor_count"] or 0,
-        "aggregate_total_attendance": summary_totals["total_count"] or 0,
-        "total_member_attendance_records": member_attendances.count(),
+        "aggregate_total_attendance": aggregate_total_attendance,
+        "total_member_attendance_records": total_member_attendance_records,
+        "average_total_attendance_per_event": (
+            round(aggregate_total_attendance / total_events, 2) if total_events else 0.0
+        ),
+        "attendance_capture_rate_percent": (
+            round((events_with_summary / total_events) * 100, 2) if total_events else 0.0
+        ),
         "event_type_counts": list(
             service_events.values("event_type")
             .annotate(count=Count("id"))
             .order_by("event_type")
         ),
+        "attendance_trend": attendance_trend,
+        "recent_service_events": recent_service_events,
+        "applied_range": _build_applied_range(filters=filters),
     }
 
 
@@ -171,9 +273,67 @@ def get_finance_summary(*, filters: dict | None = None):
     ).aggregate(
         total=Sum("lines__amount", filter=Q(lines__direction=LedgerDirection.OUT))
     )["total"] or Decimal("0.00")
+    period_breakdown = []
+    for row in posted_transactions.values("transaction_date").annotate(
+        total_income=Coalesce(
+            Sum(
+                "lines__amount",
+                filter=Q(
+                    transaction_type=TransactionType.INCOME,
+                    lines__direction=LedgerDirection.IN,
+                ),
+            ),
+            ZERO_DECIMAL,
+        ),
+        total_expense=Coalesce(
+            Sum(
+                "lines__amount",
+                filter=Q(
+                    transaction_type=TransactionType.EXPENSE,
+                    lines__direction=LedgerDirection.OUT,
+                ),
+            ),
+            ZERO_DECIMAL,
+        ),
+        total_transfers=Coalesce(
+            Sum(
+                "lines__amount",
+                filter=Q(
+                    transaction_type=TransactionType.TRANSFER,
+                    lines__direction=LedgerDirection.OUT,
+                ),
+            ),
+            ZERO_DECIMAL,
+        ),
+    ).order_by("transaction_date"):
+        period_breakdown.append(
+            {
+                "period_start": row["transaction_date"],
+                "period_end": row["transaction_date"],
+                "total_income": row["total_income"],
+                "total_expense": row["total_expense"],
+                "total_transfers": row["total_transfers"],
+                "net_flow": row["total_income"] - row["total_expense"],
+            }
+        )
+
+    top_categories = list(
+        posted_transactions.filter(lines__category_name__gt="")
+        .values("lines__category_name")
+        .annotate(total_amount=Coalesce(Sum("lines__amount"), ZERO_DECIMAL))
+        .order_by("-total_amount", "lines__category_name")[:5]
+    )
+    top_categories = [
+        {
+            "category_name": row["lines__category_name"],
+            "total_amount": row["total_amount"],
+        }
+        for row in top_categories
+    ]
 
     return {
         "total_fund_accounts": FundAccount.objects.count(),
+        "total_posted_transactions": posted_transactions.count(),
         "balances_by_fund": list(
             fund_balances.values("id", "name", "code", "current_balance")
         ),
@@ -181,6 +341,9 @@ def get_finance_summary(*, filters: dict | None = None):
         "total_expense": total_expense,
         "total_transfers": total_transfers,
         "net_flow": total_income - total_expense,
+        "period_breakdown": period_breakdown,
+        "top_categories": top_categories,
+        "applied_range": _build_applied_range(filters=filters),
     }
 
 

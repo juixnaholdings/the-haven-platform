@@ -26,6 +26,13 @@ export interface StaffUserListItem extends User {
   date_joined: string;
 }
 
+export interface BasicUserListItem extends User {
+  full_name: string;
+  roles: UserRoleRef[];
+  last_login: string | null;
+  date_joined: string;
+}
+
 export interface StaffUserCreatePayload {
   username: string;
   email: string;
@@ -44,6 +51,69 @@ export interface StaffUserUpdatePayload {
   role_ids?: number[];
 }
 
+export interface BasicUserElevationPayload {
+  role_ids: number[];
+  is_active?: boolean;
+}
+
+export type StaffInviteLifecycleStatus = "PENDING" | "ACCEPTED" | "REVOKED" | "EXPIRED";
+
+export interface StaffInviteAcceptedUserRef {
+  id: number;
+  username: string;
+  email: string;
+}
+
+export interface StaffInviteListItem {
+  id: number;
+  email: string;
+  status: StaffInviteLifecycleStatus;
+  expires_at: string;
+  accepted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  invited_by_username: string;
+  accepted_user: StaffInviteAcceptedUserRef | null;
+  role_names: string[];
+  roles: UserRoleRef[];
+  invite_path: string;
+  is_expired: boolean;
+}
+
+export interface StaffInviteCreatePayload {
+  email: string;
+  role_ids: number[];
+  expires_in_days?: number;
+}
+
+export interface StaffInviteResendPayload {
+  expires_in_days?: number;
+}
+
+export interface StaffInviteListFilters {
+  status?: StaffInviteLifecycleStatus;
+  search?: string;
+  include_expired?: boolean;
+}
+
+export interface StaffInviteValidationResponse {
+  id: number;
+  email: string;
+  status: StaffInviteLifecycleStatus;
+  expires_at: string;
+  role_names: string[];
+  invite_is_active: boolean;
+}
+
+export interface StaffInviteAcceptPayload {
+  token: string;
+  username: string;
+  first_name?: string;
+  last_name?: string;
+  password: string;
+  confirm_password: string;
+}
+
 export interface RolePermissionSummary {
   id: number;
   app_label: string;
@@ -60,13 +130,34 @@ export interface RoleSummary {
 }
 
 export interface LoginPayload {
-  username: string;
+  identifier: string;
   password: string;
 }
 
 export interface LoginResponse {
   user: User;
   tokens: AuthTokens;
+}
+
+export interface SignupPayload {
+  username: string;
+  email: string;
+  password: string;
+  confirm_password: string;
+}
+
+export interface SignupResponse {
+  user: User;
+}
+
+export interface UsernameAvailabilityResponse {
+  username: string;
+  available: boolean;
+}
+
+export interface EmailAvailabilityResponse {
+  email: string;
+  available: boolean;
 }
 
 export interface PaginationParams {
@@ -142,6 +233,17 @@ export interface MemberAttendanceSummary {
   last_attended_on: string | null;
 }
 
+export interface MemberRecentAttendanceRecord {
+  id: number;
+  service_event_id: number;
+  service_event_title: string;
+  service_event_type: string;
+  service_date: string;
+  status: string;
+  checked_in_at: string | null;
+  updated_at: string;
+}
+
 export interface MemberDetail extends MemberListItem {
   date_of_birth: string | null;
   notes: string;
@@ -149,6 +251,7 @@ export interface MemberDetail extends MemberListItem {
   household_memberships: MemberHouseholdMembership[];
   group_memberships: MemberGroupMembership[];
   attendance_summary: MemberAttendanceSummary;
+  recent_attendance_records: MemberRecentAttendanceRecord[];
   created_at: string;
   updated_at: string;
 }
@@ -359,6 +462,11 @@ export interface ServiceEventListItem {
   is_active: boolean;
   member_attendance_count: number;
   has_attendance_summary: boolean;
+  attendance_progress_status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  attendance_progress_label: string;
+  attendance_progress_percent: number;
+  attendance_is_complete: boolean;
+  attendance_last_updated_at: string | null;
 }
 
 export interface ServiceEventDetail {
@@ -373,6 +481,13 @@ export interface ServiceEventDetail {
   is_active: boolean;
   attendance_summary: AttendanceSummary | null;
   member_attendances: MemberAttendance[];
+  member_attendance_count: number;
+  has_attendance_summary: boolean;
+  attendance_progress_status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  attendance_progress_label: string;
+  attendance_progress_percent: number;
+  attendance_is_complete: boolean;
+  attendance_last_updated_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -402,6 +517,7 @@ export interface MemberAttendanceListFilters {
 }
 
 export interface ReportingDateRange {
+  date_preset?: "TODAY" | "THIS_WEEK" | "THIS_MONTH" | "CUSTOM";
   start_date?: string;
   end_date?: string;
 }
@@ -450,9 +566,16 @@ export interface TransactionLine {
   notes: string;
 }
 
+export interface TransactionLineMetadataUpdate {
+  id: number;
+  category_name?: string;
+  notes?: string;
+}
+
 export interface TransactionListItem {
   id: number;
   reference_no: string;
+  external_reference: string;
   transaction_type: string;
   transaction_date: string;
   description: string;
@@ -462,11 +585,14 @@ export interface TransactionListItem {
   line_count: number;
   total_in_amount: string;
   total_out_amount: string;
+  primary_category: string;
+  has_line_notes: boolean;
 }
 
 export interface TransactionDetail {
   id: number;
   reference_no: string;
+  external_reference: string;
   transaction_type: string;
   transaction_date: string;
   description: string;
@@ -474,6 +600,8 @@ export interface TransactionDetail {
   posted_at: string;
   total_in_amount: string;
   total_out_amount: string;
+  primary_category: string;
+  has_line_notes: boolean;
   lines: TransactionLine[];
   created_at: string;
   updated_at: string;
@@ -482,6 +610,7 @@ export interface TransactionDetail {
 export interface TransactionListFilters extends PaginationParams {
   search?: string;
   transaction_type?: string;
+  category_name?: string;
   fund_account_id?: number;
   service_event_id?: number | null;
   transaction_date_from?: string;
@@ -493,6 +622,7 @@ export interface IncomeTransactionPayload {
   amount: string | number;
   transaction_date: string;
   description: string;
+  external_reference?: string;
   service_event_id?: number | null;
   category_name?: string;
   notes?: string;
@@ -503,6 +633,7 @@ export interface ExpenseTransactionPayload {
   amount: string | number;
   transaction_date: string;
   description: string;
+  external_reference?: string;
   service_event_id?: number | null;
   category_name?: string;
   notes?: string;
@@ -514,6 +645,7 @@ export interface TransferTransactionPayload {
   amount: string | number;
   transaction_date: string;
   description: string;
+  external_reference?: string;
   service_event_id?: number | null;
   category_name?: string;
   notes?: string;
@@ -522,7 +654,9 @@ export interface TransferTransactionPayload {
 export interface TransactionUpdatePayload {
   transaction_date?: string;
   description?: string;
+  external_reference?: string;
   service_event_id?: number | null;
+  line_updates?: TransactionLineMetadataUpdate[];
 }
 
 export interface MembershipSummary {
@@ -546,8 +680,13 @@ export interface GroupMembershipCount {
 export interface GroupSummary {
   total_groups: number;
   active_groups: number;
+  inactive_groups: number;
   total_active_affiliations: number;
+  members_with_active_group: number;
+  members_without_active_group: number;
+  participation_rate_percent: number;
   group_membership_counts: GroupMembershipCount[];
+  top_groups: GroupMembershipCount[];
 }
 
 export interface AttendanceEventTypeCount {
@@ -557,13 +696,37 @@ export interface AttendanceEventTypeCount {
 
 export interface AttendanceReportSummary {
   total_events: number;
+  events_with_summary: number;
+  events_without_summary: number;
   aggregate_men_count: number;
   aggregate_women_count: number;
   aggregate_children_count: number;
   aggregate_visitor_count: number;
   aggregate_total_attendance: number;
   total_member_attendance_records: number;
+  average_total_attendance_per_event: number;
+  attendance_capture_rate_percent: number;
   event_type_counts: AttendanceEventTypeCount[];
+  attendance_trend: {
+    period_start: string;
+    period_end: string;
+    event_count: number;
+    attendance_total: number;
+    member_attendance_records: number;
+  }[];
+  recent_service_events: {
+    id: number;
+    title: string;
+    event_type: string;
+    service_date: string;
+    total_attendance: number;
+    member_attendance_count: number;
+  }[];
+  applied_range: {
+    date_preset: "TODAY" | "THIS_WEEK" | "THIS_MONTH" | "CUSTOM" | null;
+    start_date: string | null;
+    end_date: string | null;
+  };
 }
 
 export interface FundBalance {
@@ -575,11 +738,29 @@ export interface FundBalance {
 
 export interface FinanceSummary {
   total_fund_accounts: number;
+  total_posted_transactions: number;
   balances_by_fund: FundBalance[];
   total_income: string;
   total_expense: string;
   total_transfers: string;
   net_flow: string;
+  period_breakdown: {
+    period_start: string;
+    period_end: string;
+    total_income: string;
+    total_expense: string;
+    total_transfers: string;
+    net_flow: string;
+  }[];
+  top_categories: {
+    category_name: string;
+    total_amount: string;
+  }[];
+  applied_range: {
+    date_preset: "TODAY" | "THIS_WEEK" | "THIS_MONTH" | "CUSTOM" | null;
+    start_date: string | null;
+    end_date: string | null;
+  };
 }
 
 export interface DashboardOverview {
@@ -608,10 +789,31 @@ export interface AuditEvent {
 }
 
 export interface AuditEventListFilters extends PaginationParams {
+  search?: string;
   event_type?: string;
   target_type?: string;
   target_id?: number;
   actor_id?: number;
+  actor_username?: string;
   start_date?: string;
   end_date?: string;
+}
+
+export type OpsNotificationSeverity = "info" | "success" | "warning" | "danger";
+
+export interface OpsNotificationItem {
+  id: string;
+  kind: string;
+  severity: OpsNotificationSeverity;
+  title: string;
+  description: string;
+  href: string;
+  created_at: string | null;
+}
+
+export interface OpsNotificationFeed {
+  generated_at: string;
+  notification_count: number;
+  unread_count: number;
+  notifications: OpsNotificationItem[];
 }

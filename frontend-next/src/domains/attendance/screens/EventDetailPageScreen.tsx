@@ -6,11 +6,31 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
-import { ErrorAlert, ErrorState, FormSection, LoadingState, PageHeader, StatCard, StatusBadge } from "@/components";
+import {
+  ButtonLoadingContent,
+  ErrorAlert,
+  ErrorState,
+  FormModalShell,
+  FormSection,
+  LoadingState,
+  PageHeader,
+  StatCard,
+  StatusBadge,
+} from "@/components";
 import { attendanceApi } from "@/domains/attendance/api";
 import { getServiceEventTypeLabel, SERVICE_EVENT_TYPE_OPTIONS } from "@/domains/attendance/options";
 import type { ServiceEventWritePayload } from "@/domains/types";
 import { formatDate, formatDateTime, formatTime } from "@/lib/formatters";
+
+function getAttendanceProgressTone(status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED") {
+  if (status === "COMPLETED") {
+    return "success" as const;
+  }
+  if (status === "IN_PROGRESS") {
+    return "warning" as const;
+  }
+  return "muted" as const;
+}
 
 interface EventFormState {
   title: string;
@@ -51,6 +71,7 @@ export function EventDetailPageScreen() {
   const params = useParams<{ serviceEventId: string }>();
   const numericServiceEventId = Number(params.serviceEventId);
   const [formOverrides, setFormOverrides] = useState<Partial<EventFormState>>({});
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const serviceEventQuery = useQuery({
     enabled: Number.isFinite(numericServiceEventId),
@@ -91,6 +112,7 @@ export function EventDetailPageScreen() {
       await queryClient.invalidateQueries({ queryKey: ["service-event", numericServiceEventId] });
       await queryClient.invalidateQueries({ queryKey: ["attendance-overview"] });
       setFormOverrides({});
+      setIsEditModalOpen(false);
     },
   });
 
@@ -127,15 +149,24 @@ export function EventDetailPageScreen() {
 
   const serviceEvent = serviceEventQuery.data;
   const summaryTotal = serviceEvent.attendance_summary?.total_count ?? 0;
+  const isEventSubmitDisabled =
+    updateServiceEventMutation.isPending || !formState.title.trim() || !formState.service_date;
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href="/events">
               Back to events
             </Link>
+            <button
+              className="button button-ghost"
+              onClick={() => setIsEditModalOpen(true)}
+              type="button"
+            >
+              Edit event
+            </button>
             <Link className="button button-primary" href={`/events/${serviceEvent.id}/attendance`}>
               Record attendance
             </Link>
@@ -155,226 +186,240 @@ export function EventDetailPageScreen() {
         title={serviceEvent.title}
       />
 
-      <section className="metrics-grid">
-        <StatCard label="Service date" tone="accent" value={formatDate(serviceEvent.service_date)} />
-        <StatCard label="Member records" value={serviceEvent.member_attendances.length} />
-        <StatCard label="Summary total" value={summaryTotal} />
-        <StatCard label="Updated" value={formatDate(serviceEvent.updated_at)} />
-      </section>
-
-      <div className="content-grid">
-        <section className="panel">
-          <div className="panel-header">
+      <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="section-header">
             <div>
               <h3>Event profile</h3>
-              <p className="muted-text">Core service-event fields from the backend payload.</p>
+              <p className="m-0 text-sm text-slate-500">Core service-event fields from the backend payload.</p>
             </div>
           </div>
-          <dl className="detail-grid detail-grid-2">
-            <div className="detail-item">
+          <dl className="grid gap-3.5 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Type</dt>
               <dd>{getServiceEventTypeLabel(serviceEvent.event_type)}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Service date</dt>
               <dd>{formatDate(serviceEvent.service_date)}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Start time</dt>
               <dd>{formatTime(serviceEvent.start_time)}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>End time</dt>
               <dd>{formatTime(serviceEvent.end_time)}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Location</dt>
               <dd>{serviceEvent.location || "Not set"}</dd>
             </div>
           </dl>
         </section>
 
-        <section className="panel">
-          <div className="panel-header">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+          <div className="section-header">
             <div>
               <h3>Attendance snapshot</h3>
-              <p className="muted-text">Anonymous summary and member records remain distinct.</p>
+              <p className="m-0 text-sm text-slate-500">Anonymous summary and member records remain distinct.</p>
             </div>
           </div>
-          <dl className="detail-grid detail-grid-1">
-            <div className="detail-item">
+          <dl className="grid gap-3.5 grid-cols-1">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Summary status</dt>
               <dd>
                 <StatusBadge
-                  label={serviceEvent.attendance_summary ? "Summary recorded" : "No summary yet"}
-                  tone={serviceEvent.attendance_summary ? "success" : "warning"}
+                  label={serviceEvent.attendance_progress_label}
+                  tone={getAttendanceProgressTone(serviceEvent.attendance_progress_status)}
                 />
               </dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Member attendance rows</dt>
-              <dd>{serviceEvent.member_attendances.length}</dd>
+              <dd>{serviceEvent.member_attendance_count}</dd>
             </div>
-            <div className="detail-item">
-              <dt>Last updated</dt>
-              <dd>{formatDateTime(serviceEvent.updated_at)}</dd>
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
+              <dt>Attendance last updated</dt>
+              <dd>{formatDateTime(serviceEvent.attendance_last_updated_at)}</dd>
             </div>
           </dl>
         </section>
       </div>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="section-header">
           <div>
             <h3>Notes</h3>
-            <p className="muted-text">Event-level notes only. Attendance notes are handled in the recording workflow.</p>
+            {/* <p className="m-0 text-sm text-slate-500">Event-level notes only. Attendance notes are handled in the recording workflow.</p> */}
           </div>
         </div>
-        <p className="panel-copy">{serviceEvent.notes || "No event notes recorded."}</p>
+        <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">{serviceEvent.notes || "No event notes recorded."}</p>
       </section>
 
-      <form
-        className="page-stack"
-        onSubmit={(event) => {
-          event.preventDefault();
-          updateServiceEventMutation.mutate(toEventPayload(formState));
-        }}
+      <FormModalShell
+        description="Update the current service-event record through the existing patch endpoint."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => setIsEditModalOpen(false)}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={isEventSubmitDisabled}
+              form="update-event-modal-form"
+              type="submit"
+            >
+              <ButtonLoadingContent isLoading={updateServiceEventMutation.isPending} loadingText="Saving...">
+                Save event changes
+              </ButtonLoadingContent>
+            </button>
+          </>
+        }
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        size="large"
+        title="Update event"
       >
-        <FormSection
-          description="Update the current service-event record through the existing patch endpoint."
-          title="Update event"
+        <form
+          className="space-y-6"
+          id="update-event-modal-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            updateServiceEventMutation.mutate(toEventPayload(formState));
+          }}
         >
-          <div className="form-grid form-grid-2">
-            <label className="field">
-              <span>Title</span>
-              <input
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    title: event.target.value,
-                  }))
-                }
-                required
-                value={formState.title}
-              />
-            </label>
+          <FormSection title="Event details">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="field">
+                <span>Title</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      title: event.target.value,
+                    }))
+                  }
+                  required
+                  value={formState.title}
+                />
+              </label>
+
+              <label className="field">
+                <span>Event type</span>
+                <select
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      event_type: event.target.value,
+                    }))
+                  }
+                  value={formState.event_type}
+                >
+                  {SERVICE_EVENT_TYPE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Service date</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      service_date: event.target.value,
+                    }))
+                  }
+                  required
+                  type="date"
+                  value={formState.service_date}
+                />
+              </label>
+
+              <label className="field">
+                <span>Location</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      location: event.target.value,
+                    }))
+                  }
+                  value={formState.location}
+                />
+              </label>
+
+              <label className="field">
+                <span>Start time</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      start_time: event.target.value,
+                    }))
+                  }
+                  type="time"
+                  value={formState.start_time}
+                />
+              </label>
+
+              <label className="field">
+                <span>End time</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      end_time: event.target.value,
+                    }))
+                  }
+                  type="time"
+                  value={formState.end_time}
+                />
+              </label>
+
+              <label className="checkbox-field checkbox-field-inline">
+                <input
+                  checked={formState.is_active}
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      is_active: event.target.checked,
+                    }))
+                  }
+                  type="checkbox"
+                />
+                <span>Event is active</span>
+              </label>
+            </div>
 
             <label className="field">
-              <span>Event type</span>
-              <select
+              <span>Notes</span>
+              <textarea
                 onChange={(event) =>
                   setFormOverrides((current) => ({
                     ...current,
-                    event_type: event.target.value,
+                    notes: event.target.value,
                   }))
                 }
-                value={formState.event_type}
-              >
-                {SERVICE_EVENT_TYPE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="field">
-              <span>Service date</span>
-              <input
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    service_date: event.target.value,
-                  }))
-                }
-                required
-                type="date"
-                value={formState.service_date}
+                rows={4}
+                value={formState.notes}
               />
             </label>
+          </FormSection>
 
-            <label className="field">
-              <span>Location</span>
-              <input
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    location: event.target.value,
-                  }))
-                }
-                value={formState.location}
-              />
-            </label>
-
-            <label className="field">
-              <span>Start time</span>
-              <input
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    start_time: event.target.value,
-                  }))
-                }
-                type="time"
-                value={formState.start_time}
-              />
-            </label>
-
-            <label className="field">
-              <span>End time</span>
-              <input
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    end_time: event.target.value,
-                  }))
-                }
-                type="time"
-                value={formState.end_time}
-              />
-            </label>
-
-            <label className="checkbox-field checkbox-field-inline">
-              <input
-                checked={formState.is_active}
-                onChange={(event) =>
-                  setFormOverrides((current) => ({
-                    ...current,
-                    is_active: event.target.checked,
-                  }))
-                }
-                type="checkbox"
-              />
-              <span>Event is active</span>
-            </label>
-          </div>
-
-          <label className="field">
-            <span>Notes</span>
-            <textarea
-              onChange={(event) =>
-                setFormOverrides((current) => ({
-                  ...current,
-                  notes: event.target.value,
-                }))
-              }
-              rows={4}
-              value={formState.notes}
-            />
-          </label>
-        </FormSection>
-
-        <ErrorAlert
-          error={updateServiceEventMutation.error}
-          fallbackMessage="The service event could not be updated."
-        />
-
-        <div className="inline-actions">
-          <button className="button button-primary" disabled={updateServiceEventMutation.isPending} type="submit">
-            {updateServiceEventMutation.isPending ? "Saving..." : "Save event changes"}
-          </button>
-        </div>
-      </form>
+          <ErrorAlert
+            error={updateServiceEventMutation.error}
+            fallbackMessage="The service event could not be updated."
+          />
+        </form>
+      </FormModalShell>
     </div>
   );
 }

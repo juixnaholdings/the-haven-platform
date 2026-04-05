@@ -8,15 +8,18 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <div className="state-card">
-      <div className="state-icon" aria-hidden="true">
-        ○
+    <div className="grid gap-5 rounded-3xl border border-dashed border-slate-300/80 bg-slate-50/70 p-8">
+      <div
+        aria-hidden="true"
+        className="grid h-11 w-11 place-items-center rounded-2xl bg-white ring-1 ring-slate-300/80"
+      >
+        <span className="h-3 w-3 rounded-full border border-slate-400/90" />
       </div>
-      <div className="state-copy">
-        <h3>{title}</h3>
-        <p>{description}</p>
+      <div className="space-y-2">
+        <h3 className="m-0 text-lg font-semibold tracking-tight text-slate-900">{title}</h3>
+        <p className="m-0 max-w-[68ch] text-sm leading-6 text-slate-600">{description}</p>
       </div>
-      {action ? <div className="state-actions">{action}</div> : null}
+      {action ? <div className="mt-1 flex flex-wrap items-center gap-2.5">{action}</div> : null}
     </div>
   );
 }

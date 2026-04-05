@@ -4,16 +4,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { ButtonLoadingContent } from "@/components";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { useSession } from "@/auth/use-session";
 
 export default function LoginPage() {
   const router = useRouter();
   const { isAuthenticated, isBootstrapping, login } = useSession();
-  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown>(null);
+  const isSubmitGuarded = !identifier.trim() || !password;
   const nextPath =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search).get("next") || "/dashboard"
@@ -33,7 +35,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login({ username, password });
+      await login({ identifier, password });
       router.replace(nextPath);
     } catch (error) {
       setSubmitError(error);
@@ -44,38 +46,20 @@ export default function LoginPage() {
   return (
     <div className="auth-layout">
       <div className="auth-stack">
-        <div className="auth-brand">
-          <div className="auth-brand-mark" aria-hidden="true">
-            TH
-          </div>
-          <div className="auth-brand-copy">
-            <p className="app-eyebrow">Refined clerical minimalism</p>
-            <h1>The Haven</h1>
-            <p className="muted-text">
-              Calm, trustworthy church administration for members, households,
-              ministries, services, and attendance.
-            </p>
-          </div>
-        </div>
-
         <div className="auth-card">
-          <div className="auth-card-header">
-            <p className="app-eyebrow">Secure sign in</p>
+          <div className="grid gap-2">
             <h2>Welcome back</h2>
-            <p className="muted-text">
-              Sign in with your backend credentials. Access tokens remain in
-              memory and the session restores from the secure refresh cookie.
-            </p>
           </div>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <form className="grid gap-5" onSubmit={handleSubmit}>
             <label className="field">
-              <span>Username</span>
+              <span>Username or email</span>
               <input
                 autoComplete="username"
-                onChange={(event) => setUsername(event.target.value)}
+                onChange={(event) => setIdentifier(event.target.value)}
+                placeholder="Enter username or email"
                 required
-                value={username}
+                value={identifier}
               />
             </label>
 
@@ -92,22 +76,23 @@ export default function LoginPage() {
 
             <button
               className="button button-primary button-block"
-              disabled={isSubmitting || isBootstrapping}
+              disabled={isSubmitting || isBootstrapping || isSubmitGuarded}
               type="submit"
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              <ButtonLoadingContent isLoading={isSubmitting} loadingText="Signing in...">
+                Sign in
+              </ButtonLoadingContent>
             </button>
           </form>
 
-          <ErrorAlert error={submitError} fallbackMessage="Unable to sign in." />
-
-          <p className="muted-text helper-text">
-            Next migration status: Phase 1 routes are migrated in `frontend-next`.
-            Cutover follows staged QA and rollback-ready deployment checks.
+          <ErrorAlert error={submitError} fallbackMessage="Sign In Failed" />
+          <p className="m-0 text-sm text-slate-500">
+            New to The Haven?{" "}
+            <Link className="font-semibold text-[#16335f] hover:underline" href="/signup">
+              Create an account
+            </Link>
+            .
           </p>
-          <Link className="button button-ghost" href="/dashboard">
-            Continue to dashboard route
-          </Link>
         </div>
       </div>
     </div>

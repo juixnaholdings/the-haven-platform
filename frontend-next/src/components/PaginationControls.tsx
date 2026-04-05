@@ -22,17 +22,17 @@ export function PaginationControls({
   );
 
   return (
-    <div className="pagination-controls">
-      <div className="pagination-summary">
-        <strong>
+    <div className="mt-6 flex flex-wrap items-end justify-between gap-3 border-t border-slate-200/80 pt-5">
+      <div className="grid gap-1">
+        <strong className="text-sm font-semibold text-slate-800">
           Page {pagination.page} of {pagination.totalPages}
         </strong>
-        <span>
+        <span className="text-xs text-slate-500">
           {pagination.count} record{pagination.count === 1 ? "" : "s"}
         </span>
       </div>
 
-      <div className="pagination-actions">
+      <div className="flex flex-wrap items-end gap-2.5">
         <label className="field pagination-size-field">
           <span>Rows</span>
           <select

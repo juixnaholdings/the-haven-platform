@@ -1,10 +1,13 @@
 from collections.abc import Iterable
 from dataclasses import dataclass
+from datetime import timedelta
+import secrets
 
 from django.conf import settings
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.models import Group, Permission
 from django.db import transaction
+from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.exceptions import TokenError
@@ -14,6 +17,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from apps.common.audit import AuditEventType, AuditTargetType
 from apps.common import services as common_services
 from apps.users.constants import ALL_AVAILABLE_PERMISSIONS
+from apps.users.models import StaffInvite, StaffInviteStatus
 
 
 @dataclass(frozen=True)
@@ -108,6 +112,24 @@ def _normalize_email(value: str) -> str:
     return value.strip().lower()
 
 
+def normalize_email(value: str) -> str:
+    return _normalize_email(value)
+
+
+def normalize_username(value: str) -> str:
+    return value.strip()
+
+
+def _generate_invite_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def build_staff_invite_path(*, staff_invite: StaffInvite) -> str:
+    if not staff_invite.token:
+        return ""
+    return f"/staff-invite/{staff_invite.id}?token={staff_invite.token}"
+
+
 def _validate_unique_username(*, username: str, exclude_user_id: int | None = None) -> None:
     User = get_user_model()
     queryset = User.objects.filter(username__iexact=username)
@@ -132,6 +154,34 @@ def _validate_unique_email(*, email: str, exclude_user_id: int | None = None) ->
 
 
 @transaction.atomic
+def create_public_user(
+    *,
+    username: str,
+    email: str,
+    password: str,
+    is_active: bool = True,
+) -> object:
+    User = get_user_model()
+
+    normalized_username = normalize_username(username)
+    normalized_email = _normalize_email(email)
+
+    _validate_unique_username(username=normalized_username)
+    _validate_unique_email(email=normalized_email)
+
+    user = User.objects.create_user(
+        username=normalized_username,
+        email=normalized_email,
+        password=password,
+        is_active=is_active,
+        is_staff=False,
+        is_superuser=False,
+    )
+    user.groups.clear()
+    return User.objects.prefetch_related("groups").get(id=user.id)
+
+
+@transaction.atomic
 def create_staff_user(*, data: dict, actor=None) -> object:
     User = get_user_model()
     payload = data.copy()
@@ -141,7 +191,7 @@ def create_staff_user(*, data: dict, actor=None) -> object:
     raw_email = payload.pop("email")
     password = payload.pop("password")
 
-    username = raw_username.strip()
+    username = normalize_username(raw_username)
     email = _normalize_email(raw_email)
 
     _validate_unique_username(username=username)
@@ -228,6 +278,305 @@ def update_staff_user(*, user, data: dict, actor=None) -> object:
                 "current_role_names": current_role_names,
             },
         )
+
+    return user
+
+
+def expire_pending_staff_invites(*, reference_time=None) -> int:
+    resolved_reference_time = reference_time or timezone.now()
+    return StaffInvite.objects.filter(
+        status=StaffInviteStatus.PENDING,
+        expires_at__lt=resolved_reference_time,
+    ).update(
+        status=StaffInviteStatus.EXPIRED,
+        updated_at=resolved_reference_time,
+    )
+
+
+@transaction.atomic
+def elevate_basic_user_to_staff(*, user, data: dict, actor=None):
+    if user.is_superuser:
+        raise ValidationError({"detail": ["Superusers cannot be elevated through this flow."]})
+    if user.is_staff:
+        raise ValidationError({"detail": ["This user is already staff."]})
+
+    role_groups = data.get("role_ids") or []
+    if not role_groups:
+        raise ValidationError({"role_ids": ["Assign at least one role before elevation."]})
+
+    if "is_active" in data:
+        user.is_active = data["is_active"]
+    user.is_staff = True
+    user.save(update_fields=["is_active", "is_staff"] if "is_active" in data else ["is_staff"])
+    user.groups.set(role_groups)
+
+    User = get_user_model()
+    user = User.objects.prefetch_related("groups").get(id=user.id)
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.STAFF_USER_ELEVATED,
+        target_type=AuditTargetType.STAFF_USER,
+        target_id=user.id,
+        summary=f"Elevated basic user '{user.username}' to staff access.",
+        payload={
+            "username": user.username,
+            "is_active": user.is_active,
+            "role_names": sorted(user.groups.values_list("name", flat=True)),
+        },
+    )
+    return user
+
+
+@transaction.atomic
+def create_staff_invite(*, data: dict, actor=None) -> StaffInvite:
+    expire_pending_staff_invites()
+
+    payload = data.copy()
+    raw_email = payload.pop("email")
+    role_groups = payload.pop("role_ids", [])
+    expires_in_days = payload.pop("expires_in_days", 7)
+
+    if not role_groups:
+        raise ValidationError({"role_ids": ["Assign at least one role to create an invite."]})
+
+    email = _normalize_email(raw_email)
+
+    User = get_user_model()
+    existing_user = User.objects.filter(email__iexact=email).first()
+    if existing_user is not None:
+        if existing_user.is_staff or existing_user.is_superuser:
+            raise ValidationError({"email": ["A staff account with this email already exists."]})
+        raise ValidationError(
+            {
+                "email": [
+                    "A basic account with this email already exists. Use the elevation workflow instead."
+                ]
+            }
+        )
+
+    pending_invite = StaffInvite.objects.filter(
+        email__iexact=email,
+        status=StaffInviteStatus.PENDING,
+        expires_at__gte=timezone.now(),
+    ).first()
+    if pending_invite is not None:
+        raise ValidationError({"email": ["A pending invite for this email already exists."]})
+
+    invite = StaffInvite.objects.create(
+        email=email,
+        token=_generate_invite_token(),
+        status=StaffInviteStatus.PENDING,
+        expires_at=timezone.now() + timedelta(days=expires_in_days),
+        created_by=actor if getattr(actor, "is_authenticated", False) else None,
+        updated_by=actor if getattr(actor, "is_authenticated", False) else None,
+    )
+    invite.role_groups.set(role_groups)
+    invite = StaffInvite.objects.select_related("accepted_user", "created_by").prefetch_related(
+        "role_groups"
+    ).get(id=invite.id)
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.STAFF_INVITE_CREATED,
+        target_type=AuditTargetType.STAFF_INVITE,
+        target_id=invite.id,
+        summary=f"Created staff invite for '{invite.email}'.",
+        payload={
+            "email": invite.email,
+            "expires_at": invite.expires_at.isoformat(),
+            "role_names": sorted(invite.role_groups.values_list("name", flat=True)),
+        },
+    )
+    return invite
+
+
+@transaction.atomic
+def resend_staff_invite(*, staff_invite: StaffInvite, data: dict, actor=None) -> StaffInvite:
+    expire_pending_staff_invites()
+
+    if staff_invite.status == StaffInviteStatus.ACCEPTED:
+        raise ValidationError({"detail": ["Accepted invites cannot be resent."]})
+
+    expires_in_days = data.get("expires_in_days", 7)
+    now = timezone.now()
+
+    User = get_user_model()
+    existing_user = User.objects.filter(email__iexact=staff_invite.email).first()
+    if existing_user is not None:
+        if existing_user.is_staff or existing_user.is_superuser:
+            raise ValidationError(
+                {"email": ["A staff account with this email already exists."]}
+            )
+        raise ValidationError(
+            {
+                "email": [
+                    "A basic account with this email already exists. Use the elevation workflow instead."
+                ]
+            }
+        )
+
+    conflicting_pending_invite = (
+        StaffInvite.objects.filter(
+            email__iexact=staff_invite.email,
+            status=StaffInviteStatus.PENDING,
+            expires_at__gte=now,
+        )
+        .exclude(id=staff_invite.id)
+        .exists()
+    )
+    if conflicting_pending_invite:
+        raise ValidationError(
+            {"email": ["Another pending invite for this email already exists."]}
+        )
+
+    previous_status = staff_invite.status
+    previous_expires_at = staff_invite.expires_at
+
+    staff_invite.status = StaffInviteStatus.PENDING
+    staff_invite.token = _generate_invite_token()
+    staff_invite.expires_at = now + timedelta(days=expires_in_days)
+    staff_invite.updated_by = actor if getattr(actor, "is_authenticated", False) else None
+    staff_invite.save(
+        update_fields=["status", "token", "expires_at", "updated_by", "updated_at"]
+    )
+    staff_invite = StaffInvite.objects.select_related("accepted_user", "created_by").prefetch_related(
+        "role_groups"
+    ).get(id=staff_invite.id)
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.STAFF_INVITE_RESENT,
+        target_type=AuditTargetType.STAFF_INVITE,
+        target_id=staff_invite.id,
+        summary=f"Resent staff invite for '{staff_invite.email}'.",
+        payload={
+            "email": staff_invite.email,
+            "previous_status": previous_status,
+            "previous_expires_at": previous_expires_at.isoformat(),
+            "expires_at": staff_invite.expires_at.isoformat(),
+            "role_names": sorted(staff_invite.role_groups.values_list("name", flat=True)),
+        },
+    )
+
+    return staff_invite
+
+
+@transaction.atomic
+def revoke_staff_invite(*, staff_invite: StaffInvite, actor=None) -> StaffInvite:
+    if staff_invite.status == StaffInviteStatus.ACCEPTED:
+        raise ValidationError({"detail": ["Accepted invites cannot be revoked."]})
+
+    if staff_invite.status == StaffInviteStatus.REVOKED:
+        return staff_invite
+
+    if (
+        staff_invite.status == StaffInviteStatus.PENDING
+        and staff_invite.expires_at < timezone.now()
+    ):
+        staff_invite.status = StaffInviteStatus.EXPIRED
+        staff_invite.updated_by = actor if getattr(actor, "is_authenticated", False) else None
+        staff_invite.save(update_fields=["status", "updated_by", "updated_at"])
+        return staff_invite
+
+    staff_invite.status = StaffInviteStatus.REVOKED
+    staff_invite.updated_by = actor if getattr(actor, "is_authenticated", False) else None
+    staff_invite.save(update_fields=["status", "updated_by", "updated_at"])
+
+    common_services.log_audit_event(
+        actor=actor,
+        event_type=AuditEventType.STAFF_INVITE_REVOKED,
+        target_type=AuditTargetType.STAFF_INVITE,
+        target_id=staff_invite.id,
+        summary=f"Revoked staff invite for '{staff_invite.email}'.",
+        payload={"email": staff_invite.email},
+    )
+    return staff_invite
+
+
+def assert_staff_invite_is_actionable(*, staff_invite: StaffInvite) -> StaffInvite:
+    if not staff_invite:
+        raise ValidationError({"detail": ["Staff invite was not found."]})
+
+    if (
+        staff_invite.status == StaffInviteStatus.PENDING
+        and staff_invite.expires_at < timezone.now()
+    ):
+        staff_invite.status = StaffInviteStatus.EXPIRED
+        staff_invite.save(update_fields=["status", "updated_at"])
+
+    if staff_invite.status == StaffInviteStatus.REVOKED:
+        raise ValidationError({"detail": ["This invite has been revoked."]})
+    if staff_invite.status == StaffInviteStatus.EXPIRED:
+        raise ValidationError({"detail": ["This invite has expired."]})
+    if staff_invite.status == StaffInviteStatus.ACCEPTED:
+        raise ValidationError({"detail": ["This invite has already been accepted."]})
+    if not staff_invite.token:
+        raise ValidationError({"detail": ["This invite link is no longer active."]})
+
+    return staff_invite
+
+
+@transaction.atomic
+def accept_staff_invite(*, staff_invite: StaffInvite, data: dict) -> object:
+    if staff_invite.status != StaffInviteStatus.PENDING:
+        raise ValidationError({"detail": ["This invite can no longer be accepted."]})
+
+    User = get_user_model()
+    if User.objects.filter(email__iexact=staff_invite.email).exists():
+        raise ValidationError(
+            {
+                "email": [
+                    "An account with this email already exists. Ask an admin to use the elevation workflow."
+                ]
+            }
+        )
+
+    username = normalize_username(data["username"])
+    _validate_unique_username(username=username)
+
+    user = User.objects.create_user(
+        username=username,
+        email=staff_invite.email,
+        password=data["password"],
+        first_name=data.get("first_name", ""),
+        last_name=data.get("last_name", ""),
+        is_active=True,
+        is_staff=True,
+        is_superuser=False,
+    )
+    user.groups.set(staff_invite.role_groups.all())
+    user = User.objects.prefetch_related("groups").get(id=user.id)
+
+    accepted_at = timezone.now()
+    staff_invite.status = StaffInviteStatus.ACCEPTED
+    staff_invite.accepted_at = accepted_at
+    staff_invite.accepted_user = user
+    staff_invite.token = None
+    staff_invite.updated_by = user
+    staff_invite.save(
+        update_fields=[
+            "status",
+            "accepted_at",
+            "accepted_user",
+            "token",
+            "updated_by",
+            "updated_at",
+        ]
+    )
+
+    common_services.log_audit_event(
+        actor=user,
+        event_type=AuditEventType.STAFF_INVITE_ACCEPTED,
+        target_type=AuditTargetType.STAFF_INVITE,
+        target_id=staff_invite.id,
+        summary=f"Accepted staff invite for '{staff_invite.email}'.",
+        payload={
+            "email": staff_invite.email,
+            "username": user.username,
+            "role_names": sorted(user.groups.values_list("name", flat=True)),
+        },
+    )
 
     return user
 

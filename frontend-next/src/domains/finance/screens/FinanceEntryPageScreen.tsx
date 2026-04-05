@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   ErrorAlert,
   ErrorState,
   FormSection,
@@ -29,6 +30,7 @@ interface EntryFormState {
   amount: string;
   transaction_date: string;
   description: string;
+  external_reference: string;
   service_event_id: string;
   category_name: string;
   notes: string;
@@ -39,6 +41,7 @@ const emptyFormState: EntryFormState = {
   amount: "",
   transaction_date: new Date().toISOString().slice(0, 10),
   description: "",
+  external_reference: "",
   service_event_id: "",
   category_name: "",
   notes: "",
@@ -50,6 +53,7 @@ function toEntryPayload(formState: EntryFormState): IncomeTransactionPayload | E
     amount: formState.amount,
     transaction_date: formState.transaction_date,
     description: formState.description,
+    external_reference: formState.external_reference || undefined,
     service_event_id: formState.service_event_id ? Number(formState.service_event_id) : null,
     category_name: formState.category_name || undefined,
     notes: formState.notes || undefined,
@@ -88,7 +92,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
   const highlightedFunds = [...fundAccounts].slice(0, 2);
   const hasPreparedForm =
     Boolean(formState.fund_account_id) &&
-    Boolean(formState.amount) &&
+    Number(formState.amount) > 0 &&
     Boolean(formState.transaction_date) &&
     Boolean(formState.description.trim());
 
@@ -117,10 +121,10 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
   }
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href="/finance">
               Back to ledger
             </Link>
@@ -153,9 +157,9 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
           title="No active fund accounts are available"
         />
       ) : (
-        <div className="content-grid content-grid-form">
+        <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)] 2xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.75fr)]">
           <form
-            className="page-stack"
+            className="space-y-6"
             onSubmit={(event) => {
               event.preventDefault();
               submitMutation.mutate(toEntryPayload(formState));
@@ -165,7 +169,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
               description="Use the posted finance endpoints directly. There is no draft staging layer in the current backend contract."
               title="Entry details"
             >
-              <div className="form-grid form-grid-2">
+              <div className="grid gap-4 md:grid-cols-2">
                 <label className="field">
                   <span>Fund account</span>
                   <select
@@ -181,7 +185,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                     <option value="">Select fund account</option>
                     {fundAccounts.map((fundAccount) => (
                       <option key={fundAccount.id} value={fundAccount.id}>
-                        {fundAccount.name} · {fundAccount.code}
+                        {fundAccount.name} - {fundAccount.code}
                       </option>
                     ))}
                   </select>
@@ -248,6 +252,20 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                 </label>
 
                 <label className="field">
+                  <span>External reference</span>
+                  <input
+                    onChange={(event) =>
+                      setFormState((current) => ({
+                        ...current,
+                        external_reference: event.target.value,
+                      }))
+                    }
+                    placeholder="Bank ref, receipt no, voucher no..."
+                    value={formState.external_reference}
+                  />
+                </label>
+
+                <label className="field">
                   <span>Linked service/event</span>
                   <select
                     onChange={(event) =>
@@ -261,7 +279,7 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                     <option value="">No linked event</option>
                     {serviceEvents.map((serviceEvent) => (
                       <option key={serviceEvent.id} value={serviceEvent.id}>
-                        {serviceEvent.title} · {serviceEvent.service_date}
+                        {serviceEvent.title} - {serviceEvent.service_date}
                       </option>
                     ))}
                   </select>
@@ -288,9 +306,15 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
               fallbackMessage={`${isIncome ? "Income" : "Expense"} could not be recorded.`}
             />
 
-            <div className="inline-actions">
-              <button className="button button-primary" disabled={submitMutation.isPending} type="submit">
-                {submitMutation.isPending ? "Saving..." : submitLabel}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                className="button button-primary"
+                disabled={submitMutation.isPending || !hasPreparedForm}
+                type="submit"
+              >
+                <ButtonLoadingContent isLoading={submitMutation.isPending} loadingText="Saving...">
+                  {submitLabel}
+                </ButtonLoadingContent>
               </button>
               <button className="button button-secondary" onClick={() => setFormState(emptyFormState)} type="button">
                 Reset form
@@ -298,16 +322,16 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
             </div>
           </form>
 
-          <aside className="page-stack">
-            <section className="panel sticky-panel">
-              <div className="panel-header">
+          <aside className="space-y-6">
+            <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm sticky top-6">
+              <div className="section-header">
                 <div>
                   <h3>Current fund status</h3>
-                  <p className="muted-text">Use these balances to validate entry destination and amount context.</p>
+                  <p className="m-0 text-sm text-slate-500">Use these balances to validate entry destination and amount context.</p>
                 </div>
               </div>
               {selectedFund ? (
-                <section className="metrics-grid">
+                <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
                   <StatCard label={selectedFund.name} tone="accent" value={formatAmount(selectedFund.current_balance)} />
                 </section>
               ) : null}
@@ -324,11 +348,11 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
               </ul>
             </section>
 
-            <section className="panel">
-              <div className="panel-header">
+            <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+              <div className="section-header">
                 <div>
                   <h3>Journal context</h3>
-                  <p className="muted-text">Operational context for this single posted transaction.</p>
+                  <p className="m-0 text-sm text-slate-500">Operational context for this single posted transaction.</p>
                 </div>
               </div>
               <dl className="definition-list">
@@ -347,13 +371,13 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
               </dl>
             </section>
 
-            <section className="panel panel-accent">
-              <div className="panel-header">
+            <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm panel-accent">
+              <div className="section-header">
                 <div>
                   <h3>Audit tip</h3>
                 </div>
               </div>
-              <p className="panel-copy">
+              <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">
                 Use explicit descriptions and category labels so posted records remain traceable without a separate
                 transaction revision timeline.
               </p>

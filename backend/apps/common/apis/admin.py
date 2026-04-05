@@ -1,6 +1,7 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import views
 from rest_framework.exceptions import NotFound
+from rest_framework.permissions import IsAuthenticated
 
 from apps.common.pagination import get_optional_paginated_response
 from apps.common.permissions import AuditTrailAdminPermission
@@ -8,6 +9,7 @@ from apps.common.responses import CustomResponse
 from apps.common.serializers import (
     AuditEventFilterSerializer,
     AuditEventListSerializer,
+    OpsNotificationFeedSerializer,
 )
 from apps.common import selectors
 
@@ -63,4 +65,21 @@ class AuditEventDetailAdminApi(views.APIView):
         return CustomResponse(
             data=serializer.data,
             message="Audit event fetched successfully.",
+        )
+
+
+class OpsNotificationFeedApi(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["Admin - Ops"],
+        summary="Get in-app operational notifications",
+        responses=OpsNotificationFeedSerializer,
+    )
+    def get(self, request):
+        data = selectors.get_ops_notification_feed(user=request.user)
+        serializer = OpsNotificationFeedSerializer(data)
+        return CustomResponse(
+            data=serializer.data,
+            message="Operational notifications fetched successfully.",
         )

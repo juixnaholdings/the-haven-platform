@@ -7,10 +7,13 @@ import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
   ErrorState,
+  FilterActionStrip,
+  FormModalShell,
   FormSection,
   LoadingState,
   PageHeader,
@@ -49,7 +52,7 @@ export function GroupsPageScreen() {
   const [statusFilter, setStatusFilter] = useState<GroupStatusFilter>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [formState, setFormState] = useState<GroupFormState>(emptyGroupForm);
   const deferredSearch = useDeferredValue(search);
 
@@ -69,7 +72,7 @@ export function GroupsPageScreen() {
     onSuccess: async (group) => {
       await queryClient.invalidateQueries({ queryKey: ["groups"] });
       setFormState(emptyGroupForm);
-      setShowCreateForm(false);
+      setIsCreateModalOpen(false);
       router.push(`/groups/${group.id}`);
     },
   });
@@ -81,17 +84,18 @@ export function GroupsPageScreen() {
   const activeGroups = groups.filter((group) => group.is_active).length;
   const inactiveGroups = groups.length - activeGroups;
   const activeGroupMembers = groups.reduce((count, group) => count + group.active_member_count, 0);
+  const isCreateSubmitDisabled = createGroupMutation.isPending || !formState.name.trim();
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
           <button
-            className={showCreateForm ? "button button-secondary" : "button button-primary"}
-            onClick={() => setShowCreateForm((current) => !current)}
+            className="button button-primary"
+            onClick={() => setIsCreateModalOpen(true)}
             type="button"
           >
-            {showCreateForm ? "Close form" : "New ministry"}
+            New ministry
           </button>
         }
         description="The current backend models ministries as flat groups. Use this screen to manage those group records and open each ministry detail workflow."
@@ -105,27 +109,30 @@ export function GroupsPageScreen() {
         title="Ministries"
       />
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Ministries" tone="accent" value={totalGroups} />
         <StatCard label="Active in view" value={activeGroups} />
         <StatCard label="Inactive in view" value={inactiveGroups} />
         <StatCard label="Memberships in view" value={activeGroupMembers} />
       </section>
 
-      <section className="panel">
-        <div className="filters-grid filters-grid-2">
-          <label className="field">
-            <span>Search ministries</span>
-            <input
-              onChange={(event) => {
-                setSearch(event.target.value);
+      <FilterActionStrip
+        actions={
+          hasFilters ? (
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("all");
                 setPage(1);
               }}
-              placeholder="Search by ministry name or description"
-              value={search}
-            />
-          </label>
-
+              type="button"
+            >
+              Clear filters
+            </button>
+          ) : null
+        }
+        filters={
           <label className="field">
             <span>Status</span>
             <select
@@ -140,22 +147,66 @@ export function GroupsPageScreen() {
               <option value="inactive">Inactive ministries</option>
             </select>
           </label>
-        </div>
-      </section>
+        }
+        search={
+          <label className="field">
+            <span>Search ministries</span>
+            <input
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search by ministry name or description"
+              value={search}
+            />
+          </label>
+        }
+      />
 
-      {showCreateForm ? (
+      <FormModalShell
+        description="This writes directly to the current flat group model used as the ministry analogue."
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setFormState(emptyGroupForm);
+                setIsCreateModalOpen(false);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={isCreateSubmitDisabled}
+              form="create-ministry-modal-form"
+              type="submit"
+            >
+              <ButtonLoadingContent isLoading={createGroupMutation.isPending} loadingText="Creating...">
+                Create ministry
+              </ButtonLoadingContent>
+            </button>
+          </>
+        }
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setFormState(emptyGroupForm);
+          setIsCreateModalOpen(false);
+        }}
+        size="large"
+        title="Create ministry"
+      >
         <form
-          className="page-stack"
+          className="space-y-6"
+          id="create-ministry-modal-form"
           onSubmit={(event) => {
             event.preventDefault();
             createGroupMutation.mutate(toGroupPayload(formState));
           }}
         >
-          <FormSection
-            description="This writes directly to the current flat group model used as the ministry analogue."
-            title="Create ministry"
-          >
-            <div className="form-grid form-grid-2">
+          <FormSection title="Ministry details">
+            <div className="grid gap-4 md:grid-cols-2">
               <label className="field">
                 <span>Ministry name</span>
                 <input
@@ -204,24 +255,8 @@ export function GroupsPageScreen() {
             error={createGroupMutation.error}
             fallbackMessage="The ministry could not be created."
           />
-
-          <div className="inline-actions">
-            <button className="button button-primary" disabled={createGroupMutation.isPending} type="submit">
-              {createGroupMutation.isPending ? "Creating..." : "Create ministry"}
-            </button>
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setFormState(emptyGroupForm);
-                setShowCreateForm(false);
-              }}
-              type="button"
-            >
-              Cancel
-            </button>
-          </div>
         </form>
-      ) : null}
+      </FormModalShell>
 
       {groupsQuery.isLoading ? (
         <LoadingState
@@ -256,7 +291,7 @@ export function GroupsPageScreen() {
                 Clear filters
               </button>
             ) : (
-              <button className="button button-primary" onClick={() => setShowCreateForm(true)} type="button">
+              <button className="button button-primary" onClick={() => setIsCreateModalOpen(true)} type="button">
                 Create ministry
               </button>
             )
@@ -273,17 +308,17 @@ export function GroupsPageScreen() {
       ) : null}
 
       {!groupsQuery.isLoading && !groupsQuery.error && groups.length > 0 ? (
-        <section className="panel">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <EntityTable
             columns={[
               {
                 header: "Ministry",
                 cell: (group) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/groups/${group.id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/groups/${group.id}`}>
                       {group.name}
                     </Link>
-                    <span className="table-subtext">{group.description || "No ministry description yet"}</span>
+                    <span className="block text-xs text-slate-500">{group.description || "No ministry description yet"}</span>
                   </div>
                 ),
               },
@@ -304,7 +339,7 @@ export function GroupsPageScreen() {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (group) => (
-                  <div className="inline-actions">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <Link className="button button-secondary button-compact" href={`/groups/${group.id}`}>
                       Manage
                     </Link>

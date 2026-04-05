@@ -7,10 +7,13 @@ import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
   ErrorState,
+  FilterActionStrip,
+  FormModalShell,
   FormSection,
   LoadingState,
   PageHeader,
@@ -61,7 +64,7 @@ export function HouseholdsPageScreen() {
   const [statusFilter, setStatusFilter] = useState<HouseholdStatusFilter>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [formState, setFormState] = useState<HouseholdFormState>(emptyHouseholdForm);
   const deferredSearch = useDeferredValue(search);
 
@@ -81,7 +84,7 @@ export function HouseholdsPageScreen() {
     onSuccess: async (household) => {
       await queryClient.invalidateQueries({ queryKey: ["households"] });
       setFormState(emptyHouseholdForm);
-      setShowCreateForm(false);
+      setIsCreateModalOpen(false);
       router.push(`/households/${household.id}`);
     },
   });
@@ -96,18 +99,19 @@ export function HouseholdsPageScreen() {
     (count, household) => count + household.active_member_count,
     0,
   );
+  const isCreateSubmitDisabled = createHouseholdMutation.isPending || !formState.name.trim();
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
-              className={showCreateForm ? "button button-secondary" : "button button-primary"}
-              onClick={() => setShowCreateForm((current) => !current)}
+              className="button button-primary"
+              onClick={() => setIsCreateModalOpen(true)}
               type="button"
             >
-              {showCreateForm ? "Close form" : "New household"}
+              New household
             </button>
           </div>
         }
@@ -122,27 +126,24 @@ export function HouseholdsPageScreen() {
         title="Households"
       />
 
-      <section className="metrics-grid">
-        <StatCard label="Households" value={totalHouseholds} tone="accent" />
-        <StatCard label="Active in view" value={activeHouseholds} />
-        <StatCard label="Inactive in view" value={inactiveHouseholds} />
-        <StatCard label="Linked members in view" value={linkedMembers} />
-      </section>
-
-      <section className="panel">
-        <div className="filters-grid filters-grid-2">
-          <label className="field">
-            <span>Search households</span>
-            <input
-              onChange={(event) => {
-                setSearch(event.target.value);
+{/* 
+      <FilterActionStrip
+        actions={
+          hasFilters ? (
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("all");
                 setPage(1);
               }}
-              placeholder="Search by household name, phone, or city"
-              value={search}
-            />
-          </label>
-
+              type="button"
+            >
+              Clear filters
+            </button>
+          ) : null
+        }
+        filters={
           <label className="field">
             <span>Status</span>
             <select
@@ -157,22 +158,65 @@ export function HouseholdsPageScreen() {
               <option value="inactive">Inactive households</option>
             </select>
           </label>
-        </div>
-      </section>
+        }
+        search={
+          <label className="field">
+            <span>Search households</span>
+            <input
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search by household name, phone, or city"
+              value={search}
+            />
+          </label>
+        }
+      /> */}
 
-      {showCreateForm ? (
+      <FormModalShell
+        footer={
+          <>
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setIsCreateModalOpen(false);
+                setFormState(emptyHouseholdForm);
+              }}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="button button-primary"
+              disabled={isCreateSubmitDisabled}
+              form="create-household-modal-form"
+              type="submit"
+            >
+              <ButtonLoadingContent isLoading={createHouseholdMutation.isPending} loadingText="Creating...">
+                Create household
+              </ButtonLoadingContent>
+            </button>
+          </>
+        }
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setFormState(emptyHouseholdForm);
+        }}
+        size="large"
+        title="Create household"
+      >
         <form
-          className="page-stack"
+          className="space-y-6"
+          id="create-household-modal-form"
           onSubmit={(event) => {
             event.preventDefault();
             createHouseholdMutation.mutate(toHouseholdPayload(formState));
           }}
         >
-          <FormSection
-            description="This form maps directly to the current household create payload and opens the real detail workflow after save."
-            title="Create household"
-          >
-            <div className="form-grid form-grid-2">
+          <FormSection title="Household details">
+            <div className="grid gap-4 md:grid-cols-2">
               <label className="field">
                 <span>Household name</span>
                 <input
@@ -273,28 +317,8 @@ export function HouseholdsPageScreen() {
             error={createHouseholdMutation.error}
             fallbackMessage="The household could not be created."
           />
-
-          <div className="inline-actions">
-            <button
-              className="button button-primary"
-              disabled={createHouseholdMutation.isPending}
-              type="submit"
-            >
-              {createHouseholdMutation.isPending ? "Creating..." : "Create household"}
-            </button>
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setShowCreateForm(false);
-                setFormState(emptyHouseholdForm);
-              }}
-              type="button"
-            >
-              Cancel
-            </button>
-          </div>
         </form>
-      ) : null}
+      </FormModalShell>
 
       {householdsQuery.isLoading ? (
         <LoadingState
@@ -329,7 +353,7 @@ export function HouseholdsPageScreen() {
                 Clear filters
               </button>
             ) : (
-              <button className="button button-primary" onClick={() => setShowCreateForm(true)} type="button">
+              <button className="button button-primary" onClick={() => setIsCreateModalOpen(true)} type="button">
                 Create household
               </button>
             )
@@ -348,17 +372,17 @@ export function HouseholdsPageScreen() {
       ) : null}
 
       {!householdsQuery.isLoading && !householdsQuery.error && households.length > 0 ? (
-        <section className="panel">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <EntityTable
             columns={[
               {
                 header: "Household",
                 cell: (household) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/households/${household.id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/households/${household.id}`}>
                       {household.name}
                     </Link>
-                    <span className="table-subtext">
+                    <span className="block text-xs text-slate-500">
                       {household.primary_phone || household.city || "Profile-only record"}
                     </span>
                   </div>
@@ -389,7 +413,7 @@ export function HouseholdsPageScreen() {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (household) => (
-                  <div className="inline-actions">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <Link className="button button-secondary button-compact" href={`/households/${household.id}`}>
                       Manage
                     </Link>

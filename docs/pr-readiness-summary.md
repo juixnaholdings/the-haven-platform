@@ -1,5 +1,8 @@
 # PR Readiness Summary — Security, HTTPS, Deployment, and Operations Hardening
 
+> Historical note: this document predates the Next frontend cutover.  
+> Any references to `frontend/` in this file refer to the legacy Vite snapshot, not the active frontend.
+
 ## Branch
 `feat/security-https-termination`
 

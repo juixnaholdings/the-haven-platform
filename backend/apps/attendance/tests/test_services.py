@@ -6,7 +6,11 @@ from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from apps.attendance import services
-from apps.attendance.models import AttendanceSummary, MemberAttendance, ServiceEventType
+from apps.attendance.models import (
+    AttendanceSummary,
+    MemberAttendance,
+    ServiceEventType,
+)
 from apps.members.models import Member
 
 User = get_user_model()

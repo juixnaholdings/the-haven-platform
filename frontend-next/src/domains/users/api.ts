@@ -1,7 +1,13 @@
 import { apiClient } from "@/api/client";
 
 import type {
+  BasicUserElevationPayload,
+  BasicUserListItem,
   RoleSummary,
+  StaffInviteCreatePayload,
+  StaffInviteListFilters,
+  StaffInviteListItem,
+  StaffInviteResendPayload,
   StaffUserCreatePayload,
   StaffUserListItem,
   StaffUserUpdatePayload,
@@ -23,6 +29,40 @@ export const usersApi = {
   updateStaffUser(staffUserId: number, payload: StaffUserUpdatePayload) {
     return apiClient.patch<StaffUserListItem, StaffUserUpdatePayload>(
       `/api/settings/staff-users/${staffUserId}/`,
+      payload,
+    );
+  },
+  listBasicUsers(params?: { search?: string; is_active?: boolean; unassigned_only?: boolean }) {
+    return apiClient.get<BasicUserListItem[]>("/api/settings/basic-users/", {
+      params,
+    });
+  },
+  elevateBasicUser(userId: number, payload: BasicUserElevationPayload) {
+    return apiClient.post<StaffUserListItem, BasicUserElevationPayload>(
+      `/api/settings/basic-users/${userId}/elevate/`,
+      payload,
+    );
+  },
+  listStaffInvites(params?: StaffInviteListFilters) {
+    return apiClient.get<StaffInviteListItem[]>("/api/settings/staff-invites/", {
+      params,
+    });
+  },
+  createStaffInvite(payload: StaffInviteCreatePayload) {
+    return apiClient.post<StaffInviteListItem, StaffInviteCreatePayload>(
+      "/api/settings/staff-invites/",
+      payload,
+    );
+  },
+  revokeStaffInvite(staffInviteId: number) {
+    return apiClient.patch<StaffInviteListItem>(
+      `/api/settings/staff-invites/${staffInviteId}/revoke/`,
+      {},
+    );
+  },
+  resendStaffInvite(staffInviteId: number, payload: StaffInviteResendPayload = {}) {
+    return apiClient.patch<StaffInviteListItem, StaffInviteResendPayload>(
+      `/api/settings/staff-invites/${staffInviteId}/resend/`,
       payload,
     );
   },

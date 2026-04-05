@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
-import { Merriweather, Source_Sans_3 } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 
 import { AppProviders } from "@/providers/app-providers";
 import "./globals.css";
 
-const fontSans = Source_Sans_3({
+const fontSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
-});
-
-const fontSerif = Merriweather({
-  variable: "--font-serif",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -23,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | The Haven",
   },
   description:
-    "Parallel Next.js App Router migration app for The Haven with full Phase 1 route parity and staged cutover readiness.",
+    "",
 };
 
 export default function RootLayout({
@@ -32,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${fontSans.variable} ${fontSerif.variable}`}>
-      <body className="app-root">
+    <html lang="en" className={fontSans.variable}>
+      <body className="app-root" suppressHydrationWarning>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

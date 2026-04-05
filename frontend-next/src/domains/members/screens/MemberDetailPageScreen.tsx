@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -15,7 +16,9 @@ import {
   StatCard,
   StatusBadge,
 } from "@/components";
+import { getAttendanceStatusLabel, getServiceEventTypeLabel } from "@/domains/attendance/options";
 import { membersApi } from "@/domains/members/api";
+import { MemberFormScreen } from "@/domains/members/screens/MemberFormScreen";
 import { formatDate, formatDateTime } from "@/lib/formatters";
 
 function getMemberInitials(fullName: string) {
@@ -28,6 +31,7 @@ function getMemberInitials(fullName: string) {
 }
 
 export function MemberDetailPageScreen() {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const params = useParams<{ memberId: string }>();
   const numericMemberId = Number(params.memberId);
 
@@ -72,18 +76,23 @@ export function MemberDetailPageScreen() {
   const memberInitials = getMemberInitials(member.full_name);
   const activeGroupMemberships = member.group_memberships.filter((membership) => membership.is_active);
   const attendanceSummary = member.attendance_summary;
+  const recentAttendanceRecords = member.recent_attendance_records ?? [];
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <div className="inline-actions">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link className="button button-secondary" href="/members">
               Back to members
             </Link>
-            <Link className="button button-primary" href={`/members/${member.id}/edit`}>
+            <button
+              className="button button-primary"
+              onClick={() => setIsEditModalOpen(true)}
+              type="button"
+            >
               Edit member
-            </Link>
+            </button>
           </div>
         }
         description="Member profile, household context, ministry affiliations, and attendance summary in one operational detail surface."
@@ -113,15 +122,15 @@ export function MemberDetailPageScreen() {
             />
           </div>
           <div className="entity-hero-metadata">
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Email</dt>
               <dd>{member.email || "Not set"}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Phone</dt>
               <dd>{member.phone_number || "Not set"}</dd>
             </div>
-            <div className="detail-item">
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Date of birth</dt>
               <dd>{formatDate(member.date_of_birth)}</dd>
             </div>
@@ -129,7 +138,7 @@ export function MemberDetailPageScreen() {
         </div>
       </section>
 
-      <section className="metrics-grid">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Current household"
           value={member.active_household_membership?.household_name || "Not assigned"}
@@ -140,7 +149,7 @@ export function MemberDetailPageScreen() {
         <StatCard label="Last attended" value={formatDate(attendanceSummary.last_attended_on)} />
       </section>
 
-      <div className="content-grid">
+      <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
         <DetailPanel
           items={[
             { label: "First name", value: member.first_name || "Not set" },
@@ -166,23 +175,23 @@ export function MemberDetailPageScreen() {
         />
       </div>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="section-header">
           <div>
             <h3>Household context</h3>
-            <p className="muted-text">
+            <p className="m-0 text-sm text-slate-500">
               Current and historical household memberships returned by the member detail endpoint.
             </p>
           </div>
         </div>
 
         {member.active_household_membership ? (
-          <div className="detail-item">
+          <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
             <dt>Current household</dt>
             <dd>
-              <div className="inline-actions">
+              <div className="flex flex-wrap items-center gap-2.5">
                 <Link
-                  className="table-link"
+                  className="font-semibold text-[#16335f] hover:underline"
                   href={`/households/${member.active_household_membership.household_id}`}
                 >
                   {member.active_household_membership.household_name}
@@ -211,7 +220,7 @@ export function MemberDetailPageScreen() {
               {
                 header: "Household",
                 cell: (membership) => (
-                  <Link className="table-link" href={`/households/${membership.household_id}`}>
+                  <Link className="font-semibold text-[#16335f] hover:underline" href={`/households/${membership.household_id}`}>
                     {membership.household_name}
                   </Link>
                 ),
@@ -244,11 +253,11 @@ export function MemberDetailPageScreen() {
         ) : null}
       </section>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="section-header">
           <div>
             <h3>Ministry affiliations</h3>
-            <p className="muted-text">
+            <p className="m-0 text-sm text-slate-500">
               Group memberships and roles from the current flat ministry/group model.
             </p>
           </div>
@@ -265,7 +274,7 @@ export function MemberDetailPageScreen() {
               {
                 header: "Ministry",
                 cell: (membership) => (
-                  <span className="table-link">{membership.group_name}</span>
+                  <span className="font-semibold text-[#16335f] hover:underline">{membership.group_name}</span>
                 ),
               },
               {
@@ -296,14 +305,71 @@ export function MemberDetailPageScreen() {
         )}
       </section>
 
-      <section className="panel">
-        <div className="panel-header">
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="section-header">
           <div>
-            <h3>Notes and metadata</h3>
-            <p className="muted-text">Profile notes plus record timestamps.</p>
+            <h3>Recent attendance history</h3>
+            <p className="m-0 text-sm text-slate-500">
+              Latest event attendance records for this member, ordered by service date.
+            </p>
           </div>
         </div>
-        <p className="panel-copy">{member.notes || "No notes recorded for this member."}</p>
+        {recentAttendanceRecords.length === 0 ? (
+          <EmptyState
+            description="No attendance records have been captured for this member yet."
+            title="No attendance history"
+          />
+        ) : (
+          <EntityTable
+            columns={[
+              {
+                header: "Event",
+                cell: (attendanceRecord) => (
+                  <div className="grid gap-1">
+                    <Link
+                      className="font-semibold text-[#16335f] hover:underline"
+                      href={`/events/${attendanceRecord.service_event_id}`}
+                    >
+                      {attendanceRecord.service_event_title}
+                    </Link>
+                    <span className="table-subtext">
+                      {getServiceEventTypeLabel(attendanceRecord.service_event_type)} | {formatDate(attendanceRecord.service_date)}
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                header: "Status",
+                cell: (attendanceRecord) => (
+                  <StatusBadge
+                    label={getAttendanceStatusLabel(attendanceRecord.status)}
+                    tone={attendanceRecord.status === "PRESENT" ? "success" : "warning"}
+                  />
+                ),
+              },
+              {
+                header: "Checked in",
+                cell: (attendanceRecord) => formatDateTime(attendanceRecord.checked_in_at),
+              },
+              {
+                header: "Last updated",
+                cell: (attendanceRecord) => formatDateTime(attendanceRecord.updated_at),
+              },
+            ]}
+            getRowKey={(attendanceRecord) => attendanceRecord.id}
+            rows={recentAttendanceRecords}
+          />
+        )}
+      </section>
+
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="section-header">
+          <div>
+            <h3>Notes and metadata</h3>
+            <p className="m-0 text-sm text-slate-500">Profile notes plus record timestamps.</p>
+          </div>
+        </div>
+        <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">{member.notes || "No notes recorded for this member."}</p>
         <dl className="definition-list">
           <div>
             <dt>Created</dt>
@@ -322,6 +388,18 @@ export function MemberDetailPageScreen() {
         title="Finance and giving summary"
         tone="info"
       />
+
+      {isEditModalOpen ? (
+        <MemberFormScreen
+          key={member.id}
+          memberId={member.id}
+          mode="modal"
+          onCancel={() => setIsEditModalOpen(false)}
+          onSuccess={() => {
+            setIsEditModalOpen(false);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

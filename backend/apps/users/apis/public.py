@@ -1,14 +1,23 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status, views
-from rest_framework_simplejwt.serializers import TokenVerifySerializer
+from rest_framework.exceptions import NotFound
 
 from apps.common.responses import CustomResponse
 from apps.users import selectors, services
 from apps.users.serializers import (
+    EmailAvailabilityResponseSerializer,
+    EmailAvailabilitySerializer,
     EmptyPayloadSerializer,
     JwtLoginResponseSerializer,
     JwtLoginSerializer,
     JwtRefreshResponseSerializer,
+    PublicSignupResponseSerializer,
+    PublicSignupSerializer,
+    StaffInviteAcceptSerializer,
+    StaffInviteValidateQuerySerializer,
+    StaffInviteValidationResponseSerializer,
+    UsernameAvailabilityResponseSerializer,
+    UsernameAvailabilitySerializer,
     JwtVerifyRequestSerializer,
     UserMeSerializer,
 )
@@ -48,6 +57,154 @@ class PublicLoginJwtApi(views.APIView):
         )
 
         return response
+
+
+class PublicSignupApi(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_signup"
+
+    @extend_schema(
+        tags=["Public - Auth"],
+        summary="Register a new basic user account",
+        request=PublicSignupSerializer,
+        responses=PublicSignupResponseSerializer,
+    )
+    def post(self, request):
+        serializer = PublicSignupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = services.create_public_user(
+            username=serializer.validated_data["username"],
+            email=serializer.validated_data["email"],
+            password=serializer.validated_data["password"],
+        )
+
+        return CustomResponse(
+            data={"user": UserMeSerializer(user).data},
+            message="Account created successfully. Please sign in.",
+            status_code=status.HTTP_201_CREATED,
+        )
+
+
+class PublicStaffInviteValidateApi(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_signup"
+
+    @extend_schema(
+        tags=["Public - Auth"],
+        summary="Validate a staff invite token",
+        request=None,
+        parameters=[StaffInviteValidateQuerySerializer],
+        responses=StaffInviteValidationResponseSerializer,
+    )
+    def get(self, request, staff_invite_id: int):
+        query_serializer = StaffInviteValidateQuerySerializer(data=request.query_params)
+        query_serializer.is_valid(raise_exception=True)
+
+        services.expire_pending_staff_invites()
+        staff_invite = selectors.get_staff_invite_for_token(
+            staff_invite_id=staff_invite_id,
+            token=query_serializer.validated_data["token"],
+        )
+        if staff_invite is None:
+            raise NotFound("Staff invite not found.")
+
+        staff_invite = services.assert_staff_invite_is_actionable(staff_invite=staff_invite)
+
+        return CustomResponse(
+            data={
+                "id": staff_invite.id,
+                "email": staff_invite.email,
+                "status": staff_invite.status,
+                "expires_at": staff_invite.expires_at,
+                "role_names": sorted(staff_invite.role_groups.values_list("name", flat=True)),
+                "invite_is_active": True,
+            },
+            message="Staff invite validated successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class PublicStaffInviteAcceptApi(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_signup"
+
+    @extend_schema(
+        tags=["Public - Auth"],
+        summary="Accept a staff invite and complete onboarding",
+        request=StaffInviteAcceptSerializer,
+        responses=PublicSignupResponseSerializer,
+    )
+    def post(self, request, staff_invite_id: int):
+        serializer = StaffInviteAcceptSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        services.expire_pending_staff_invites()
+        staff_invite = selectors.get_staff_invite_for_token(
+            staff_invite_id=staff_invite_id,
+            token=serializer.validated_data["token"],
+        )
+        if staff_invite is None:
+            raise NotFound("Staff invite not found.")
+
+        staff_invite = services.assert_staff_invite_is_actionable(staff_invite=staff_invite)
+        user = services.accept_staff_invite(staff_invite=staff_invite, data=serializer.validated_data)
+
+        return CustomResponse(
+            data={"user": UserMeSerializer(user).data},
+            message="Staff onboarding completed successfully. Please sign in.",
+            status_code=status.HTTP_201_CREATED,
+        )
+
+
+class PublicUsernameAvailabilityApi(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_availability"
+
+    @extend_schema(
+        tags=["Public - Auth"],
+        summary="Check username availability",
+        request=None,
+        responses=UsernameAvailabilityResponseSerializer,
+    )
+    def get(self, request):
+        serializer = UsernameAvailabilitySerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data["username"]
+
+        return CustomResponse(
+            data={
+                "username": username,
+                "available": selectors.is_username_available(username=username),
+            },
+            message="Username availability fetched successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class PublicEmailAvailabilityApi(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    throttle_scope = "auth_availability"
+
+    @extend_schema(
+        tags=["Public - Auth"],
+        summary="Check email availability",
+        request=None,
+        responses=EmailAvailabilityResponseSerializer,
+    )
+    def get(self, request):
+        serializer = EmailAvailabilitySerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+
+        return CustomResponse(
+            data={
+                "email": email,
+                "available": selectors.is_email_available(email=email),
+            },
+            message="Email availability fetched successfully.",
+            status_code=status.HTTP_200_OK,
+        )
 
 
 class PublicLogoutJwtApi(views.APIView):

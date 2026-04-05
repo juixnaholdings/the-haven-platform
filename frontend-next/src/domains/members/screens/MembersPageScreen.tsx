@@ -3,11 +3,13 @@
 import { useDeferredValue, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
   EmptyState,
   EntityTable,
   ErrorState,
+  FilterActionStrip,
   LoadingState,
   PageHeader,
   PaginationControls,
@@ -15,14 +17,18 @@ import {
   StatusBadge,
 } from "@/components";
 import { membersApi } from "@/domains/members/api";
+import { MemberFormScreen } from "@/domains/members/screens/MemberFormScreen";
 
 type MemberStatusFilter = "all" | "active" | "inactive";
 
 export function MembersPageScreen() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<MemberStatusFilter>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingMemberId, setEditingMemberId] = useState<number | null>(null);
   const deferredSearch = useDeferredValue(search);
 
   const membersQuery = useQuery({
@@ -47,45 +53,46 @@ export function MembersPageScreen() {
   ).length;
 
   return (
-    <div className="page-stack">
+    <div className="space-y-6">
       <PageHeader
         actions={
-          <Link className="button button-primary" href="/members/new">
+          <button
+            className=" relative button button-primary"
+            onClick={() => setIsCreateModalOpen(true)}
+            type="button"
+          >
             Add member
-          </Link>
+          </button>
         }
-        description="A calm directory surface for member profiles, contact readiness, and profile-oriented create and edit workflows."
         eyebrow="People operations"
-        meta={
-          <StatusBadge
-            label={`${totalRecords} record${totalRecords === 1 ? "" : "s"}`}
-            tone="info"
-          />
-        }
+        
         title="Members"
       />
 
-      <section className="metrics-grid">
+      {/* <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Directory records" value={totalRecords} tone="accent" />
         <StatCard label="Active in view" value={activeMembers} />
         <StatCard label="Inactive in view" value={inactiveMembers} />
         <StatCard label="Contact ready in view" value={contactReadyMembers} />
       </section>
 
-      <section className="panel">
-        <div className="filters-grid filters-grid-2">
-          <label className="field">
-            <span>Search members</span>
-            <input
-              onChange={(event) => {
-                setSearch(event.target.value);
+      <FilterActionStrip
+        actions={
+          hasFilters ? (
+            <button
+              className="button button-secondary"
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("all");
                 setPage(1);
               }}
-              placeholder="Search by name, email, or phone"
-              value={search}
-            />
-          </label>
-
+              type="button"
+            >
+              Clear filters
+            </button>
+          ) : null
+        }
+        filters={
           <label className="field">
             <span>Status</span>
             <select
@@ -100,8 +107,21 @@ export function MembersPageScreen() {
               <option value="inactive">Inactive members</option>
             </select>
           </label>
-        </div>
-      </section>
+        }
+        search={
+          <label className="field">
+            <span>Search members</span>
+            <input
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search by name, email, or phone"
+              value={search}
+            />
+          </label>
+        }
+      /> */}
 
       {membersQuery.isLoading ? (
         <LoadingState
@@ -136,9 +156,13 @@ export function MembersPageScreen() {
                 Clear filters
               </button>
             ) : (
-              <Link className="button button-primary" href="/members/new">
+              <button
+                className="button button-primary"
+                onClick={() => setIsCreateModalOpen(true)}
+                type="button"
+              >
                 Add member
-              </Link>
+              </button>
             )
           }
           description={
@@ -151,17 +175,17 @@ export function MembersPageScreen() {
       ) : null}
 
       {!membersQuery.isLoading && !membersQuery.error && members.length > 0 ? (
-        <section className="panel">
+        <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
           <EntityTable
             columns={[
               {
                 header: "Member",
                 cell: (member) => (
-                  <div className="cell-stack">
-                    <Link className="table-link" href={`/members/${member.id}`}>
+                  <div className="grid gap-1">
+                    <Link className="font-semibold text-[#16335f] hover:underline" href={`/members/${member.id}`}>
                       {member.full_name}
                     </Link>
-                    <span className="table-subtext">
+                    <span className="block text-xs text-slate-500">
                       {member.email || member.phone_number || "Profile-only record"}
                     </span>
                   </div>
@@ -188,13 +212,17 @@ export function MembersPageScreen() {
                 header: "Actions",
                 className: "cell-actions",
                 cell: (member) => (
-                  <div className="inline-actions">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <Link className="button button-secondary button-compact" href={`/members/${member.id}`}>
                       View
                     </Link>
-                    <Link className="button button-ghost button-compact" href={`/members/${member.id}/edit`}>
+                    <button
+                      className="button button-ghost button-compact"
+                      onClick={() => setEditingMemberId(member.id)}
+                      type="button"
+                    >
                       Edit
-                    </Link>
+                    </button>
                   </div>
                 ),
               },
@@ -211,6 +239,30 @@ export function MembersPageScreen() {
             pagination={pagination}
           />
         </section>
+      ) : null}
+
+      {isCreateModalOpen ? (
+        <MemberFormScreen
+          mode="modal"
+          onCancel={() => setIsCreateModalOpen(false)}
+          onSuccess={(member) => {
+            setIsCreateModalOpen(false);
+            void router.push(`/members/${member.id}`);
+          }}
+        />
+      ) : null}
+
+      {editingMemberId ? (
+        <MemberFormScreen
+          key={editingMemberId}
+          memberId={editingMemberId}
+          mode="modal"
+          onCancel={() => setEditingMemberId(null)}
+          onSuccess={(member) => {
+            setEditingMemberId(null);
+            void router.push(`/members/${member.id}`);
+          }}
+        />
       ) : null}
     </div>
   );

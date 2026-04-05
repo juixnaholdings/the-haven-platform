@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect } from "react";
 
 interface GlobalErrorProps {
@@ -9,27 +8,26 @@ interface GlobalErrorProps {
 }
 
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
+  void reset;
+
   useEffect(() => {
     console.error("Unhandled App Router error:", error);
   }, [error]);
 
   return (
-    <main className="centered-state">
-      <section className="state-card state-card-error">
-        <p className="auth-eyebrow">System fault boundary</p>
-        <h1>Something interrupted this view.</h1>
-        <p className="muted-text">
-          The Next migration route threw an error. Retry this view or return to
-          login.
+    <main className="grid min-h-screen place-items-center px-6 py-8">
+      <section className="grid place-items-center gap-3 text-center">
+        <span
+          aria-hidden="true"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-500 ring-1 ring-red-100"
+        >
+          !
+        </span>
+        <p className="m-0 text-sm font-medium text-slate-700">There was an error.</p>
+        <p className="m-0 text-xs text-slate-500">Please try again or reload.</p>
+        <p className="m-0 text-[11px] font-medium uppercase tracking-[0.08em] text-slate-400">
+          Status 500
         </p>
-        <div className="state-actions">
-          <button className="button button-primary" onClick={reset} type="button">
-            Retry route
-          </button>
-          <Link className="button button-secondary" href="/login">
-            Back to login
-          </Link>
-        </div>
       </section>
     </main>
   );

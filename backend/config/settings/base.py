@@ -129,6 +129,8 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": ("rest_framework.throttling.ScopedRateThrottle",),
     "DEFAULT_THROTTLE_RATES": {
         "auth_login": "5/min",
+        "auth_signup": "5/min",
+        "auth_availability": "60/min",
         "auth_refresh": "20/min",
         "auth_logout": "20/min",
     },
@@ -161,6 +163,7 @@ SPECTACULAR_SETTINGS = {
         {"name": "Admin - Reporting", "description": "Administrative reporting and dashboard APIs."},
         {"name": "Admin - Settings", "description": "Administrative staff-user and role-management APIs."},
         {"name": "Admin - Audit", "description": "Administrative audit-trail read APIs."},
+        {"name": "Admin - Ops", "description": "Operational notification/reminder APIs for authenticated users."},
     ],
 }
 

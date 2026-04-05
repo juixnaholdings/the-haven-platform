@@ -85,6 +85,18 @@ const baseMemberDetail = {
     excused_count: 0,
     last_attended_on: "2026-03-01",
   },
+  recent_attendance_records: [
+    {
+      id: 1,
+      service_event_id: 1,
+      service_event_title: "Sunday Morning Service",
+      service_event_type: "SUNDAY_SERVICE",
+      service_date: "2026-03-22",
+      status: "PRESENT",
+      checked_in_at: "2026-03-22T09:10:00Z",
+      updated_at: "2026-03-22T09:10:00Z",
+    },
+  ],
   created_at: "2025-01-01T10:00:00Z",
   updated_at: "2026-03-01T10:00:00Z",
 };
@@ -103,26 +115,81 @@ const dashboardSummary = {
   groups: {
     total_groups: 6,
     active_groups: 5,
+    inactive_groups: 1,
     total_active_affiliations: 28,
+    members_with_active_group: 30,
+    members_without_active_group: 12,
+    participation_rate_percent: 71.43,
     group_membership_counts: [{ id: 1, name: "Choir Ministry", active_membership_count: 12 }],
+    top_groups: [{ id: 1, name: "Choir Ministry", active_membership_count: 12 }],
   },
   attendance: {
     total_events: 8,
+    events_with_summary: 8,
+    events_without_summary: 0,
     aggregate_men_count: 80,
     aggregate_women_count: 95,
     aggregate_children_count: 40,
     aggregate_visitor_count: 12,
     aggregate_total_attendance: 227,
     total_member_attendance_records: 65,
+    average_total_attendance_per_event: 28.38,
+    attendance_capture_rate_percent: 100,
     event_type_counts: [{ event_type: "SUNDAY_SERVICE", count: 4 }],
+    attendance_trend: [
+      {
+        period_start: "2026-03-22",
+        period_end: "2026-03-22",
+        event_count: 1,
+        attendance_total: 122,
+        member_attendance_records: 38,
+      },
+    ],
+    recent_service_events: [
+      {
+        id: 1,
+        title: "Sunday Morning Service",
+        event_type: "SUNDAY_SERVICE",
+        service_date: "2026-03-22",
+        total_attendance: 122,
+        member_attendance_count: 38,
+      },
+    ],
+    applied_range: {
+      date_preset: "THIS_MONTH",
+      start_date: "2026-03-01",
+      end_date: "2026-03-31",
+    },
   },
   finance: {
     total_fund_accounts: 3,
+    total_posted_transactions: 12,
     balances_by_fund: [{ id: 1, name: "General Fund", code: "GEN", current_balance: "10250.00" }],
     total_income: "16000.00",
     total_expense: "5750.00",
     total_transfers: "2200.00",
     net_flow: "10250.00",
+    period_breakdown: [
+      {
+        period_start: "2026-03-22",
+        period_end: "2026-03-22",
+        total_income: "2500.00",
+        total_expense: "300.00",
+        total_transfers: "400.00",
+        net_flow: "2200.00",
+      },
+    ],
+    top_categories: [
+      {
+        category_name: "Offering",
+        total_amount: "1200.00",
+      },
+    ],
+    applied_range: {
+      date_preset: "THIS_MONTH",
+      start_date: "2026-03-01",
+      end_date: "2026-03-31",
+    },
   },
 };
 
@@ -137,6 +204,11 @@ const serviceEventListItem = {
   is_active: true,
   member_attendance_count: 1,
   has_attendance_summary: true,
+  attendance_progress_status: "COMPLETED",
+  attendance_progress_label: "Completed",
+  attendance_progress_percent: 100,
+  attendance_is_complete: true,
+  attendance_last_updated_at: "2026-03-22T12:30:00Z",
 };
 
 function successEnvelope(data: unknown, message = "OK") {
@@ -218,6 +290,66 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
       return;
     }
 
+    if (path === "/api/auth/signup/" && method === "POST") {
+      const payload = JSON.parse(request.postData() || "{}") as {
+        username?: string;
+        email?: string;
+      };
+      await fulfillJson(
+        route,
+        successEnvelope(
+          {
+            user: {
+              id: 3,
+              username: payload.username || "new-user",
+              first_name: "",
+              last_name: "",
+              email: payload.email || "new-user@example.com",
+              is_active: true,
+              is_staff: false,
+              is_superuser: false,
+              role_names: [],
+            },
+          },
+          "Account created successfully.",
+        ),
+        201,
+      );
+      return;
+    }
+
+    if (path === "/api/auth/availability/username/" && method === "GET") {
+      const username = url.searchParams.get("username") || "";
+      const unavailableUsernames = new Set(["church-admin", "attendance-officer"]);
+      await fulfillJson(
+        route,
+        successEnvelope(
+          {
+            username,
+            available: Boolean(username) && !unavailableUsernames.has(username.toLowerCase()),
+          },
+          "Username availability fetched successfully.",
+        ),
+      );
+      return;
+    }
+
+    if (path === "/api/auth/availability/email/" && method === "GET") {
+      const email = url.searchParams.get("email") || "";
+      const unavailableEmails = new Set(["admin@example.com", "attendance@example.com"]);
+      await fulfillJson(
+        route,
+        successEnvelope(
+          {
+            email,
+            available: Boolean(email) && !unavailableEmails.has(email.toLowerCase()),
+          },
+          "Email availability fetched successfully.",
+        ),
+      );
+      return;
+    }
+
     if (path === "/api/auth/logout/" && method === "POST") {
       await fulfillJson(route, successEnvelope({}, "Logout successful."));
       return;
@@ -230,6 +362,56 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
 
     if (path.startsWith("/api/audit/") && sessionMode === "authenticated-staff") {
       await fulfillJson(route, errorEnvelope("You do not have permission to perform this action."), 403);
+      return;
+    }
+
+    if (path === "/api/ops/notifications/" && method === "GET") {
+      const notifications =
+        sessionMode === "authenticated-staff"
+          ? [
+              {
+                id: "attendance-missing-summary",
+                kind: "ATTENDANCE_MISSING_SUMMARY",
+                severity: "warning",
+                title: "1 event needs attendance capture",
+                description: "Follow up with Sunday Morning Service (2026-03-22).",
+                href: "/events/1/attendance",
+                created_at: "2026-03-22T12:30:00Z",
+              },
+            ]
+          : [
+              {
+                id: "staff-invites-pending",
+                kind: "STAFF_INVITES_PENDING",
+                severity: "warning",
+                title: "1 pending staff invite",
+                description: "Oldest pending invite expires on Apr 12, 2026.",
+                href: "/settings/staff",
+                created_at: "2026-04-01T10:00:00Z",
+              },
+              {
+                id: "attendance-upcoming-event",
+                kind: "UPCOMING_EVENT",
+                severity: "info",
+                title: "Upcoming event reminder",
+                description: "Sunday Morning Service is scheduled for 2026-03-22.",
+                href: "/events/1",
+                created_at: "2026-03-22T09:00:00Z",
+              },
+            ];
+
+      await fulfillJson(
+        route,
+        successEnvelope(
+          {
+            generated_at: "2026-04-04T10:00:00Z",
+            notification_count: notifications.length,
+            unread_count: notifications.length,
+            notifications,
+          },
+          "Operational notifications fetched successfully.",
+        ),
+      );
       return;
     }
 
@@ -521,6 +703,13 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
                 updated_at: "2026-03-22T09:10:00Z",
               },
             ],
+            member_attendance_count: 1,
+            has_attendance_summary: true,
+            attendance_progress_status: "COMPLETED",
+            attendance_progress_label: "Completed",
+            attendance_progress_percent: 100,
+            attendance_is_complete: true,
+            attendance_last_updated_at: "2026-03-22T12:30:00Z",
             created_at: "2026-03-20T10:00:00Z",
             updated_at: "2026-03-22T12:30:00Z",
           },
@@ -715,6 +904,60 @@ async function installApiMocks(page: Page, sessionMode: SessionMode) {
       return;
     }
 
+    if (path === "/api/settings/basic-users/" && method === "GET") {
+      await fulfillJson(
+        route,
+        successEnvelope(
+          [
+            {
+              id: 5,
+              username: "new-basic-user",
+              first_name: "New",
+              last_name: "Basic",
+              full_name: "New Basic",
+              email: "new-basic-user@example.com",
+              is_active: true,
+              is_staff: false,
+              is_superuser: false,
+              role_names: [],
+              roles: [],
+              last_login: null,
+              date_joined: "2026-03-20T08:00:00Z",
+            },
+          ],
+          "Basic users fetched successfully.",
+        ),
+      );
+      return;
+    }
+
+    if (path === "/api/settings/staff-invites/" && method === "GET") {
+      await fulfillJson(
+        route,
+        successEnvelope(
+          [
+            {
+              id: 9,
+              email: "future.staff@example.com",
+              status: "PENDING",
+              expires_at: "2026-04-12T10:00:00Z",
+              accepted_at: null,
+              created_at: "2026-04-01T10:00:00Z",
+              updated_at: "2026-04-01T10:00:00Z",
+              invited_by_username: "church-admin",
+              accepted_user: null,
+              role_names: ["Church Admin"],
+              roles: [{ id: 1, name: "Church Admin" }],
+              invite_path: "/staff-invite/9?token=mock-token",
+              is_expired: false,
+            },
+          ],
+          "Staff invites fetched successfully.",
+        ),
+      );
+      return;
+    }
+
     if (path === "/api/audit/events/" && method === "GET") {
       await fulfillJson(
         route,
@@ -767,24 +1010,52 @@ test.describe("frontend-next parity smoke", () => {
         response.url().includes("/api/auth/login/") &&
         response.request().method() === "POST",
     );
-    await page.getByLabel("Username").fill("church-admin");
+    await page.getByLabel("Username or email").fill("church-admin");
     await page.getByLabel("Password").fill("P@ssw0rd!");
     await page.getByRole("button", { name: "Sign in" }).click();
     const loginResponse = await loginResponsePromise;
     expect(loginResponse.ok()).toBeTruthy();
-    await expect(page.getByRole("heading", { name: "Operational dashboard" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible({
       timeout: 15000,
     });
     await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/, { timeout: 15000 });
+
+    await expect(page.getByRole("link", { name: "Settings" })).toBeVisible();
+    await page.getByRole("link", { name: "Settings" }).click();
+    await expect(page).toHaveURL(/\/settings(?:\?.*)?$/, { timeout: 15000 });
+    await expect(page.getByRole("heading", { name: "Settings" }).first()).toBeVisible({
+      timeout: 15000,
+    });
+  });
+
+  test("supports public signup flow", async ({ page }) => {
+    await installApiMocks(page, "unauthenticated");
+    await page.goto("/signup");
+    const signupResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes("/api/auth/signup/") &&
+        response.request().method() === "POST",
+    );
+    await page.getByLabel("Username").fill("new-basic-user");
+    await page.getByLabel("Email").fill("new-basic-user@example.com");
+    await page.getByLabel("Password", { exact: true }).fill("StrongPass123!");
+    await page.getByLabel("Confirm password").fill("StrongPass123!");
+    await page.getByRole("button", { name: "Create account" }).click();
+    const signupResponse = await signupResponsePromise;
+    expect(signupResponse.ok()).toBeTruthy();
+    await expect(page.getByRole("heading", { name: "Account created" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Continue to sign in" })).toBeVisible();
   });
 
   test("loads all migrated routes for admin users", async ({ page }) => {
-    test.setTimeout(120000);
+    // This sweep touches every migrated route and compiles multiple pages in dev mode.
+    // Keep assertions strict, but allow enough budget to avoid false failures on slower filesystems.
+    test.setTimeout(240000);
     await installApiMocks(page, "authenticated-admin");
     await page.goto("/dashboard");
 
     await expect(page.getByRole("link", { name: "Audit" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Operational dashboard" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 
     const routeChecks: Array<{ path: string; heading: string }> = [
       { path: "/members", heading: "Members" },
