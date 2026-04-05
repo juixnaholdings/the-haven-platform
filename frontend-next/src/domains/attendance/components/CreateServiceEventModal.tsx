@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 
 import { queryClient } from "@/api/queryClient";
-import { ErrorAlert, FormModalShell, FormSection } from "@/components";
+import { ButtonLoadingContent, ErrorAlert, FormModalShell, FormSection } from "@/components";
 import { attendanceApi } from "@/domains/attendance/api";
 import { SERVICE_EVENT_TYPE_OPTIONS } from "@/domains/attendance/options";
 import type { ServiceEventDetail, ServiceEventWritePayload } from "@/domains/types";
@@ -111,7 +111,9 @@ export function CreateServiceEventModal({
             form="create-service-event-modal-form"
             type="submit"
           >
-            {createEventMutation.isPending ? "Creating..." : "Create event"}
+            <ButtonLoadingContent isLoading={createEventMutation.isPending} loadingText="Creating...">
+              Create event
+            </ButtonLoadingContent>
           </button>
         </>
       }

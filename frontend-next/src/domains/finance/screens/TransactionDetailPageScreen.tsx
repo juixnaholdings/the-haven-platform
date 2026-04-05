@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   BlockedFeatureCard,
   EmptyState,
   EntityTable,
@@ -566,7 +567,9 @@ export function TransactionDetailPageScreen() {
               }
               type="submit"
             >
-              {updateMutation.isPending ? "Saving..." : "Save metadata changes"}
+              <ButtonLoadingContent isLoading={updateMutation.isPending} loadingText="Saving...">
+                Save metadata changes
+              </ButtonLoadingContent>
             </button>
             <button className="button button-secondary" onClick={closeMetadataModal} type="button">
               Cancel

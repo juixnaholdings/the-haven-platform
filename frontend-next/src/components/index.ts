@@ -1,4 +1,5 @@
 export { AppModal } from "./AppModal";
+export { ButtonLoadingContent } from "./ButtonLoadingContent";
 export { BlockedFeatureCard } from "./BlockedFeatureCard";
 export { DetailPanel } from "./DetailPanel";
 export { EmptyState } from "./EmptyState";

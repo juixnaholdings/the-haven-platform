@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
@@ -182,7 +183,9 @@ export function GroupsPageScreen() {
               form="create-ministry-modal-form"
               type="submit"
             >
-              {createGroupMutation.isPending ? "Creating..." : "Create ministry"}
+              <ButtonLoadingContent isLoading={createGroupMutation.isPending} loadingText="Creating...">
+                Create ministry
+              </ButtonLoadingContent>
             </button>
           </>
         }

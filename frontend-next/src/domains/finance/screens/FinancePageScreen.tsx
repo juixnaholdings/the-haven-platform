@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   BlockedFeatureCard,
   EmptyState,
   EntityTable,
@@ -456,7 +457,9 @@ export function FinancePageScreen() {
 
           <div className="flex flex-wrap items-center gap-2.5">
             <button className="button button-primary" disabled={isIncomeSubmitDisabled} type="submit">
-              {incomeMutation.isPending ? "Saving..." : "Record income"}
+              <ButtonLoadingContent isLoading={incomeMutation.isPending} loadingText="Saving...">
+                Record income
+              </ButtonLoadingContent>
             </button>
             <button
               className="button button-secondary"
@@ -600,7 +603,9 @@ export function FinancePageScreen() {
 
           <div className="flex flex-wrap items-center gap-2.5">
             <button className="button button-primary" disabled={isExpenseSubmitDisabled} type="submit">
-              {expenseMutation.isPending ? "Saving..." : "Record expense"}
+              <ButtonLoadingContent isLoading={expenseMutation.isPending} loadingText="Saving...">
+                Record expense
+              </ButtonLoadingContent>
             </button>
             <button
               className="button button-secondary"
@@ -780,7 +785,9 @@ export function FinancePageScreen() {
               disabled={isTransferSubmitDisabled}
               type="submit"
             >
-              {transferMutation.isPending ? "Saving..." : "Record transfer"}
+              <ButtonLoadingContent isLoading={transferMutation.isPending} loadingText="Saving...">
+                Record transfer
+              </ButtonLoadingContent>
             </button>
             <button
               className="button button-secondary"

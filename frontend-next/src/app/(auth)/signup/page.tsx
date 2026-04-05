@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { ButtonLoadingContent } from "@/components";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { formatApiErrors, isApiError } from "@/api/errors";
 import { authApi } from "@/domains/auth/api";
@@ -497,7 +498,9 @@ export default function SignupPage() {
             ) : null}
 
             <button className="button button-primary button-block" disabled={isSubmitting || isSubmitGuarded} type="submit">
-              {isSubmitting ? "Creating account..." : "Create account"}
+              <ButtonLoadingContent isLoading={isSubmitting} loadingText="Creating account...">
+                Create account
+              </ButtonLoadingContent>
             </button>
           </form>
 

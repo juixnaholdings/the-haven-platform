@@ -207,6 +207,10 @@ a {
     @apply w-full;
   }
 
+  .button-inline-spinner {
+    @apply inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/35 border-t-white;
+  }
+
   .page-stack {
     @apply space-y-6;
   }

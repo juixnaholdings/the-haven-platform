@@ -6,6 +6,7 @@ import Link from 'next/link'
 
 import { queryClient } from '@/api/queryClient'
 import {
+  ButtonLoadingContent,
   ErrorAlert,
   FormModalShell,
   FormSection,
@@ -331,7 +332,12 @@ export function RecordAttendanceModal ({
             form='record-attendance-modal-form'
             type='submit'
           >
-            {workflowMutation.isPending ? 'Recording...' : 'Submit Record'}
+            <ButtonLoadingContent
+              isLoading={workflowMutation.isPending}
+              loadingText='Recording...'
+            >
+              Submit Record
+            </ButtonLoadingContent>
           </button>
         </>
       }

@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation'
 
 import { queryClient } from '@/api/queryClient'
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
@@ -627,9 +628,12 @@ export function EventAttendancePageScreen () {
               form='attendance-summary-modal-form'
               type='submit'
             >
-              {saveSummaryMutation.isPending
-                ? 'Saving...'
-                : 'Save summary attendance'}
+              <ButtonLoadingContent
+                isLoading={saveSummaryMutation.isPending}
+                loadingText='Saving...'
+              >
+                Save summary attendance
+              </ButtonLoadingContent>
             </button>
           </>
         }
@@ -762,9 +766,12 @@ export function EventAttendancePageScreen () {
               form='add-member-attendance-modal-form'
               type='submit'
             >
-              {createMemberAttendanceMutation.isPending
-                ? 'Adding...'
-                : 'Add member attendance'}
+              <ButtonLoadingContent
+                isLoading={createMemberAttendanceMutation.isPending}
+                loadingText='Adding...'
+              >
+                Add member attendance
+              </ButtonLoadingContent>
             </button>
           </>
         }
@@ -914,9 +921,12 @@ export function EventAttendancePageScreen () {
               form='edit-member-attendance-modal-form'
               type='submit'
             >
-              {updateMemberAttendanceMutation.isPending
-                ? 'Saving...'
-                : 'Save attendance record'}
+              <ButtonLoadingContent
+                isLoading={updateMemberAttendanceMutation.isPending}
+                loadingText='Saving...'
+              >
+                Save attendance record
+              </ButtonLoadingContent>
             </button>
           </>
         }

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { formatApiErrors, isApiError } from "@/api/errors";
+import { ButtonLoadingContent } from "@/components";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { authApi } from "@/domains/auth/api";
 
@@ -529,7 +530,9 @@ export default function StaffInviteOnboardingPage() {
               disabled={acceptInviteMutation.isPending || isSubmitGuarded}
               type="submit"
             >
-              {acceptInviteMutation.isPending ? "Completing onboarding..." : "Complete onboarding"}
+              <ButtonLoadingContent isLoading={acceptInviteMutation.isPending} loadingText="Completing onboarding...">
+                Complete onboarding
+              </ButtonLoadingContent>
             </button>
           </form>
 

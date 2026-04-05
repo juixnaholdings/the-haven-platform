@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
@@ -192,7 +193,9 @@ export function HouseholdsPageScreen() {
               form="create-household-modal-form"
               type="submit"
             >
-              {createHouseholdMutation.isPending ? "Creating..." : "Create household"}
+              <ButtonLoadingContent isLoading={createHouseholdMutation.isPending} loadingText="Creating...">
+                Create household
+              </ButtonLoadingContent>
             </button>
           </>
         }

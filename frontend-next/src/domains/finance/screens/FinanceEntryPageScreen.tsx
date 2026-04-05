@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   ErrorAlert,
   ErrorState,
   FormSection,
@@ -311,7 +312,9 @@ export function FinanceEntryPageScreen({ entryType }: FinanceEntryPageScreenProp
                 disabled={submitMutation.isPending || !hasPreparedForm}
                 type="submit"
               >
-                {submitMutation.isPending ? "Saving..." : submitLabel}
+                <ButtonLoadingContent isLoading={submitMutation.isPending} loadingText="Saving...">
+                  {submitLabel}
+                </ButtonLoadingContent>
               </button>
               <button className="button button-secondary" onClick={() => setFormState(emptyFormState)} type="button">
                 Reset form

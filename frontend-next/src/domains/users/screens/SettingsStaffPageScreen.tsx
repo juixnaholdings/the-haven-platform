@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
@@ -506,7 +507,9 @@ export function SettingsStaffPageScreen() {
               form="staff-invite-form"
               type="submit"
             >
-              {createStaffInviteMutation.isPending ? "Creating invite..." : "Create invite"}
+              <ButtonLoadingContent isLoading={createStaffInviteMutation.isPending} loadingText="Creating invite...">
+                Create invite
+              </ButtonLoadingContent>
             </button>
           </>
         }
@@ -848,7 +851,9 @@ export function SettingsStaffPageScreen() {
               form="staff-create-form"
               type="submit"
             >
-              {createStaffUserMutation.isPending ? "Creating..." : "Create staff user"}
+              <ButtonLoadingContent isLoading={createStaffUserMutation.isPending} loadingText="Creating...">
+                Create staff user
+              </ButtonLoadingContent>
             </button>
           </>
         }
@@ -1185,7 +1190,9 @@ export function SettingsStaffPageScreen() {
                 disabled={isUpdateStaffSubmitDisabled}
                 type="submit"
               >
-                {updateStaffUserMutation.isPending ? "Saving..." : "Save staff user"}
+                <ButtonLoadingContent isLoading={updateStaffUserMutation.isPending} loadingText="Saving...">
+                  Save staff user
+                </ButtonLoadingContent>
               </button>
               <button className="button button-secondary" onClick={() => setUpdateFormOverrides({})} type="button">
                 Reset changes
@@ -1234,7 +1241,9 @@ export function SettingsStaffPageScreen() {
               form="basic-user-elevation-form"
               type="submit"
             >
-              {elevateBasicUserMutation.isPending ? "Elevating..." : "Elevate to staff"}
+              <ButtonLoadingContent isLoading={elevateBasicUserMutation.isPending} loadingText="Elevating...">
+                Elevate to staff
+              </ButtonLoadingContent>
             </button>
           </>
         }

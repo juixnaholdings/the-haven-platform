@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
@@ -372,7 +373,9 @@ export function GroupDetailPageScreen() {
               form="group-edit-form"
               type="submit"
             >
-              {updateGroupMutation.isPending ? "Saving..." : "Save ministry changes"}
+              <ButtonLoadingContent isLoading={updateGroupMutation.isPending} loadingText="Saving...">
+                Save ministry changes
+              </ButtonLoadingContent>
             </button>
           </>
         }
@@ -642,7 +645,9 @@ export function GroupDetailPageScreen() {
 
         <div className="flex flex-wrap items-center gap-2.5">
           <button className="button button-primary" disabled={isAddMemberSubmitDisabled} type="submit">
-            {addMemberMutation.isPending ? "Adding..." : "Add member"}
+            <ButtonLoadingContent isLoading={addMemberMutation.isPending} loadingText="Adding...">
+              Add member
+            </ButtonLoadingContent>
           </button>
           <button
             className="button button-secondary"
@@ -761,7 +766,9 @@ export function GroupDetailPageScreen() {
                 disabled={updateMembershipMutation.isPending}
                 type="submit"
               >
-                {updateMembershipMutation.isPending ? "Saving..." : "Save membership"}
+                <ButtonLoadingContent isLoading={updateMembershipMutation.isPending} loadingText="Saving...">
+                  Save membership
+                </ButtonLoadingContent>
               </button>
               <button
                 className="button button-secondary"

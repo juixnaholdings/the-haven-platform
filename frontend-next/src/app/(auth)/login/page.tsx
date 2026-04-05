@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { ButtonLoadingContent } from "@/components";
 import { ErrorAlert } from "@/components/ErrorAlert";
 import { useSession } from "@/auth/use-session";
 
@@ -78,7 +79,9 @@ export default function LoginPage() {
               disabled={isSubmitting || isBootstrapping || isSubmitGuarded}
               type="submit"
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              <ButtonLoadingContent isLoading={isSubmitting} loadingText="Signing in...">
+                Sign in
+              </ButtonLoadingContent>
             </button>
           </form>
 

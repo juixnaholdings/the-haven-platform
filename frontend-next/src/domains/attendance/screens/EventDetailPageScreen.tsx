@@ -6,7 +6,17 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
-import { ErrorAlert, ErrorState, FormModalShell, FormSection, LoadingState, PageHeader, StatCard, StatusBadge } from "@/components";
+import {
+  ButtonLoadingContent,
+  ErrorAlert,
+  ErrorState,
+  FormModalShell,
+  FormSection,
+  LoadingState,
+  PageHeader,
+  StatCard,
+  StatusBadge,
+} from "@/components";
 import { attendanceApi } from "@/domains/attendance/api";
 import { getServiceEventTypeLabel, SERVICE_EVENT_TYPE_OPTIONS } from "@/domains/attendance/options";
 import type { ServiceEventWritePayload } from "@/domains/types";
@@ -264,7 +274,9 @@ export function EventDetailPageScreen() {
               form="update-event-modal-form"
               type="submit"
             >
-              {updateServiceEventMutation.isPending ? "Saving..." : "Save event changes"}
+              <ButtonLoadingContent isLoading={updateServiceEventMutation.isPending} loadingText="Saving...">
+                Save event changes
+              </ButtonLoadingContent>
             </button>
           </>
         }

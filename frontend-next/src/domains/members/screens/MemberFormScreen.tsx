@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   ErrorAlert,
   ErrorState,
   FormModalShell,
@@ -344,7 +345,9 @@ export function MemberFormScreen({
             disabled={saveMemberMutation.isPending || isSubmitGuarded}
             type="submit"
           >
-            {saveMemberMutation.isPending ? "Saving..." : isEdit ? "Save changes" : "Create member"}
+            <ButtonLoadingContent isLoading={saveMemberMutation.isPending} loadingText="Saving...">
+              {isEdit ? "Save changes" : "Create member"}
+            </ButtonLoadingContent>
           </button>
           <button className="button button-secondary" onClick={handleCancel} type="button">
             Cancel
@@ -370,7 +373,9 @@ export function MemberFormScreen({
               form={formId}
               type="submit"
             >
-              {saveMemberMutation.isPending ? "Saving..." : isEdit ? "Save changes" : "Create member"}
+              <ButtonLoadingContent isLoading={saveMemberMutation.isPending} loadingText="Saving...">
+                {isEdit ? "Save changes" : "Create member"}
+              </ButtonLoadingContent>
             </button>
             <button className="button button-secondary" onClick={handleCancel} type="button">
               Cancel

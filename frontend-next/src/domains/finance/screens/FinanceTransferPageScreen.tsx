@@ -6,7 +6,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
-import { ErrorAlert, ErrorState, FormSection, LoadingState, PageHeader, StatCard, StatusBadge } from "@/components";
+import {
+  ButtonLoadingContent,
+  ErrorAlert,
+  ErrorState,
+  FormSection,
+  LoadingState,
+  PageHeader,
+  StatCard,
+  StatusBadge,
+} from "@/components";
 import { attendanceApi } from "@/domains/attendance/api";
 import { financeApi } from "@/domains/finance/api";
 import type { TransferTransactionPayload } from "@/domains/types";
@@ -325,7 +334,9 @@ export function FinanceTransferPageScreen() {
                 disabled={isTransferSubmitDisabled}
                 type="submit"
               >
-                {transferMutation.isPending ? "Saving..." : "Record transfer"}
+                <ButtonLoadingContent isLoading={transferMutation.isPending} loadingText="Saving...">
+                  Record transfer
+                </ButtonLoadingContent>
               </button>
               <button
                 className="button button-secondary"

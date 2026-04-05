@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
@@ -529,7 +530,9 @@ export function HouseholdDetailPageScreen() {
               disabled={isUpdateHouseholdSubmitDisabled}
               type="submit"
             >
-              {updateHouseholdMutation.isPending ? "Saving..." : "Save household changes"}
+              <ButtonLoadingContent isLoading={updateHouseholdMutation.isPending} loadingText="Saving...">
+                Save household changes
+              </ButtonLoadingContent>
             </button>
             <button
               className="button button-secondary"
@@ -791,7 +794,9 @@ export function HouseholdDetailPageScreen() {
             disabled={isAddMemberSubmitDisabled}
             type="submit"
           >
-            {addMemberMutation.isPending ? "Adding..." : "Add member"}
+            <ButtonLoadingContent isLoading={addMemberMutation.isPending} loadingText="Adding...">
+              Add member
+            </ButtonLoadingContent>
           </button>
           <button
             className="button button-secondary"
@@ -935,7 +940,9 @@ export function HouseholdDetailPageScreen() {
                 disabled={updateMembershipMutation.isPending}
                 type="submit"
               >
-                {updateMembershipMutation.isPending ? "Saving..." : "Save membership"}
+                <ButtonLoadingContent isLoading={updateMembershipMutation.isPending} loadingText="Saving...">
+                  Save membership
+                </ButtonLoadingContent>
               </button>
               <button
                 className="button button-secondary"
