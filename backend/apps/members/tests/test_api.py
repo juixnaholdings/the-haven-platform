@@ -113,6 +113,15 @@ class MemberAdminApiTests(APITestCase):
         self.assertEqual(len(response.data["data"]["group_memberships"]), 1)
         self.assertEqual(response.data["data"]["attendance_summary"]["total_records"], 1)
         self.assertEqual(response.data["data"]["attendance_summary"]["present_count"], 1)
+        self.assertEqual(len(response.data["data"]["recent_attendance_records"]), 1)
+        self.assertEqual(
+            response.data["data"]["recent_attendance_records"][0]["service_event_id"],
+            service_event.id,
+        )
+        self.assertEqual(
+            response.data["data"]["recent_attendance_records"][0]["status"],
+            AttendanceStatus.PRESENT,
+        )
 
     def test_member_endpoints_require_authentication(self):
         self.client.force_authenticate(user=None)

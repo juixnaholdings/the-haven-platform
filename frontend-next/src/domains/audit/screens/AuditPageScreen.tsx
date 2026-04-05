@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
 import {
@@ -34,7 +35,12 @@ const AUDIT_EVENT_TYPE_OPTIONS = [
   "finance.transaction.updated",
   "settings.staff_user.created",
   "settings.staff_user.updated",
+  "settings.staff_user.elevated",
   "settings.staff_role_assignment.updated",
+  "settings.staff_invite.created",
+  "settings.staff_invite.resent",
+  "settings.staff_invite.revoked",
+  "settings.staff_invite.accepted",
 ];
 
 const AUDIT_TARGET_TYPE_OPTIONS = [
@@ -46,6 +52,7 @@ const AUDIT_TARGET_TYPE_OPTIONS = [
   "member_attendance",
   "finance_transaction",
   "staff_user",
+  "staff_invite",
 ];
 
 const EMPTY_AUDIT_EVENTS: AuditEvent[] = [];
@@ -64,26 +71,93 @@ function toPositiveIntegerOrUndefined(value: string): number | undefined {
   return parsed;
 }
 
+function toKnownOrDefault(value: string | null, options: string[]): string {
+  if (!value) {
+    return "all";
+  }
+  return options.includes(value) ? value : "all";
+}
+
+function formatEventTypeLabel(eventType: string): string {
+  if (!eventType) {
+    return "Unknown";
+  }
+  return eventType
+    .split(".")
+    .map((token) => token.replace(/_/g, " "))
+    .map((token) => token.charAt(0).toUpperCase() + token.slice(1))
+    .join(" / ");
+}
+
+function formatTimelineDate(value: string): string {
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(parsedDate);
+}
+
+function getPayloadSummary(payload: Record<string, unknown>): string {
+  const changedFields = payload.changed_fields;
+  if (Array.isArray(changedFields) && changedFields.length > 0) {
+    return `Changed: ${changedFields.join(", ")}`;
+  }
+
+  const lineChanges = payload.line_changes;
+  if (Array.isArray(lineChanges) && lineChanges.length > 0) {
+    return `${lineChanges.length} line metadata change${lineChanges.length === 1 ? "" : "s"}`;
+  }
+
+  if (typeof payload.reference_no === "string" && payload.reference_no) {
+    return `Reference: ${payload.reference_no}`;
+  }
+
+  if (typeof payload.transaction_type === "string" && payload.transaction_type) {
+    return `Transaction type: ${payload.transaction_type}`;
+  }
+
+  return "Payload available";
+}
+
 export function AuditPageScreen() {
-  const [eventTypeFilter, setEventTypeFilter] = useState("all");
-  const [targetTypeFilter, setTargetTypeFilter] = useState("all");
-  const [actorIdFilter, setActorIdFilter] = useState("");
-  const [targetIdFilter, setTargetIdFilter] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const searchParams = useSearchParams();
+  const [eventTypeFilter, setEventTypeFilter] = useState(() =>
+    toKnownOrDefault(searchParams.get("event_type"), AUDIT_EVENT_TYPE_OPTIONS),
+  );
+  const [targetTypeFilter, setTargetTypeFilter] = useState(() =>
+    toKnownOrDefault(searchParams.get("target_type"), AUDIT_TARGET_TYPE_OPTIONS),
+  );
+  const [textSearch, setTextSearch] = useState(() => searchParams.get("search") ?? "");
+  const [actorUsernameFilter, setActorUsernameFilter] = useState(
+    () => searchParams.get("actor_username") ?? "",
+  );
+  const [actorIdFilter, setActorIdFilter] = useState(() => searchParams.get("actor_id") ?? "");
+  const [targetIdFilter, setTargetIdFilter] = useState(() => searchParams.get("target_id") ?? "");
+  const [startDate, setStartDate] = useState(() => searchParams.get("start_date") ?? "");
+  const [endDate, setEndDate] = useState(() => searchParams.get("end_date") ?? "");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [selectedAuditEventId, setSelectedAuditEventId] = useState<number | null>(null);
 
+  const deferredTextSearch = useDeferredValue(textSearch);
   const deferredActorIdFilter = useDeferredValue(actorIdFilter);
+  const deferredActorUsernameFilter = useDeferredValue(actorUsernameFilter);
   const deferredTargetIdFilter = useDeferredValue(targetIdFilter);
 
   const auditEventsQuery = useQuery({
     queryKey: [
       "audit-events",
       {
+        deferredTextSearch,
         eventTypeFilter,
         targetTypeFilter,
+        deferredActorUsernameFilter,
         deferredActorIdFilter,
         deferredTargetIdFilter,
         startDate,
@@ -94,8 +168,10 @@ export function AuditPageScreen() {
     ],
     queryFn: () =>
       auditApi.listAuditEventsPage({
+        search: deferredTextSearch || undefined,
         event_type: eventTypeFilter === "all" ? undefined : eventTypeFilter,
         target_type: targetTypeFilter === "all" ? undefined : targetTypeFilter,
+        actor_username: deferredActorUsernameFilter || undefined,
         actor_id: toPositiveIntegerOrUndefined(deferredActorIdFilter),
         target_id: toPositiveIntegerOrUndefined(deferredTargetIdFilter),
         start_date: startDate || undefined,
@@ -109,8 +185,10 @@ export function AuditPageScreen() {
   const auditEventsPagination = auditEventsQuery.data?.pagination ?? null;
   const totalAuditEvents = auditEventsPagination?.count ?? auditEvents.length;
   const hasFilters =
+    Boolean(textSearch.trim()) ||
     eventTypeFilter !== "all" ||
     targetTypeFilter !== "all" ||
+    Boolean(actorUsernameFilter.trim()) ||
     Boolean(actorIdFilter.trim()) ||
     Boolean(targetIdFilter.trim()) ||
     Boolean(startDate || endDate);
@@ -124,6 +202,19 @@ export function AuditPageScreen() {
     () => auditEvents.find((auditEvent) => auditEvent.id === effectiveSelectedAuditEventId) ?? null,
     [auditEvents, effectiveSelectedAuditEventId],
   );
+  const timelineGroups = useMemo(() => {
+    const groupedEvents = new Map<string, AuditEvent[]>();
+    for (const auditEvent of auditEvents) {
+      const dateKey = formatTimelineDate(auditEvent.created_at);
+      const bucket = groupedEvents.get(dateKey) ?? [];
+      bucket.push(auditEvent);
+      groupedEvents.set(dateKey, bucket);
+    }
+    return Array.from(groupedEvents.entries()).map(([dateLabel, events]) => ({
+      dateLabel,
+      events,
+    }));
+  }, [auditEvents]);
 
   if (auditEventsQuery.isLoading) {
     return (
@@ -172,16 +263,28 @@ export function AuditPageScreen() {
           value={targetTypeFilter === "all" ? "All targets" : targetTypeFilter}
         />
       </section>
-
+{/* 
       <BlockedFeatureCard
-        description="This first audit layer is list-first and queryable, but does not yet include export pipelines, anomaly analytics, or long-form forensic timelines."
-        reason="This wave focuses on practical mutation traceability for core operational surfaces."
+        description="Audit history now supports practical timeline and search filtering, but still does not include export pipelines or anomaly analytics."
+        reason="This wave prioritizes practical operational traceability without building a heavyweight forensics subsystem."
         title="Forensics and export workflows"
         tone="info"
-      />
+      /> */}
 
       <section className="panel">
         <div className="filters-grid filters-grid-3">
+          <label className="field">
+            <span>Search</span>
+            <input
+              onChange={(event) => {
+                setTextSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search summary, event type, target, or actor..."
+              value={textSearch}
+            />
+          </label>
+
           <label className="field">
             <span>Event type</span>
             <select
@@ -214,6 +317,18 @@ export function AuditPageScreen() {
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="field">
+            <span>Actor username</span>
+            <input
+              onChange={(event) => {
+                setActorUsernameFilter(event.target.value);
+                setPage(1);
+              }}
+              placeholder="e.g. churchadmin"
+              value={actorUsernameFilter}
+            />
           </label>
 
           <label className="field">
@@ -269,8 +384,10 @@ export function AuditPageScreen() {
           <button
             className="button button-secondary"
             onClick={() => {
+              setTextSearch("");
               setEventTypeFilter("all");
               setTargetTypeFilter("all");
+              setActorUsernameFilter("");
               setActorIdFilter("");
               setTargetIdFilter("");
               setStartDate("");
@@ -294,75 +411,109 @@ export function AuditPageScreen() {
           title={hasFilters ? "No audit events matched the current filters" : "No audit events recorded yet"}
         />
       ) : (
-        <section className="panel">
-          <EntityTable
-            columns={[
-              {
-                header: "Event",
-                cell: (auditEvent) => (
-                  <div className="cell-stack">
-                    <strong>{auditEvent.summary}</strong>
-                    <span className="table-subtext">{auditEvent.event_type}</span>
-                  </div>
-                ),
-              },
-              {
-                header: "Target",
-                cell: (auditEvent) => (
-                  <span>
-                    {auditEvent.target_type}:{auditEvent.target_id ?? "—"}
-                  </span>
-                ),
-              },
-              {
-                header: "Actor",
-                cell: (auditEvent) =>
-                  auditEvent.actor ? (
+        <div className="grid gap-4 items-start grid-cols-1">
+          <section className="panel">
+            <EntityTable
+              columns={[
+                {
+                  header: "Event",
+                  cell: (auditEvent) => (
                     <div className="cell-stack">
-                      <strong>{auditEvent.actor.full_name}</strong>
-                      <span className="table-subtext">@{auditEvent.actor.username}</span>
+                      <strong>{auditEvent.summary}</strong>
+                      <span className="table-subtext">{formatEventTypeLabel(auditEvent.event_type)}</span>
                     </div>
-                  ) : (
-                    "System"
                   ),
-              },
-              {
-                header: "Recorded",
-                cell: (auditEvent) => formatDateTime(auditEvent.created_at),
-              },
-              {
-                header: "Actions",
-                className: "cell-actions",
-                cell: (auditEvent) => (
-                  <button
-                    className={
-                      effectiveSelectedAuditEventId === auditEvent.id
-                        ? "button button-secondary button-compact"
-                        : "button button-ghost button-compact"
-                    }
-                    onClick={() => setSelectedAuditEventId(auditEvent.id)}
-                    type="button"
-                  >
-                    {effectiveSelectedAuditEventId === auditEvent.id ? "Inspecting" : "Inspect"}
-                  </button>
-                ),
-              },
-            ]}
-            getRowKey={(auditEvent) => auditEvent.id}
-            rows={auditEvents}
-          />
-          <PaginationControls
-            onPageChange={(nextPage) => setPage(nextPage)}
-            onPageSizeChange={(nextPageSize) => {
-              setPageSize(nextPageSize);
-              setPage(1);
-            }}
-            pagination={auditEventsPagination}
-          />
-        </section>
+                },
+                {
+                  header: "Target",
+                  cell: (auditEvent) => (
+                    <span>
+                      {auditEvent.target_type}:{auditEvent.target_id ?? "-"}
+                    </span>
+                  ),
+                },
+                {
+                  header: "Actor",
+                  cell: (auditEvent) =>
+                    auditEvent.actor ? (
+                      <div className="cell-stack">
+                        <strong>{auditEvent.actor.full_name}</strong>
+                        <span className="table-subtext">@{auditEvent.actor.username}</span>
+                      </div>
+                    ) : (
+                      "System"
+                    ),
+                },
+                {
+                  header: "History detail",
+                  cell: (auditEvent) => (
+                    <span className="table-subtext">{getPayloadSummary(auditEvent.payload)}</span>
+                  ),
+                },
+                {
+                  header: "Recorded",
+                  cell: (auditEvent) => formatDateTime(auditEvent.created_at),
+                },
+                {
+                  header: "Actions",
+                  className: "cell-actions",
+                  cell: (auditEvent) => (
+                    <button
+                      className={
+                        effectiveSelectedAuditEventId === auditEvent.id
+                          ? "button button-secondary button-compact"
+                          : "button button-ghost button-compact"
+                      }
+                      onClick={() => setSelectedAuditEventId(auditEvent.id)}
+                      type="button"
+                    >
+                      {effectiveSelectedAuditEventId === auditEvent.id ? "Inspecting" : "Inspect"}
+                    </button>
+                  ),
+                },
+              ]}
+              getRowKey={(auditEvent) => auditEvent.id}
+              rows={auditEvents}
+            />
+            <PaginationControls
+              onPageChange={(nextPage) => setPage(nextPage)}
+              onPageSizeChange={(nextPageSize) => {
+                setPageSize(nextPageSize);
+                setPage(1);
+              }}
+              pagination={auditEventsPagination}
+            />
+          </section>
+
+          {/* <aside className="space-y-4">
+            <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+              <div className="section-header">
+                <div>
+                  <h3>Activity timeline</h3>
+                  <p className="m-0 text-sm text-slate-500">
+                    Grouped view of the currently filtered events to help operators scan activity quickly.
+                  </p>
+                </div>
+              </div>
+              <ul className="item-list">
+                {timelineGroups.map((timelineGroup) => (
+                  <li className="item-row" key={timelineGroup.dateLabel}>
+                    <div className="grid gap-1">
+                      <strong>{timelineGroup.dateLabel}</strong>
+                      <span>{timelineGroup.events.length} event(s) captured</span>
+                      <span className="table-subtext">
+                        Latest: {timelineGroup.events[0]?.summary ?? "No summary"}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </aside> */}
+        </div>
       )}
 
-      {selectedAuditEvent ? (
+      {/* {selectedAuditEvent ? (
         <section className="panel">
           <div className="panel-header">
             <div>
@@ -380,7 +531,7 @@ export function AuditPageScreen() {
             <div>
               <dt>Target</dt>
               <dd>
-                {selectedAuditEvent.target_type}:{selectedAuditEvent.target_id ?? "—"}
+                {selectedAuditEvent.target_type}:{selectedAuditEvent.target_id ?? "-"}
               </dd>
             </div>
             <div>
@@ -402,7 +553,7 @@ export function AuditPageScreen() {
             <pre className="panel-copy">{JSON.stringify(selectedAuditEvent.payload, null, 2)}</pre>
           </div>
         </section>
-      ) : null}
+      ) : null} */}
     </div>
   );
 }

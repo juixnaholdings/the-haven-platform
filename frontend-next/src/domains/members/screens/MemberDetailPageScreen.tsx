@@ -16,6 +16,7 @@ import {
   StatCard,
   StatusBadge,
 } from "@/components";
+import { getAttendanceStatusLabel, getServiceEventTypeLabel } from "@/domains/attendance/options";
 import { membersApi } from "@/domains/members/api";
 import { MemberFormScreen } from "@/domains/members/screens/MemberFormScreen";
 import { formatDate, formatDateTime } from "@/lib/formatters";
@@ -75,6 +76,7 @@ export function MemberDetailPageScreen() {
   const memberInitials = getMemberInitials(member.full_name);
   const activeGroupMemberships = member.group_memberships.filter((membership) => membership.is_active);
   const attendanceSummary = member.attendance_summary;
+  const recentAttendanceRecords = member.recent_attendance_records ?? [];
 
   return (
     <div className="space-y-6">
@@ -299,6 +301,63 @@ export function MemberDetailPageScreen() {
             ]}
             getRowKey={(membership) => membership.id}
             rows={member.group_memberships}
+          />
+        )}
+      </section>
+
+      <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
+        <div className="section-header">
+          <div>
+            <h3>Recent attendance history</h3>
+            <p className="m-0 text-sm text-slate-500">
+              Latest event attendance records for this member, ordered by service date.
+            </p>
+          </div>
+        </div>
+        {recentAttendanceRecords.length === 0 ? (
+          <EmptyState
+            description="No attendance records have been captured for this member yet."
+            title="No attendance history"
+          />
+        ) : (
+          <EntityTable
+            columns={[
+              {
+                header: "Event",
+                cell: (attendanceRecord) => (
+                  <div className="grid gap-1">
+                    <Link
+                      className="font-semibold text-[#16335f] hover:underline"
+                      href={`/events/${attendanceRecord.service_event_id}`}
+                    >
+                      {attendanceRecord.service_event_title}
+                    </Link>
+                    <span className="table-subtext">
+                      {getServiceEventTypeLabel(attendanceRecord.service_event_type)} | {formatDate(attendanceRecord.service_date)}
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                header: "Status",
+                cell: (attendanceRecord) => (
+                  <StatusBadge
+                    label={getAttendanceStatusLabel(attendanceRecord.status)}
+                    tone={attendanceRecord.status === "PRESENT" ? "success" : "warning"}
+                  />
+                ),
+              },
+              {
+                header: "Checked in",
+                cell: (attendanceRecord) => formatDateTime(attendanceRecord.checked_in_at),
+              },
+              {
+                header: "Last updated",
+                cell: (attendanceRecord) => formatDateTime(attendanceRecord.updated_at),
+              },
+            ]}
+            getRowKey={(attendanceRecord) => attendanceRecord.id}
+            rows={recentAttendanceRecords}
           />
         )}
       </section>

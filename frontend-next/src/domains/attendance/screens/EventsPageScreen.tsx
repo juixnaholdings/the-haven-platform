@@ -23,20 +23,14 @@ import { formatDate, formatTime } from "@/lib/formatters";
 
 type EventStatusFilter = "all" | "active" | "inactive";
 
-function getAttendanceProgressLabel({
-  hasSummary,
-  memberAttendanceCount,
-}: {
-  hasSummary: boolean;
-  memberAttendanceCount: number;
-}) {
-  if (hasSummary && memberAttendanceCount > 0) {
-    return "Summary and member records captured";
+function getAttendanceProgressTone(status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED") {
+  if (status === "COMPLETED") {
+    return "success" as const;
   }
-  if (hasSummary || memberAttendanceCount > 0) {
-    return "Attendance in progress";
+  if (status === "IN_PROGRESS") {
+    return "warning" as const;
   }
-  return "Attendance not started";
+  return "muted" as const;
 }
 
 export function EventsPageScreen() {
@@ -67,7 +61,10 @@ export function EventsPageScreen() {
   const totalServiceEvents = pagination?.count ?? serviceEvents.length;
   const hasFilters = Boolean(search.trim()) || eventTypeFilter !== "all" || statusFilter !== "all";
   const activeEvents = serviceEvents.filter((serviceEvent) => serviceEvent.is_active).length;
-  const eventsWithSummary = serviceEvents.filter((serviceEvent) => serviceEvent.has_attendance_summary).length;
+  const completedEvents = serviceEvents.filter((serviceEvent) => serviceEvent.attendance_is_complete).length;
+  const inProgressEvents = serviceEvents.filter(
+    (serviceEvent) => serviceEvent.attendance_progress_status === "IN_PROGRESS",
+  ).length;
   const nextEvent = [...serviceEvents]
     .filter((serviceEvent) => Boolean(serviceEvent.service_date))
     .sort((left, right) => left.service_date.localeCompare(right.service_date))[0];
@@ -93,92 +90,18 @@ export function EventsPageScreen() {
             </button>
           </div>
         }
-        description="Manage church services and events, then move into the detail and attendance recording workflows."
-        eyebrow="Services / events"
-        meta={
-          <StatusBadge
-            label={`${totalServiceEvents} event${totalServiceEvents === 1 ? "" : "s"}`}
-            tone="info"
-          />
-        }
         title="Events"
       />
 
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard label="Events" tone="accent" value={totalServiceEvents} />
         <StatCard label="Active in view" value={activeEvents} />
-        <StatCard label="Summary in view" value={eventsWithSummary} />
+        <StatCard label="Attendance complete" value={completedEvents} />
+        <StatCard label="Attendance in progress" value={inProgressEvents} />
         <StatCard label="Next in view" value={nextEvent ? formatDate(nextEvent.service_date) : "Not scheduled"} />
       </section>
 
-      <FilterActionStrip
-        actions={
-          hasFilters ? (
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setSearch("");
-                setEventTypeFilter("all");
-                setStatusFilter("all");
-                setPage(1);
-              }}
-              type="button"
-            >
-              Clear filters
-            </button>
-          ) : null
-        }
-        filters={
-          <>
-            <label className="field">
-              <span>Event type</span>
-              <select
-                onChange={(event) => {
-                  setEventTypeFilter(event.target.value);
-                  setPage(1);
-                }}
-                value={eventTypeFilter}
-              >
-                <option value="all">All event types</option>
-                {SERVICE_EVENT_TYPE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="field">
-              <span>Status</span>
-              <select
-                onChange={(event) => {
-                  setStatusFilter(event.target.value as EventStatusFilter);
-                  setPage(1);
-                }}
-                value={statusFilter}
-              >
-                <option value="all">All events</option>
-                <option value="active">Active events</option>
-                <option value="inactive">Inactive events</option>
-              </select>
-            </label>
-          </>
-        }
-        search={
-          <label className="field">
-            <span>Search events</span>
-            <input
-              onChange={(event) => {
-                setSearch(event.target.value);
-                setPage(1);
-              }}
-              placeholder="Search by title or location"
-              value={search}
-            />
-          </label>
-        }
-      />
-
+      
       {serviceEventsQuery.isLoading ? (
         <LoadingState
           description="Fetching service events and attendance flags from the backend."
@@ -193,41 +116,6 @@ export function EventsPageScreen() {
             void serviceEventsQuery.refetch();
           }}
           title="Events could not be loaded"
-        />
-      ) : null}
-
-      {!serviceEventsQuery.isLoading && !serviceEventsQuery.error && serviceEvents.length === 0 ? (
-        <EmptyState
-          action={
-            hasFilters ? (
-              <button
-                className="button button-secondary"
-                onClick={() => {
-                  setSearch("");
-                  setEventTypeFilter("all");
-                  setStatusFilter("all");
-                  setPage(1);
-                }}
-                type="button"
-              >
-                Clear filters
-              </button>
-            ) : (
-              <button
-                className="button button-primary"
-                onClick={() => setIsCreateEventModalOpen(true)}
-                type="button"
-              >
-                Create event
-              </button>
-            )
-          }
-          description={
-            hasFilters
-              ? "Try a broader search or adjust the event-type and status filters."
-              : "Create the first event to start tracking attendance and service operations."
-          }
-          title={hasFilters ? "No events matched the current filters" : "No events have been created yet"}
         />
       ) : null}
 
@@ -263,28 +151,32 @@ export function EventsPageScreen() {
                 header: "Attendance",
                 cell: (serviceEvent) => (
                   <div className="grid gap-1">
+                    <StatusBadge
+                      label={serviceEvent.attendance_progress_label}
+                      tone={getAttendanceProgressTone(serviceEvent.attendance_progress_status)}
+                    />
                     <span>{serviceEvent.member_attendance_count} member records</span>
                     <span className="block text-xs text-slate-500">
                       {serviceEvent.has_attendance_summary ? "Summary recorded" : "No summary yet"}
                     </span>
                     <span className="block text-xs text-slate-500">
-                      {getAttendanceProgressLabel({
-                        hasSummary: serviceEvent.has_attendance_summary,
-                        memberAttendanceCount: serviceEvent.member_attendance_count,
-                      })}
+                      Progress: {serviceEvent.attendance_progress_percent}%
+                    </span>
+                    <span className="block text-xs text-slate-500">
+                      Last attendance update: {formatDate(serviceEvent.attendance_last_updated_at)}
                     </span>
                   </div>
                 ),
               },
-              {
-                header: "Status",
-                cell: (serviceEvent) => (
-                  <StatusBadge
-                    label={serviceEvent.is_active ? "Active" : "Inactive"}
-                    tone={serviceEvent.is_active ? "success" : "muted"}
-                  />
-                ),
-              },
+              // {
+              //   header: "Status",
+              //   cell: (serviceEvent) => (
+              //     <StatusBadge
+              //       label={serviceEvent.is_active ? "Active" : "Inactive"}
+              //       tone={serviceEvent.is_active ? "success" : "muted"}
+              //     />
+              //   ),
+              // },
               {
                 header: "Actions",
                 className: "cell-actions",
@@ -297,7 +189,7 @@ export function EventsPageScreen() {
                       className="button button-ghost button-compact"
                       href={`/events/${serviceEvent.id}/attendance`}
                     >
-                      Attendance
+                      {serviceEvent.attendance_is_complete ? "Review attendance" : "Continue attendance"}
                     </Link>
                   </div>
                 ),

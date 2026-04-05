@@ -82,6 +82,30 @@ class AuditEventApiTests(APITestCase):
             AuditEventType.MEMBER_CREATED,
         )
 
+    def test_audit_events_support_search_and_actor_username_filters(self):
+        self.client.force_authenticate(user=self.admin_user)
+
+        search_response = self.client.get(
+            "/api/audit/events/",
+            {
+                "search": "transfer",
+            },
+        )
+        self.assertEqual(search_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(search_response.data["status"], "success")
+        self.assertEqual(search_response.data["data"][0]["target_type"], AuditTargetType.FINANCE_TRANSACTION)
+
+        actor_response = self.client.get(
+            "/api/audit/events/",
+            {
+                "actor_username": "church",
+                "event_type": AuditEventType.MEMBER_CREATED,
+            },
+        )
+        self.assertEqual(actor_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(actor_response.data["status"], "success")
+        self.assertEqual(len(actor_response.data["data"]), 2)
+
     def test_audit_event_detail_returns_one_event(self):
         self.client.force_authenticate(user=self.admin_user)
         event = AuditEvent.objects.get(target_id=501)

@@ -430,6 +430,55 @@ class SettingsApiTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data["status"], "error")
 
+    def test_non_admin_staff_user_cannot_read_settings_admin_endpoints(self):
+        self.client.force_authenticate(user=self.staff_user)
+
+        for endpoint in (
+            "/api/settings/staff-users/",
+            "/api/settings/roles/",
+            "/api/settings/basic-users/",
+            "/api/settings/staff-invites/",
+        ):
+            with self.subTest(endpoint=endpoint):
+                response = self.client.get(endpoint)
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+                self.assertEqual(response.data["status"], "error")
+
+    def test_permission_only_staff_user_cannot_write_settings_admin_endpoints(self):
+        permission_only_user = User.objects.create_user(
+            username="permissionstaff",
+            email="permissionstaff@example.com",
+            password="StrongPass123",
+            is_staff=True,
+        )
+        permission_only_user.user_permissions.add(
+            Permission.objects.get(codename="add_user", content_type__app_label="users"),
+            Permission.objects.get(codename="change_user", content_type__app_label="users"),
+            Permission.objects.get(codename="change_group", content_type__app_label="auth"),
+        )
+        self.client.force_authenticate(user=permission_only_user)
+
+        create_staff_response = self.client.post(
+            "/api/settings/staff-users/",
+            {
+                "username": "restrictedstaff",
+                "email": "restrictedstaff@example.com",
+                "password": "StrongPass123",
+                "role_ids": [self.finance_secretary_group.id],
+            },
+            format="json",
+        )
+        self.assertEqual(create_staff_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(create_staff_response.data["status"], "error")
+
+        elevate_response = self.client.post(
+            f"/api/settings/basic-users/{self.regular_user.id}/elevate/",
+            {"role_ids": [self.finance_secretary_group.id], "is_active": True},
+            format="json",
+        )
+        self.assertEqual(elevate_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(elevate_response.data["status"], "error")
+
     def test_staff_users_returns_role_aware_staff_directory(self):
         self.client.force_authenticate(user=self.admin_user)
 
@@ -680,6 +729,114 @@ class SettingsApiTests(APITestCase):
         invite.refresh_from_db()
         self.assertEqual(invite.status, StaffInviteStatus.REVOKED)
         self.assertEqual(invite.token, "token-revoke-123")
+
+    def test_resend_staff_invite_rotates_token_and_extends_expiry(self):
+        self.client.force_authenticate(user=self.admin_user)
+        invite = StaffInvite.objects.create(
+            email="resend.me@example.com",
+            token="token-resend-123",
+            status=StaffInviteStatus.PENDING,
+            expires_at=timezone.now() + timedelta(days=1),
+            created_by=self.admin_user,
+            updated_by=self.admin_user,
+        )
+        invite.role_groups.add(self.finance_secretary_group)
+        previous_token = invite.token
+        previous_expires_at = invite.expires_at
+
+        response = self.client.patch(
+            f"/api/settings/staff-invites/{invite.id}/resend/",
+            {"expires_in_days": 10},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(response.data["data"]["status"], StaffInviteStatus.PENDING)
+        self.assertTrue(response.data["data"]["invite_path"].startswith(f"/staff-invite/{invite.id}?token="))
+
+        invite.refresh_from_db()
+        self.assertEqual(invite.status, StaffInviteStatus.PENDING)
+        self.assertNotEqual(invite.token, previous_token)
+        self.assertGreater(invite.expires_at, previous_expires_at)
+
+    def test_resend_staff_invite_reactivates_revoked_invite(self):
+        self.client.force_authenticate(user=self.admin_user)
+        invite = StaffInvite.objects.create(
+            email="revoked.resend@example.com",
+            token="token-revoked-resend",
+            status=StaffInviteStatus.REVOKED,
+            expires_at=timezone.now() - timedelta(days=1),
+            created_by=self.admin_user,
+            updated_by=self.admin_user,
+        )
+        invite.role_groups.add(self.finance_secretary_group)
+        previous_token = invite.token
+
+        response = self.client.patch(
+            f"/api/settings/staff-invites/{invite.id}/resend/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], "success")
+        self.assertEqual(response.data["data"]["status"], StaffInviteStatus.PENDING)
+        self.assertTrue(response.data["data"]["invite_path"].startswith(f"/staff-invite/{invite.id}?token="))
+
+        invite.refresh_from_db()
+        self.assertEqual(invite.status, StaffInviteStatus.PENDING)
+        self.assertNotEqual(invite.token, previous_token)
+        self.assertGreater(invite.expires_at, timezone.now())
+
+    def test_resend_staff_invite_rejects_accepted_invite(self):
+        self.client.force_authenticate(user=self.admin_user)
+        accepted_user = User.objects.create_user(
+            username="accepteduser",
+            email="accepteduser@example.com",
+            password="StrongPass123",
+            is_staff=True,
+        )
+        invite = StaffInvite.objects.create(
+            email="accepted.invite@example.com",
+            token=None,
+            status=StaffInviteStatus.ACCEPTED,
+            expires_at=timezone.now() + timedelta(days=7),
+            accepted_at=timezone.now(),
+            accepted_user=accepted_user,
+            created_by=self.admin_user,
+            updated_by=self.admin_user,
+        )
+        invite.role_groups.add(self.finance_secretary_group)
+
+        response = self.client.patch(
+            f"/api/settings/staff-invites/{invite.id}/resend/",
+            {"expires_in_days": 7},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["status"], "error")
+        self.assertIn("accepted", response.data["errors"]["detail"][0].lower())
+
+    def test_resend_staff_invite_requires_admin_access(self):
+        self.client.force_authenticate(user=self.regular_user)
+        invite = StaffInvite.objects.create(
+            email="nonadmin.resend@example.com",
+            token="token-nonadmin-resend",
+            status=StaffInviteStatus.PENDING,
+            expires_at=timezone.now() + timedelta(days=2),
+        )
+        invite.role_groups.add(self.finance_secretary_group)
+
+        response = self.client.patch(
+            f"/api/settings/staff-invites/{invite.id}/resend/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["status"], "error")
 
     def test_create_staff_invite_requires_admin_access(self):
         self.client.force_authenticate(user=self.regular_user)

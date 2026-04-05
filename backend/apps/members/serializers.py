@@ -33,6 +33,7 @@ class MemberDetailSerializer(serializers.ModelSerializer):
     household_memberships = serializers.SerializerMethodField()
     group_memberships = serializers.SerializerMethodField()
     attendance_summary = serializers.SerializerMethodField()
+    recent_attendance_records = serializers.SerializerMethodField()
 
     class Meta:
         model = Member
@@ -51,6 +52,7 @@ class MemberDetailSerializer(serializers.ModelSerializer):
             "household_memberships",
             "group_memberships",
             "attendance_summary",
+            "recent_attendance_records",
             "created_at",
             "updated_at",
         ]
@@ -76,6 +78,17 @@ class MemberDetailSerializer(serializers.ModelSerializer):
 
     def get_attendance_summary(self, obj):
         return MemberAttendanceSummarySerializer(obj).data
+
+    def get_recent_attendance_records(self, obj):
+        prefetched_attendance = getattr(obj, "_prefetched_objects_cache", {}).get(
+            "member_attendances"
+        )
+        attendance_records = prefetched_attendance if prefetched_attendance is not None else obj.member_attendances.select_related("service_event").order_by(
+            "-service_event__service_date",
+            "-updated_at",
+            "-id",
+        )
+        return MemberRecentAttendanceSerializer(attendance_records[:8], many=True).data
 
     def _get_prefetched_memberships(self, obj, relation_name: str):
         prefetched = getattr(obj, "_prefetched_objects_cache", {}).get(relation_name)
@@ -118,6 +131,17 @@ class MemberAttendanceSummarySerializer(serializers.Serializer):
         read_only=True,
         allow_null=True,
     )
+
+
+class MemberRecentAttendanceSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    service_event_id = serializers.IntegerField(source="service_event.id", read_only=True)
+    service_event_title = serializers.CharField(source="service_event.title", read_only=True)
+    service_event_type = serializers.CharField(source="service_event.event_type", read_only=True)
+    service_date = serializers.DateField(source="service_event.service_date", read_only=True)
+    status = serializers.CharField(read_only=True)
+    checked_in_at = serializers.DateTimeField(read_only=True, allow_null=True)
+    updated_at = serializers.DateTimeField(read_only=True)
 
 
 class MemberWriteSerializer(serializers.ModelSerializer):

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
@@ -83,6 +84,7 @@ export function GroupsPageScreen() {
   const activeGroups = groups.filter((group) => group.is_active).length;
   const inactiveGroups = groups.length - activeGroups;
   const activeGroupMembers = groups.reduce((count, group) => count + group.active_member_count, 0);
+  const isCreateSubmitDisabled = createGroupMutation.isPending || !formState.name.trim();
 
   return (
     <div className="space-y-6">
@@ -177,11 +179,13 @@ export function GroupsPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={createGroupMutation.isPending}
+              disabled={isCreateSubmitDisabled}
               form="create-ministry-modal-form"
               type="submit"
             >
-              {createGroupMutation.isPending ? "Creating..." : "Create ministry"}
+              <ButtonLoadingContent isLoading={createGroupMutation.isPending} loadingText="Creating...">
+                Create ministry
+              </ButtonLoadingContent>
             </button>
           </>
         }

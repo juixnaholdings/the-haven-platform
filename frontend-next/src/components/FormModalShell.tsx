@@ -27,7 +27,7 @@ export function FormModalShell({
 
   return (
     <AppModal isOpen={isOpen} labelledBy={headingId} onClose={onClose} size={size}>
-      <div className="grid max-h-[calc(100vh-1.5rem)] grid-rows-[auto,minmax(0,1fr),auto]">
+      <div className="flex min-h-0 max-h-full flex-col">
         <header className="flex items-start justify-between gap-4 border-b border-slate-200 bg-[#f8f4eb]/85 px-6 py-5">
           <div className="max-w-[72ch] space-y-1.5">
             <h3 className="m-0 text-xl font-semibold tracking-tight text-slate-900" id={headingId}>
@@ -44,7 +44,7 @@ export function FormModalShell({
             Close
           </button>
         </header>
-        <div className="overflow-auto px-6 py-6">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6">{children}</div>
         {footer ? (
           <footer className="flex flex-wrap items-center justify-end gap-2.5 border-t border-slate-200 bg-[#f8f4eb]/75 px-6 py-4">
             {footer}

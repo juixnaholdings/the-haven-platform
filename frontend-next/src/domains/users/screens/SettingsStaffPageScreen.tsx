@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
@@ -192,6 +193,10 @@ function canCopyInvite(invite: StaffInviteListItem): boolean {
   return deriveInviteStatus(invite) === "PENDING" && Boolean(invite.invite_path);
 }
 
+function canResendInvite(invite: StaffInviteListItem): boolean {
+  return deriveInviteStatus(invite) !== "ACCEPTED";
+}
+
 export function SettingsStaffPageScreen() {
   const [staffSearch, setStaffSearch] = useState("");
   const [staffStatusFilter, setStaffStatusFilter] = useState<StaffStatusFilter>("all");
@@ -211,6 +216,7 @@ export function SettingsStaffPageScreen() {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteFormState, setInviteFormState] = useState<StaffInviteFormState>(emptyInviteForm);
   const [copiedInviteId, setCopiedInviteId] = useState<number | null>(null);
+  const [resendingInviteId, setResendingInviteId] = useState<number | null>(null);
 
   const deferredStaffSearch = useDeferredValue(staffSearch);
   const deferredBasicUserSearch = useDeferredValue(basicUserSearch);
@@ -302,6 +308,20 @@ export function SettingsStaffPageScreen() {
     mutationFn: (staffInviteId: number) => usersApi.revokeStaffInvite(staffInviteId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["settings", "staff-invites"] });
+    },
+  });
+
+  const resendStaffInviteMutation = useMutation({
+    mutationFn: ({ staffInviteId, expiresInDays }: { staffInviteId: number; expiresInDays?: number }) =>
+      usersApi.resendStaffInvite(staffInviteId, { expires_in_days: expiresInDays }),
+    onMutate: ({ staffInviteId }) => {
+      setResendingInviteId(staffInviteId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["settings", "staff-invites"] });
+    },
+    onSettled: () => {
+      setResendingInviteId(null);
     },
   });
 
@@ -405,6 +425,22 @@ export function SettingsStaffPageScreen() {
   const pendingElevationCount = allBasicUsers.length;
   const pendingInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "PENDING").length;
   const acceptedInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "ACCEPTED").length;
+  const revokedInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "REVOKED").length;
+  const expiredInviteCount = allStaffInvites.filter((invite) => deriveInviteStatus(invite) === "EXPIRED").length;
+  const isInviteSubmitDisabled =
+    createStaffInviteMutation.isPending ||
+    !inviteFormState.email.trim() ||
+    inviteFormState.expires_in_days < 1 ||
+    inviteFormState.expires_in_days > 30;
+  const isCreateStaffSubmitDisabled =
+    createStaffUserMutation.isPending ||
+    !createFormState.username.trim() ||
+    !createFormState.email.trim() ||
+    createFormState.password.length < 8;
+  const isUpdateStaffSubmitDisabled =
+    updateStaffUserMutation.isPending || !updateFormValues.email.trim();
+  const isElevationSubmitDisabled =
+    elevateBasicUserMutation.isPending || elevationFormState.role_ids.length === 0;
 
   return (
     <div className="page-stack">
@@ -447,6 +483,8 @@ export function SettingsStaffPageScreen() {
         <StatCard label="Pending basic users" value={pendingElevationCount} />
         <StatCard label="Pending invites" value={pendingInviteCount} />
         <StatCard label="Accepted invites" value={acceptedInviteCount} />
+        <StatCard label="Revoked invites" value={revokedInviteCount} />
+        <StatCard label="Expired invites" value={expiredInviteCount} />
       </section>
 
       <FormModalShell
@@ -465,11 +503,13 @@ export function SettingsStaffPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={createStaffInviteMutation.isPending}
+              disabled={isInviteSubmitDisabled}
               form="staff-invite-form"
               type="submit"
             >
-              {createStaffInviteMutation.isPending ? "Creating invite..." : "Create invite"}
+              <ButtonLoadingContent isLoading={createStaffInviteMutation.isPending} loadingText="Creating invite...">
+                Create invite
+              </ButtonLoadingContent>
             </button>
           </>
         }
@@ -753,6 +793,18 @@ export function SettingsStaffPageScreen() {
                       {copiedInviteId === invite.id ? "Copied" : "Copy link"}
                     </button>
                     <button
+                      className="button button-secondary button-compact"
+                      disabled={!canResendInvite(invite) || resendStaffInviteMutation.isPending}
+                      onClick={() =>
+                        resendStaffInviteMutation.mutate({
+                          staffInviteId: invite.id,
+                        })
+                      }
+                      type="button"
+                    >
+                      {resendingInviteId === invite.id ? "Resending..." : "Resend"}
+                    </button>
+                    <button
                       className="button button-ghost button-compact"
                       disabled={!canRevokeInvite(invite) || revokeStaffInviteMutation.isPending}
                       onClick={() => revokeStaffInviteMutation.mutate(invite.id)}
@@ -773,6 +825,10 @@ export function SettingsStaffPageScreen() {
           error={revokeStaffInviteMutation.error}
           fallbackMessage="The invite could not be updated."
         />
+        <ErrorAlert
+          error={resendStaffInviteMutation.error}
+          fallbackMessage="The invite could not be resent."
+        />
       </section>
 
       <FormModalShell
@@ -791,11 +847,13 @@ export function SettingsStaffPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={createStaffUserMutation.isPending}
+              disabled={isCreateStaffSubmitDisabled}
               form="staff-create-form"
               type="submit"
             >
-              {createStaffUserMutation.isPending ? "Creating..." : "Create staff user"}
+              <ButtonLoadingContent isLoading={createStaffUserMutation.isPending} loadingText="Creating...">
+                Create staff user
+              </ButtonLoadingContent>
             </button>
           </>
         }
@@ -1129,10 +1187,12 @@ export function SettingsStaffPageScreen() {
             <div className="inline-actions">
               <button
                 className="button button-primary"
-                disabled={updateStaffUserMutation.isPending}
+                disabled={isUpdateStaffSubmitDisabled}
                 type="submit"
               >
-                {updateStaffUserMutation.isPending ? "Saving..." : "Save staff user"}
+                <ButtonLoadingContent isLoading={updateStaffUserMutation.isPending} loadingText="Saving...">
+                  Save staff user
+                </ButtonLoadingContent>
               </button>
               <button className="button button-secondary" onClick={() => setUpdateFormOverrides({})} type="button">
                 Reset changes
@@ -1177,11 +1237,13 @@ export function SettingsStaffPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={elevateBasicUserMutation.isPending}
+              disabled={isElevationSubmitDisabled}
               form="basic-user-elevation-form"
               type="submit"
             >
-              {elevateBasicUserMutation.isPending ? "Elevating..." : "Elevate to staff"}
+              <ButtonLoadingContent isLoading={elevateBasicUserMutation.isPending} loadingText="Elevating...">
+                Elevate to staff
+              </ButtonLoadingContent>
             </button>
           </>
         }

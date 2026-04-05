@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
@@ -98,6 +99,7 @@ export function HouseholdsPageScreen() {
     (count, household) => count + household.active_member_count,
     0,
   );
+  const isCreateSubmitDisabled = createHouseholdMutation.isPending || !formState.name.trim();
 
   return (
     <div className="space-y-6">
@@ -124,13 +126,7 @@ export function HouseholdsPageScreen() {
         title="Households"
       />
 
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Households" value={totalHouseholds} tone="accent" />
-        <StatCard label="Active in view" value={activeHouseholds} />
-        <StatCard label="Inactive in view" value={inactiveHouseholds} />
-        <StatCard label="Linked members in view" value={linkedMembers} />
-      </section>
-
+{/* 
       <FilterActionStrip
         actions={
           hasFilters ? (
@@ -176,10 +172,9 @@ export function HouseholdsPageScreen() {
             />
           </label>
         }
-      />
+      /> */}
 
       <FormModalShell
-        description="This form maps directly to the current household create payload and opens the real detail workflow after save."
         footer={
           <>
             <button
@@ -194,11 +189,13 @@ export function HouseholdsPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={createHouseholdMutation.isPending}
+              disabled={isCreateSubmitDisabled}
               form="create-household-modal-form"
               type="submit"
             >
-              {createHouseholdMutation.isPending ? "Creating..." : "Create household"}
+              <ButtonLoadingContent isLoading={createHouseholdMutation.isPending} loadingText="Creating...">
+                Create household
+              </ButtonLoadingContent>
             </button>
           </>
         }

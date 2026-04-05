@@ -6,11 +6,31 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
-import { ErrorAlert, ErrorState, FormModalShell, FormSection, LoadingState, PageHeader, StatCard, StatusBadge } from "@/components";
+import {
+  ButtonLoadingContent,
+  ErrorAlert,
+  ErrorState,
+  FormModalShell,
+  FormSection,
+  LoadingState,
+  PageHeader,
+  StatCard,
+  StatusBadge,
+} from "@/components";
 import { attendanceApi } from "@/domains/attendance/api";
 import { getServiceEventTypeLabel, SERVICE_EVENT_TYPE_OPTIONS } from "@/domains/attendance/options";
 import type { ServiceEventWritePayload } from "@/domains/types";
 import { formatDate, formatDateTime, formatTime } from "@/lib/formatters";
+
+function getAttendanceProgressTone(status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED") {
+  if (status === "COMPLETED") {
+    return "success" as const;
+  }
+  if (status === "IN_PROGRESS") {
+    return "warning" as const;
+  }
+  return "muted" as const;
+}
 
 interface EventFormState {
   title: string;
@@ -129,6 +149,8 @@ export function EventDetailPageScreen() {
 
   const serviceEvent = serviceEventQuery.data;
   const summaryTotal = serviceEvent.attendance_summary?.total_count ?? 0;
+  const isEventSubmitDisabled =
+    updateServiceEventMutation.isPending || !formState.title.trim() || !formState.service_date;
 
   return (
     <div className="space-y-6">
@@ -163,13 +185,6 @@ export function EventDetailPageScreen() {
         }
         title={serviceEvent.title}
       />
-
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Service date" tone="accent" value={formatDate(serviceEvent.service_date)} />
-        <StatCard label="Member records" value={serviceEvent.member_attendances.length} />
-        <StatCard label="Summary total" value={summaryTotal} />
-        <StatCard label="Updated" value={formatDate(serviceEvent.updated_at)} />
-      </section>
 
       <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
         <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
@@ -215,18 +230,18 @@ export function EventDetailPageScreen() {
               <dt>Summary status</dt>
               <dd>
                 <StatusBadge
-                  label={serviceEvent.attendance_summary ? "Summary recorded" : "No summary yet"}
-                  tone={serviceEvent.attendance_summary ? "success" : "warning"}
+                  label={serviceEvent.attendance_progress_label}
+                  tone={getAttendanceProgressTone(serviceEvent.attendance_progress_status)}
                 />
               </dd>
             </div>
             <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
               <dt>Member attendance rows</dt>
-              <dd>{serviceEvent.member_attendances.length}</dd>
+              <dd>{serviceEvent.member_attendance_count}</dd>
             </div>
             <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
-              <dt>Last updated</dt>
-              <dd>{formatDateTime(serviceEvent.updated_at)}</dd>
+              <dt>Attendance last updated</dt>
+              <dd>{formatDateTime(serviceEvent.attendance_last_updated_at)}</dd>
             </div>
           </dl>
         </section>
@@ -236,7 +251,7 @@ export function EventDetailPageScreen() {
         <div className="section-header">
           <div>
             <h3>Notes</h3>
-            <p className="m-0 text-sm text-slate-500">Event-level notes only. Attendance notes are handled in the recording workflow.</p>
+            {/* <p className="m-0 text-sm text-slate-500">Event-level notes only. Attendance notes are handled in the recording workflow.</p> */}
           </div>
         </div>
         <p className="m-0 whitespace-pre-wrap text-sm text-slate-600">{serviceEvent.notes || "No event notes recorded."}</p>
@@ -255,11 +270,13 @@ export function EventDetailPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={updateServiceEventMutation.isPending}
+              disabled={isEventSubmitDisabled}
               form="update-event-modal-form"
               type="submit"
             >
-              {updateServiceEventMutation.isPending ? "Saving..." : "Save event changes"}
+              <ButtonLoadingContent isLoading={updateServiceEventMutation.isPending} loadingText="Saving...">
+                Save event changes
+              </ButtonLoadingContent>
             </button>
           </>
         }

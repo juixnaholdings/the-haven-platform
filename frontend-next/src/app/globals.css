@@ -19,7 +19,7 @@ body {
   min-height: 100vh;
   background: #f4f4f4;
   color: #0f172a;
-  font-family: var(--font-sans), "Inter", sans-serif;
+  font-family: var(--font-sans), "Plus Jakarta Sans", "Inter", sans-serif;
   line-height: 1.5;
 }
 
@@ -172,7 +172,7 @@ a {
   }
 
   .button {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 font-semibold transition duration-150;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-[4px] border border-transparent px-5 py-2.5 text-sm font-semibold leading-5 transition duration-150;
   }
 
   .button:hover {
@@ -180,7 +180,7 @@ a {
   }
 
   .button:focus-visible {
-    @apply outline-none ring-2 ring-[#16335f]/25 ring-offset-2 ring-offset-white;
+    @apply outline-none ring-2 ring-[#00a6fb]/35 ring-offset-2 ring-offset-white;
   }
 
   .button:disabled {
@@ -188,23 +188,27 @@ a {
   }
 
   .button-primary {
-    @apply bg-gradient-to-br from-[#16335f] to-[#27497d] text-white shadow-[0_10px_24px_rgba(22,51,95,0.18)] hover:from-[#102748] hover:to-[#1e3f6e];
+    @apply border-[#0094e0] bg-[#00a6fb] text-white shadow-[0_10px_22px_rgba(0,166,251,0.28),inset_0_0_0_1px_rgba(255,255,255,0.32)] hover:border-[#0088cf] hover:bg-[#0099e6];
   }
 
   .button-secondary {
-    @apply border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50;
+    @apply border-[#11adff] bg-[#25b6ff] text-white shadow-[0_8px_18px_rgba(0,166,251,0.2)] hover:border-[#009de6] hover:bg-[#11adff];
   }
 
   .button-ghost {
-    @apply border border-slate-200/80 bg-slate-50 text-slate-700 hover:bg-slate-100;
+    @apply border-[#9ddfff] bg-[#e7f8ff] text-[#0077b8] hover:border-[#77d2ff] hover:bg-[#d8f2ff];
   }
 
   .button-compact {
-    @apply px-3 py-1.5 text-sm leading-5;
+    @apply min-h-8 px-3 py-1.5 text-sm leading-5;
   }
 
   .button-block {
     @apply w-full;
+  }
+
+  .button-inline-spinner {
+    @apply inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/35 border-t-white;
   }
 
   .page-stack {

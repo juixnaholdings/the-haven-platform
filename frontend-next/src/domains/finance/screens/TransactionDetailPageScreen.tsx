@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   BlockedFeatureCard,
   EmptyState,
   EntityTable,
@@ -22,33 +23,55 @@ import {
 import { attendanceApi } from "@/domains/attendance/api";
 import { financeApi } from "@/domains/finance/api";
 import { getLedgerDirectionLabel, getTransactionTypeLabel } from "@/domains/finance/options";
-import type { TransactionUpdatePayload } from "@/domains/types";
+import type { TransactionLineMetadataUpdate, TransactionUpdatePayload } from "@/domains/types";
 import { formatAmount, formatDate, formatDateTime } from "@/lib/formatters";
 
 interface TransactionMetadataFormState {
   transaction_date: string;
   description: string;
+  external_reference: string;
   service_event_id: string;
 }
 
 const emptyMetadataForm: TransactionMetadataFormState = {
   transaction_date: "",
   description: "",
+  external_reference: "",
   service_event_id: "",
 };
 
-function toMetadataPayload(formState: TransactionMetadataFormState): TransactionUpdatePayload {
-  return {
-    transaction_date: formState.transaction_date || undefined,
-    description: formState.description || undefined,
-    service_event_id: formState.service_event_id ? Number(formState.service_event_id) : null,
-  };
+function toMetadataPayload(
+  formState: TransactionMetadataFormState,
+  baseFormState: TransactionMetadataFormState,
+  lineUpdates: TransactionLineMetadataUpdate[],
+): TransactionUpdatePayload {
+  const payload: TransactionUpdatePayload = {};
+
+  if (formState.transaction_date !== baseFormState.transaction_date) {
+    payload.transaction_date = formState.transaction_date;
+  }
+  if (formState.description !== baseFormState.description) {
+    payload.description = formState.description;
+  }
+  if (formState.external_reference !== baseFormState.external_reference) {
+    payload.external_reference = formState.external_reference;
+  }
+  if (formState.service_event_id !== baseFormState.service_event_id) {
+    payload.service_event_id = formState.service_event_id ? Number(formState.service_event_id) : null;
+  }
+  if (lineUpdates.length > 0) {
+    payload.line_updates = lineUpdates;
+  }
+
+  return payload;
 }
 
 export function TransactionDetailPageScreen() {
   const params = useParams<{ transactionId: string }>();
   const numericTransactionId = Number(params.transactionId);
   const [formOverrides, setFormOverrides] = useState<Partial<TransactionMetadataFormState>>({});
+  const [lineDrafts, setLineDrafts] = useState<Record<number, { category_name: string; notes: string }>>({});
+  const [isMetadataUpdateConfirmed, setIsMetadataUpdateConfirmed] = useState(false);
   const [isMetadataModalOpen, setIsMetadataModalOpen] = useState(false);
 
   const transactionQuery = useQuery({
@@ -70,6 +93,7 @@ export function TransactionDetailPageScreen() {
     return {
       transaction_date: transactionQuery.data.transaction_date,
       description: transactionQuery.data.description,
+      external_reference: transactionQuery.data.external_reference,
       service_event_id: transactionQuery.data.service_event?.id
         ? String(transactionQuery.data.service_event.id)
         : "",
@@ -84,13 +108,38 @@ export function TransactionDetailPageScreen() {
     [baseMetadataForm, formOverrides],
   );
 
+  const lineUpdates = useMemo<TransactionLineMetadataUpdate[]>(() => {
+    if (!transactionQuery.data) {
+      return [];
+    }
+
+    return transactionQuery.data.lines.flatMap((line) => {
+      const draft = lineDrafts[line.id];
+      if (!draft) {
+        return [];
+      }
+
+      const update: TransactionLineMetadataUpdate = { id: line.id };
+      if (draft.category_name !== line.category_name) {
+        update.category_name = draft.category_name;
+      }
+      if (draft.notes !== line.notes) {
+        update.notes = draft.notes;
+      }
+      return update.category_name !== undefined || update.notes !== undefined ? [update] : [];
+    });
+  }, [lineDrafts, transactionQuery.data]);
+
   const updateMutation = useMutation({
     mutationFn: (payload: TransactionUpdatePayload) =>
       financeApi.updateTransaction(numericTransactionId, payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["finance"] });
       await queryClient.invalidateQueries({ queryKey: ["reporting"] });
+      await queryClient.invalidateQueries({ queryKey: ["finance", "transaction", numericTransactionId] });
       setFormOverrides({});
+      setLineDrafts({});
+      setIsMetadataUpdateConfirmed(false);
       setIsMetadataModalOpen(false);
     },
   });
@@ -131,13 +180,36 @@ export function TransactionDetailPageScreen() {
 
   const transaction = transactionQuery.data;
   const serviceEvents = serviceEventsQuery.data ?? [];
+  const hasMetadataChanges =
+    formState.transaction_date !== baseMetadataForm.transaction_date ||
+    formState.description !== baseMetadataForm.description ||
+    formState.external_reference !== baseMetadataForm.external_reference ||
+    formState.service_event_id !== baseMetadataForm.service_event_id;
+  const hasLineChanges = lineUpdates.length > 0;
+  const hasPendingChanges = hasMetadataChanges || hasLineChanges;
+  const hasRequiredMetadata = Boolean(formState.transaction_date) && Boolean(formState.description.trim());
+  const closeMetadataModal = () => {
+    setFormOverrides({});
+    setLineDrafts({});
+    setIsMetadataUpdateConfirmed(false);
+    setIsMetadataModalOpen(false);
+    updateMutation.reset();
+  };
 
   return (
     <div className="space-y-6">
       <PageHeader
         actions={
           <div className="flex flex-wrap items-center gap-2.5">
-            <button className="button button-primary" onClick={() => setIsMetadataModalOpen(true)} type="button">
+            <button
+              className="button button-primary"
+              onClick={() => {
+                setIsMetadataUpdateConfirmed(false);
+                updateMutation.reset();
+                setIsMetadataModalOpen(true);
+              }}
+              type="button"
+            >
               Edit metadata
             </button>
             <Link className="button button-secondary" href="/finance">
@@ -168,7 +240,7 @@ export function TransactionDetailPageScreen() {
         <StatCard label="Posted at" value={formatDate(transaction.posted_at)} />
       </section>
 
-      <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)] 2xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.75fr)]">
+      <div className="grid gap-4 items-start grid-cols-1 2xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.75fr)]">
         <div className="space-y-6">
           <section className="rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm">
             <div className="section-header">
@@ -183,12 +255,24 @@ export function TransactionDetailPageScreen() {
                 <dd>{transaction.description}</dd>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
+                <dt>External reference</dt>
+                <dd>{transaction.external_reference || "Not set"}</dd>
+              </div>
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Transaction date</dt>
                 <dd>{formatDate(transaction.transaction_date)}</dd>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Linked event</dt>
                 <dd>{transaction.service_event?.title || "Not linked"}</dd>
+              </div>
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
+                <dt>Primary category</dt>
+                <dd>{transaction.primary_category || "Not categorized"}</dd>
+              </div>
+              <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
+                <dt>Line notes</dt>
+                <dd>{transaction.has_line_notes ? "Available" : "Not set"}</dd>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4">
                 <dt>Last updated</dt>
@@ -205,7 +289,15 @@ export function TransactionDetailPageScreen() {
                   Use the modal editor for safe operational metadata updates.
                 </p>
               </div>
-              <button className="button button-primary" onClick={() => setIsMetadataModalOpen(true)} type="button">
+              <button
+                className="button button-primary"
+                onClick={() => {
+                  setIsMetadataUpdateConfirmed(false);
+                  updateMutation.reset();
+                  setIsMetadataModalOpen(true);
+                }}
+                type="button"
+              >
                 Edit metadata
               </button>
             </div>
@@ -257,7 +349,7 @@ export function TransactionDetailPageScreen() {
                   },
                   {
                     header: "Notes",
-                    cell: (line) => line.notes || "—",
+                    cell: (line) => line.notes || "-",
                   },
                 ]}
                 getRowKey={(line) => line.id}
@@ -300,7 +392,7 @@ export function TransactionDetailPageScreen() {
       <FormModalShell
         description="Use this only for safe operational metadata changes. Posted ledger lines themselves are not editable here."
         isOpen={isMetadataModalOpen}
-        onClose={() => setIsMetadataModalOpen(false)}
+        onClose={closeMetadataModal}
         size="large"
         title="Update transaction metadata"
       >
@@ -308,7 +400,7 @@ export function TransactionDetailPageScreen() {
           className="space-y-6"
           onSubmit={(event) => {
             event.preventDefault();
-            updateMutation.mutate(toMetadataPayload(formState));
+            updateMutation.mutate(toMetadataPayload(formState, baseMetadataForm, lineUpdates));
           }}
         >
           <FormSection title="Metadata details">
@@ -342,10 +434,24 @@ export function TransactionDetailPageScreen() {
                   <option value="">No linked event</option>
                   {serviceEvents.map((serviceEvent) => (
                     <option key={serviceEvent.id} value={serviceEvent.id}>
-                      {serviceEvent.title} · {serviceEvent.service_date}
+                      {serviceEvent.title} - {serviceEvent.service_date}
                     </option>
                   ))}
                 </select>
+              </label>
+
+              <label className="field">
+                <span>External reference</span>
+                <input
+                  onChange={(event) =>
+                    setFormOverrides((current) => ({
+                      ...current,
+                      external_reference: event.target.value,
+                    }))
+                  }
+                  placeholder="Bank ref, voucher no, receipt no..."
+                  value={formState.external_reference}
+                />
               </label>
             </div>
 
@@ -358,11 +464,92 @@ export function TransactionDetailPageScreen() {
                     description: event.target.value,
                   }))
                 }
+                required
                 rows={4}
                 value={formState.description}
               />
             </label>
           </FormSection>
+
+          <FormSection
+            description="Category and notes can be corrected per ledger line without changing line amounts or directions."
+            title="Ledger line metadata"
+          >
+            <div className="space-y-4">
+              {transaction.lines.map((line) => (
+                <div
+                  className="space-y-3 rounded-2xl border border-slate-200/80 bg-slate-50/60 p-4"
+                  key={line.id}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <strong className="text-sm text-slate-900">{line.fund_account_name}</strong>
+                      <p className="m-0 text-xs text-slate-500">
+                        {line.fund_account_code} - {getLedgerDirectionLabel(line.direction)} -{" "}
+                        {formatAmount(line.amount)}
+                      </p>
+                    </div>
+                    <StatusBadge
+                      label={line.direction === "IN" ? "In flow" : "Out flow"}
+                      tone={line.direction === "IN" ? "success" : "warning"}
+                    />
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="field">
+                      <span>Category</span>
+                      <input
+                        onChange={(event) =>
+                          setLineDrafts((current) => ({
+                            ...current,
+                            [line.id]: {
+                              category_name: event.target.value,
+                              notes: current[line.id]?.notes ?? line.notes,
+                            },
+                          }))
+                        }
+                        placeholder="Offering, utilities, support..."
+                        value={lineDrafts[line.id]?.category_name ?? line.category_name}
+                      />
+                    </label>
+
+                    <label className="field">
+                      <span>Notes</span>
+                      <textarea
+                        onChange={(event) =>
+                          setLineDrafts((current) => ({
+                            ...current,
+                            [line.id]: {
+                              category_name: current[line.id]?.category_name ?? line.category_name,
+                              notes: event.target.value,
+                            },
+                          }))
+                        }
+                        rows={3}
+                        value={lineDrafts[line.id]?.notes ?? line.notes}
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </FormSection>
+
+          <label className="inline-flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50/70 px-3 py-2 text-sm text-slate-700">
+            <input
+              checked={isMetadataUpdateConfirmed}
+              className="mt-1 size-4 rounded border-slate-300 text-[#16335f] focus:ring-[#16335f]"
+              onChange={(event) => setIsMetadataUpdateConfirmed(event.target.checked)}
+              type="checkbox"
+            />
+            <span>I confirm these metadata corrections are accurate for this posted transaction.</span>
+          </label>
+
+          {!hasPendingChanges ? (
+            <p className="m-0 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500">
+              No pending changes detected. Update a field to enable save.
+            </p>
+          ) : null}
 
           <ErrorAlert
             error={updateMutation.error}
@@ -370,10 +557,21 @@ export function TransactionDetailPageScreen() {
           />
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <button className="button button-primary" disabled={updateMutation.isPending} type="submit">
-              {updateMutation.isPending ? "Saving..." : "Save metadata changes"}
+            <button
+              className="button button-primary"
+              disabled={
+                updateMutation.isPending ||
+                !hasPendingChanges ||
+                !isMetadataUpdateConfirmed ||
+                !hasRequiredMetadata
+              }
+              type="submit"
+            >
+              <ButtonLoadingContent isLoading={updateMutation.isPending} loadingText="Saving...">
+                Save metadata changes
+              </ButtonLoadingContent>
             </button>
-            <button className="button button-secondary" onClick={() => setIsMetadataModalOpen(false)} type="button">
+            <button className="button button-secondary" onClick={closeMetadataModal} type="button">
               Cancel
             </button>
           </div>

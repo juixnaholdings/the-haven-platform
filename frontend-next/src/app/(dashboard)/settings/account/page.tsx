@@ -15,6 +15,17 @@ export default function SettingsAccountPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [saveMessage, setSaveMessage] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const isPasswordChangeAttempted = Boolean(newPassword || confirmPassword || currentPassword);
+  const isPasswordChangeReady = !isPasswordChangeAttempted
+    ? true
+    : Boolean(
+        currentPassword &&
+          newPassword &&
+          confirmPassword &&
+          newPassword === confirmPassword &&
+          newPassword.length >= 8,
+      );
+  const isSubmitGuarded = !email.trim() || !isPasswordChangeReady;
 
   if (!user) {
     return null;
@@ -135,7 +146,7 @@ export default function SettingsAccountPage() {
           {saveMessage ? <p className="field-feedback field-feedback-success">{saveMessage}</p> : null}
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <button className="button button-primary" type="submit">
+            <button className="button button-primary" disabled={isSubmitGuarded} type="submit">
               Save account changes
             </button>
             <button className="button button-secondary" onClick={() => setIsEditModalOpen(false)} type="button">

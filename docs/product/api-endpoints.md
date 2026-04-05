@@ -51,7 +51,7 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 - `POST /api/members/`
   Creates a member record.
 - `GET /api/members/{member_id}/`
-  Returns member detail.
+  Returns member detail, including attendance-summary counters and recent attendance-history rows.
 - `PATCH /api/members/{member_id}/`
   Updates a member record.
 
@@ -89,10 +89,14 @@ All API routes are mounted under the configured API prefix, which defaults to `/
 
 - `GET /api/attendance/`
   Lists service and event records with optional search, event type, date range, and active-state filters.
+  Includes derived attendance progress fields:
+  `attendance_progress_status`, `attendance_progress_label`, `attendance_progress_percent`,
+  `attendance_is_complete`, and `attendance_last_updated_at`.
 - `POST /api/attendance/`
   Creates a service or event record.
 - `GET /api/attendance/{service_event_id}/`
   Returns service/event detail including the attendance summary and member attendance records.
+  Includes derived completion/progress metadata and last attendance-update timestamp for correction workflows.
 - `PATCH /api/attendance/{service_event_id}/`
   Updates a service or event record.
 - `PUT /api/attendance/{service_event_id}/summary/`
@@ -125,33 +129,48 @@ Frontend record-attendance workflow note:
 - `PATCH /api/finance/fund-accounts/{fund_account_id}/`
   Updates a fund account.
 - `GET /api/finance/transactions/`
-  Lists finance transactions with optional search and filter support.
+  Lists finance transactions with optional filters:
+  `search`, `transaction_type`, `category_name`, `fund_account_id`, `service_event_id`,
+  `transaction_date_from`, and `transaction_date_to`.
+  Includes operational fields like `external_reference`, `primary_category`, and `has_line_notes`.
 - `GET /api/finance/transactions/{transaction_id}/`
-  Returns transaction detail including ledger lines.
+  Returns transaction detail including ledger lines, `external_reference`, `primary_category`,
+  and `has_line_notes`.
 - `PATCH /api/finance/transactions/{transaction_id}/`
-  Updates safe transaction metadata only.
+  Updates safe transaction metadata only:
+  `transaction_date`, `description`, `external_reference`, `service_event_id`, plus optional
+  `line_updates` (`id`, `category_name?`, `notes?`) for line-level metadata corrections.
 - `POST /api/finance/transactions/income/`
-  Records a posted income transaction.
+  Records a posted income transaction. Optional metadata: `external_reference`, `category_name`, `notes`.
 - `POST /api/finance/transactions/expense/`
-  Records a posted expense transaction.
+  Records a posted expense transaction. Optional metadata: `external_reference`, `category_name`, `notes`.
 - `POST /api/finance/transactions/transfer/`
   Records a posted transfer with one `OUT` line and one `IN` line.
+  Optional metadata: `external_reference`, `category_name`, `notes`.
 
 ## Reporting Admin Endpoints
 
 - `GET /api/reports/dashboard/`
   Returns the consolidated dashboard payload across membership, households, groups, attendance, and finance.
   Read access is intentionally limited to overarching leadership-style roles.
+  Supports optional `date_preset` (`TODAY`, `THIS_WEEK`, `THIS_MONTH`, `CUSTOM`) with optional `start_date`/`end_date`.
 - `GET /api/reports/members/`
   Returns member summary metrics.
 - `GET /api/reports/households/`
   Returns household summary metrics.
 - `GET /api/reports/groups/`
-  Returns group and affiliation summary metrics.
+  Returns group and affiliation summary metrics, including:
+  `inactive_groups`, `members_with_active_group`, `members_without_active_group`,
+  `participation_rate_percent`, and `top_groups`.
 - `GET /api/reports/attendance/`
-  Returns attendance summary metrics, with optional `start_date` and `end_date`.
+  Returns attendance summary metrics, with optional `date_preset`, `start_date`, and `end_date`.
+  Includes operational fields:
+  `events_with_summary`, `events_without_summary`, `average_total_attendance_per_event`,
+  `attendance_capture_rate_percent`, `attendance_trend`, `recent_service_events`, and `applied_range`.
 - `GET /api/reports/finance/`
-  Returns finance summary metrics, with optional `start_date` and `end_date`.
+  Returns finance summary metrics, with optional `date_preset`, `start_date`, and `end_date`.
+  Includes operational fields:
+  `total_posted_transactions`, `period_breakdown`, `top_categories`, and `applied_range`.
 
 ## Settings Admin Endpoints
 
@@ -173,6 +192,8 @@ Frontend record-attendance workflow note:
   Lists staff invitation lifecycle records (`PENDING`, `ACCEPTED`, `REVOKED`, `EXPIRED`) with role metadata and invite-link path.
 - `POST /api/settings/staff-invites/`
   Creates a staff invite for a not-yet-onboarded user email and assigned role groups.
+- `PATCH /api/settings/staff-invites/{staff_invite_id}/resend/`
+  Resends an existing invite by rotating the secure token, refreshing expiry, and restoring `PENDING` status when valid.
 - `PATCH /api/settings/staff-invites/{staff_invite_id}/revoke/`
   Revokes a pending invite link.
 
@@ -185,15 +206,25 @@ Staff lifecycle caveat:
 
 - public signup continues to create basic users only (no staff roles/privileges by default)
 - elevation and invite/revoke actions remain admin-controlled through settings permissions
+- invite resend/revoke actions remain admin-controlled through settings permissions
 - invite links are tokenized for manual sharing; email delivery is intentionally out of scope in the current product slice
 
 ## Audit Admin Endpoints
 
 - `GET /api/audit/events/`
   Returns audit events for high-value operational mutations. Supports optional filters:
-  `event_type`, `actor_id`, `target_type`, `target_id`, `start_date`, `end_date`, plus optional pagination (`page`, `page_size`).
+  `search`, `event_type`, `actor_id`, `actor_username`, `target_type`, `target_id`,
+  `start_date`, `end_date`, plus optional pagination (`page`, `page_size`).
 - `GET /api/audit/events/{audit_event_id}/`
   Returns one audit event payload for focused inspection.
+
+## Ops Notification Endpoint
+
+- `GET /api/ops/notifications/`
+  Returns lightweight in-app operational reminders for authenticated users.
+  Feed items are permission-aware and currently include:
+  pending staff invite follow-up, attendance capture follow-up, upcoming event reminders,
+  and recent finance action confirmation summaries.
 
 Current first-wave coverage includes:
 
@@ -207,7 +238,12 @@ Current first-wave coverage includes:
 
 ## Reporting Date Filters
 
-- `start_date` and `end_date` are optional query params on the dashboard, attendance, and finance report endpoints.
-- If both are omitted, the reports use all-time behavior.
+- `date_preset` is supported on dashboard, attendance, and finance endpoints:
+  - `TODAY`
+  - `THIS_WEEK`
+  - `THIS_MONTH`
+  - `CUSTOM`
+- For `CUSTOM`, both `start_date` and `end_date` are required.
+- If no preset/range params are supplied, the reports use all-time behavior.
 - If `end_date` is supplied for finance reporting, balances are computed as of that cutoff date.
 - Member, household, group, attendance, and finance list endpoints also expose typed filter parameters in the schema for frontend consumers.

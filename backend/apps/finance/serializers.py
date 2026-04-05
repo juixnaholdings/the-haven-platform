@@ -18,6 +18,7 @@ class TransactionListFilterSerializer(PaginationQuerySerializer):
         choices=Transaction._meta.get_field("transaction_type").choices,
         required=False,
     )
+    category_name = serializers.CharField(required=False, allow_blank=True)
     fund_account_id = serializers.IntegerField(required=False, min_value=1)
     service_event_id = serializers.IntegerField(required=False, min_value=1, allow_null=True)
     transaction_date_from = serializers.DateField(required=False)
@@ -117,12 +118,15 @@ class TransactionListSerializer(serializers.ModelSerializer):
     line_count = serializers.IntegerField(read_only=True)
     total_in_amount = serializers.DecimalField(max_digits=14, decimal_places=2, read_only=True)
     total_out_amount = serializers.DecimalField(max_digits=14, decimal_places=2, read_only=True)
+    primary_category = serializers.CharField(read_only=True)
+    has_line_notes = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Transaction
         fields = [
             "id",
             "reference_no",
+            "external_reference",
             "transaction_type",
             "transaction_date",
             "description",
@@ -132,6 +136,8 @@ class TransactionListSerializer(serializers.ModelSerializer):
             "line_count",
             "total_in_amount",
             "total_out_amount",
+            "primary_category",
+            "has_line_notes",
         ]
 
 
@@ -140,12 +146,15 @@ class TransactionDetailSerializer(serializers.ModelSerializer):
     lines = TransactionLineDetailSerializer(many=True, read_only=True)
     total_in_amount = serializers.DecimalField(max_digits=14, decimal_places=2, read_only=True)
     total_out_amount = serializers.DecimalField(max_digits=14, decimal_places=2, read_only=True)
+    primary_category = serializers.CharField(read_only=True)
+    has_line_notes = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Transaction
         fields = [
             "id",
             "reference_no",
+            "external_reference",
             "transaction_type",
             "transaction_date",
             "description",
@@ -153,6 +162,8 @@ class TransactionDetailSerializer(serializers.ModelSerializer):
             "posted_at",
             "total_in_amount",
             "total_out_amount",
+            "primary_category",
+            "has_line_notes",
             "lines",
             "created_at",
             "updated_at",
@@ -165,6 +176,7 @@ class IncomeTransactionCreateSerializer(serializers.Serializer):
     amount = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=Decimal("0.01"))
     transaction_date = serializers.DateField()
     description = serializers.CharField()
+    external_reference = serializers.CharField(required=False, allow_blank=True)
     service_event_id = serializers.IntegerField(required=False, allow_null=True)
     category_name = serializers.CharField(required=False, allow_blank=True)
     notes = serializers.CharField(required=False, allow_blank=True)
@@ -175,6 +187,7 @@ class ExpenseTransactionCreateSerializer(serializers.Serializer):
     amount = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=Decimal("0.01"))
     transaction_date = serializers.DateField()
     description = serializers.CharField()
+    external_reference = serializers.CharField(required=False, allow_blank=True)
     service_event_id = serializers.IntegerField(required=False, allow_null=True)
     category_name = serializers.CharField(required=False, allow_blank=True)
     notes = serializers.CharField(required=False, allow_blank=True)
@@ -186,12 +199,47 @@ class TransferTransactionCreateSerializer(serializers.Serializer):
     amount = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=Decimal("0.01"))
     transaction_date = serializers.DateField()
     description = serializers.CharField()
+    external_reference = serializers.CharField(required=False, allow_blank=True)
     service_event_id = serializers.IntegerField(required=False, allow_null=True)
     category_name = serializers.CharField(required=False, allow_blank=True)
     notes = serializers.CharField(required=False, allow_blank=True)
 
 
+class TransactionLineMetadataUpdateSerializer(serializers.Serializer):
+    id = serializers.IntegerField(min_value=1)
+    category_name = serializers.CharField(required=False, allow_blank=True)
+    notes = serializers.CharField(required=False, allow_blank=True)
+
+    def validate(self, attrs):
+        if "category_name" not in attrs and "notes" not in attrs:
+            raise serializers.ValidationError(
+                "Provide at least one editable field (category_name or notes)."
+            )
+        return attrs
+
+
 class TransactionUpdateSerializer(serializers.Serializer):
     transaction_date = serializers.DateField(required=False)
     description = serializers.CharField(required=False)
+    external_reference = serializers.CharField(required=False, allow_blank=True)
     service_event_id = serializers.IntegerField(required=False, allow_null=True)
+    line_updates = TransactionLineMetadataUpdateSerializer(many=True, required=False)
+
+    def validate(self, attrs):
+        if not attrs:
+            raise serializers.ValidationError(
+                "Provide at least one metadata field or line update to change."
+            )
+
+        line_updates = attrs.get("line_updates", [])
+        if line_updates:
+            line_ids = [update["id"] for update in line_updates]
+            if len(line_ids) != len(set(line_ids)):
+                raise serializers.ValidationError(
+                    {
+                        "line_updates": [
+                            "Each transaction line can appear only once in a metadata update request."
+                        ]
+                    }
+                )
+        return attrs

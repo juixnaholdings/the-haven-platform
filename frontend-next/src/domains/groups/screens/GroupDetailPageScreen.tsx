@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   EmptyState,
   EntityTable,
   ErrorAlert,
@@ -257,6 +258,8 @@ export function GroupDetailPageScreen() {
   const group = groupQuery.data;
   const activeMembershipCount = group.memberships.filter((membership) => membership.is_active).length;
   const inactiveMembershipCount = group.memberships.length - activeMembershipCount;
+  const isUpdateGroupSubmitDisabled = updateGroupMutation.isPending || !groupFormState.name.trim();
+  const isAddMemberSubmitDisabled = addMemberMutation.isPending || !addMemberFormState.member_id;
 
   return (
     <div className="space-y-6">
@@ -366,11 +369,13 @@ export function GroupDetailPageScreen() {
             </button>
             <button
               className="button button-primary"
-              disabled={updateGroupMutation.isPending}
+              disabled={isUpdateGroupSubmitDisabled}
               form="group-edit-form"
               type="submit"
             >
-              {updateGroupMutation.isPending ? "Saving..." : "Save ministry changes"}
+              <ButtonLoadingContent isLoading={updateGroupMutation.isPending} loadingText="Saving...">
+                Save ministry changes
+              </ButtonLoadingContent>
             </button>
           </>
         }
@@ -639,8 +644,10 @@ export function GroupDetailPageScreen() {
         />
 
         <div className="flex flex-wrap items-center gap-2.5">
-          <button className="button button-primary" disabled={addMemberMutation.isPending} type="submit">
-            {addMemberMutation.isPending ? "Adding..." : "Add member"}
+          <button className="button button-primary" disabled={isAddMemberSubmitDisabled} type="submit">
+            <ButtonLoadingContent isLoading={addMemberMutation.isPending} loadingText="Adding...">
+              Add member
+            </ButtonLoadingContent>
           </button>
           <button
             className="button button-secondary"
@@ -759,7 +766,9 @@ export function GroupDetailPageScreen() {
                 disabled={updateMembershipMutation.isPending}
                 type="submit"
               >
-                {updateMembershipMutation.isPending ? "Saving..." : "Save membership"}
+                <ButtonLoadingContent isLoading={updateMembershipMutation.isPending} loadingText="Saving...">
+                  Save membership
+                </ButtonLoadingContent>
               </button>
               <button
                 className="button button-secondary"

@@ -57,25 +57,19 @@ export function MembersPageScreen() {
       <PageHeader
         actions={
           <button
-            className="button button-primary"
+            className=" relative button button-primary"
             onClick={() => setIsCreateModalOpen(true)}
             type="button"
           >
             Add member
           </button>
         }
-        description="A calm directory surface for member profiles, contact readiness, and profile-oriented create and edit workflows."
         eyebrow="People operations"
-        meta={
-          <StatusBadge
-            label={`${totalRecords} record${totalRecords === 1 ? "" : "s"}`}
-            tone="info"
-          />
-        }
+        
         title="Members"
       />
 
-      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+      {/* <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Directory records" value={totalRecords} tone="accent" />
         <StatCard label="Active in view" value={activeMembers} />
         <StatCard label="Inactive in view" value={inactiveMembers} />
@@ -127,7 +121,7 @@ export function MembersPageScreen() {
             />
           </label>
         }
-      />
+      /> */}
 
       {membersQuery.isLoading ? (
         <LoadingState

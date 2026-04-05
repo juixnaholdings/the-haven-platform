@@ -135,3 +135,37 @@ class FinanceServiceTests(TestCase):
             selectors.get_fund_account_balance(fund_account_id=self.welfare_fund.id),
             Decimal("15.00"),
         )
+
+    def test_update_transaction_metadata_updates_external_reference_and_line_metadata(self):
+        transaction = services.record_income(
+            fund_account=self.general_fund,
+            amount=Decimal("90.00"),
+            transaction_date=date(2026, 3, 25),
+            description="Donation batch",
+            category_name="Donation",
+            notes="Original note",
+            actor=self.actor,
+        )
+        line = transaction.lines.first()
+        self.assertIsNotNone(line)
+
+        updated = services.update_transaction_metadata(
+            transaction=transaction,
+            data={
+                "external_reference": "BANK-REF-7781",
+                "line_updates": [
+                    {
+                        "id": line.id,
+                        "category_name": "Special donation",
+                        "notes": "Corrected note",
+                    }
+                ],
+            },
+            actor=self.actor,
+        )
+        updated.refresh_from_db()
+        line.refresh_from_db()
+
+        self.assertEqual(updated.external_reference, "BANK-REF-7781")
+        self.assertEqual(line.category_name, "Special donation")
+        self.assertEqual(line.notes, "Corrected note")

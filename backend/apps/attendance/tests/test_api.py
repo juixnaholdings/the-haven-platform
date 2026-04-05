@@ -110,6 +110,16 @@ class AttendanceAdminApiTests(APITestCase):
             update_response.data["data"]["attendance_summary"]["visitor_count"],
             4,
         )
+        self.assertEqual(
+            update_response.data["data"]["attendance_progress_status"],
+            "IN_PROGRESS",
+        )
+        self.assertEqual(
+            update_response.data["data"]["attendance_progress_percent"],
+            50,
+        )
+        self.assertFalse(update_response.data["data"]["attendance_is_complete"])
+        self.assertIsNotNone(update_response.data["data"]["attendance_last_updated_at"])
 
     def test_summary_total_validation_returns_error(self):
         response = self.client.put(
@@ -155,6 +165,75 @@ class AttendanceAdminApiTests(APITestCase):
 
         self.assertEqual(update_response.status_code, status.HTTP_200_OK)
         self.assertEqual(update_response.data["data"]["status"], "LATE")
+
+    def test_duplicate_member_attendance_is_rejected_cleanly(self):
+        self.client.post(
+            f"/api/attendance/{self.service_event.id}/member-attendance/",
+            {
+                "member_id": self.member.id,
+                "status": "PRESENT",
+            },
+            format="json",
+        )
+
+        duplicate_response = self.client.post(
+            f"/api/attendance/{self.service_event.id}/member-attendance/",
+            {
+                "member_id": self.member.id,
+                "status": "LATE",
+            },
+            format="json",
+        )
+
+        self.assertEqual(duplicate_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(duplicate_response.data["status"], "error")
+        self.assertEqual(
+            duplicate_response.data["errors"]["member_id"][0],
+            "Member attendance has already been recorded for this service event.",
+        )
+
+    def test_attendance_progress_transitions_from_not_started_to_completed(self):
+        initial_list_response = self.client.get("/api/attendance/")
+        self.assertEqual(initial_list_response.status_code, status.HTTP_200_OK)
+        initial_event_row = next(
+            event
+            for event in initial_list_response.data["data"]
+            if event["id"] == self.service_event.id
+        )
+        self.assertEqual(initial_event_row["attendance_progress_status"], "NOT_STARTED")
+        self.assertEqual(initial_event_row["attendance_progress_percent"], 0)
+        self.assertFalse(initial_event_row["attendance_is_complete"])
+        self.assertIsNone(initial_event_row["attendance_last_updated_at"])
+
+        summary_response = self.client.put(
+            f"/api/attendance/{self.service_event.id}/summary/",
+            {
+                "men_count": 10,
+                "women_count": 15,
+                "children_count": 5,
+                "visitor_count": 3,
+                "total_count": 30,
+            },
+            format="json",
+        )
+        self.assertEqual(summary_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(summary_response.data["data"]["attendance_progress_status"], "IN_PROGRESS")
+        self.assertEqual(summary_response.data["data"]["attendance_progress_percent"], 50)
+        self.assertFalse(summary_response.data["data"]["attendance_is_complete"])
+
+        member_response = self.client.post(
+            f"/api/attendance/{self.service_event.id}/member-attendance/",
+            {
+                "member_id": self.member.id,
+                "status": "PRESENT",
+            },
+            format="json",
+        )
+        self.assertEqual(member_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(member_response.data["data"]["attendance_progress_status"], "COMPLETED")
+        self.assertEqual(member_response.data["data"]["attendance_progress_percent"], 100)
+        self.assertTrue(member_response.data["data"]["attendance_is_complete"])
+        self.assertIsNotNone(member_response.data["data"]["attendance_last_updated_at"])
 
     def test_attendance_endpoints_require_authentication(self):
         self.client.force_authenticate(user=None)

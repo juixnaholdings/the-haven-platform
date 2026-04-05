@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { queryClient } from "@/api/queryClient";
 import {
+  ButtonLoadingContent,
   ErrorAlert,
   ErrorState,
   FormModalShell,
@@ -114,6 +115,7 @@ export function MemberFormScreen({
     }),
     [baseFormState, formOverrides],
   );
+  const isSubmitGuarded = !formState.first_name.trim() || !formState.last_name.trim();
 
   const saveMemberMutation = useMutation({
     mutationFn: async (payload: MemberWritePayload) => {
@@ -338,8 +340,14 @@ export function MemberFormScreen({
 
       {!isModal ? (
         <div className="flex flex-wrap items-center gap-2.5">
-          <button className="button button-primary" disabled={saveMemberMutation.isPending} type="submit">
-            {saveMemberMutation.isPending ? "Saving..." : isEdit ? "Save changes" : "Create member"}
+          <button
+            className="button button-primary"
+            disabled={saveMemberMutation.isPending || isSubmitGuarded}
+            type="submit"
+          >
+            <ButtonLoadingContent isLoading={saveMemberMutation.isPending} loadingText="Saving...">
+              {isEdit ? "Save changes" : "Create member"}
+            </ButtonLoadingContent>
           </button>
           <button className="button button-secondary" onClick={handleCancel} type="button">
             Cancel
@@ -361,11 +369,13 @@ export function MemberFormScreen({
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               className="button button-primary"
-              disabled={saveMemberMutation.isPending}
+              disabled={saveMemberMutation.isPending || isSubmitGuarded}
               form={formId}
               type="submit"
             >
-              {saveMemberMutation.isPending ? "Saving..." : isEdit ? "Save changes" : "Create member"}
+              <ButtonLoadingContent isLoading={saveMemberMutation.isPending} loadingText="Saving...">
+                {isEdit ? "Save changes" : "Create member"}
+              </ButtonLoadingContent>
             </button>
             <button className="button button-secondary" onClick={handleCancel} type="button">
               Cancel

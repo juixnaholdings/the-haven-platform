@@ -40,10 +40,12 @@ class AuditEventListSerializer(serializers.ModelSerializer):
 
 
 class AuditEventFilterSerializer(PaginationQuerySerializer):
+    search = serializers.CharField(required=False, allow_blank=True)
     event_type = serializers.CharField(required=False)
     target_type = serializers.CharField(required=False)
     target_id = serializers.IntegerField(required=False, min_value=1)
     actor_id = serializers.IntegerField(required=False, min_value=1)
+    actor_username = serializers.CharField(required=False, allow_blank=True)
     start_date = serializers.DateField(required=False)
     end_date = serializers.DateField(required=False)
 
@@ -57,3 +59,27 @@ class AuditEventFilterSerializer(PaginationQuerySerializer):
             )
 
         return attrs
+
+
+class OpsNotificationSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    kind = serializers.CharField()
+    severity = serializers.ChoiceField(
+        choices=(
+            ("info", "Info"),
+            ("success", "Success"),
+            ("warning", "Warning"),
+            ("danger", "Danger"),
+        )
+    )
+    title = serializers.CharField()
+    description = serializers.CharField()
+    href = serializers.CharField()
+    created_at = serializers.DateTimeField(required=False, allow_null=True)
+
+
+class OpsNotificationFeedSerializer(serializers.Serializer):
+    generated_at = serializers.DateTimeField()
+    notification_count = serializers.IntegerField()
+    unread_count = serializers.IntegerField()
+    notifications = OpsNotificationSerializer(many=True)

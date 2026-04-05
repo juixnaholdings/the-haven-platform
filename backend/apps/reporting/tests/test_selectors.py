@@ -150,35 +150,65 @@ class ReportingSelectorTests(TestCase):
 
     def test_get_dashboard_overview_returns_cross_domain_metrics(self):
         summary = selectors.get_dashboard_overview(
-            filters={"start_date": date(2026, 3, 1), "end_date": date(2026, 3, 31)}
+            filters={
+                "date_preset": "CUSTOM",
+                "start_date": date(2026, 3, 1),
+                "end_date": date(2026, 3, 31),
+            }
         )
 
         self.assertEqual(summary["members"]["total_members"], 3)
         self.assertEqual(summary["members"]["active_members"], 2)
         self.assertEqual(summary["households"]["total_households"], 2)
         self.assertEqual(summary["groups"]["total_groups"], 2)
+        self.assertEqual(summary["groups"]["inactive_groups"], 1)
+        self.assertEqual(summary["groups"]["members_with_active_group"], 2)
         self.assertEqual(summary["attendance"]["total_events"], 1)
+        self.assertEqual(summary["attendance"]["events_with_summary"], 1)
+        self.assertEqual(summary["attendance"]["attendance_capture_rate_percent"], 100.0)
         self.assertEqual(summary["finance"]["total_fund_accounts"], 2)
+        self.assertEqual(summary["finance"]["total_posted_transactions"], 3)
 
     def test_get_attendance_summary_respects_date_range(self):
         summary = selectors.get_attendance_summary(
-            filters={"start_date": date(2026, 3, 1), "end_date": date(2026, 3, 31)}
+            filters={
+                "date_preset": "CUSTOM",
+                "start_date": date(2026, 3, 1),
+                "end_date": date(2026, 3, 31),
+            }
         )
 
         self.assertEqual(summary["total_events"], 1)
+        self.assertEqual(summary["events_with_summary"], 1)
+        self.assertEqual(summary["events_without_summary"], 0)
         self.assertEqual(summary["aggregate_total_attendance"], 30)
         self.assertEqual(summary["total_member_attendance_records"], 2)
+        self.assertEqual(summary["average_total_attendance_per_event"], 30.0)
+        self.assertEqual(summary["attendance_capture_rate_percent"], 100.0)
+        self.assertEqual(len(summary["attendance_trend"]), 1)
+        self.assertEqual(summary["attendance_trend"][0]["attendance_total"], 30)
+        self.assertEqual(summary["recent_service_events"][0]["title"], "Sunday Morning Service")
+        self.assertEqual(summary["applied_range"]["date_preset"], "CUSTOM")
 
     def test_get_finance_summary_returns_balances_and_range_totals(self):
         summary = selectors.get_finance_summary(
-            filters={"start_date": date(2026, 3, 1), "end_date": date(2026, 3, 31)}
+            filters={
+                "date_preset": "CUSTOM",
+                "start_date": date(2026, 3, 1),
+                "end_date": date(2026, 3, 31),
+            }
         )
 
         balances = {item["code"]: item["current_balance"] for item in summary["balances_by_fund"]}
 
+        self.assertEqual(summary["total_posted_transactions"], 3)
         self.assertEqual(summary["total_income"], Decimal("100.00"))
         self.assertEqual(summary["total_expense"], Decimal("30.00"))
         self.assertEqual(summary["total_transfers"], Decimal("20.00"))
         self.assertEqual(summary["net_flow"], Decimal("70.00"))
+        self.assertEqual(len(summary["period_breakdown"]), 3)
+        self.assertEqual(summary["period_breakdown"][-1]["net_flow"], Decimal("0.00"))
+        self.assertEqual(summary["top_categories"], [])
+        self.assertEqual(summary["applied_range"]["date_preset"], "CUSTOM")
         self.assertEqual(balances["GF"], Decimal("100.00"))
         self.assertEqual(balances["WF"], Decimal("20.00"))

@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
@@ -162,13 +163,15 @@ class ReportingAdminApiTests(APITestCase):
 
     def test_dashboard_overview_endpoint_success(self):
         response = self.client.get(
-            "/api/reports/dashboard/?start_date=2026-03-01&end_date=2026-03-31"
+            "/api/reports/dashboard/?date_preset=CUSTOM&start_date=2026-03-01&end_date=2026-03-31"
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["data"]["members"]["total_members"], 3)
         self.assertEqual(response.data["data"]["attendance"]["total_events"], 1)
+        self.assertEqual(response.data["data"]["attendance"]["applied_range"]["date_preset"], "CUSTOM")
         self.assertEqual(response.data["data"]["finance"]["total_income"], "100.00")
+        self.assertEqual(response.data["data"]["finance"]["total_posted_transactions"], 3)
 
     def test_date_filter_validation(self):
         response = self.client.get(
@@ -180,28 +183,52 @@ class ReportingAdminApiTests(APITestCase):
 
     def test_attendance_summary_report_correctness(self):
         response = self.client.get(
-            "/api/reports/attendance/?start_date=2026-03-01&end_date=2026-03-31"
+            "/api/reports/attendance/?date_preset=CUSTOM&start_date=2026-03-01&end_date=2026-03-31"
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["data"]["aggregate_total_attendance"], 30)
+        self.assertEqual(response.data["data"]["events_with_summary"], 1)
+        self.assertEqual(response.data["data"]["attendance_capture_rate_percent"], 100.0)
         self.assertEqual(response.data["data"]["total_member_attendance_records"], 2)
+        self.assertEqual(len(response.data["data"]["attendance_trend"]), 1)
+        self.assertEqual(response.data["data"]["applied_range"]["date_preset"], "CUSTOM")
 
     def test_finance_summary_report_correctness_and_balances(self):
         response = self.client.get(
-            "/api/reports/finance/?start_date=2026-03-01&end_date=2026-03-31"
+            "/api/reports/finance/?date_preset=CUSTOM&start_date=2026-03-01&end_date=2026-03-31"
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["data"]["total_posted_transactions"], 3)
         self.assertEqual(response.data["data"]["total_income"], "100.00")
         self.assertEqual(response.data["data"]["total_expense"], "30.00")
         self.assertEqual(response.data["data"]["total_transfers"], "20.00")
+        self.assertEqual(len(response.data["data"]["period_breakdown"]), 3)
+        self.assertEqual(response.data["data"]["top_categories"], [])
 
         balances = {
             item["code"]: item["current_balance"] for item in response.data["data"]["balances_by_fund"]
         }
         self.assertEqual(balances["GF"], "100.00")
         self.assertEqual(balances["WF"], "20.00")
+
+    @patch("apps.reporting.serializers.timezone.localdate", return_value=date(2026, 3, 22))
+    def test_attendance_date_preset_today_is_applied(self, mocked_localdate):
+        response = self.client.get("/api/reports/attendance/?date_preset=TODAY")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["data"]["total_events"], 1)
+        self.assertEqual(response.data["data"]["applied_range"]["start_date"], "2026-03-22")
+        self.assertEqual(response.data["data"]["applied_range"]["end_date"], "2026-03-22")
+        self.assertEqual(response.data["data"]["applied_range"]["date_preset"], "TODAY")
+        mocked_localdate.assert_called()
+
+    def test_custom_date_preset_requires_full_range(self):
+        response = self.client.get("/api/reports/attendance/?date_preset=CUSTOM")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["status"], "error")
 
     def test_membership_group_household_summary_basics(self):
         members_response = self.client.get("/api/reports/members/")

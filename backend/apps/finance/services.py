@@ -46,6 +46,7 @@ def _create_posted_transaction(
     transaction_type: str,
     transaction_date,
     description: str,
+    external_reference: str = "",
     service_event=None,
     line_specs: list[dict],
     actor=None,
@@ -55,6 +56,7 @@ def _create_posted_transaction(
 
     transaction = Transaction(
         reference_no=_generate_reference_no(),
+        external_reference=external_reference,
         transaction_type=transaction_type,
         transaction_date=transaction_date,
         description=description,
@@ -98,6 +100,7 @@ def _create_posted_transaction(
         ),
         payload={
             "reference_no": transaction.reference_no,
+            "external_reference": transaction.external_reference,
             "transaction_type": transaction.transaction_type,
             "transaction_date": str(transaction.transaction_date),
             "service_event_id": transaction.service_event_id,
@@ -141,6 +144,7 @@ def record_income(
     amount: Decimal,
     transaction_date,
     description: str,
+    external_reference: str = "",
     service_event=None,
     category_name: str = "",
     notes: str = "",
@@ -152,6 +156,7 @@ def record_income(
         transaction_type=TransactionType.INCOME,
         transaction_date=transaction_date,
         description=description,
+        external_reference=external_reference,
         service_event=service_event,
         line_specs=[
             {
@@ -173,6 +178,7 @@ def record_expense(
     amount: Decimal,
     transaction_date,
     description: str,
+    external_reference: str = "",
     service_event=None,
     category_name: str = "",
     notes: str = "",
@@ -184,6 +190,7 @@ def record_expense(
         transaction_type=TransactionType.EXPENSE,
         transaction_date=transaction_date,
         description=description,
+        external_reference=external_reference,
         service_event=service_event,
         line_specs=[
             {
@@ -206,6 +213,7 @@ def record_transfer(
     amount: Decimal,
     transaction_date,
     description: str,
+    external_reference: str = "",
     service_event=None,
     category_name: str = "",
     notes: str = "",
@@ -226,6 +234,7 @@ def record_transfer(
         transaction_type=TransactionType.TRANSFER,
         transaction_date=transaction_date,
         description=description,
+        external_reference=external_reference,
         service_event=service_event,
         line_specs=[
             {
@@ -249,15 +258,56 @@ def record_transfer(
 
 @db_transaction.atomic
 def update_transaction_metadata(*, transaction: Transaction, data: dict, actor=None) -> Transaction:
-    changed_fields = sorted(
-        field for field in ("transaction_date", "description", "service_event") if field in data
-    )
-    for field in ("transaction_date", "description", "service_event"):
+    line_updates = data.pop("line_updates", [])
+    changed_fields = []
+    for field in ("transaction_date", "description", "external_reference", "service_event"):
         if field in data:
-            setattr(transaction, field, data[field])
+            incoming_value = data[field]
+            if getattr(transaction, field) != incoming_value:
+                setattr(transaction, field, incoming_value)
+                changed_fields.append(field)
+    changed_fields.sort()
 
-    _set_audit_fields(transaction, actor=actor)
-    transaction.save()
+    line_changes = []
+    if line_updates:
+        existing_lines = {
+            line.id: line for line in TransactionLine.objects.filter(transaction=transaction)
+        }
+        for update in line_updates:
+            line = existing_lines.get(update["id"])
+            if line is None:
+                raise ValidationError(
+                    {
+                        "line_updates": [
+                            f"Line id '{update['id']}' does not belong to transaction '{transaction.reference_no}'."
+                        ]
+                    }
+                )
+
+            line_changed_fields = []
+            if "category_name" in update and line.category_name != update["category_name"]:
+                line.category_name = update["category_name"]
+                line_changed_fields.append("category_name")
+            if "notes" in update and line.notes != update["notes"]:
+                line.notes = update["notes"]
+                line_changed_fields.append("notes")
+
+            if line_changed_fields:
+                _set_audit_fields(line, actor=actor)
+                line.save(update_fields=[*line_changed_fields, "updated_by", "updated_at"])
+                line_changes.append(
+                    {
+                        "line_id": line.id,
+                        "changed_fields": line_changed_fields,
+                    }
+                )
+
+    if changed_fields:
+        _set_audit_fields(transaction, actor=actor)
+        transaction.save()
+
+    if not changed_fields and not line_changes:
+        return transaction
 
     common_services.log_audit_event(
         actor=actor,
@@ -268,7 +318,9 @@ def update_transaction_metadata(*, transaction: Transaction, data: dict, actor=N
         payload={
             "reference_no": transaction.reference_no,
             "changed_fields": changed_fields,
+            "line_changes": line_changes,
             "transaction_date": str(transaction.transaction_date),
+            "external_reference": transaction.external_reference,
             "service_event_id": transaction.service_event_id,
         },
     )

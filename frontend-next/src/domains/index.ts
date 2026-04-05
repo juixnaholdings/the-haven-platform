@@ -5,5 +5,6 @@ export { financeApi } from "./finance/api";
 export { groupsApi } from "./groups/api";
 export { householdsApi } from "./households/api";
 export { membersApi } from "./members/api";
+export { opsApi } from "./ops/api";
 export { reportingApi } from "./reporting/api";
 export { usersApi } from "./users/api";

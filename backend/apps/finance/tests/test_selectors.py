@@ -29,6 +29,8 @@ class FinanceSelectorTests(TestCase):
             amount=Decimal("120.00"),
             transaction_date=date(2026, 3, 22),
             description="Sunday offering",
+            external_reference="EXT-OFFERING-1",
+            category_name="Offering",
         )
         self.transfer = services.record_transfer(
             source_fund_account=self.general_fund,
@@ -36,6 +38,7 @@ class FinanceSelectorTests(TestCase):
             amount=Decimal("20.00"),
             transaction_date=date(2026, 3, 23),
             description="Transfer to welfare",
+            category_name="Internal transfer",
         )
 
     def test_list_fund_accounts_returns_computed_balances(self):
@@ -50,3 +53,12 @@ class FinanceSelectorTests(TestCase):
         self.assertEqual(transaction.lines.count(), 2)
         self.assertEqual(transaction.total_in_amount, Decimal("20.00"))
         self.assertEqual(transaction.total_out_amount, Decimal("20.00"))
+
+    def test_list_transactions_supports_category_and_external_reference_filters(self):
+        by_category = selectors.list_transactions(filters={"category_name": "offer"})
+        by_reference = selectors.list_transactions(filters={"search": "EXT-OFFERING-1"})
+
+        self.assertEqual(by_category.count(), 1)
+        self.assertEqual(by_category.first().description, "Sunday offering")
+        self.assertEqual(by_reference.count(), 1)
+        self.assertEqual(by_reference.first().external_reference, "EXT-OFFERING-1")
